@@ -9,3 +9,9 @@ config.py
 
 # 忽略 data.json 文件
 json/data.json
+
+src/resources
+src/simple_json_db
+src/cicada_agent.py
+
+src/cicada_main.py

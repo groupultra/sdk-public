@@ -8,6 +8,7 @@ from moobius.moobius_agent import MoobiusAgent
 class DemoAgent(MoobiusAgent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
 
     async def on_start(self):
         """
@@ -27,6 +28,7 @@ class DemoAgent(MoobiusAgent):
         
         for channel_id in self.channel_ids:
             await self.fetch_and_save_userlist(channel_id)
+
 
     # on_xxx, default implementation, to be override
     async def on_msg_up(self, message_data):
@@ -143,4 +145,3 @@ class DemoAgent(MoobiusAgent):
         Handle the received unknown message.
         """
         print("Received unknown message:", message_data)
-

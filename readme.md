@@ -36,13 +36,32 @@
 `moobius/moobius_agent.py`: A Service with a built-in database helper (you can set it `None`), and some high level methods. It is highly recommended that your custom class inherit `MoobiusAgent` defined here.
 
 
+## Database
+It involves some trick to build a dict-like `MagicalStorage` with automatic DB sync (including sync after restart) independent of database implementation, and customizable domains (you can add custom attributes as needed).
+
+1. `moobius/types.py`
+- Dataclasses are defined(`Character`, `Stage`, etc).
+- `CachedDict` is a dictionary with a database under the hood, and the changes in the dict will be automatically synchronized to the database. The database abstract class is defined in `moobius/dbtools` (see below).
+
+2. `moobius/dbtools`
+- An abstract class `DatabaseInterface` is defined in `database_interface.py`. As long as the methods defined in the interface are implemented (for a key-value pair), the instance of the concrete class can be used to initialize a `CachedDict` instance.
+
+- A functional JSON implementation is defined in `simple_json_database.py`. You are welcome to make redis, MySQL, SQLite or other implementations.
+
+- `magical_storage.py` has a class `MagicalStorage` built on `CachedDict`, which supports customized on-the-fly `CachedDict` containers (`put()`) which can automatically load (`load=True`) from a database on initialization, or automatically clear the database (`clear=True`) to clean out garbage records.
+
+run `python demo_magic.py` for demo.
+
+
 ## Todo
 1. Database related refactoring, documentations, etc
 2. Detailed websocket messages (channel_info, etc)
 3. Non-blocking operations after `start()` (multiprocessing)
 4. Async http and database
-5. Auto refresh!
+5. Auto refresh tokens!
 6. Tutorials
+7. Database safety (lots of work)
+
 
 
 ================================ OLD VERSION ====================================
