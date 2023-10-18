@@ -4,6 +4,8 @@ import json
 import os
 import dataclasses
 import traceback
+
+from moobius.utils import EnhancedJSONEncoder
 from moobius.dbtools.database_interface import DatabaseInterface
 
 def safe_operate(func):
@@ -16,16 +18,6 @@ def safe_operate(func):
     return wrapper
 
 
-class EnhancedJSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if dataclasses.is_dataclass(o):
-            return dataclasses.asdict(o)
-        else:
-            return super().default(o)
-
-
-
-
 # todo: 
 # 1. validity check for key (must be str)
 # 2. json serializable check
@@ -35,10 +27,10 @@ class SimpleJSONDatabase(DatabaseInterface):
     # domain: name of the database dir
     # key: name of the database json file
     # file content: {key: value}
-    def __init__(self, root_dir='.', domain=''):
+    def __init__(self, domain='', root_dir='', **kwargs):
         super().__init__()
         
-        self.path = os.path.join(root_dir, domain)
+        self.path = os.path.join(root_dir, domain.replace('.', os.sep))
         os.makedirs(self.path, exist_ok=True)
 
     

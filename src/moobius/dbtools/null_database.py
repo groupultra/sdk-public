@@ -3,8 +3,8 @@
 from moobius.dbtools.database_interface import DatabaseInterface
 
 class NullDatabase(DatabaseInterface):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, domain='', **kwargs):
+        super().__init__(domain=domain, **kwargs)
 
     def get_value(self, key):
         print('NullDatabase: Loading key {k}'.format(k=key))

@@ -1,0 +1,78 @@
+[
+    {
+        "db_type": "json",
+        "name": "features",
+        "load": true,
+        "clear": false,
+        
+        "db_config": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "load": true,
+        "clear": false,
+        "name": "real_characters",
+        
+        "db_config": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "load": true,
+        "clear": false,
+        "name": "virtual_characters",
+        
+        "db_config": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "load": true,
+        "clear": false,
+        "name": "stages",
+        
+        "db_config": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "load": true,
+        "clear": false,
+        "name": "view_characters",
+        
+        "db_config": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "load": true,
+        "clear": false,
+        "name": "view_features",
+        
+        "db_config": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "load": true,
+        "clear": false,
+        "name": "view_stages",
+        
+        "db_config": {
+            "root_dir": "simple_json_db"
+        }
+    }
+]

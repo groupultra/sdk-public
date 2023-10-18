@@ -2,7 +2,7 @@
 
 from moobius.dbtools.magical_storage import MagicalStorage
 from moobius.dbtools.simple_json_database import SimpleJSONDatabase
-from moobius.types import Feature
+from moobius.basic.types import Feature
 
 class Conductor:
     def __init__(self):
@@ -11,7 +11,7 @@ class Conductor:
         domains = ['features', 'views', 'real_characters', 'virtual_characters']
 
         for domain in domains:
-            self.band.put(domain, database=SimpleJSONDatabase(root_dir='simple_json_db', domain=domain))
+            self.band.put(domain, database=SimpleJSONDatabase(root_dir='demo_magic', domain=domain))
 
 if __name__ == '__main__':
     conductor = Conductor()

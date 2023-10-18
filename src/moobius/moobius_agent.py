@@ -1,25 +1,18 @@
+from dacite import from_dict
+
+from moobius.basic.types import Character
 from moobius.moobius_basic_agent import MoobiusBasicAgent
-from moobius.database.database_helper import DatabaseHelper
-from moobius.database.redis_helper import RedisHelper
-from moobius.database.json_helper import JSONHelper
 
 # with database
 class MoobiusAgent(MoobiusBasicAgent):
-    def __init__(self, db_config={}, **config):
+    def __init__(self, db_settings=(), **config):
         super().__init__(**config)
 
-        db_type = db_config.get("type", None)
-
-        if db_type == "redis":
-            self.db_helper = RedisHelper(**db_config)
-        elif db_type == "json":
-            self.db_helper = JSONHelper(**db_config)
-        else:
-            print("Warning: No database config provided.")
-            self.db_helper = DatabaseHelper(**db_config)
-
+        self.bands = {}
+        self.db_settings = db_settings
 
     # =================== Helper functions for http + ws + db usage ===================
+
 
     def demo_make_feature(self, feature_id, feature_name, button_text, new_window, feature_args=None):
         sample_args = [
@@ -37,7 +30,7 @@ class MoobiusAgent(MoobiusBasicAgent):
 
 
     # fetch real users and set features to db
-    async def fetch_and_save_userlist(self, channel_id):
+    async def fetch_real_characters(self, channel_id):
         """
         Initialize data after successful service_login.
         Fetches data using HTTP request and populates database.
@@ -47,16 +40,12 @@ class MoobiusAgent(MoobiusBasicAgent):
 
         if data["code"] == 10000:
             userlist = data["data"]["userlist"]
-            
-            self.db_helper.maintain_user_list(userlist)
-            
-            # Sample features, playground, and channel_info for each user
-            for user in userlist:
-                user_id = user["user_id"]
-                
-                # self.db_helper.set_features_for_user(user_id, feature_id_list)
-                self.db_helper.set_channel_info(user_id, "sample_description", "sample_avatar")
 
+            return [from_dict(data_class=Character, data=d) for d in userlist]
+        else:
+            print("fetch_real_characters error", data)
+            
+            return []
 
     async def fetch_and_send_playground(self, channel_id, recipients):
         """

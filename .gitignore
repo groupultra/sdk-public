@@ -15,3 +15,5 @@ src/simple_json_db
 src/cicada_agent.py
 
 src/cicada_main.py
+
+src/demo_magic/

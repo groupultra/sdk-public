@@ -2,9 +2,12 @@ import asyncio
 import json
 import traceback
 
+from dacite import from_dict
+
 from moobius.basic.ws_client import WSClient
 from moobius.basic.ws_message_builder import WSMessageBuilder
 from moobius.basic.http_api_wrapper import HTTPAPIWrapper
+from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Message
 
 class MoobiusBasicAgent:
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
@@ -33,6 +36,7 @@ class MoobiusBasicAgent:
         await self.send_service_login()
 
         if bind_to_channels:
+            print("bind_to_channels", bind_to_channels)
             for channel_id in bind_to_channels:
                 self.http_api.bind_service_to_channel(self.service_id, channel_id)
         else:
@@ -63,22 +67,22 @@ class MoobiusBasicAgent:
         Decode the received message and handle based on its type.
         """
         message_data = json.loads(message)
-        message_type = message_data.get("type")
-        print("=============handle_received_message=============")
-        print(message_data)
-        print(message_type)
+        message = from_dict(data_class=Message, data=message_data)
 
-        if message_type == "msg_up":
-           await self.on_msg_up(message_data)
+        if message.type == "msg_up":
+           await self.on_msg_up(message.body)
         
-        elif message_type == "action":
-           await self.on_action(message_data)
+        elif message.type == "action":
+           await self.on_action(message.body)
         
-        elif message_type == "feature_call":
-            await self.on_feature_call(message_data)
+        elif message.type == "feature_call":
+            await self.on_feature_call(message.body)
+
+        elif message.type == "copy_client":     # todo: legacy
+            await self.on_copy(message.body)
 
         else:   # todo: add types (copy_client etc)
-            await self.on_unknown_message(message_data)
+            await self.on_unknown_message(message)
 
 
     # =================== on_xxx, to be override ===================
@@ -90,32 +94,41 @@ class MoobiusBasicAgent:
         pass
 
 
-    async def on_msg_up(self, message_data):
+    async def on_msg_up(self, msg_up: MessageUp):
         """
         Handle a message from a user.
         """
-        print("Message received:", message_data)
+        print("Message received:", msg_up)
         pass
 
-    async def on_action(self, message_data):
+    async def on_action(self, action: Action):
         """
         Handle an action from a user.
         """
-        print("Action received:", message_data)
+        print("Action received:", action)
         pass
 
-    async def on_feature_call(self, message_data):
+    async def on_feature_call(self, feature_call: FeatureCall):
         """
         Handle a feature call from a user.
         """
-        print("Feature call received:", message_data)
+        print("Feature call received:", feature_call)
         pass
 
-    async def on_unknown_message(self, message_data):
+
+    async def on_copy(self, copy: Copy):
+        """
+        Handle a copy from Moobius.
+        """
+        print("Copy received:", copy)
+        pass
+
+
+    async def on_unknown_message(self, message: Message):
         """
         Handle an unknown message.
         """
-        print("Unknown message received:", message_data)
+        print("Unknown message received:", message)
         pass
 
     # =================== send_xxx, to be used ===================

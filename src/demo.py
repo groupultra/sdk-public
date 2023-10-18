@@ -9,7 +9,10 @@ async def main():
     with open("config.json", "r") as f:
         config = json.load(f)
     
-    service_agent = DemoAgent(**config)
+    with open("db_settings.json", "r") as f:
+        db_settings = json.load(f)
+
+    service_agent = DemoAgent(db_settings=db_settings, **config)
     await service_agent.start(bind_to_channels=bind_to_channels)
 
 if __name__ == "__main__":
