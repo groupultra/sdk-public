@@ -3,12 +3,18 @@ from moobius.database.database_helper import DatabaseHelper
 from moobius.database.redis_helper import RedisHelper
 from moobius.database.json_helper import JSONHelper
 
+import asyncio
+import websockets
+import aioprocessing
+
+
 # with database
 class MoobiusAgent(MoobiusBasicAgent):
     def __init__(self, db_config={}, **config):
         super().__init__(**config)
 
         db_type = db_config.get("type", None)
+        self.parent_pipe, self._ws_client.child_pipe = aioprocessing.AioPipe()
 
         if db_type == "redis":
             self.db_helper = RedisHelper(**db_config)
@@ -20,7 +26,7 @@ class MoobiusAgent(MoobiusBasicAgent):
 
 
     # =================== Helper functions for http + ws + db usage ===================
-
+        
     # fetch real users and set features to db
     async def fetch_and_save_userlist(self, channel_id):
         """
