@@ -41,6 +41,7 @@ class FeatureCallArgument:
 class FeatureCall:
     feature_id: str
     channel_id: str
+    sender: str
     arguments: list[FeatureCallArgument]
     context: dict
 
@@ -71,7 +72,7 @@ class MessageContext:
 
 
 @dataclass
-class MessageUp:
+class MessageUp:    # todo: MessageBody. Almost the same as MessageDown
     subtype: str
     content: dict
     channel_id: str
@@ -80,7 +81,7 @@ class MessageUp:
     msg_id: str
     context: MessageContext
     content: dict
-    
+
 
 @dataclass
 class Action:
@@ -106,12 +107,10 @@ class Copy:
     context: dict
 
 
-
 @dataclass
-class Message:
+class Payload:
     type: str
     body: MessageUp|FeatureCall|Action|Copy|Any
-
 
 
 @dataclass
@@ -126,4 +125,3 @@ class Character:
     user_id: str
     user_context: CharacterContext
 
-    

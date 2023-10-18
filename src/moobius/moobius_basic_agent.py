@@ -5,15 +5,15 @@ import traceback
 from dacite import from_dict
 
 from moobius.basic.ws_client import WSClient
-from moobius.basic.ws_message_builder import WSMessageBuilder
+from moobius.basic.ws_payload_builder import WSPayloadBuilder
 from moobius.basic.http_api_wrapper import HTTPAPIWrapper
-from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Message
+from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Payload, Character
 
 class MoobiusBasicAgent:
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
         self.http_api = HTTPAPIWrapper(http_server_uri)
-        self._ws_client = WSClient(ws_server_uri, handle=self.handle_received_message)
-        self._ws_message_builder = WSMessageBuilder()
+        self._ws_client = WSClient(ws_server_uri, handle=self.handle_received_payload)
+        self._ws_payload_builder = WSPayloadBuilder()
 
         self._email = email
         self._password = password
@@ -62,27 +62,27 @@ class MoobiusBasicAgent:
         return self._refresh_token
 
 
-    async def handle_received_message(self, message):
+    async def handle_received_payload(self, payload):
         """
-        Decode the received message and handle based on its type.
+        Decode the received payload and handle based on its type.
         """
-        message_data = json.loads(message)
-        message = from_dict(data_class=Message, data=message_data)
+        payload_data = json.loads(payload)
+        payload = from_dict(data_class=Payload, data=payload_data)
 
-        if message.type == "msg_up":
-           await self.on_msg_up(message.body)
+        if payload.type == "msg_up":
+           await self.on_msg_up(payload.body)
         
-        elif message.type == "action":
-           await self.on_action(message.body)
+        elif payload.type == "action":
+           await self.on_action(payload.body)
         
-        elif message.type == "feature_call":
-            await self.on_feature_call(message.body)
+        elif payload.type == "feature_call":
+            await self.on_feature_call(payload.body)
 
-        elif message.type == "copy_client":     # todo: legacy
-            await self.on_copy(message.body)
+        elif payload.type == "copy_client":     # todo: legacy
+            await self.on_copy(payload.body)
 
         else:   # todo: add types (copy_client etc)
-            await self.on_unknown_message(message)
+            await self.on_unknown_payload(payload)
 
 
     # =================== on_xxx, to be override ===================
@@ -96,9 +96,9 @@ class MoobiusBasicAgent:
 
     async def on_msg_up(self, msg_up: MessageUp):
         """
-        Handle a message from a user.
+        Handle a payload from a user.
         """
-        print("Message received:", msg_up)
+        print("MessageUp received:", msg_up)
         pass
 
     async def on_action(self, action: Action):
@@ -124,56 +124,73 @@ class MoobiusBasicAgent:
         pass
 
 
-    async def on_unknown_message(self, message: Message):
+    async def on_unknown_payload(self, payload: Payload):
         """
-        Handle an unknown message.
+        Handle an unknown payload.
         """
-        print("Unknown message received:", message)
+        print("Unknown payload received:", payload)
         pass
 
     # =================== send_xxx, to be used ===================
     
+    # fetch real users and set features to db
+    async def fetch_real_characters(self, channel_id):
+        """
+        Fetches data from Moobius using HTTP request
+        """
+        
+        data = self.http_api.get_channel_userlist(channel_id, self.service_id)
+
+        if data["code"] == 10000:
+            userlist = data["data"]["userlist"]
+
+            return [from_dict(data_class=Character, data=d) for d in userlist]
+        else:
+            print("fetch_real_characters error", data)
+
+            return []
+
     async def send_service_login(self):
-        message = self._ws_message_builder.service_login(self.service_id, self.access_token)
-        print("message", message)
-        await self._ws_client.send(message)
+        payload = self._ws_payload_builder.service_login(self.service_id, self.access_token)
+        print("payload", payload)
+        await self._ws_client.send(payload)
 
     async def send_msg_down(self, channel_id, recipients, subtype, message_content, sender):
-        message = self._ws_message_builder.msg_down(self.service_id, channel_id, recipients, subtype, message_content, sender)
-        await self._ws_client.send(message)
+        payload = self._ws_payload_builder.msg_down(self.service_id, channel_id, recipients, subtype, message_content, sender)
+        await self._ws_client.send(payload)
 
     async def send_update(self, target_client_id, data):
-        message = self._ws_message_builder.update(self.service_id, target_client_id, data)
-        print(message)
-        await self._ws_client.send(message)
+        payload = self._ws_payload_builder.update(self.service_id, target_client_id, data)
+        print(payload)
+        await self._ws_client.send(payload)
 
     async def send_update_userlist(self, channel_id, user_list, recipients):
-        message = self._ws_message_builder.update_userlist(self.service_id, channel_id, user_list, recipients)
-        print("send_update_userlist", message)
-        await self._ws_client.send(message)
+        payload = self._ws_payload_builder.update_userlist(self.service_id, channel_id, user_list, recipients)
+        print("send_update_userlist", payload)
+        await self._ws_client.send(payload)
 
     async def send_update_channel_info(self, channel_id, channel_data):
-        message = self._ws_message_builder.update_channel_info(self.service_id, channel_id, channel_data)
-        print(message)
-        await self._ws_client.send(message)
+        payload = self._ws_payload_builder.update_channel_info(self.service_id, channel_id, channel_data)
+        print(payload)
+        await self._ws_client.send(payload)
 
     async def send_update_playground(self, channel_id, content, recipients):
-        message = self._ws_message_builder.update_playground(self.service_id, channel_id, content, recipients)
-        print(message)
-        await self._ws_client.send(message)
+        payload = self._ws_payload_builder.update_playground(self.service_id, channel_id, content, recipients)
+        print(payload)
+        await self._ws_client.send(payload)
 
     async def send_update_features(self, channel_id, feature_data, recipients):
-        message = self._ws_message_builder.update_features(self.service_id, channel_id, feature_data, recipients)
-        print(message)
-        await self._ws_client.send(message)
+        payload = self._ws_payload_builder.update_features(self.service_id, channel_id, feature_data, recipients)
+        print(payload)
+        await self._ws_client.send(payload)
 
     async def send_ping(self):
-        message = self._ws_message_builder.ping()
-        await self._ws_client.send(message)
+        payload = self._ws_payload_builder.ping()
+        await self._ws_client.send(payload)
 
     async def send_heartbeat(self):
         """
-        Send a ping message every 30 seconds and check the response.
+        Send a ping payload every 30 seconds and check the response.
         """
         while True:
             await asyncio.sleep(30)

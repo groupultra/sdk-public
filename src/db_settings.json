@@ -3,7 +3,7 @@
         "db_type": "json",
         "name": "features",
         "load": true,
-        "clear": false,
+        "clear": true,
         
         "db_config": {
             "root_dir": "simple_json_db"
@@ -13,7 +13,7 @@
     {
         "db_type": "json",
         "load": true,
-        "clear": false,
+        "clear": true,
         "name": "real_characters",
         
         "db_config": {

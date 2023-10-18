@@ -8,7 +8,7 @@ from moobius.utils import EnhancedJSONEncoder
 
 # This should be a basic builder. Do NOT put dependencies here.
 # todo: Use dataclass!
-class WSMessageBuilder:
+class WSPayloadBuilder:
     def __init__(self):
         pass
 

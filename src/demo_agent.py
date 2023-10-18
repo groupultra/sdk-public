@@ -2,8 +2,7 @@
 
 import asyncio
 import json
-
-import dacite
+from dataclasses import asdict
 
 from moobius.moobius_agent import MoobiusAgent
 from moobius.dbtools.moobius_band import MoobiusBand
@@ -27,6 +26,10 @@ class DemoAgent(MoobiusAgent):
 
         print("channel_ids", self.channel_ids)
         
+        # ==================== load features ====================
+        with open('demo_features.json', 'r') as f:
+            features = json.load(f)
+
         for channel_id in self.channel_ids:
             self.bands[channel_id] = MoobiusBand(self.service_id, channel_id, db_settings=self.db_settings)
             real_characters = await self.fetch_real_characters(channel_id)
@@ -34,6 +37,10 @@ class DemoAgent(MoobiusAgent):
             for character in real_characters:
                 character_id = character.user_id
                 self.bands[channel_id].real_characters[character_id] = character
+
+            for feature in features:
+                feature_id = feature["feature_id"]
+                self.bands[channel_id].features[feature_id] = feature
 
 
     # on_xxx, default implementation, to be override
@@ -71,17 +78,11 @@ class DemoAgent(MoobiusAgent):
 
         elif action.subtype == "fetch_features":
             print("fetch_features")
-            """
-            # Test the function with the provided sample data
-            feature_ids = self.db_helper.get_features_for_user(client_id)
-            feature_data_list = []
-            
-            for feature_id in feature_ids:
-                feature_data = json.loads(self.db_helper.get_feature_info(feature_id)['feature_data'])
-                feature_data_list.append(feature_data)
-            
-            await self.send_update_features(channel_id, feature_data_list, [client_id])
-            """
+            features = self.bands[action.channel_id].features
+            feature_data_list = list(features.values())
+
+            await self.send_update_features(action.channel_id, feature_data_list, [action.sender])
+
         elif action.subtype == "fetch_playground":
             print("fetch_playground")
             """
@@ -89,50 +90,7 @@ class DemoAgent(MoobiusAgent):
             await self.send_update_playground(channel_id, content, [client_id])
             """
         elif action.subtype == "join_channel":
-            await asyncio.sleep(3)
-            data = self.http_api.get_channel_userlist(channel_id, self.service_id)
-            
-            if data["code"] == 10000:
-                userlist = data["data"]["userlist"]
-             
-                user_id_list = [user["user_id"] for user in userlist]
-                print("userlist", userlist)
-                print("user_id_list", user_id_list)
-                self.maintain_user_list(userlist)
-                origin_user_list = [{
-                    "user_id": user_temp["user_id"],
-                    "context": user_temp["user_context"]
-                    }
-                    for user_temp in userlist
-                ]
-                print("origin_user_list", origin_user_list)
-                # update for all users, by default everyone can see everyone
-                await self.send_update_userlist(channel_id, origin_user_list, user_id_list)
-        
-            elif action.subtype == "leave_channel":
-                await asyncio.sleep(3)
-                data = self.http_api.get_channel_userlist(channel_id, self.service_id)
-                
-                if data["code"] == 10000:
-                    userlist = data["data"]["userlist"]
-                    user_id_list = [user["user_id"] for user in userlist]
-                    print("userlist", userlist)
-                    print("user_id_list", user_id_list)
-                    self.maintain_user_list(userlist)
-                    self.db_helper.set_user_list_for_real_user(client_id, [])
-                    
-                    origin_user_list = [{
-                        "user_id": user_temp["user_id"],
-                        "context": user_temp["user_context"]
-                        }
-                        for user_temp in userlist
-                    ]
-                    
-                    print("origin_user_list", origin_user_list)
-                    
-                    await self.send_update_userlist(channel_id, origin_user_list, user_id_list)
-                else:
-                    raise Exception("Failed to get channel user list")
+            print("join_channel")
 
         elif action.subtype == "fetch_channel_info":
             print("fetch_channel_info")
@@ -142,15 +100,26 @@ class DemoAgent(MoobiusAgent):
         else:
             raise Exception("Unknown action subtype:", action_subtype)
 
-    async def on_feature_call(self, message_data):
+    async def on_feature_call(self, feature_call):
         """
         Handle the received feature call.
         """
-        feature_id = message_data.get("body").get("feature_id")
-        arguments = message_data.get("body").get("arguments")
-        client_id = message_data.get("body").get("sender")
+        print("Feature call received:", feature_call)
+        channel_id = feature_call.channel_id
+        feature_id = feature_call.feature_id
+        feature_name = self.bands[channel_id].features[feature_id]["feature_name"]
+        character_dict = asdict(self.bands[channel_id].real_characters[feature_call.sender])
+        nickname = character_dict["user_context"]["nickname"]   # todo: make it graceful!
+        recipients = list(self.bands[channel_id].real_characters.keys())
+
+        await self.send_msg_down(
+            channel_id=channel_id,
+            recipients=recipients,
+            subtype="text",
+            message_content=f'{nickname} clicked {feature_name}!',
+            sender=feature_call.sender
+        )
         
-        # await features[feature_id](arguments, client_id)
 
     async def on_unknown_message(self, message_data):
         """

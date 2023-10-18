@@ -39,11 +39,12 @@
 ## Database
 It involves some trick to build a dict-like `MagicalStorage` with automatic DB sync (including sync after restart) independent of database implementation, and customizable domains (you can add custom attributes as needed).
 
-1. `moobius/types.py`
+1. `moobius/basic/types.py`
 - Dataclasses are defined(`Character`, `Stage`, etc).
-- `CachedDict` is a dictionary with a database under the hood, and the changes in the dict will be automatically synchronized to the database. The database abstract class is defined in `moobius/dbtools` (see below).
 
 2. `moobius/dbtools`
+- `CachedDict` is a dictionary with a database under the hood, and the changes in the dict will be automatically synchronized to the database.
+
 - An abstract class `DatabaseInterface` is defined in `database_interface.py`. As long as the methods defined in the interface are implemented (for a key-value pair), the instance of the concrete class can be used to initialize a `CachedDict` instance.
 
 - A functional JSON implementation is defined in `simple_json_database.py`. You are welcome to make redis, MySQL, SQLite or other implementations.
@@ -52,6 +53,8 @@ It involves some trick to build a dict-like `MagicalStorage` with automatic DB s
 
 run `python demo_magic.py` for demo.
 
+# Dataclasses
+Define them!
 
 ## Todo
 1. Database related refactoring, documentations, etc
@@ -61,7 +64,7 @@ run `python demo_magic.py` for demo.
 5. Auto refresh tokens!
 6. Tutorials
 7. Database safety (lots of work)
-
+8. Data Types!
 
 
 ================================ OLD VERSION ====================================

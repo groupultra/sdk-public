@@ -4,6 +4,7 @@ import json
 import os
 import dataclasses
 import traceback
+from dataclasses import asdict
 
 from moobius.utils import EnhancedJSONEncoder
 from moobius.dbtools.database_interface import DatabaseInterface
@@ -37,25 +38,23 @@ class SimpleJSONDatabase(DatabaseInterface):
     @safe_operate
     def get_value(self, key):
         filename = os.path.join(self.path, key + '.json')
-        print('SimpleJSONDatabase: Loading key {k}'.format(k=key))
         
         with open(filename, 'r') as f:
             data = json.load(f)
-            return True, data[key]
+            return True, dict(data[key])  # todo: add a field to indicate the type of the value
 
     @safe_operate
-    def set_value(self, key, value):
+    def set_value(self, key, value):    # the value has to be dict!
         filename = os.path.join(self.path, key + '.json')
-        print('SimpleJSONDatabase: Saving key {k} with value {v}'.format(k=key, v=value))
+        
         with open(filename, 'w') as f:
-            data = {key: value}
+            data = {key: dict(value)}
             json.dump(data, f, indent=4, cls=EnhancedJSONEncoder)
             return True, key
 
     @safe_operate
     def delete_key(self, key):
         filename = os.path.join(self.path, key + '.json')
-        print('SimpleJSONDatabase: Deleting key {k}'.format(k=key))
         os.remove(filename)
         
         return True, key
