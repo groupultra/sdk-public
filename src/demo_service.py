@@ -50,19 +50,9 @@ class DemoService(MoobiusService):
         Handle the received message.
         """
         print("on_msg_up", msg_up)
-
-        if msg_up.subtype == "text":
-            text_content = msg_up.content["text"]
-
-            await self.send_msg_down(
-                channel_id=msg_up.channel_id,
-                recipients=msg_up.recipients,
-                subtype="text",
-                message_content=text_content,
-                sender=msg_up.context.sender
-            )
-        else:
-            pass
+        msg_down = self.msg_up_to_msg_down(msg_up)
+        
+        await self.send(payload_type='msg_down', payload_body=msg_down)
 
     async def on_action(self, action):
         """

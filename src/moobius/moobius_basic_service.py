@@ -2,10 +2,11 @@
 
 import asyncio
 import json
+import uuid
 import traceback
+from dataclasses import asdict
 
 from dacite import from_dict
-
 from moobius.basic.ws_client import WSClient
 from moobius.basic.ws_payload_builder import WSPayloadBuilder
 from moobius.basic.http_api_wrapper import HTTPAPIWrapper
@@ -151,6 +152,28 @@ class MoobiusBasicService:
             print("fetch_real_characters error", data)
 
             return []
+
+    
+    async def send(self, payload_type, payload_body):
+        if isinstance(payload_body, dict):
+            payload_dict = {
+                'type': payload_type,
+                'request_id': str(uuid.uuid4()),
+                'client_id': self.service_id,
+                'body': payload_body
+            }
+        else:
+            payload_obj = Payload(
+                type=payload_type,
+                request_id=str(uuid.uuid4()),
+                client_id=self.service_id,
+                body=payload_body
+            )
+
+            payload_dict = asdict(payload_obj)
+
+        payload_str = self._ws_payload_builder.dumps(payload_dict)
+        await self._ws_client.send(payload_str)
 
     async def send_service_login(self):
         payload = self._ws_payload_builder.service_login(self.service_id, self.access_token)

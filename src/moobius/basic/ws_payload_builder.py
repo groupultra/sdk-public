@@ -16,6 +16,7 @@ class WSPayloadBuilder:
     def dumps(data):
         return json.dumps(data, cls=EnhancedJSONEncoder)
 
+
     def update_userlist(self, client_id, channel_id, user_list, recipients):
         """
         Constructs the update message for user list.

@@ -75,6 +75,19 @@ class MessageUp:    # todo: MessageBody. Almost the same as MessageDown
 
 
 @dataclass
+class MessageDown:    # todo: MessageBody. Almost the same as MessageDown
+    subtype: str
+    content: dict
+    channel_id: str
+    content: dict
+    timestamp: int
+    recipients: list[str]
+    
+    sender: str
+    msg_id: str|None
+    
+
+@dataclass
 class Action:
     subtype: str
     channel_id: str
@@ -101,6 +114,8 @@ class Copy:
 @dataclass
 class Payload:
     type: str
+    request_id: Optional[str]
+    client_id: Optional[str]
     body: MessageUp|FeatureCall|Action|Copy|Any
 
 
