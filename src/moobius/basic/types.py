@@ -114,5 +114,6 @@ class CharacterContext:
 @dataclass
 class Character:
     user_id: str
+    username: str|None
     user_context: CharacterContext
 

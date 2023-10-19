@@ -4,7 +4,9 @@ import asyncio
 import json
 
 from moobius.moobius_service import MoobiusService
+from moobius.basic.types import Character
 from moobius.dbtools.moobius_band import MoobiusBand
+from dacite import from_dict
 
 class DemoService(MoobiusService):
     def __init__(self, **kwargs):
@@ -90,6 +92,53 @@ class DemoService(MoobiusService):
             """
         elif action.subtype == "join_channel":
             print("join_channel")
+            character_id = action.sender
+            channel_id = action.channel_id
+            data = self.http_api.fetch_user_profile([character_id])
+
+            if data['code'] == 10000:
+                d = data['data'][character_id]
+                d['user_id'] = character_id
+                character = from_dict(data_class=Character, data=d)
+                
+                self.bands[action.channel_id].real_characters[character_id] = character
+
+                real_characters = self.bands[action.channel_id].real_characters
+                user_list = list(real_characters.values())
+                character_ids = list(real_characters.keys())
+
+                await self.send_update_userlist(action.channel_id, user_list, character_ids)
+
+                await self.send_msg_down(
+                    channel_id=channel_id,
+                    recipients=character_ids,
+                    subtype="text",
+                    message_content=f'{character.user_context.nickname} joined the band!',
+                    sender=character_id
+                )
+            
+            else:
+                print("Error fetching user profile:", data['msg'])
+        
+        elif action.subtype == "leave_channel":
+            print("leave_channel")
+            character_id = action.sender
+            channel_id = action.channel_id
+            character = self.bands[action.channel_id].real_characters.pop(character_id, None)
+
+            real_characters = self.bands[action.channel_id].real_characters
+            user_list = list(real_characters.values())
+            character_ids = list(real_characters.keys())
+
+            await self.send_update_userlist(action.channel_id, user_list, character_ids)
+
+            await self.send_msg_down(
+                channel_id=channel_id,
+                recipients=character_ids,
+                subtype="text",
+                message_content=f'{character.user_context.nickname} left the band (but still talks~)!',
+                sender=character_id
+            )
 
         elif action.subtype == "fetch_channel_info":
             print("fetch_channel_info")
@@ -97,7 +146,7 @@ class DemoService(MoobiusService):
             await self.send_update_channel_info(channel_id, self.db_helper.get_channel_info(channel_id))
             """
         else:
-            raise Exception("Unknown action subtype:", action_subtype)
+            print("Unknown action subtype:", action_subtype)
 
     async def on_feature_call(self, feature_call):
         """
