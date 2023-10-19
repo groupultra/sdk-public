@@ -4,7 +4,10 @@ import json
 import os
 import dataclasses
 import traceback
+from pydoc import locate
 from dataclasses import asdict
+
+from dacite import from_dict
 
 from moobius.utils import EnhancedJSONEncoder
 from moobius.dbtools.database_interface import DatabaseInterface
@@ -41,14 +44,30 @@ class SimpleJSONDatabase(DatabaseInterface):
         
         with open(filename, 'r') as f:
             data = json.load(f)
-            return True, dict(data[key])  # todo: add a field to indicate the type of the value
 
+            if data['_type'] == 'NoneType':
+                return True, None   # You can't use NoneType(None) to construct a NoneType object, so we have to return None directly
+            else:
+                class_name = data['_type']
+                data_type = locate(f'moobius.basic.types.{class_name}')
+                
+                if data_type:   # dataclass
+                    return True, from_dict(data_class=data_type, data=data[key])  # todo: add a field to indicate the type of the value
+
+                else:   # possible built-in type, attempt to construct the object from the value
+                    data_type = locate(class_name)
+                    
+                    if data_type:
+                        return True, data_type(data[key])
+                    else:
+                        return False, f'Unknown type: {class_name}'
+    
     @safe_operate
     def set_value(self, key, value):    # the value has to be dict!
         filename = os.path.join(self.path, key + '.json')
         
         with open(filename, 'w') as f:
-            data = {key: dict(value)}
+            data = {key: value, '_type': type(value).__name__}
             json.dump(data, f, indent=4, cls=EnhancedJSONEncoder)
             return True, key
 

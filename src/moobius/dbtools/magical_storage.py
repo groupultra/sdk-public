@@ -29,7 +29,6 @@ class CachedDict(MutableMapping, dict):
                 return dict.__getitem__(self, key)
     
     def __setitem__(self, key, value):
-        print('Setting key {k} to {v}'.format(k=key, v=value))
         is_success, err_msg = self.database.set_value(key, value)
 
         if is_success:

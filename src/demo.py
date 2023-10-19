@@ -1,6 +1,6 @@
 import json
 import asyncio
-from demo_agent import DemoAgent
+from demo_service import DemoService
 
 async def main():
     # For newly bound channels. It doesn't hurt to bind multiple times.
@@ -12,8 +12,8 @@ async def main():
     with open("db_settings.json", "r") as f:
         db_settings = json.load(f)
 
-    service_agent = DemoAgent(db_settings=db_settings, **config)
-    await service_agent.start(bind_to_channels=bind_to_channels)
+    service = DemoService(db_settings=db_settings, **config)
+    await service.start(bind_to_channels=bind_to_channels)
 
 if __name__ == "__main__":
     asyncio.run(main())

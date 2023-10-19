@@ -1,13 +1,12 @@
-# demo_agent.py
+# demo_service.py
 
 import asyncio
 import json
-from dataclasses import asdict
 
-from moobius.moobius_agent import MoobiusAgent
+from moobius.moobius_service import MoobiusService
 from moobius.dbtools.moobius_band import MoobiusBand
 
-class DemoAgent(MoobiusAgent):
+class DemoService(MoobiusService):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         
@@ -108,8 +107,8 @@ class DemoAgent(MoobiusAgent):
         channel_id = feature_call.channel_id
         feature_id = feature_call.feature_id
         feature_name = self.bands[channel_id].features[feature_id]["feature_name"]
-        character_dict = asdict(self.bands[channel_id].real_characters[feature_call.sender])
-        nickname = character_dict["user_context"]["nickname"]   # todo: make it graceful!
+        character = self.bands[channel_id].real_characters[feature_call.sender]
+        nickname = character.user_context.nickname
         recipients = list(self.bands[channel_id].real_characters.keys())
 
         await self.send_msg_down(

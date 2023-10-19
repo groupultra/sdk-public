@@ -5,15 +5,6 @@ from typing import Optional, Any
 
 
 @dataclass
-class Character:
-    character_id: str
-    username: str
-    nickname: str
-    avatar: str
-    description: str
-
-
-@dataclass
 class FeatureArgument:
     name: str
     type: str

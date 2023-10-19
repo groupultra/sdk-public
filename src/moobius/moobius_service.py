@@ -1,10 +1,12 @@
+# moobius_service.py
+
 from dacite import from_dict
 
 from moobius.basic.types import Character
-from moobius.moobius_basic_agent import MoobiusBasicAgent
+from moobius.moobius_basic_service import MoobiusBasicService
 
 # with database
-class MoobiusAgent(MoobiusBasicAgent):
+class MoobiusService(MoobiusBasicService):
     def __init__(self, db_settings=(), **config):
         super().__init__(**config)
 
