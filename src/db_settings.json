@@ -47,6 +47,17 @@
         "db_type": "json",
         "load": true,
         "clear": false,
+        "name": "game_status",
+        
+        "db_config": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "load": true,
+        "clear": false,
         "name": "view_characters",
         
         "db_config": {

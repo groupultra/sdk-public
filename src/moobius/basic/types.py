@@ -85,7 +85,7 @@ class MessageDown:    # todo: MessageBody. Almost the same as MessageDown
     
     sender: str
     msg_id: str|None
-    
+
 
 @dataclass
 class Action:
@@ -128,7 +128,7 @@ class CharacterContext:
 
 @dataclass
 class Character:
-    user_id: str
+    user_id: str|None
     username: str|None
     user_context: CharacterContext
 

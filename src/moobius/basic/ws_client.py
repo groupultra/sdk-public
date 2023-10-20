@@ -18,7 +18,9 @@ class WSClient:
 
 
     async def send(self, message):
-        asyncio.create_task(self.websocket.send(message))
+        # asyncio.create_task(self.websocket.send(message))
+        # Don't use this, or the order won't be preserved
+        await self.websocket.send(message)
 
 
     async def receive(self):

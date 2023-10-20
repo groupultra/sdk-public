@@ -16,7 +16,7 @@ class MoobiusService(MoobiusBasicService):
         self.bands = {}
         self.db_settings = db_settings
 
-    def msg_up_to_msg_down(self, msg_up):
+    def msg_up_to_msg_down(self, msg_up, remove_self=False):
         """
         Convert a MessageUp object to a MessageDown object.
         """
@@ -24,7 +24,13 @@ class MoobiusService(MoobiusBasicService):
         msg_body['timestamp'] = int(time.time() * 1000)
         msg_body['sender'] = msg_body['context']['sender']
         msg_body.pop('msg_id', None)
-        # msg_body['context'] = {}
+        
+        if remove_self and (msg_body['sender'] in msg_body['recipients']):
+            msg_body['recipients'].remove(msg_body['sender'])
+        else:
+            pass
+
+        msg_body['context'] = {}
 
         msg_down = from_dict(data_class=MessageDown, data=msg_body)
         

@@ -67,6 +67,17 @@ class MoobiusBasicService:
 
     async def handle_received_payload(self, payload):
         """
+        Handle a received payload.
+        """
+        try:
+            await self._handle_received_payload(payload)
+        except Exception as e:
+            traceback.print_exc()
+            print("Error occurred:", e)
+
+
+    async def _handle_received_payload(self, payload):
+        """
         Decode the received payload and handle based on its type.
         """
         payload_data = json.loads(payload)
