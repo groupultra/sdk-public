@@ -18,19 +18,9 @@ class DatabaseHelper:
             self.set_user_info(user_id, user_context["avatar"], user_context["nickname"], user_context["description"])
             # For this example, virtual_id is set as user_id. This can be modified as per requirements.
             # decide to add your singleton_uuid here or not
-            self.set_user_list_for_real_user(user_id, [{"real_id": user_temp["user_id"], "virtual_id": user_temp["user_id"]} for user_temp in userlist] + singleton_uuid_list)
-                    
-    def try_create_singleton_service_user(self, service_id, singleton_local_id, username, nickname, avatar, description):
-        singleton_user_info = self.get_singleton_user_info(singleton_local_id)
-        print("service_id, username, nickname, avatar, description", service_id, username, nickname, avatar, description)
-            
-        if not singleton_user_info or (not 'singleton_uuid' in singleton_user_info) or (not singleton_user_info['singleton_uuid']):
-            singleton_uuid = self.create_service_user(service_id, username, nickname, avatar, description)['user_id']
-            self.set_singleton_user_info(singleton_local_id, avatar, nickname, description, singleton_uuid)
-            self.set_user_info(singleton_uuid, avatar, nickname, description)
-            return True, singleton_uuid
-        else:
-            return False, singleton_user_info['singleton_uuid']
+            self.set_user_list_for_real_user(
+                user_id, [{"real_id": user_temp["user_id"], "virtual_id": user_temp["user_id"]} for user_temp in userlist] + singleton_uuid_list
+            )
     
     def create_feature(self, feature_id, feature_name, button_text, new_window, arguments):
         """

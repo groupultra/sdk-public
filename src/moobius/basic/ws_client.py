@@ -9,10 +9,11 @@ import aioprocessing
 
 
 class WSClient:
-    def __init__(self, ws_server_uri, handle=None):
+    def __init__(self, ws_server_uri, handle=None, child_pipe=None):
         self.websocket = None
         self.ws_server_uri = ws_server_uri
         self.handle = handle or self._default_handle
+        self.child_pipe = child_pipe
 
     async def connect(self):
         self.websocket = await websockets.connect(self.ws_server_uri)
@@ -22,8 +23,11 @@ class WSClient:
 
 
     async def send(self, message):
-        asyncio.create_task(self.websocket.send(message))
-        
+        # asyncio.create_task(self.websocket.send(message))
+        # Don't use this, or the order won't be preserved
+        await self.websocket.send(message)
+
+
     async def receive(self):
         while True:
             try:
@@ -44,12 +48,8 @@ class WSClient:
     async def pipe_receive(self):
         while True:
             try:
-                print("pipe pipe pipe receive receive receive")
                 if self.child_pipe:
                     message = await self.child_pipe.coro_recv()
-                    print("My My My Child Msg: ", message)
-                else:
-                    print("No child pipe")
             except websockets.exceptions.ConnectionClosed:
                 print("Connection closed. Attempting to reconnect...")
                 await self.connect()

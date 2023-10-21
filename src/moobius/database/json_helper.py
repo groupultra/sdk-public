@@ -40,7 +40,7 @@ class JSONHelper(DatabaseHelper):
         """
         try:
             with open(path, "w") as f:
-                json.dump(data, f)
+                json.dump(data, f, indent=4)
         except Exception as e:
             print(f"Error in safe_write_json(self, path, data): {e}")
             

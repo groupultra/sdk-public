@@ -1,0 +1,24 @@
+[
+    {
+        "feature_id": "key1",
+        "feature_name": "name1",
+        "button_text": "Click key1",
+        "new_window": true,
+        "arguments": [
+            {
+                "name": "arg1",
+                "type": "enum",
+                "optional": false,
+                "values": ["choose me", "do not choose me"],
+                "placeholder": "placeholder"
+            }
+        ]
+    },
+
+    {
+        "feature_id": "key2",
+        "feature_name": "name2",
+        "button_text": "Click key2",
+        "new_window": false
+    }
+]

@@ -4,10 +4,18 @@ import uuid
 import json
 import time
 
+from moobius.utils import EnhancedJSONEncoder
+
 # This should be a basic builder. Do NOT put dependencies here.
-class WSMessageBuilder:
+# todo: Use dataclass!
+class WSPayloadBuilder:
     def __init__(self):
         pass
+
+    @staticmethod
+    def dumps(data):
+        return json.dumps(data, cls=EnhancedJSONEncoder)
+
 
     def update_userlist(self, client_id, channel_id, user_list, recipients):
         """
@@ -28,7 +36,7 @@ class WSMessageBuilder:
             }
         }
         # Print the message (for debugging purposes)
-        return json.dumps(message)
+        return self.dumps(message)
     
     def update_features(self, client_id, channel_id, features, recipients):
         """
@@ -48,7 +56,7 @@ class WSMessageBuilder:
             }
         }
         # Print the message (for debugging purposes)
-        return json.dumps(message)
+        return self.dumps(message)
 
     
     def update_channel_info(self, client_id, channel_id, channel_data):
@@ -63,7 +71,7 @@ class WSMessageBuilder:
             "client_id": client_id,
             "body": channel_data
         }
-        return json.dumps(message)
+        return self.dumps(message)
 
     
     def update_playground(self, client_id, channel_id, content, recipients):
@@ -84,7 +92,7 @@ class WSMessageBuilder:
             }
         }
         # Print the message (for debugging purposes)
-        return json.dumps(message)
+        return self.dumps(message)
 
     
     def service_login(self, service_id, access_token):
@@ -98,7 +106,7 @@ class WSMessageBuilder:
             "access_token": access_token,
             "service_id": service_id
         }
-        return json.dumps(message)
+        return self.dumps(message)
 
     
     def msg_down(self, client_id, channel_id, recipients, subtype, message_content, sender):
@@ -123,7 +131,7 @@ class WSMessageBuilder:
             }
         }
         print("msg_down", message)
-        return json.dumps(message)
+        return self.dumps(message)
 
     
     def update(self, client_id, target_client_id, data):
@@ -136,7 +144,7 @@ class WSMessageBuilder:
             "client_id": client_id,
             "body": data
         }
-        return json.dumps(message)
+        return self.dumps(message)
 
     
     def ping(self):
@@ -147,4 +155,4 @@ class WSMessageBuilder:
             "type": "ping",
             "request_id": str(uuid.uuid4())
         }
-        return json.dumps(message)
+        return self.dumps(message)
