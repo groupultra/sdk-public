@@ -6,8 +6,8 @@ import tiktoken
 from functools import reduce
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-
-openai.api_key = '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' # 邮箱：842205264@qq.com
+from .api_key import api_key
+openai.api_key = api_key 
 
 # load config
 with open('config.json', 'r') as f:

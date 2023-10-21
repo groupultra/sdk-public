@@ -183,8 +183,18 @@ class CicadaService(MoobiusService):
             if msg_up.subtype == "text":
                 text = msg_up.content['text']
                 game = self.director.get_game(game_id)
+                host_character = self._make_character(self.game_band_id, '0000', 'Cicada Host')
                 
-                if game.stage == game.STAGE_TALK:
+                if game.stage == game.STAGE_WAIT:
+                    await self.send_msg_down(
+                        channel_id=msg_up.channel_id,
+                        recipients=[sender],
+                        subtype="text",
+                        message_content=f'Please wait for other players to join!',
+                        sender=host_character.user_id
+                    )
+
+                elif game.stage == game.STAGE_TALK:
                     await self.director.on_talk_attempt(game_id, player_id, text)
                     
                 elif game.stage == game.STAGE_VOTE:
@@ -204,8 +214,18 @@ class CicadaService(MoobiusService):
                     
                     await self.director.on_vote_attempt(game_id, player_id, text)
                 
+                elif game.stage == game.STAGE_END:
+                    await self.send_msg_down(
+                        channel_id=msg_up.channel_id,
+                        recipients=[sender],
+                        subtype="text",
+                        message_content=f'The Game has ended!',
+                        sender=host_character.user_id
+                    )
+
                 else:
                     pass
+            
             else:
                 host_character = self._make_character(self.game_band_id, '0000', 'Cicada Host')
 
