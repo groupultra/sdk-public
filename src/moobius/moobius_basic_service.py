@@ -13,14 +13,16 @@ from moobius.basic.ws_client import WSClient
 from moobius.basic.ws_payload_builder import WSPayloadBuilder
 from moobius.basic.http_api_wrapper import HTTPAPIWrapper
 from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Payload, Character
+from moobius.moobius_wand import MoobiusWand
 
 class MoobiusBasicService:
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
-        self.wand, self.child_pipe = aioprocessing.AioPipe(duplex=False)
-        self.parent_pipe, self.child_pipe = aioprocessing.AioPipe()
         self.http_api = HTTPAPIWrapper(http_server_uri)
-        self._ws_client = WSClient(ws_server_uri, handle=self.handle_received_payload, child_pipe=self.child_pipe)
+        self.wand, self.horcrux = aioprocessing.AioPipe()
+        self._ws_client = WSClient(ws_server_uri, handle=self.handle_received_payload, horcrux=self.horcrux)
         self._ws_payload_builder = WSPayloadBuilder()
+        
+        self.wand = MoobiusWand(self, self.wand, self.http_api, self._ws_payload_builder)
 
         self._email = email
         self._password = password
@@ -28,9 +30,6 @@ class MoobiusBasicService:
         self._access_token = ""
         self._refresh_token = ""
         self.service_id = service_id
-        
-    def create_task(self, coro):
-        self.loop.create_task(coro)
         
     def start(self, bind_to_channels=None):
         process_forever = aioprocessing.AioProcess(target=self.main, args=(bind_to_channels))
@@ -53,8 +52,8 @@ class MoobiusBasicService:
             pass
         self.loop.run_until_complete(self.on_start())
         
-        self.create_task(self.send_heartbeat())
-        self.create_task(self._ws_client.pipe_receive())
+        self.loop.create_task(self.send_heartbeat())
+        self.loop.create_task(self._ws_client.pipe_receive())
         self.loop.run_forever()
 
     @property
@@ -222,6 +221,7 @@ class MoobiusBasicService:
         await self._ws_client.send(payload)
 
     async def send_ping(self):
+        print("Sending ping...")
         payload = self._ws_payload_builder.ping()
         await self._ws_client.send(payload)
 

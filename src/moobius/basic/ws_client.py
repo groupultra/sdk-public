@@ -9,11 +9,11 @@ import aioprocessing
 
 
 class WSClient:
-    def __init__(self, ws_server_uri, handle=None, child_pipe=None):
+    def __init__(self, ws_server_uri, handle=None, horcrux=None):
         self.websocket = None
         self.ws_server_uri = ws_server_uri
         self.handle = handle or self._default_handle
-        self.child_pipe = child_pipe
+        self.horcrux = horcrux
 
     async def connect(self):
         self.websocket = await websockets.connect(self.ws_server_uri)
@@ -48,8 +48,9 @@ class WSClient:
     async def pipe_receive(self):
         while True:
             try:
-                if self.child_pipe:
-                    message = await self.child_pipe.coro_recv()
+                if self.horcrux:
+                    message = await self.horcrux.coro_recv()
+                    print("WSClient.pipe_receive Received:", message)
             except websockets.exceptions.ConnectionClosed:
                 print("Connection closed. Attempting to reconnect...")
                 await self.connect()

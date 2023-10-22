@@ -15,17 +15,7 @@ def main():
     service = DemoService(db_settings=db_settings, **config)
     service.start(bind_to_channels=bind_to_channels)
     return service
-# def run(self):
-#     process_forever = aioprocessing.AioProcess(target=self.main, args=())
-#     process_forever.start()
     
 if __name__ == "__main__":
-    # asyncio.run(main())
     service = main()
-    service.parent_pipe.coro_send("Hello from parent")
-    print("After run ------------------")
-    print("After run ------------------")
-    print("After run ------------------")
-    print("After run ------------------")
-    print("After run ------------------")
-    print("After run ------------------")
+    # service.wand.send_ping()
