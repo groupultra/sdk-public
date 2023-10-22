@@ -50,6 +50,9 @@ class DemoService(MoobiusService):
         Handle the received message.
         """
         print("on_msg_up", msg_up)
+        if msg_up.subtype == "text":
+            if msg_up.content['text'] == "ping":
+                msg_up.content['text'] = "pong"
         msg_down = self.msg_up_to_msg_down(msg_up)
         
         await self.send(payload_type='msg_down', payload_body=msg_down)

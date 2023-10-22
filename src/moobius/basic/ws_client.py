@@ -50,7 +50,12 @@ class WSClient:
             try:
                 if self.horcrux:
                     message = await self.horcrux.coro_recv()
-                    print("WSClient.pipe_receive Received:", message)
+                    print("WSClient.pipe_receive received:", type(message), message)
+                    if str(message[:4]) == "RECV":
+                        await self.safe_handle(message[4:])
+                    else:
+                        await self.websocket.send(message)
+                    
             except websockets.exceptions.ConnectionClosed:
                 print("Connection closed. Attempting to reconnect...")
                 await self.connect()
@@ -65,6 +70,7 @@ class WSClient:
 
     async def safe_handle(self, message):
         try:
+            print("safe_handle message", message)
             await self.handle(message)
         except Exception as e:
             traceback.print_exc()

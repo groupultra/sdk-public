@@ -3,6 +3,8 @@ import asyncio
 from demo_service import DemoService
 from moobius.moobius_wand import MoobiusWand
 import aioprocessing
+from moobius.basic.types import *
+
 def main():
     # For newly bound channels. It doesn't hurt to bind multiple times.
     bind_to_channels = ['efae7992-0801-4079-bae2-83189b68d71d']
@@ -19,26 +21,21 @@ def main():
     
 if __name__ == "__main__":
     service = main()
-    wand = MoobiusWand(service)
+    service.parent_pipe.coro_send("ping")
+    wand = service.get_wand()
     wand.send_ping()
-    # elif sent_by == player_id:
-    #     continue  # no repeat
-    # else:
-    #     sender_id = self.bands[self.game_band_id].game_status[real_id]['view_characters'][sent_by]['user_id']
+    wand.send_ping()
+    wand.send_ping()
+    wand.send_ping()
+    wand.send_ping()
+    real_characters = wand.fetch_real_characters("efae7992-0801-4079-bae2-83189b68d71d")
+    print("real_characters", real_characters)
+    wand.send_msg_down(channel_id="efae7992-0801-4079-bae2-83189b68d71d", 
+                       recipients=["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"],
+                       subtype="text",
+                       message_content="Hello! I'm Ayaka!",
+                       sender="321e7409-e19a-4608-a623-2bae497568d0")
 
-    # await self.send_msg_down(
-    #     channel_id=self.game_band_id,
-    #     recipients=[real_id],
-    #     subtype="text",
-    #     message_content=f'{content}',
-    #     sender=sender_id
-    
-    # data = self.http_api.create_service_user(self.service_id, username, nickname, avatar, description)
-    # character = from_dict(data_class=Character, data=data)
-        
-    # debug_sender_id = self._make_character(self.game_band_id, '0000', 'Cicada Host').user_id
-    # service.wand.send_msg_down("efae7992-0801-4079-bae2-83189b68d71d", "Hello")
-    # def send_msg_down(self, channel_id, recipients, subtype, message_content, sender):
-    #     payload = self._ws_payload_builder.msg_down(self.service_id, channel_id, recipients, subtype, message_content, sender)
-    #     self.wand.coro_send(payload)
-    # service.wand.send_ping()
+    my_msg_up = {"type": "msg_up", "body": {"subtype": "text", "content": {"text": "ping"}, "channel_id": "efae7992-0801-4079-bae2-83189b68d71d", "timestamp": 1697944692927, "recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"], "msg_id": "fae4c198-baca-48d3-ad07-2a7f95e2f0cc", "context": {"recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"], "group_id": None, "sender": "b42d0cb1-b97a-4c63-bbab-1d456cc26490"}}}
+    # need helper class for building msg_up
+    wand.on(json.dumps(my_msg_up))
