@@ -14,7 +14,6 @@ src/resources
 src/simple_json_db
 src/cicada_agent.py
 
-src/cicada_main.py
 
 src/test_db/
 src/cicada_json_db
