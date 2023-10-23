@@ -4,27 +4,48 @@ import requests
 # todo: refresh
 # todo: return code
 class HTTPAPIWrapper:
-    def __init__(self, http_server_uri=""):
-        self.headers = {"Auth-Origin": "cognito"}
+    def __init__(self, http_server_uri="", email="", password=""):
         self.http_server_uri = http_server_uri
+        self.username = email
+        self.password = password
+        self.access_token = ""
+        self.refresh_token = ""
+
+    @property
+    def headers(self):
+        return {
+            "Auth-Origin": "cognito",
+            "Authorization": f"Bearer {self.access_token}"
+        }
         
-    def authenticate(self, email, password):
+    def authenticate(self):
         url = self.http_server_uri + "/auth/sign_in"
-        data = {"username": email, "password": password}
+        data = {"username": self.username, "password": self.password}
         response = requests.post(url, json=data)
         
         if response.json().get('code') == 10000:
-            self.headers["Authorization"] = f"Bearer {response.json().get('data').get('AuthenticationResult').get('AccessToken')}"
+            self.access_token = response.json().get('data').get('AuthenticationResult').get('AccessToken')
+            self.refresh_token = response.json().get('data').get('AuthenticationResult').get('RefreshToken')
             
-            access_token = response.json().get('data').get('AuthenticationResult').get('AccessToken')
-            refresh_token = response.json().get('data').get('AuthenticationResult').get('RefreshToken')
-            
-            return access_token, refresh_token
+            return self.access_token, self.refresh_token
         else:
             print("Error during authentication:", response.json().get('msg'))
             return None
         
-    
+    def refresh(self):
+        url = self.http_server_uri + "/auth/refresh"
+        data = {"username": self.username, "refresh_token": self.refresh_token}
+        response = requests.post(url, json=data)
+        
+        if response.json().get('code') == 10000:
+            self.access_token = response.json().get('data').get('AuthenticationResult').get('AccessToken')
+            
+            return self.access_token
+        else:
+            print("Error during refresh:", response.json().get('msg'))
+            return None
+
+
     def get_channel_userlist(self, channel_id, service_id):
         params = {
             "channel_id": channel_id,
