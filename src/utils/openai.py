@@ -38,7 +38,7 @@ class OpenAI():
         self.api_key = api_key
         self.chat = Chat()
     
-    def chat_with_gpt(self, question:str, model:str="gpt-3.5-turbo", max_tokens:int=8192, max_n:int=10):
+    def chat_with_gpt(self, question:str, model:str="gpt-3.5-turbo", max_tokens:int=8192, max_n:int=10, stream=False):
         conn = http.client.HTTPSConnection("api.openai.com")
         context = self.chat.to_prompt(max_n=max_n)
         new_message = Message(role="user", content=question)
@@ -46,7 +46,7 @@ class OpenAI():
         payload = json.dumps({
         "model": model,
         "messages": context,
-        "stream": True
+        "stream": stream
         })
         headers = {
         'Accept': 'application/json',
@@ -55,16 +55,28 @@ class OpenAI():
         }
         conn.request("POST", "/v1/chat/completions", payload, headers)
         res = conn.getresponse()
-        data = res.read()
-        temp = data.decode("utf-8").split("\n")
-        ret = ""
-        print(data)
-        for i in temp:
-            if i.startswith('data: {'):
-                delta:dict = json.loads(i.split(':', maxsplit=1)[-1])['choices'][0]['delta']
-                if delta.get('content', None) != None:
-                    ret += delta['content']
+        data = res.read().decode("utf-8")
         
-        self.chat.add_message(new_message)
-        self.chat.add_message(Message(role="assistant", content=ret))
-        return ret
+        if stream:
+            temp = data.split("\n")
+            ret = ""
+            print(data)
+            for i in temp:
+                if i.startswith('data: {'):
+                    delta:dict = json.loads(i.split(':', maxsplit=1)[-1])['choices'][0]['delta']
+                    if delta.get('content', None) != None:
+                        ret += delta['content']
+            
+            self.chat.add_message(new_message)
+            self.chat.add_message(Message(role="assistant", content=ret))
+            return ret
+        else:
+            message = json.loads(data)['choices'][-1]['message']
+            ret = message['content']
+            self.chat.add_message(new_message)
+            self.chat.add_message(Message(role="assistant", content=ret))
+            return ret
+    
+    def complete(self, prompt, model, max_tokens, ):
+        pass
+
