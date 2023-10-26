@@ -123,12 +123,74 @@ class MoobiusBasicService:
         print("MessageUp received:", msg_up)
         pass
 
+    async def on_fetch_userlist(self, action):
+        """
+        Handle the received action of fetching userlist.
+        """
+        print("on_action fetch_userlist")
+        pass
+    
+    async def on_fetch_features(self, action):
+        """
+        Handle the received action of fetching features.
+        """
+        print("on_action fetch_features")
+        pass
+    
+    async def on_fetch_playground(self, action):
+        """
+        Handle the received action of fetching playground.
+        """
+        print("on_action fetch_playground")
+        pass
+    
+    async def on_join_channel(self, action):
+        """
+        Handle the received action of joining channel.
+        """
+        print("on_action join_channel")
+        pass
+
+    async def on_leave_channel(self, action):
+        """
+        Handle the received action of leaving channel.
+        """
+        print("on_action leave_channel")
+        pass
+        
+    async def on_fetch_channel_info(self, action):
+        """
+        Handle the received action of fetching channel info.
+        """
+        print("on_action fetch_channel_info")
+        pass
+    
     async def on_action(self, action: Action):
         """
         Handle an action from a user.
         """
         print("Action received:", action)
-        pass
+        if action.subtype == "fetch_userlist":
+            await self.on_fetch_userlist(action)
+        elif action.subtype == "fetch_features":
+            await self.on_fetch_features(action)
+        elif action.subtype == "fetch_playground":
+            await self.on_fetch_playground(action)
+        elif action.subtype == "join_channel":
+            await self.on_join_channel(action)
+        elif action.subtype == "leave_channel":
+            await self.on_leave_channel(action)
+        elif action.subtype == "fetch_channel_info":
+            await self.on_fetch_channel_info(action)
+        else:
+            print("Unknown action subtype:", action_subtype)
+   
+    # async def on_action(self, action: Action):
+    #     """
+    #     Handle an action from a user.
+    #     """
+    #     print("Action received:", action)
+    #     pass
 
     async def on_feature_call(self, feature_call: FeatureCall):
         """
@@ -225,6 +287,11 @@ class MoobiusBasicService:
 
     async def send_update_features(self, channel_id, feature_data, recipients):
         payload = self._ws_payload_builder.update_features(self.service_id, channel_id, feature_data, recipients)
+        print(payload)
+        await self._ws_client.send(payload)
+    
+    async def send_update_style(self, channel_id, style_content, recipients):
+        payload = self._ws_payload_builder.update_style(self.service_id, channel_id, style_content, recipients)
         print(payload)
         await self._ws_client.send(payload)
 

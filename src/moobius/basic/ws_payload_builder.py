@@ -58,6 +58,25 @@ class WSPayloadBuilder:
         # Print the message (for debugging purposes)
         return self.dumps(message)
 
+    def update_style(self, client_id, channel_id, style_content, recipients):
+        """
+        Constructs the update message for style update.
+        """
+        message = {
+            "type": "update",
+            "request_id": str(uuid.uuid4()),
+            "client_id": client_id,
+            "body": {
+                "subtype": "update_style",
+                "channel_id": channel_id,
+                "recipients": recipients,
+                "content": style_content,
+                "group_id": "temp",
+                "context": {}
+            }
+        }
+        # Print the message (for debugging purposes)
+        return self.dumps(message)
     
     def update_channel_info(self, client_id, channel_id, channel_data):
         """
