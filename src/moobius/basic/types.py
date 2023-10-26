@@ -102,7 +102,6 @@ class ChannelInfo:
     context: dict
 
 
-
 @dataclass
 class Copy:
     request_id: str
