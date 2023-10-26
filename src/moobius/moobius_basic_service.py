@@ -145,7 +145,7 @@ class MoobiusBasicService:
         """
         Handle a copy from Moobius.
         """
-        print("Copy received:", copy)
+        # print("Copy received:", copy)
         pass
 
 
