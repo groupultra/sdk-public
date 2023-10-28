@@ -317,26 +317,3 @@ class MoobiusBasicService:
         print("Sending ping...")
         payload = self._ws_payload_builder.ping()
         await self._ws_client.send(payload)
-
-    async def send_heartbeat(self):
-        """
-        Send a ping payload every 30 seconds and check the response.
-        """
-        while True:
-            await asyncio.sleep(30)
-            try:
-                await self.send_ping()
-            except websockets.exceptions.ConnectionClosed:
-                print("Connection closed. Attempting to reconnect...")
-                await self.send_heartbeat()
-                print("Reconnected!")
-                break
-            except Exception as e:
-                traceback.print_exc()
-                print("Error occurred:", e)
-                await self.send_heartbeat()
-                print("Reconnected!")
-                break
-            '''response = await self.websocket.recv()
-            if not json.loads(response).get("status", False):
-                await self.send_service_login()'''
