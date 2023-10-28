@@ -290,7 +290,7 @@ class CicadaDirector:
                 if i == 0:
                     say += f" You are the first player to talk."
                 else:
-                    pass
+                    say += f" Others are typing now..."
 
                 await self._notify_player(game, i, say)
             else:
