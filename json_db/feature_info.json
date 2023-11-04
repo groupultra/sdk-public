@@ -1,1 +1,0 @@
-{"feature_id": {"feature_data": "{\"feature_id\": \"feature_id\", \"feature_name\": \"some list\", \"button_text\": \"click\", \"new_window\": true, \"arguments\": [{\"name\": \"arg1\", \"type\": \"enum\", \"values\": [\"choose me\", \"do not choose me\"], \"placeholder\": \"optional placeholder\"}]}"}}
