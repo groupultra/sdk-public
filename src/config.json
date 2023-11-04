@@ -2,10 +2,10 @@
     "http_server_uri": "https://api.sociyoo.com/",
     "ws_server_uri": "wss://ws.sociyoo.com/",
 
-    "email": "tea08@sociyoo.com",
-    "password": "Tsinghua.1234",
-
-    "service_id": "e6a69b12-ecad-4ab8-a096-bfc5eea604ef",
+    "email": "guoriyue1226@gmail.com",
+    "password": "hejpUf-5jabko-mintum",
+    
+    "service_id": "33e23fc9-50a5-4bea-9109-2bc8a1009c45",
 
     "db_config": {
         "type": "json",
