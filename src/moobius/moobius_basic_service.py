@@ -207,7 +207,7 @@ class MoobiusBasicService:
         elif action.subtype == "fetch_channel_info":
             await self.on_fetch_channel_info(action)
         else:
-            print("Unknown action subtype:", action_subtype)
+            print("Unknown action subtype:", action.action_subtype)
 
     async def on_feature_call(self, feature_call: FeatureCall):
         """

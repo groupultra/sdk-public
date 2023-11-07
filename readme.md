@@ -5,33 +5,33 @@
 1. Config
 
 - change the values of `config.json`
-  - If you don't have a `service_id` or prefer to use a new `service_id`, make it empty.
-  - For `db_config`, currently two types of configurations are supported: json and redis. For json you need to specify `type`: "json" and `root_dir` as your root directory to save the database files. For redis you need to specify `type`: redis and `password` for your redis password. Note that the demo uses another json file (db_settings.json) to override the db settings of the config.
+  - If you don't have a `service_id` or prefer to use a new `service_id`, make it empty. Please notice that the new service_id won't be written to the config file, so you need to copy it manually from the console.
+- For `db_config`, currently two types of configurations are supported: json and redis. For json you need to specify `type`: "json" and `root_dir` as your root directory to save the database files. For redis you need to specify `type`: redis and `password` for your redis password. See the Database part for more info.
 
-2. Run `python src/demo.py`. It creates a `DemoAgent` object and run the service. It is a simple forwarding service with two test buttons. If the service run successfully, you will find two buttons on the "keyboard" panel and every message you send will be repeated.
+2. Run `python src/demo.py`. It creates a `DemoService` object and run the service. It is a simple forwarding service with two test buttons. If the service run successfully, you will find two buttons on the "keyboard" panel and every message you send will be repeated, except that if you send 'ping', you will get 'pong'.
 
 ## Build Your Own Service
 
-1. If you want to modify the code and start your own agent, please refer to the source code of `demo_agent.py`. Basically, you need to write a subclass of `MoobiusAgent` and implement all the `on_xxx()` methods. There is a trivial noop implementation in `moobius_agent.py` with does nothing but printing the messages to the console, and the code in `demo_agent.py` could help you understand how it works.
+1. If you want to modify the code and start your own service, please refer to the source code of `demo_service.py`. Basically, you need to write a subclass of `MoobiusService` and implement all the `on_xxx()` methods. There is a trivial noop implementation in `moobius_service.py` which does nothing but printing the messages to the console, and the code in `demo_service.py` could help you understand how it works.
 
-2. There are a bunch of helper methods for you to use. For an instance `agent` of `MoobiusAgent` class, you can use the following methods:
+2. There are a bunch of helper methods for you to use. For an instance `service` of `MoobiusService` class, you can use the following methods:
 
-   - `agent.send_xxx()`. These are higher level methods for you to send messages through websockets. These are defined in its parent class `MoobiusBasicAgent`. Please see `src/moobius/moobius_basic_agent.py`.
-   - `agent.http_api.*()`. These are wrapped HTTP APIs you may occasionally use. Please see `src/moobius/basic/http_api_wrapper.py`.
-   - `agent._ws_client.*()`. These are low-level websocket APIs. You are not recommended to call them directly. The methods are defined in `src/moobius/basic/ws_client.py`.
-   - `agent.*()` defined in `MoobiusAgent`. These are high-level complex operations that could involve multiple API calls or database operations. There could be more! Please see `src/moobius/moobius_agent.py`.
+   - `service.send_xxx()`. These are higher level methods for you to send payloads through websockets. These are defined in its parent class `MoobiusBasicService`. Please see `src/moobius/moobius_basic_service.py`.
+   - `service.http_api.*()`. These are wrapped HTTP APIs you may occasionally use. Please see `src/moobius/basic/http_api_wrapper.py`.
+   - `service._ws_client.*()`. These are low-level websocket APIs. You are not recommended to call them directly. The methods are defined in `src/moobius/basic/ws_client.py`.
+   - `service.*()` defined in `MoobiusService`. These are high-level complex operations that could involve multiple API calls or database operations. There could be more! Please see `src/moobius/moobius_service.py`.
 
 ## File structures
 
 `moobius/basic`: Basic utilites
 
 - `http_api_wrapper.py`: a pure implementation of low-level HTTP APIs.
-- `ws_message_builder.py`: a pure builder of websocket API messages.
+- `ws_payload_builder.py`: a pure builder of websocket API payloads.
 - `ws_client.py`: a websocket client based on `websockets` that facilitates automatic reconnection, exception handling and `asyncio.create_task()` wrapper (so that you can simply use `await` in higher methods.)
 
-`moobius/moobius_basic_agent.py`: The Base class of a Service. It has a minimal but complete implementation of a fully functional Moobius Service instance (so that it is runnable!), including authentication, automatic heartbeat and a trivial handler to messages (print and noops).
+`moobius/moobius_basic_service.py`: The Base class of a Service. It has a minimal but complete implementation of a fully functional Moobius Service instance (so that it is runnable!), including authentication, automatic heartbeat and a trivial handler to payloads (print and noops).
 
-`moobius/moobius_agent.py`: A Service with a built-in database helper (you can set it `None`), and some high level methods. It is highly recommended that your custom class inherit `MoobiusAgent` defined here.
+`moobius/moobius_service.py`: A Service with a built-in database helper (you can set it `None`), and some high level methods. It is highly recommended that your custom class inherit `MoobiusService` defined here.
 
 ## Database
 
@@ -52,7 +52,7 @@ On JSON-based file db, it involves some trick to build a dict-like `MagicalStora
 
 - An instance of class `MoobiusBand` contains all dbs defined in the `db_settings` part of the config json; when initiating the service instance, you can pass a db_config argument explicitly or pass it as a part of the config. If prior one is used, it will override the corrsponding part in the config file.
 - The initialization makes the `MoobiusBand` contain all db interface. For a `MoobiusBand` instance called `band` and a db called `foo`, you can refer to `band.foo`; codes like `band.foo['bar'] = 'some_value'` can access to the db and update values. `del` keyword removes KV pair in db.
-- `load` and `clear` field in every ovject of the db_config implys whether the data is loaded on start or cleared on termination.
+- `root_dir` indicates where to save these json files.
 
 # Dataclasses
 
@@ -61,7 +61,7 @@ Define them!
 ## Todo
 
 1. Database related refactoring, documentations, etc
-2. Detailed websocket messages (channel_info, etc)
+2. Detailed websocket payloads (channel_info, etc)
 3. Non-blocking operations after `start()` (multiprocessing)
 4. Async http and database
 5. Auto refresh tokens!

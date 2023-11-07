@@ -5,10 +5,5 @@
     "email": "guoriyue1226@gmail.com",
     "password": "hejpUf-5jabko-mintum",
     
-    "service_id": "33e23fc9-50a5-4bea-9109-2bc8a1009c45",
-
-    "db_config": {
-        "type": "json",
-        "root_dir": "json_db"
-    }
+    "service_id": "33e23fc9-50a5-4bea-9109-2bc8a1009c45"
 }
