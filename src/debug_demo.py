@@ -4,7 +4,7 @@ from demo_service import DemoService
 from moobius.moobius_wand import MoobiusWand
 import aioprocessing
 from moobius.basic.types import *
-
+from moobius.basic._logging_config import logger
 def main():
     # For newly bound channels. It doesn't hurt to bind multiple times.
     bind_to_channels = ['efae7992-0801-4079-bae2-83189b68d71d']
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     wand.send_ping()
     wand.send_ping()
     real_characters = wand.fetch_real_characters("efae7992-0801-4079-bae2-83189b68d71d")
-    print("real_characters", real_characters)
+    logger.info(f"real_characters {real_characters}")
     wand.send_msg_down(channel_id="efae7992-0801-4079-bae2-83189b68d71d", 
                        recipients=["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"],
                        subtype="text",

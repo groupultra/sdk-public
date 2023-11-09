@@ -1,7 +1,7 @@
 import asyncio
-
+from dataclasses import asdict
 from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Payload, Character
-
+from moobius.basic._logging_config import logger
 class MoobiusWand:
     def __init__(self, service, wand):
         self.service = service
@@ -40,40 +40,40 @@ class MoobiusWand:
 
     def send_service_login(self):
         payload = self.service._ws_payload_builder.service_login(self.service.service_id, self.service.access_token)
-        print("payload", payload)
+        logger.info(f"payload {payload}")
         self.wand.coro_send(payload)
 
     def send_msg_down(self, channel_id, recipients, subtype, message_content, sender):
         payload = self.service._ws_payload_builder.msg_down(self.service.service_id, channel_id, recipients, subtype, message_content, sender)
-        print("msg_down payload", payload)
+        logger.info(f"msg_down payload {payload}")
         self.wand.coro_send(payload)
 
     def send_update(self, target_client_id, data):
         payload = self.service._ws_payload_builder.update(self.service.service_id, target_client_id, data)
-        print(payload)
+        logger.info(payload)
         self.wand.coro_send(payload)
 
     def send_update_userlist(self, channel_id, user_list, recipients):
         payload = self.service._ws_payload_builder.update_userlist(self.service.service_id, channel_id, user_list, recipients)
-        print("send_update_userlist", payload)
+        logger.info(f"send_update_userlist {payload}")
         self.wand.coro_send(payload)
 
     def send_update_channel_info(self, channel_id, channel_data):
         payload = self.service._ws_payload_builder.update_channel_info(self.service.service_id, channel_id, channel_data)
-        print(payload)
+        logger.info(payload)
         self.wand.coro_send(payload)
 
     def send_update_playground(self, channel_id, content, recipients):
         payload = self.service._ws_payload_builder.update_playground(self.service.service_id, channel_id, content, recipients)
-        print(payload)
+        logger.info(payload)
         self.wand.coro_send(payload)
 
     def send_update_features(self, channel_id, feature_data, recipients):
         payload = self.service._ws_payload_builder.update_features(self.service.service_id, channel_id, feature_data, recipients)
-        print(payload)
+        logger.info(payload)
         self.wand.coro_send(payload)
 
     def send_ping(self):
-        print("Sending ping...")
+        logger.info("Sending ping...")
         payload = self.service._ws_payload_builder.ping()
         self.wand.coro_send(payload)

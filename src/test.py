@@ -1,7 +1,7 @@
 from moobius.dbtools.magical_storage import MagicalStorage
 from moobius.dbtools.simple_json_database import SimpleJSONDatabase
 from moobius.basic.types import Character, CharacterContext
-
+from moobius.basic._logging_config import logger
 
 if __name__ == '__main__':
     database = SimpleJSONDatabase(domain='test_db', root_dir='.', clear=True)
@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     storage.put('test', database=database)
 
-    print(storage.test)
+    logger.info(storage.test)
     character = Character(user_id='test', user_context=CharacterContext(nickname='test', description='test', avatar='test'))
 
     storage.test['a'] = character
@@ -19,5 +19,5 @@ if __name__ == '__main__':
     storage.test['d'] = None
     storage.test['e'] = {'a': 'b', 'c': (1, 2, 3)}  # tuple would be converted to list
 
-    print(storage.test)
+    logger.info(storage.test)
 
