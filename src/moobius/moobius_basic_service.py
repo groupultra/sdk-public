@@ -18,6 +18,7 @@ from moobius.basic.ws_payload_builder import WSPayloadBuilder
 from moobius.basic.http_api_wrapper import HTTPAPIWrapper
 from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Payload, Character
 from moobius.moobius_wand import MoobiusWand
+from moobius.basic._logging_config import logger
 
 class MoobiusBasicService:
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
@@ -48,19 +49,19 @@ class MoobiusBasicService:
     # this method will automatically set http_api headers
     async def _do_refresh(self):
         access_token = self.http_api.refresh()
-        print("Refreshed access token: ", access_token)
+        logger.info(f"Refreshed access token: {access_token}")
 
     # this method will automatically set http_api headers
     async def _do_authenticate(self):
         access_token, refresh_token = self.http_api.authenticate()
-        print("Authenticated. Access token:", access_token)
+        logger.info(f"Authenticated. Access token: {access_token}")
 
     # =================== start ===================
     
     def start(self, bind_to_channels=None):
         self.loop = asyncio.get_event_loop()
         self.loop.run_until_complete(self.main_operation(bind_to_channels))
-        print("Authentication complete. Starting main loop...")
+        logger.info("Authentication complete. Starting main loop...")
         process_forever = aioprocessing.AioProcess(target=self.main_loop, args=())
         process_forever.start()
     
@@ -105,7 +106,7 @@ class MoobiusBasicService:
             await self._handle_received_payload(payload)
         except Exception as e:
             traceback.print_exc()
-            print("MoobiusBasicService.handle_received_payload(): Error occurred:", e)
+            logger.error(f"MoobiusBasicService.handle_received_payload(): Error occurred: {e}")
 
 
     async def _handle_received_payload(self, payload):
@@ -136,7 +137,7 @@ class MoobiusBasicService:
         """
         Called when the service is initialized.
         """
-        print("Service started. Override this method to perform initialization tasks.")
+        logger.info("Service started. Override this method to perform initialization tasks.")
         pass
 
 
@@ -144,56 +145,56 @@ class MoobiusBasicService:
         """
         Handle a payload from a user.
         """
-        print("MessageUp received:", msg_up)
+        logger.info(f"MessageUp received: {msg_up}")
         pass
 
     async def on_fetch_userlist(self, action):
         """
         Handle the received action of fetching userlist.
         """
-        print("on_action fetch_userlist")
+        logger.info("on_action fetch_userlist")
         pass
     
     async def on_fetch_features(self, action):
         """
         Handle the received action of fetching features.
         """
-        print("on_action fetch_features")
+        logger.info("on_action fetch_features")
         pass
     
     async def on_fetch_playground(self, action):
         """
         Handle the received action of fetching playground.
         """
-        print("on_action fetch_playground")
+        logger.info("on_action fetch_playground")
         pass
     
     async def on_join_channel(self, action):
         """
         Handle the received action of joining channel.
         """
-        print("on_action join_channel")
+        logger.info("on_action join_channel")
         pass
 
     async def on_leave_channel(self, action):
         """
         Handle the received action of leaving channel.
         """
-        print("on_action leave_channel")
+        logger.info("on_action leave_channel")
         pass
         
     async def on_fetch_channel_info(self, action):
         """
         Handle the received action of fetching channel info.
         """
-        print("on_action fetch_channel_info")
+        logger.info("on_action fetch_channel_info")
         pass
     
     async def on_action(self, action: Action):
         """
         Handle an action from a user.
         """
-        print("Action received:", action)
+        logger.info(f"Action received: {action}")
         if action.subtype == "fetch_userlist":
             await self.on_fetch_userlist(action)
         elif action.subtype == "fetch_features":
@@ -207,13 +208,13 @@ class MoobiusBasicService:
         elif action.subtype == "fetch_channel_info":
             await self.on_fetch_channel_info(action)
         else:
-            print("Unknown action subtype:", action_subtype)
+            logger.info(f"Unknown action subtype: {action_subtype}")
 
     async def on_feature_call(self, feature_call: FeatureCall):
         """
         Handle a feature call from a user.
         """
-        print("Feature call received:", feature_call)
+        logger.info(f"Feature call received: {feature_call}")
         pass
 
 
@@ -229,7 +230,7 @@ class MoobiusBasicService:
         """
         Handle an unknown payload.
         """
-        print("Unknown payload received:", payload)
+        logger.info(f"Unknown payload received: {payload}")
         pass
 
     # =================== send_xxx, to be used ===================
@@ -247,7 +248,7 @@ class MoobiusBasicService:
 
             return [from_dict(data_class=Character, data=d) for d in userlist]
         else:
-            print("fetch_real_characters error", data)
+            logger.error(f"fetch_real_characters error {data}")
 
             return []
 
@@ -285,35 +286,35 @@ class MoobiusBasicService:
 
     async def send_update(self, target_client_id, data):
         payload = self._ws_payload_builder.update(self.service_id, target_client_id, data)
-        print(payload)
+        logger.info(payload)
         await self._ws_client.send(payload)
 
     async def send_update_userlist(self, channel_id, user_list, recipients):
         payload = self._ws_payload_builder.update_userlist(self.service_id, channel_id, user_list, recipients)
-        print("send_update_userlist", payload)
+        logger.info(f"send_update_userlist {payload}")
         await self._ws_client.send(payload)
 
     async def send_update_channel_info(self, channel_id, channel_data):
         payload = self._ws_payload_builder.update_channel_info(self.service_id, channel_id, channel_data)
-        print(payload)
+        logger.info(payload)
         await self._ws_client.send(payload)
 
     async def send_update_playground(self, channel_id, content, recipients):
         payload = self._ws_payload_builder.update_playground(self.service_id, channel_id, content, recipients)
-        print(payload)
+        logger.info(payload)
         await self._ws_client.send(payload)
 
     async def send_update_features(self, channel_id, feature_data, recipients):
         payload = self._ws_payload_builder.update_features(self.service_id, channel_id, feature_data, recipients)
-        print(payload)
+        logger.info(payload)
         await self._ws_client.send(payload)
     
     async def send_update_style(self, channel_id, style_content, recipients):
         payload = self._ws_payload_builder.update_style(self.service_id, channel_id, style_content, recipients)
-        print(payload)
+        logger.info(payload)
         await self._ws_client.send(payload)
 
     async def send_ping(self):
-        print("Sending ping...")
+        logger.info("Sending ping...")
         payload = self._ws_payload_builder.ping()
         await self._ws_client.send(payload)
