@@ -62,9 +62,9 @@ class MoobiusBasicService:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.main_operation(bind_to_channels))
         logger.info("Authentication complete. Starting main loop...")
-        loop.create_task(MoobiusBasicService._ws_client.pipe_receive())
+        # loop.create_task(MoobiusBasicService._ws_client.pipe_receive())
         
-        process_forever = aioprocessing.AioProcess(target=loop.run_forever, args=())
+        process_forever = aioprocessing.AioProcess(target=MoobiusBasicService._ws_client.pipe_receive, args=())
         process_forever.start()
     
     def get_wand(self):
