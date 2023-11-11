@@ -75,28 +75,6 @@ class WSClient:
                 break
             except Exception as e:
                 traceback.print_exc()
-                logger.error(f"WSClient.receive() Error occurred: {e}")
-                await self.connect()
-                logger.info("Reconnected!")
-                break
-    
-    async def pipe_receive(self):
-        while True:
-            try:
-                if self.horcrux:
-                    message = await self.horcrux.coro_recv()
-                    if str(message[:4]) == "RECV":
-                        await self.safe_handle(message[4:])
-                    else:
-                        await self.websocket.send(message)
-                    
-            except websockets.exceptions.ConnectionClosed:
-                logger.info("Connection closed. Attempting to reconnect...")
-                await self.connect()
-                logger.info("Reconnected!")
-                break
-            except Exception as e:
-                traceback.print_exc()
                 logger.error(f"Error occurred: {e}")
                 await self.connect()
                 logger.info("Reconnected!")
