@@ -24,7 +24,7 @@ class MoobiusBasicService:
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
         self.parent_pipe, self.child_pipe = aioprocessing.AioPipe()
-        MoobiusBasicService._ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login, handle=self.handle_received_payload, horcrux=self.child_pipe)
+        MoobiusBasicService._ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login, handle=self.handle_received_payload)
         self._ws_payload_builder = WSPayloadBuilder()
         
         self.refresh_interval = 6 * 60 * 60             # 24h expire, 6h refresh
@@ -64,7 +64,7 @@ class MoobiusBasicService:
         logger.info("Authentication complete. Starting main loop...")
         # loop.create_task(MoobiusBasicService._ws_client.pipe_receive())
         
-        process_forever = aioprocessing.AioProcess(target=MoobiusBasicService._ws_client.pipe_receive, args=())
+        process_forever = aioprocessing.AioProcess(target=MoobiusBasicService._ws_client.pipe_receive, args=(self.child_pipe,))
         process_forever.start()
     
     def get_wand(self):
