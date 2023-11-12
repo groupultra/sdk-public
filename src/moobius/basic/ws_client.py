@@ -9,12 +9,13 @@ import aioprocessing
 from moobius.basic._logging_config import logger
 
 class WSClient:
+    horcrux = None
     def __init__(self, ws_server_uri, on_connect=None, handle=None, horcrux=None):
         self.websocket = None
         self.ws_server_uri = ws_server_uri
         self.on_connect = on_connect or self._on_connect
         self.handle = handle or self._default_handle
-        self.horcrux = horcrux
+        horcrux = horcrux
 
     async def connect(self):
         self.websocket = await websockets.connect(self.ws_server_uri)
@@ -58,25 +59,26 @@ class WSClient:
                 logger.info("Reconnected!")
                 break
     
-    def pipe_receive(self):
+    @staticmethod
+    def pipe_receive():
         while True:
             try:
-                if self.horcrux:
-                    message = asyncio.get_event_loop().run_until_complete( self.horcrux.coro_recv())
-                    if str(message[:4]) == "RECV":
-                        asyncio.get_event_loop().run_until_complete( self.safe_handle(message[4:]))
-                    else:
-                        asyncio.get_event_loop().run_until_complete( self.websocket.send(message))
+                if WSClient.horcrux:
+                    message = asyncio.get_event_loop().run_until_complete( WSClient.horcrux.coro_recv())
+                    # if str(message[:4]) == "RECV":
+                    #     asyncio.get_event_loop().run_until_complete( self.safe_handle(message[4:]))
+                    # else:
+                    #     asyncio.get_event_loop().run_until_complete( self.websocket.send(message))
                     
             except websockets.exceptions.ConnectionClosed:
                 logger.info("Connection closed. Attempting to reconnect...")
-                asyncio.get_event_loop().run_until_complete( self.connect())
+                # asyncio.get_event_loop().run_until_complete( self.connect())
                 logger.info("Reconnected!")
                 break
             except Exception as e:
                 traceback.print_exc()
                 logger.error(f"Error occurred: {e}")
-                asyncio.get_event_loop().run_until_complete( self.connect())
+                # asyncio.get_event_loop().run_until_complete( self.connect())
                 logger.info("Reconnected!")
                 break
 
