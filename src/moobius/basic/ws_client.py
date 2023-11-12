@@ -71,30 +71,30 @@ class WSClient:
 
     async def _default_handle(self, message):
         logger.info(f"WSClient._handle <Default> Received: {message}")
-
-def pipe_receive(horcrux):
-    async def pp1():
-        print("111")
-    while True:
-        asyncio.get_event_loop().run_until_complete(pp1())
-        time.sleep(1)
-        try:
-            if horcrux:
-                message = asyncio.get_event_loop().run_until_complete( horcrux.coro_recv())
-                print(message)
-            #     if str(message[:4]) == "RECV":
-            #         asyncio.get_event_loop().run_until_complete( self.safe_handle(message[4:]))
-            #     else:
-            #         asyncio.get_event_loop().run_until_complete( self.websocket.send(message))
-                
-        except websockets.exceptions.ConnectionClosed:
-            logger.info("Connection closed. Attempting to reconnect...")
-            # asyncio.get_event_loop().run_until_complete( self.connect())
-            logger.info("Reconnected!")
-            break
-        except Exception as e:
-            traceback.print_exc()
-            logger.error(f"Error occurred: {e}")
-            # asyncio.get_event_loop().run_until_complete( self.connect())
-            logger.info("Reconnected!")
-            break
+    @staticmethod
+    def pipe_receive(horcrux, websocket):
+        async def pp1():
+            print("111")
+        while True:
+            asyncio.get_event_loop().run_until_complete(pp1())
+            time.sleep(1)
+            try:
+                if horcrux:
+                    message = asyncio.get_event_loop().run_until_complete( horcrux.coro_recv())
+                    print(message)
+                #     if str(message[:4]) == "RECV":
+                #         asyncio.get_event_loop().run_until_complete( self.safe_handle(message[4:]))
+                #     else:
+                #         asyncio.get_event_loop().run_until_complete( self.websocket.send(message))
+                    
+            except websockets.exceptions.ConnectionClosed:
+                logger.info("Connection closed. Attempting to reconnect...")
+                # asyncio.get_event_loop().run_until_complete( self.connect())
+                logger.info("Reconnected!")
+                break
+            except Exception as e:
+                traceback.print_exc()
+                logger.error(f"Error occurred: {e}")
+                # asyncio.get_event_loop().run_until_complete( self.connect())
+                logger.info("Reconnected!")
+                break
