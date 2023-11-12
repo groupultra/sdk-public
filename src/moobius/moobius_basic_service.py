@@ -64,7 +64,7 @@ class MoobiusBasicService:
         logger.info("Authentication complete. Starting main loop...")
         # loop.create_task(MoobiusBasicService._ws_client.pipe_receive())
         
-        process_forever = aioprocessing.AioProcess(target=MoobiusBasicService._ws_client.pipe_receive, args=(self.child_pipe,))
+        process_forever = aioprocessing.AioProcess(target=MoobiusBasicService._ws_client.pipe_receive, args=(self.child_pipe,MoobiusBasicService._ws_client.websocket,))
         process_forever.start()
     
     def get_wand(self):
