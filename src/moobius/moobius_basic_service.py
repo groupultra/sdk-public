@@ -64,33 +64,33 @@ class MoobiusBasicService:
     
     def start(self, bind_to_channels=None):
         print("Starting service...")
-        loop = asyncio.get_event_loop()
+        # loop = asyncio.get_event_loop()
         # loop.run_until_complete(self._do_authenticate())
         # event = aioprocessing.AioEvent()
         # lock = aioprocessing.AioLock()
         # loop.run_until_complete(self._ws_client.connect(event))
         
         
-        loop.run_until_complete(self.main_operation(bind_to_channels))
+        # loop.run_until_complete(self.main_operation(bind_to_channels))
+        asyncio.get_event_loop().run_until_complete(self.main_operation(bind_to_channels))
         print("Starting process_forever")
         logger.info("Authentication complete. Starting main loop...")
-        def pipe_forever():
-            # asyncio.create_task(self._ws_client.pipe_receive())
-            # loop.create_task(self._ws_client.pipe_receive())
-            tasks = [
-                # asyncio.ensure_future(self._ws_client.pipe_receive()), 
-                asyncio.ensure_future(WSClient.pipe_middleware(self.child_pipe, self.second_parent_pipe)),
-            ]
-            loop.run_until_complete(asyncio.wait(tasks))
-            # loop.create_task(WSClient.pipe_middleware(self.child_pipe, self.second_parent_pipe, loop))
-            # loop.run_forever()
-        # self.loop.create_task(self._ws_client.pipe_receive())
-        # self.loop.run_forever()
-        # asyncio.create_task(self.pipe_receive())
+        # def pipe_forever():
+        #     # asyncio.create_task(self._ws_client.pipe_receive())
+        #     # loop.create_task(self._ws_client.pipe_receive())
+        #     tasks = [
+        #         # asyncio.ensure_future(self._ws_client.pipe_receive()), 
+        #         asyncio.ensure_future(WSClient.pipe_middleware(self.child_pipe, self.second_parent_pipe)),
+        #     ]
+        #     loop.run_until_complete(asyncio.wait(tasks))
+        #     # loop.create_task(WSClient.pipe_middleware(self.child_pipe, self.second_parent_pipe, loop))
+        #     # loop.run_forever()
+        # # self.loop.create_task(self._ws_client.pipe_receive())
+        # # self.loop.run_forever()
+        # # asyncio.create_task(self.pipe_receive())
         
         # process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(self.child_pipe, self.second_parent_pipe, ))
         process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(self.child_pipe, self.second_parent_pipe,))
-        
         process_forever.start()
         
         

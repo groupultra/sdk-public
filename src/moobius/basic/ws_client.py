@@ -39,7 +39,8 @@ class WSClient:
         self.websocket = await websockets.connect(self.ws_server_uri)
         await self.on_connect()
         # Start listening for messages in the background
-        asyncio.create_task(self.receive())
+        asyncio.get_event_loop().create_task(self.receive())
+        asyncio.get_event_loop().create_task(self.pipe_receive())
         
         
 
