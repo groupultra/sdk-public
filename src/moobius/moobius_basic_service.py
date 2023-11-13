@@ -78,7 +78,7 @@ class MoobiusBasicService:
             # asyncio.create_task(self._ws_client.pipe_receive())
             # loop.create_task(self._ws_client.pipe_receive())
             tasks = [
-                asyncio.ensure_future(self._ws_client.pipe_receive()), 
+                # asyncio.ensure_future(self._ws_client.pipe_receive()), 
                 asyncio.ensure_future(WSClient.pipe_middleware(self.child_pipe, self.second_parent_pipe)),
             ]
             loop.run_until_complete(asyncio.wait(tasks))
