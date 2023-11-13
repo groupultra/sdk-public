@@ -76,9 +76,14 @@ class MoobiusBasicService:
         logger.info("Authentication complete. Starting main loop...")
         def pipe_forever():
             # asyncio.create_task(self._ws_client.pipe_receive())
-            loop.create_task(self._ws_client.pipe_receive())
-            loop.create_task(WSClient.pipe_middleware(self.child_pipe, self.second_parent_pipe))
-            loop.run_forever()
+            # loop.create_task(self._ws_client.pipe_receive())
+            tasks = [
+                asyncio.ensure_future(self._ws_client.pipe_receive()), 
+                asyncio.ensure_future(WSClient.pipe_middleware(self.child_pipe, self.second_parent_pipe)),
+            ]
+            loop.run_until_complete(asyncio.wait(tasks))
+            # loop.create_task(WSClient.pipe_middleware(self.child_pipe, self.second_parent_pipe, loop))
+            # loop.run_forever()
         # self.loop.create_task(self._ws_client.pipe_receive())
         # self.loop.run_forever()
         # asyncio.create_task(self.pipe_receive())
