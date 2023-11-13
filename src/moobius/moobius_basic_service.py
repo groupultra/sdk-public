@@ -89,7 +89,7 @@ class MoobiusBasicService:
         # asyncio.create_task(self.pipe_receive())
         
         # process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(self.child_pipe, self.second_parent_pipe, ))
-        process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
+        process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(self.child_pipe, self.second_parent_pipe,))
         
         process_forever.start()
         
