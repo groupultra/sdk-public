@@ -22,14 +22,14 @@ class WSClient:
         self.queue = queue
         
     @staticmethod
-    def pipe_middleware(horcrux, loop, queue):
+    def pipe_middleware(horcrux, queue):
         print("heheheppp")
         # second_wand.coro_send("heheheppp")
         while True:
             try:
                 if horcrux:
                     # second_wand.coro_send("hehehe222")
-                    message = loop.run_until_complete(horcrux.coro_recv())
+                    message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
                     
                     queue.put(message)
                     print("pipe_middleware message", message)
@@ -54,7 +54,7 @@ class WSClient:
         # await self.receive()
         # await self.pipe_receive()
         asyncio.create_task(self.receive())
-        asyncio.create_task(self.pipe_receive())
+        # asyncio.create_task(self.pipe_receive())
         
         
         

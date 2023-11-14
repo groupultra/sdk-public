@@ -7,9 +7,10 @@ import uuid
 import traceback
 import aioprocessing
 import time
+import threading
 
 from dataclasses import asdict
-
+from concurrent.futures import ProcessPoolExecutor
 from dacite import from_dict
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -20,15 +21,16 @@ from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, 
 from moobius.moobius_wand import MoobiusWand
 from moobius.basic._logging_config import logger
 
-global_loop = asyncio.get_event_loop()
+
 
 class MoobiusBasicService:
-    queue = aioprocessing.AioQueue()
-    parent_pipe, child_pipe = aioprocessing.AioPipe()
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
+        self.queue = aioprocessing.AioQueue()
+        self.parent_pipe, self.child_pipe = aioprocessing.AioPipe()
         self._ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login, handle=self.handle_received_payload)
         self._ws_payload_builder = WSPayloadBuilder()
+        
         
         self.refresh_interval = 6 * 60 * 60             # 24h expire, 6h refresh
         self.authenticate_interval = 7 * 24 * 60 * 60   # 30d expire, 7d refresh
@@ -63,21 +65,34 @@ class MoobiusBasicService:
     
     def start(self, bind_to_channels=None):
         print("Starting service...")
-        # loop = asyncio.get_event_loop()
+        loop = asyncio.get_event_loop()
         # loop.run_until_complete(self._do_authenticate())
         # lock = aioprocessing.AioLock()
-        self._ws_client.init_pipe_middleware(MoobiusBasicService.queue)
+        # global_loop = asyncio.get_event_loop()
+        self._ws_client.init_pipe_middleware(self.queue)
         
-        process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(MoobiusBasicService.child_pipe, global_loop, MoobiusBasicService.queue, ))
+        
+        
+        loop.run_until_complete(self.main_operation(bind_to_channels))
+        
+        process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(self.child_pipe, self.queue, ))
         # process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
         process_forever.start()
-        
-        global_loop.run_until_complete(self.main_operation(bind_to_channels))
+        loop.create_task(self._ws_client.pipe_receive())
+        # process_forever2 = aioprocessing.AioProcess(target=MoobiusBasicService.loop_run_forever, args=())
+        # # process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
+        # process_forever2.start()
+        thread = threading.Thread(
+            daemon=True,
+            target=MoobiusBasicService.loop_run_forever,
+            args=(loop, )
+        )
+        thread.start()
         # loop.run_until_complete(self._ws_client.connect(event))
         
         
         
-        # MoobiusBasicService.global_loop.run_forever()
+        # loop.run_forever()
         
         
         
@@ -88,10 +103,15 @@ class MoobiusBasicService:
         # await self.main_operation(bind_to_channels)
         print("Starting process_forever")
         logger.info("Authentication complete. Starting main loop...")
+        # yield None
+        # loop.run_forever()
         
+        # loop.run_forever()
+        # executor = ProcessPoolExecutor()
+        # executor.submit(loop.run_forever)
         # async def funp():
         #     await asyncio.sleep(10)
-        # MoobiusBasicService.global_loop.run_until_complete(funp())
+        # loop.run_until_complete(funp())
         # print("here")
         
         # def pipe_forever():
@@ -125,9 +145,21 @@ class MoobiusBasicService:
         
         
         # print("Finished starting process_forever")
-    
+    @staticmethod
+    def loop_run_forever(loop):
+        loop.run_forever()
+        # print("loop_run_forever finish!!!!!")
+        # try:
+        #     loop._run_forever_setup()
+        #     while True:
+        #         loop._run_once()
+        #         if loop._stopping:
+        #             break
+        # finally:
+        #     loop._run_forever_cleanup()
+            
     def get_wand(self):
-        return MoobiusWand(self, MoobiusBasicService.parent_pipe, global_loop)
+        return MoobiusWand(self, self.parent_pipe)
     
         
     async def main_operation(self, bind_to_channels):

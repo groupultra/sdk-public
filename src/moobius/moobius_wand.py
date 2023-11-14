@@ -1,12 +1,12 @@
 import asyncio
 from dataclasses import asdict
+from dacite import from_dict
 from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, Character
 from moobius.basic._logging_config import logger
 class MoobiusWand:
-    def __init__(self, service, wand, global_loop):
+    def __init__(self, service, wand):
         self.service = service
         self.wand = wand
-        self.loop = global_loop
         
     # =================== on_xxx, to be override ===================
     def on(self, payload):
@@ -14,7 +14,16 @@ class MoobiusWand:
     
     
     def fetch_real_characters(self, channel_id):
-        return self.loop.run_until_complete(self.service.fetch_real_characters(channel_id))
+        data = self.service.http_api.get_channel_userlist(channel_id, self.service.service_id)
+
+        if data["code"] == 10000:
+            userlist = data["data"]["userlist"]
+
+            return [from_dict(data_class=Character, data=d) for d in userlist]
+        else:
+            logger.error(f"fetch_real_characters error {data}")
+
+            return []
     
     # =================== send_xxx, to be used ===================
     def send(self, payload_type, payload_body):
