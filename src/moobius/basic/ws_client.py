@@ -20,16 +20,23 @@ class WSClient:
         # print("WSClient.horcrux init", WSClient.horcrux)
     
     @staticmethod
-    def pipe_middleware(horcrux, second_wand):
+    def pipe_middleware(horcrux, second_wand, second_horcrux):
+        print("heheheppp")
+        second_wand.coro_send("heheheppp")
         while True:
             try:
                 if horcrux:
-                    message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
+                    second_wand.coro_send("hehehe222")
+                    # message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
+                    second_wand.coro_send("hehehe333")
+                    # message = await horcrux.coro_recv()
+                    # message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
+                    # print("pipe_middleware message", message)
+                    # second_wand.coro_send(message)
+                    # asyncio.get_event_loop().run_until_complete(second_wand.coro_send(message))
                     
-                    
-                    print("pipe_middleware message", message)
-                    second_wand.coro_send(message)
-                    
+                    # mm2 = asyncio.get_event_loop().run_until_complete(second_horcrux.coro_recv())
+                    # print("mm2", mm2)
                     # asyncio.get_event_loop().run_until_complete(shared_queue.coro_put(message))
             except Exception as e:
                 traceback.print_exc()
@@ -39,8 +46,10 @@ class WSClient:
         self.websocket = await websockets.connect(self.ws_server_uri)
         await self.on_connect()
         # Start listening for messages in the background
-        asyncio.get_event_loop().create_task(self.receive())
-        asyncio.get_event_loop().create_task(self.pipe_receive())
+        asyncio.create_task(self.receive())
+        asyncio.create_task(self.pipe_receive())
+        
+        
         
         
 

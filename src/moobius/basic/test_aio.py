@@ -2,8 +2,9 @@ import time
 import asyncio
 import aioprocessing
 
-
-def func(queue, event, lock, items):
+async def funp():
+    await asyncio.sleep(3)
+def func(queue, event, lock, items, loop):
     """ Demo worker function.
 
     This worker function runs in its own process, and uses
@@ -11,8 +12,10 @@ def func(queue, event, lock, items):
     the way you would use oridinary multiprocessing objects.
 
     """
+    
     with lock:
         print("func set for event",  event)
+        loop.run_until_complete(funp())
         event.set()
         for item in items:
             time.sleep(3)
@@ -20,10 +23,10 @@ def func(queue, event, lock, items):
     queue.close()
 
 
-async def example(queue, event, lock):
+async def example(queue, event, lock, loop):
     l = [1,2,3,4,5]
-    p = aioprocessing.AioProcess(target=func, args=(queue, event, lock, l))
-    p.start()
+    # p = aioprocessing.AioProcess(target=func, args=(queue, event, lock, l, loop))
+    # p.start()
     while True:
         result = await queue.coro_get()
         if result is None:
@@ -45,9 +48,22 @@ if __name__ == "__main__":
     queue = aioprocessing.AioQueue()
     lock = aioprocessing.AioLock()
     
-    tasks = [
-        asyncio.ensure_future(example(queue, event, lock)), 
-        asyncio.ensure_future(example2(queue, event, lock)),
-    ]
-    loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
+    # tasks = [
+    #     asyncio.ensure_future(example(queue, event, lock)), 
+    #     # asyncio.ensure_future(example2(queue, event, lock)),
+    # ]
+    # loop = asyncio.get_event_loop().run_until_complete(asyncio.wait(tasks))
+    # asyncio.create_task(example(queue, event, lock))
+    # asyncio.get_event_loop().run_until_complete(example(queue, event, lock))
+    p = aioprocessing.AioProcess(target=func, args=(queue, event, lock, [1,2,3,4,5], loop))
+    p.start()
+    
+    loop.run_until_complete(example(queue, event, lock, loop))
+    # asyncio.get_event_loop().run_until_complete(funp())
+    
+    # asyncio.create_task(asyncio.wait(example2(queue, event, lock)))
+    # print("here")
+    # asyncio.create_task(asyncio.wait(example(queue, event, lock)))
+    # p = aioprocessing.AioProcess(target=func, args=(queue, event, lock, [1,2,3,4,5]))
+    # p.start()
+    # loop.close()
