@@ -5,7 +5,7 @@ async def funp_s():
     await asyncio.sleep(0.2)
 async def funp():
     await asyncio.sleep(3)
-def func(queue, event, lock, items, loop):
+def func(queue, items, loop):
     """ Demo worker function.
 
     This worker function runs in its own process, and uses
@@ -15,7 +15,6 @@ def func(queue, event, lock, items, loop):
     """
     
     # with lock:
-    print("func set for event",  event)
     # loop.run_until_complete(funp_s())
     # event.set()
     for item in items:
@@ -24,9 +23,9 @@ def func(queue, event, lock, items, loop):
     queue.close()
 
 
-async def example(queue, event, lock):
+async def example(queue):
     l = [1,2,3,4,5]
-    p = aioprocessing.AioProcess(target=func, args=(queue, event, lock, l, loop))
+    p = aioprocessing.AioProcess(target=func, args=(queue, l, loop))
     p.start()
     while True:
         print("getting")
@@ -36,21 +35,14 @@ async def example(queue, event, lock):
         print("Got result {}".format(result))
     # await p.coro_join()
 
-async def example2(queue, event, lock):
-    print("example2 Waiting for event",  event)
-    await event.coro_wait()
-    print("example2 after Waiting for event",  event)
-    async with lock:
-        await queue.coro_put(78)
-        await queue.coro_put(None) # Shut down the worker
+
 event = aioprocessing.AioEvent()
 lock = aioprocessing.AioLock()
 loop = asyncio.get_event_loop()
 queue = aioprocessing.AioQueue()
-lock = aioprocessing.AioLock()
 
 async def run_example():
-    asyncio.create_task(example(queue, event, lock))
+    asyncio.create_task(example(queue))
     await asyncio.sleep(3)
 if __name__ == "__main__":
     
