@@ -3,10 +3,10 @@ from dataclasses import asdict
 from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Payload, Character
 from moobius.basic._logging_config import logger
 class MoobiusWand:
-    def __init__(self, service, wand):
+    def __init__(self, service, wand, global_loop):
         self.service = service
         self.wand = wand
-        self.loop = asyncio.get_event_loop()
+        self.loop = global_loop
         
     # =================== on_xxx, to be override ===================
     def on(self, payload):

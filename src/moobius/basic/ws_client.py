@@ -11,24 +11,29 @@ from moobius.basic._logging_config import logger
 
 class WSClient:
     
-    def __init__(self, ws_server_uri, on_connect=None, handle=None, second_horcrux=None):
+    def __init__(self, ws_server_uri, on_connect=None, handle=None):
         self.websocket = None
         self.ws_server_uri = ws_server_uri
         self.on_connect = on_connect or self._on_connect
         self.handle = handle or self._default_handle
-        self.second_horcrux = second_horcrux
         # print("WSClient.horcrux init", WSClient.horcrux)
     
+    def init_pipe_middleware(self, queue):
+        self.queue = queue
+        
     @staticmethod
-    def pipe_middleware(horcrux, second_wand, second_horcrux):
+    def pipe_middleware(horcrux, loop, queue):
         print("heheheppp")
-        second_wand.coro_send("heheheppp")
+        # second_wand.coro_send("heheheppp")
         while True:
             try:
                 if horcrux:
-                    second_wand.coro_send("hehehe222")
-                    # message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
-                    second_wand.coro_send("hehehe333")
+                    # second_wand.coro_send("hehehe222")
+                    message = loop.run_until_complete(horcrux.coro_recv())
+                    
+                    queue.put(message)
+                    print("pipe_middleware message", message)
+                    # second_wand.coro_send("hehehe333")
                     # message = await horcrux.coro_recv()
                     # message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
                     # print("pipe_middleware message", message)
@@ -46,6 +51,8 @@ class WSClient:
         self.websocket = await websockets.connect(self.ws_server_uri)
         await self.on_connect()
         # Start listening for messages in the background
+        # await self.receive()
+        # await self.pipe_receive()
         asyncio.create_task(self.receive())
         asyncio.create_task(self.pipe_receive())
         
@@ -92,7 +99,8 @@ class WSClient:
     async def pipe_receive(self):
         while True:
             try:
-                message = await self.second_horcrux.coro_recv()
+                message = await self.queue.coro_get()
+                # queue.coro_get()
                 print("pipe_receive after", message)
                 # if event:
                 #     await event.coro_wait()

@@ -5,6 +5,7 @@ from moobius.moobius_wand import MoobiusWand
 import aioprocessing
 from moobius.basic.types import *
 from moobius.basic._logging_config import logger
+
 def main():
     # For newly bound channels. It doesn't hurt to bind multiple times.
     bind_to_channels = ['efae7992-0801-4079-bae2-83189b68d71d']
