@@ -24,9 +24,7 @@ def func(queue, items, loop):
 
 
 async def example(queue):
-    l = [1,2,3,4,5]
-    p = aioprocessing.AioProcess(target=func, args=(queue, l, loop))
-    p.start()
+    
     while True:
         print("getting")
         result = await queue.coro_get()
@@ -55,7 +53,9 @@ if __name__ == "__main__":
     # asyncio.create_task(example(queue, event, lock))
     # asyncio.get_event_loop().run_until_complete(example(queue, event, lock))
     
-    
+    l = [1,2,3,4,5]
+    p = aioprocessing.AioProcess(target=func, args=(queue, l, loop))
+    p.start()
     loop.run_until_complete(run_example())
     # p = aioprocessing.AioProcess(target=func, args=(queue, event, lock, [1,2,3,4,5], loop))
     # p.start()
