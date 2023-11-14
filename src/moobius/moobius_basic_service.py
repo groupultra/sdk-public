@@ -16,7 +16,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.basic.ws_client import WSClient
 from moobius.basic.ws_payload_builder import WSPayloadBuilder
 from moobius.basic.http_api_wrapper import HTTPAPIWrapper
-from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Payload, Character
+from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, Character
 from moobius.moobius_wand import MoobiusWand
 from moobius.basic._logging_config import logger
 

@@ -3,7 +3,7 @@ import asyncio
 from demo_service import DemoService
 from moobius.moobius_wand import MoobiusWand
 import aioprocessing
-from moobius.basic.types import *
+from moobius.basic._types import *
 from moobius.basic._logging_config import logger
 
 def main():

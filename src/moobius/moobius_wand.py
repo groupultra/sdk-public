@@ -1,6 +1,6 @@
 import asyncio
 from dataclasses import asdict
-from moobius.basic.types import MessageUp, Action, FeatureCall, Copy, Payload, Character
+from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, Character
 from moobius.basic._logging_config import logger
 class MoobiusWand:
     def __init__(self, service, wand, global_loop):
