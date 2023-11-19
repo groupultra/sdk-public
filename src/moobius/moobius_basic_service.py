@@ -21,12 +21,23 @@ from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, 
 from moobius.moobius_wand import MoobiusWand
 from moobius.basic._logging_config import logger
 
-
+class CustomEventLoop():
+    def __init__(self):
+        
+        
+        self.create_loop()
+        
+    def create_loop(self):
+        self.loop = asyncio.new_event_loop()
+        self.loop.run_forever()
+    
+    def run_service(self):
+        self.loop.run_until_complete(self.main_operation(bind_to_channels))
 
 class MoobiusBasicService:
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
-        self.queue = aioprocessing.AioQueue()
+        
         self.parent_pipe, self.child_pipe = aioprocessing.AioPipe()
         self._ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login, handle=self.handle_received_payload)
         self._ws_payload_builder = WSPayloadBuilder()
@@ -65,30 +76,63 @@ class MoobiusBasicService:
     
     def start(self, bind_to_channels=None):
         print("Starting service...")
-        loop = asyncio.get_event_loop()
+        # loop = asyncio.get_event_loop()
         # loop.run_until_complete(self._do_authenticate())
         # lock = aioprocessing.AioLock()
         # global_loop = asyncio.get_event_loop()
-        self._ws_client.init_pipe_middleware(self.queue)
+        
+        
+        
+        
+        # MoobiusBasicService.global_loop.run_until_complete(self.main_operation(bind_to_channels))
+        
+        # # process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(self.child_pipe, queue, ))
+        # # # process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
+        # # process_forever.start()
+        
+        # MoobiusBasicService.global_loop.create_task(self._ws_client.pipe_receive())
+        # MoobiusBasicService.global_loop.create_task(WSClient.pipe_middleware(self.child_pipe, queue))
+        
+        # loop.create_task(self._ws_client.pipe_receive())
+        
+        # tasks = [
+        #     asyncio.ensure_future(WSClient.pipe_middleware(self.child_pipe, queue)), 
+        #     asyncio.ensure_future(self._ws_client.pipe_receive()),
+        # ]
+        # loop.run_until_complete(tasks)
+        # print("HHHHH")
+
+        # process_forever2 = aioprocessing.AioProcess(target=MoobiusBasicService.loop_run_forever, args=())
+        # # process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
+        # process_forever2.start()
+        # MoobiusBasicService.loop_threading_start(loop)
+        # loop.run_until_complete(self._ws_client.connect(event))
+        loop = asyncio.get_event_loop()
+        queue = aioprocessing.AioQueue()
+        self._ws_client.init_pipe_middleware(queue)
+        # 
         
         
         
         loop.run_until_complete(self.main_operation(bind_to_channels))
         
-        process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(self.child_pipe, self.queue, ))
-        # process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
-        process_forever.start()
         loop.create_task(self._ws_client.pipe_receive())
-        # process_forever2 = aioprocessing.AioProcess(target=MoobiusBasicService.loop_run_forever, args=())
-        # # process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
-        # process_forever2.start()
-        thread = threading.Thread(
-            daemon=True,
-            target=MoobiusBasicService.loop_run_forever,
-            args=(loop, )
-        )
-        thread.start()
-        # loop.run_until_complete(self._ws_client.connect(event))
+        loop.create_task(WSClient.pipe_middleware(self.child_pipe, queue))
+        
+        
+        
+        
+        # MoobiusBasicService.global_loop
+        
+        # thread_forever = threading.Thread(
+        #     target=MoobiusBasicService.loop_run_forever,
+        #     args=(loop, )
+        # )
+        # thread_forever.start()
+        
+        process_forever = aioprocessing.AioProcess(target=MoobiusBasicService.block_the_loop, args=(loop, ))
+        process_forever.start()
+        
         
         
         
@@ -145,9 +189,29 @@ class MoobiusBasicService:
         
         
         # print("Finished starting process_forever")
+        
+    # @staticmethod
+    # def loop_threading_start(loop):
+    #     thread = threading.Thread(
+    #         target=MoobiusBasicService.loop_run_forever,
+    #         args=(loop, )
+    #     )
+    #     thread.start()
+        
     @staticmethod
     def loop_run_forever(loop):
+        
+        
+        
+        # process_forever = aioprocessing.AioProcess(target=WSClient.pipe_middleware, args=(self.child_pipe, queue, ))
+        # # process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
+        # process_forever.start()
+        
+        
         loop.run_forever()
+        # while True:
+        #     time.sleep(10)
+        #     print("loop_run_forever")
         # print("loop_run_forever finish!!!!!")
         # try:
         #     loop._run_forever_setup()
@@ -157,9 +221,29 @@ class MoobiusBasicService:
         #             break
         # finally:
         #     loop._run_forever_cleanup()
+        
+    # @staticmethod
+    # def main_exist_forever():
+    #     MoobiusBasicService.global_loop.run_forever()
+        # while True:
+        #     time.sleep(10)
+        #     print("MoobiusBasicService.global_loop", MoobiusBasicService.global_loop)
+        #     # print("loop_run_forever finish!!!!!")
+        #     # try:
+        #     #     loop._run_forever_setup()
+        #     #     while True:
+        #     #         loop._run_once()
+        #     #         if :
+        #     #             break
+        #     # finally:
+        #     #     loop._run_forever_cleanup()
             
     def get_wand(self):
         return MoobiusWand(self, self.parent_pipe)
+    
+    @staticmethod
+    def block_the_loop(loop):
+        loop.run_forever()
     
         
     async def main_operation(self, bind_to_channels):

@@ -21,15 +21,41 @@ class WSClient:
     def init_pipe_middleware(self, queue):
         self.queue = queue
         
+    # @staticmethod
+    # def pipe_middleware(horcrux, queue):
+    #     print("heheheppp")
+    #     # second_wand.coro_send("heheheppp")
+    #     while True:
+    #         try:
+    #             if horcrux:
+    #                 # second_wand.coro_send("hehehe222")
+    #                 message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
+                    
+    #                 queue.put(message)
+    #                 print("pipe_middleware message", message)
+    #                 # second_wand.coro_send("hehehe333")
+    #                 # message = await horcrux.coro_recv()
+    #                 # message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
+    #                 # print("pipe_middleware message", message)
+    #                 # second_wand.coro_send(message)
+    #                 # asyncio.get_event_loop().run_until_complete(second_wand.coro_send(message))
+                    
+    #                 # mm2 = asyncio.get_event_loop().run_until_complete(second_horcrux.coro_recv())
+    #                 # print("mm2", mm2)
+    #                 # asyncio.get_event_loop().run_until_complete(shared_queue.coro_put(message))
+    #         except Exception as e:
+    #             traceback.print_exc()
+    #             logger.error(f"Error occurred: {e}")
+    
     @staticmethod
-    def pipe_middleware(horcrux, queue):
+    async def pipe_middleware(horcrux, queue):
         print("heheheppp")
         # second_wand.coro_send("heheheppp")
         while True:
             try:
                 if horcrux:
                     # second_wand.coro_send("hehehe222")
-                    message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
+                    message = await horcrux.coro_recv()
                     
                     queue.put(message)
                     print("pipe_middleware message", message)
