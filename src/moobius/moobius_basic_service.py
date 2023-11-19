@@ -124,14 +124,14 @@ class MoobiusBasicService:
         
         # MoobiusBasicService.global_loop
         
-        # thread_forever = threading.Thread(
-        #     target=MoobiusBasicService.loop_run_forever,
-        #     args=(loop, )
-        # )
-        # thread_forever.start()
+        thread_forever = threading.Thread(
+            target=MoobiusBasicService.loop_run_forever,
+            args=(loop, )
+        )
+        thread_forever.start()
         
-        process_forever = aioprocessing.AioProcess(target=MoobiusBasicService.block_the_loop, args=(loop, ))
-        process_forever.start()
+        # process_forever = aioprocessing.AioProcess(target=MoobiusBasicService.block_the_loop, args=(loop, ))
+        # process_forever.start()
         
         
         

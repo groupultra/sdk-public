@@ -49,7 +49,7 @@ if __name__ == "__main__":
     # need helper class for building msg_up
     wand.on(json.dumps(my_msg_up))
     
-    # while True:
-    #     time.sleep(1)
+    while True:
+        time.sleep(1)
     # import time
     # time.sleep(10)
