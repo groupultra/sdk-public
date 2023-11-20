@@ -21,24 +21,11 @@ from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, 
 from moobius.moobius_wand import MoobiusWand
 from moobius.basic._logging_config import logger
 
-class CustomEventLoop():
-    def __init__(self):
-        
-        
-        self.create_loop()
-        
-    def create_loop(self):
-        self.loop = asyncio.new_event_loop()
-        self.loop.run_forever()
-    
-    def run_service(self):
-        self.loop.run_until_complete(self.main_operation(bind_to_channels))
-
 class MoobiusBasicService:
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
         
-        self.parent_pipe, self.child_pipe = aioprocessing.AioPipe()
+        
         self._ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login, handle=self.handle_received_payload)
         self._ws_payload_builder = WSPayloadBuilder()
         
@@ -107,17 +94,22 @@ class MoobiusBasicService:
         # process_forever2.start()
         # MoobiusBasicService.loop_threading_start(loop)
         # loop.run_until_complete(self._ws_client.connect(event))
-        loop = asyncio.get_event_loop()
-        queue = aioprocessing.AioQueue()
-        self._ws_client.init_pipe_middleware(queue)
+        self.loop = asyncio.get_event_loop()
+        # self.queue = aioprocessing.AioQueue()
+        self.queue = asyncio.Queue()
+        self.event = aioprocessing.AioEvent()
+        # self.parent_pipe, self.child_pipe = aioprocessing.AioPipe()
+        # self.wand = aioprocessing.AioQueue()
+        self.wand = asyncio.Queue()
+        self._ws_client.init_pipe_middleware(self.queue, self.event)
         # 
         
         
         
-        loop.run_until_complete(self.main_operation(bind_to_channels))
+        self.loop.run_until_complete(self.main_operation(bind_to_channels))
         
-        loop.create_task(self._ws_client.pipe_receive())
-        loop.create_task(WSClient.pipe_middleware(self.child_pipe, queue))
+        self.loop.create_task(self._ws_client.pipe_receive())
+        self.loop.create_task(WSClient.pipe_middleware(self.wand, self.queue, self.event))
         
         
         
@@ -126,10 +118,23 @@ class MoobiusBasicService:
         
         thread_forever = threading.Thread(
             target=MoobiusBasicService.loop_run_forever,
-            args=(loop, )
+            args=(self.loop, ),
+            daemon=False
         )
         thread_forever.start()
         
+        
+        thread_forever2 = threading.Thread(
+            target=self.queue.join,
+            args=(),
+            daemon=False
+        )
+        thread_forever2.start()
+        
+        # await self.queue.join()
+        
+        
+    
         # process_forever = aioprocessing.AioProcess(target=MoobiusBasicService.block_the_loop, args=(loop, ))
         # process_forever.start()
         
@@ -207,7 +212,7 @@ class MoobiusBasicService:
         # # process_forever = aioprocessing.AioProcess(target=pipe_forever, args=())
         # process_forever.start()
         
-        
+        # asyncio.set_event_loop(loop)
         loop.run_forever()
         # while True:
         #     time.sleep(10)
@@ -239,7 +244,7 @@ class MoobiusBasicService:
         #     #     loop._run_forever_cleanup()
             
     def get_wand(self):
-        return MoobiusWand(self, self.parent_pipe)
+        return MoobiusWand(self, self.loop, self.wand)
     
     @staticmethod
     def block_the_loop(loop):

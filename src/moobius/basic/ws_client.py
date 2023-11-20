@@ -18,9 +18,9 @@ class WSClient:
         self.handle = handle or self._default_handle
         # print("WSClient.horcrux init", WSClient.horcrux)
     
-    def init_pipe_middleware(self, queue):
+    def init_pipe_middleware(self, queue, event):
         self.queue = queue
-        
+        self.event = event
     # @staticmethod
     # def pipe_middleware(horcrux, queue):
     #     print("heheheppp")
@@ -48,17 +48,26 @@ class WSClient:
     #             logger.error(f"Error occurred: {e}")
     
     @staticmethod
-    async def pipe_middleware(horcrux, queue):
+    async def pipe_middleware(wand, queue, event):
         print("heheheppp")
         # second_wand.coro_send("heheheppp")
         while True:
             try:
-                if horcrux:
+                if wand:
                     # second_wand.coro_send("hehehe222")
-                    message = await horcrux.coro_recv()
-                    
-                    queue.put(message)
+                    # try:
+                    message = await wand.get()
                     print("pipe_middleware message", message)
+                    queue.put_nowait(message)
+                    
+                    # # await event.coro_wait()
+                    # except Exception as e:
+                    #     # print("pipe_middleware error", e)
+                    #     pass
+                    # cnt+=1
+                    # if cnt==3:
+                    #     break
+                    # print("pipe_middleware message", message)
                     # second_wand.coro_send("hehehe333")
                     # message = await horcrux.coro_recv()
                     # message = asyncio.get_event_loop().run_until_complete(horcrux.coro_recv())
@@ -72,6 +81,7 @@ class WSClient:
             except Exception as e:
                 traceback.print_exc()
                 logger.error(f"Error occurred: {e}")
+        await wand.join()
                 
     async def connect(self):
         self.websocket = await websockets.connect(self.ws_server_uri)
@@ -125,9 +135,10 @@ class WSClient:
     async def pipe_receive(self):
         while True:
             try:
-                message = await self.queue.coro_get()
+                message = await self.queue.get()
                 # queue.coro_get()
                 print("pipe_receive after", message)
+                # self.event.set()
                 # if event:
                 #     await event.coro_wait()
                 #     print("pipe_receive after", event)

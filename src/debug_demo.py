@@ -27,10 +27,13 @@ def main():
     return service
 
 
+
+
 if __name__ == "__main__":
     
     service = main()
-    service.parent_pipe.coro_send("ping")
+    # asyncio.run_coroutine_threadsafe(coro, self.eventloop)
+    # service.parent_pipe.coro_send("ping")
     wand = service.get_wand()
     wand.send_ping()
     wand.send_ping()
@@ -49,7 +52,9 @@ if __name__ == "__main__":
     # need helper class for building msg_up
     wand.on(json.dumps(my_msg_up))
     
-    while True:
-        time.sleep(1)
+    
+    
+    # while True:
+    #     time.sleep(1)
     # import time
     # time.sleep(10)
