@@ -12,7 +12,7 @@ def main():
     bind_to_channels = ['efae7992-0801-4079-bae2-83189b68d71d']
     
     # with open(r"C:\\Users\\Administrator\\Desktop\\ss\\sdk\\src\\config.json", "r") as f:
-    with open("/home/ubuntu/sdk/src/config.json", "r") as f:
+    with open("config.json", "r") as f:
         config = json.load(f)
     
     with open("db_settings.json", "r") as f:
