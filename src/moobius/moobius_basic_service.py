@@ -10,7 +10,6 @@ import time
 import threading
 
 from dataclasses import asdict
-from concurrent.futures import ProcessPoolExecutor
 from dacite import from_dict
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
