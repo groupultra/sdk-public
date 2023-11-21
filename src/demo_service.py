@@ -4,7 +4,7 @@ import asyncio
 import json
 
 from moobius.moobius_service import MoobiusService
-from moobius.basic.types import Character
+from moobius.basic._types import Character
 from moobius.dbtools.moobius_band import MoobiusBand
 from dacite import from_dict
 from moobius.basic._logging_config import logger

@@ -49,7 +49,7 @@ class SimpleJSONDatabase(DatabaseInterface):
                 return True, None   # You can't use NoneType(None) to construct a NoneType object, so we have to return None directly
             else:
                 class_name = data['_type']
-                data_type = locate(f'moobius.basic.types.{class_name}')
+                data_type = locate(f'moobius.basic._types.{class_name}')
                 
                 if data_type:   # dataclass
                     return True, from_dict(data_class=data_type, data=data[key])  # todo: add a field to indicate the type of the value

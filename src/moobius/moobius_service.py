@@ -5,7 +5,7 @@ import time
 
 from dacite import from_dict
 
-from moobius.basic.types import MessageDown
+from moobius.basic._types import MessageDown
 from moobius.moobius_basic_service import MoobiusBasicService
 
 # with database

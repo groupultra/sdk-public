@@ -6,7 +6,7 @@ def main():
     # For newly bound channels. It doesn't hurt to bind multiple times.
     bind_to_channels = ['efae7992-0801-4079-bae2-83189b68d71d']
     
-    with open("/home/ubuntu/sdk/src/config.json", "r") as f:
+    with open("config.json", "r") as f:
         config = json.load(f)
     
     with open("db_settings.json", "r") as f:

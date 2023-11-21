@@ -28,7 +28,7 @@
 - `http_api_wrapper.py`: a pure implementation of low-level HTTP APIs.
 - `ws_payload_builder.py`: a pure builder of websocket API payloads.
 - `ws_client.py`: a websocket client based on `websockets` that facilitates automatic reconnection, exception handling and `asyncio.create_task()` wrapper (so that you can simply use `await` in higher methods.)
-- `types.py`: definition of all datatypes.
+- `_types.py`: definition of all datatypes.
 - `_logging_config.py`: all things about console logs.
 
 `moobius/moobius_basic_service.py`: The Base class of a Service. It has a minimal but complete implementation of a fully functional Moobius Service instance (so that it is runnable!), including authentication, automatic heartbeat and a trivial handler to payloads (print and noops).
@@ -39,7 +39,7 @@
 
 On JSON-based file db, it involves some trick to build a dict-like `MagicalStorage` with automatic DB sync (including sync after restart) independent of database implementation, and customizable domains (you can add custom attributes as needed).
 
-1. `moobius/basic/types.py`
+1. `moobius/basic/_types.py`
 
 - Dataclasses are defined(`Character`, `Stage`, etc).
 

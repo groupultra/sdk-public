@@ -4,8 +4,8 @@ logs/
 # 忽略 __pycache__ 文件夹下的所有内容
 __pycache__/
 
-# 忽略 config.py 文件
-config.py
+# 忽略 config.json 文件
+config.json
 
 # 忽略 data.json 文件
 json/data.json
