@@ -5,7 +5,7 @@ logs/
 __pycache__/
 
 # 忽略 config.py 文件
-config.py
+config.json
 
 # 忽略 data.json 文件
 json/data.json
