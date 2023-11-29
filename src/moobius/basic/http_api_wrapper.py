@@ -86,7 +86,7 @@ class HTTPAPIWrapper:
         }
         url = self.http_server_uri + "/service/create"
         response = requests.post(url, json=data, headers=self.headers)
-        
+        logger.info("create_service response", response.json())
         # Check response
         if response.json().get('code') == 10000:
             logger.info("Successfully created service!")
@@ -102,7 +102,6 @@ class HTTPAPIWrapper:
         }
         url = self.http_server_uri + "/service/bind"
         response = requests.post(url, json=data, headers=self.headers)
-        
         # Check response
         if response.json().get('code') == 10000:
             logger.info(f"Successfully binded service {service_id} with channel {channel_id}!")
@@ -128,7 +127,8 @@ class HTTPAPIWrapper:
     def get_service_list(self):
         url = self.http_server_uri + "/service/list"
         response = requests.get(url, headers=self.headers)
-        
+        logger.info("get_service_list response:")
+        logger.info((response.json()))
         # Check response
         if response.json().get('code') == 10000:
             logger.info(f"Successfully get service list!")

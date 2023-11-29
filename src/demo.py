@@ -4,7 +4,7 @@ from demo_service import DemoService
 import aioprocessing
 def main():
     # For newly bound channels. It doesn't hurt to bind multiple times.
-    bind_to_channels = ['efae7992-0801-4079-bae2-83189b68d71d']
+    bind_to_channels = ['3457120e-8f05-4786-a3d4-0b53d70e6bba']
     
     with open("config.json", "r") as f:
         config = json.load(f)
