@@ -4,9 +4,8 @@ from dacite import from_dict
 from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, Character
 from moobius.basic._logging_config import logger
 class MoobiusWand:
-    def __init__(self, service, loop, wand):
+    def __init__(self, service, wand):
         self.service = service
-        self.loop = loop
         self.wand = wand
         
     # =================== on_xxx, to be override ===================

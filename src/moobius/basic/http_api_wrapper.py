@@ -54,7 +54,6 @@ class HTTPAPIWrapper:
 
         url = self.http_server_uri + "/channel/userlist"
         response = requests.get(url, params=params, headers=self.headers)
-        logger.info(response)
         # Check response
         if response.json().get('code') == 10000:
             logger.info("Successfully fetched channel userlist!")
@@ -102,6 +101,7 @@ class HTTPAPIWrapper:
         }
         url = self.http_server_uri + "/service/bind"
         response = requests.post(url, json=data, headers=self.headers)
+        logger.info(f"bind_service_to_channel response {response.json()}")
         # Check response
         if response.json().get('code') == 10000:
             logger.info(f"Successfully binded service {service_id} with channel {channel_id}!")
@@ -127,8 +127,6 @@ class HTTPAPIWrapper:
     def get_service_list(self):
         url = self.http_server_uri + "/service/list"
         response = requests.get(url, headers=self.headers)
-        logger.info("get_service_list response:")
-        logger.info((response.json()))
         # Check response
         if response.json().get('code') == 10000:
             logger.info(f"Successfully get service list!")
@@ -246,9 +244,6 @@ class HTTPAPIWrapper:
             with open(file_path, 'rb') as f:
                 files = {'file': (file_path, f)}
                 response = requests.post(upload_url, data=upload_fields, files=files)
-                logger.info(response)
-                logger.info(upload_url)
-                logger.info(upload_fields)
                 full_url = upload_url + upload_fields.get("key")
                 if response.status_code == 204:
                     return full_url
