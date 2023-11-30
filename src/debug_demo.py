@@ -41,3 +41,4 @@ if __name__ == "__main__":
     my_msg_up = {"type": "msg_up", "body": {"subtype": "text", "content": {"text": "ping"}, "channel_id": "efae7992-0801-4079-bae2-83189b68d71d", "timestamp": 1697944692927, "recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"], "msg_id": "fae4c198-baca-48d3-ad07-2a7f95e2f0cc", "context": {"recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"], "group_id": None, "sender": "b42d0cb1-b97a-4c63-bbab-1d456cc26490"}}}
     # need helper class for building msg_up
     wand.on(json.dumps(my_msg_up))
+    print("done")
