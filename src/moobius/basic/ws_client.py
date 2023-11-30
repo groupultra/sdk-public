@@ -25,8 +25,11 @@ class WSClient:
         while True:
             try:
                 if wand:
-                    message = await wand.get()
-                    queue.put_nowait(message)
+                    # message = await wand.get()
+                    message = await wand.coro_get()
+                    print("middleware message", message)
+                    # queue.put_nowait(message)
+                    queue.coro_put(message)
             except Exception as e:
                 traceback.print_exc()
                 logger.error(f"Error occurred: {e}")
@@ -81,7 +84,9 @@ class WSClient:
     async def pipe_receive(self):
         while True:
             try:
-                message = await self.queue.get()
+                # message = await self.queue.get()
+                message = await self.queue.coro_get()
+                print("pipe_receive message", message)
                 if str(message[:4]) == "RECV":
                     await self.safe_handle(message[4:])
                 else:

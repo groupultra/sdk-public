@@ -63,8 +63,10 @@ class MoobiusBasicService:
     def start(self, bind_to_channels=None):
         logger.info("Starting service...")
         self.loop = asyncio.get_event_loop()
-        self.queue = asyncio.Queue()
-        self.wand = asyncio.Queue()
+        # self.queue = asyncio.Queue()
+        # self.wand = asyncio.Queue()
+        self.queue = aioprocessing.AioQueue()
+        self.wand = aioprocessing.AioQueue()
         self._ws_client.init_pipe_middleware(self.queue)
         
         self.loop.run_until_complete(self.auth_and_connect())
@@ -91,16 +93,19 @@ class MoobiusBasicService:
         
         
         
+        process_forever = aioprocessing.AioProcess(target=MoobiusBasicService.loop_run_forever, args=(self.loop, ))
         
-        thread_forever = threading.Thread(
-            target=MoobiusBasicService.loop_run_forever,
-            args=(self.loop, ),
-            daemon=False
-        )
-        thread_forever.start()
+        process_forever.start()
+        
+        # thread_forever = threading.Thread(
+        #     target=MoobiusBasicService.loop_run_forever,
+        #     args=(self.loop, ),
+        #     daemon=False
+        # )
+        # thread_forever.start()
         
         
-        logger.info("Starting process_forever")
+        logger.info("Starting loop run forever")
         logger.info("Authentication complete. Starting main loop...")
         
     @staticmethod

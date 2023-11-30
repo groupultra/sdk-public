@@ -7,10 +7,10 @@ from moobius.basic._types import *
 from moobius.basic._logging_config import logger
 import time
 
+# For newly bound channels. It doesn't hurt to bind multiple times.
+bind_to_channels = ['3457120e-8f05-4786-a3d4-0b53d70e6bba']
+
 def main():
-    # For newly bound channels. It doesn't hurt to bind multiple times.
-    bind_to_channels = ['3457120e-8f05-4786-a3d4-0b53d70e6bba']
-    
     with open("config.json", "r") as f:
         config = json.load(f)
     
@@ -21,9 +21,6 @@ def main():
     service.start(bind_to_channels=bind_to_channels)
     return service
 
-
-
-
 if __name__ == "__main__":
     
     service = main()
@@ -33,9 +30,9 @@ if __name__ == "__main__":
     wand.send_ping()
     wand.send_ping()
     wand.send_ping()
-    real_characters = wand.fetch_real_characters("efae7992-0801-4079-bae2-83189b68d71d")
+    real_characters = wand.fetch_real_characters(bind_to_channels[0])
     logger.info(f"real_characters {real_characters}")
-    wand.send_msg_down(channel_id="efae7992-0801-4079-bae2-83189b68d71d", 
+    wand.send_msg_down(channel_id=bind_to_channels[0], 
                        recipients=["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"],
                        subtype="text",
                        message_content="Hello! I'm Ayaka!",
