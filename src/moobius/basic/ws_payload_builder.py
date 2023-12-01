@@ -5,7 +5,7 @@ import json
 import time
 
 from moobius.utils import EnhancedJSONEncoder
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
 # This should be a basic builder. Do NOT put dependencies here.
 # todo: Use dataclass!
 class WSPayloadBuilder:

@@ -1,7 +1,7 @@
 # null_database.py
 
 from moobius.dbtools.database_interface import DatabaseInterface
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
 class NullDatabase(DatabaseInterface):
     def __init__(self, domain='', **kwargs):
         super().__init__(domain=domain, **kwargs)

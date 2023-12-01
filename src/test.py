@@ -1,7 +1,7 @@
 from moobius.dbtools.magical_storage import MagicalStorage
 from moobius.dbtools.simple_json_database import SimpleJSONDatabase
 from moobius.basic._types import Character, CharacterContext
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
 
 if __name__ == '__main__':
     database = SimpleJSONDatabase(domain='test_db', root_dir='.', clear=True)

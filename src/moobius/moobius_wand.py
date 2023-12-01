@@ -8,14 +8,17 @@ import time
 from multiprocessing import Process
 
 from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, Character
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
     
 class MoobiusWand:
     def __init__(self, service):
         self.service = service
         
     def _service_job(self, bind_to_channels=None):
-        asyncio.run(self.service.start(bind_to_channels))
+        try:
+            asyncio.run(self.service.start(bind_to_channels))
+        except KeyboardInterrupt:
+            pass
         
     def start_background_service(self, bind_to_channels=None):
         p_service = Process(target=self._service_job, args=(bind_to_channels, ))
@@ -76,3 +79,37 @@ class MoobiusWand:
 
         payload_str = self.service._ws_payload_builder.dumps(payload_dict)
         await self.service.queue.coro_put(payload_str)
+        
+    def on(self, payload_type, payload_body):
+        if isinstance(payload_body, dict):
+            payload_dict = {
+                'type': payload_type,
+                'body': payload_body
+            }
+        else:
+            payload_obj = Payload(
+                type=payload_type,
+                body=payload_body
+            )
+
+            payload_dict = asdict(payload_obj)
+        
+        payload_str = self.service._ws_payload_builder.dumps(payload_dict)
+        self.service.queue.put("RECV" + payload_str)
+    
+    async def async_on(self, payload_type, payload_body):
+        if isinstance(payload_body, dict):
+            payload_dict = {
+                'type': payload_type,
+                'body': payload_body
+            }
+        else:
+            payload_obj = Payload(
+                type=payload_type,
+                body=payload_body
+            )
+
+            payload_dict = asdict(payload_obj)
+        
+        payload_str = self.service._ws_payload_builder.dumps(payload_dict)
+        await self.service.queue.coro_put("RECV" + payload_str)

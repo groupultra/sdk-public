@@ -3,7 +3,7 @@
 from collections.abc import MutableMapping
 from moobius.dbtools.simple_json_database import SimpleJSONDatabase
 from moobius.dbtools.null_database import NullDatabase
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
 class CachedDict(MutableMapping, dict):
     def __init__(self, database=None, strict_mode=False):
         super().__init__()

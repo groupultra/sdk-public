@@ -17,7 +17,7 @@ from moobius.basic.ws_payload_builder import WSPayloadBuilder
 from moobius.basic.http_api_wrapper import HTTPAPIWrapper
 from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, Character
 from moobius.moobius_wand import MoobiusWand
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
 
 class MoobiusBasicService:
     def __init__(self, http_server_uri="", ws_server_uri="", service_id="", email="", password="", **kwargs):
@@ -100,7 +100,6 @@ class MoobiusBasicService:
         while True:
             try:
                 message = await self.queue.coro_get()
-                print(f'message received from queue: {message}')
                 await self.handle_queue_message(message)
             except Exception as e:
                 traceback.print_exc()
@@ -147,7 +146,11 @@ class MoobiusBasicService:
             await self.on_unknown_payload(payload)
     
     async def handle_queue_message(self, message):
-        await self._ws_client.send(message)
+        if message[:4] == "RECV":
+            payload = message[4:]
+            await self.handle_received_payload(payload)
+        else:
+            await self._ws_client.send(message)
 
 
     # =================== on_xxx, to be override ===================

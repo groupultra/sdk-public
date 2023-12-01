@@ -6,7 +6,7 @@ import websockets
 
 import time
 import aioprocessing
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
 
 
 class WSClient:
@@ -27,7 +27,6 @@ class WSClient:
     # todo: max retries
     async def send(self, message):
         try:
-            print(f"WSClient.send() {message}")
             await self.websocket.send(message)  # Don't use asyncio.create_task() here, or the message could not be sent in order
         except websockets.exceptions.ConnectionClosed:
             logger.info("WSClient.send() Connection closed. Attempting to reconnect...")
