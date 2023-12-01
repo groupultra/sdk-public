@@ -24,3 +24,13 @@ def configure_logger(name, log_dir="logs"):
     return logger
 
 logger = configure_logger(__name__)
+
+def log_info(msg, print_to_console=False):
+    if print_to_console:
+        print(msg)
+    logger.info(msg)
+
+def log_error(msg, print_to_console=False):
+    if print_to_console:
+        print(msg)
+    logger.error(msg)

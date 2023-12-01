@@ -3,7 +3,7 @@
 from collections.abc import MutableMapping
 from moobius.dbtools.simple_json_database import SimpleJSONDatabase
 from moobius.dbtools.null_database import NullDatabase
-from moobius.basic.logging_config import logger
+from moobius.basic.logging_config import log_info, log_error
 class CachedDict(MutableMapping, dict):
     def __init__(self, database=None, strict_mode=False):
         super().__init__()
@@ -37,7 +37,7 @@ class CachedDict(MutableMapping, dict):
             if self.strict_mode:
                 raise Exception(f'Failed to save key {key} to database. {err_msg}')
             else:
-                logger.error(f'Failed to save key {key} to database: {err_msg}. Inconsistency may occur.')
+                log_error(f'Failed to save key {key} to database: {err_msg}. Inconsistency may occur.')
                 dict.__setitem__(self, key, value)    
     
     def __delitem__(self, key):
@@ -49,7 +49,7 @@ class CachedDict(MutableMapping, dict):
             if self.strict_mode:
                 raise Exception(f'Failed to delete key {key} from database. {err_msg}')
             else:
-                logger.error(f'Failed to delete key {key} from database: {err_msg}. Inconsistency may occur.')
+                log_error(f'Failed to delete key {key} from database: {err_msg}. Inconsistency may occur.')
                 dict.__delitem__(self,key)
     
     def __iter__(self):

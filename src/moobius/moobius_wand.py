@@ -8,7 +8,7 @@ import time
 from multiprocessing import Process
 
 from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, Character
-from moobius.basic.logging_config import logger
+from moobius.basic.logging_config import log_error, log_info
     
 class MoobiusWand:
     def __init__(self, service):
@@ -33,7 +33,7 @@ class MoobiusWand:
 
             return [from_dict(data_class=Character, data=d) for d in userlist]
         else:
-            logger.error(f"fetch_real_characters error {data}")
+            log_error(f"fetch_real_characters error {data}")
 
             return []
     
