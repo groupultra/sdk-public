@@ -29,7 +29,7 @@
 - `ws_payload_builder.py`: a pure builder of websocket API payloads.
 - `ws_client.py`: a websocket client based on `websockets` that facilitates automatic reconnection, exception handling and `asyncio.create_task()` wrapper (so that you can simply use `await` in higher methods.)
 - `_types.py`: definition of all datatypes.
-- `_logging_config.py`: all things about console logs.
+- `logging_config.py`: all things about console logs.
 
 `moobius/moobius_basic_service.py`: The Base class of a Service. It has a minimal but complete implementation of a fully functional Moobius Service instance (so that it is runnable!), including authentication, automatic heartbeat and a trivial handler to payloads (print and noops).
 
