@@ -34,12 +34,12 @@ class MoobiusBasicService:
         self.heartbeat_interval = 30                    # 30s heartbeat
         self.service_id = service_id
 
-        # self.scheduler = AsyncIOScheduler()
+        self.scheduler = AsyncIOScheduler()
 
-        # # The details of access_token and refresh_token are managed by self.http_api
-        # self.scheduler.add_job(self._do_refresh, 'interval', seconds=self.refresh_interval)
-        # self.scheduler.add_job(self._do_authenticate, 'interval', seconds=self.authenticate_interval)
-        # self.scheduler.add_job(self._do_send_heartbeat, 'interval', seconds=self.heartbeat_interval)
+        # The details of access_token and refresh_token are managed by self.http_api
+        self.scheduler.add_job(self._do_refresh, 'interval', seconds=self.refresh_interval)
+        self.scheduler.add_job(self._do_authenticate, 'interval', seconds=self.authenticate_interval)
+        self.scheduler.add_job(self._do_send_heartbeat, 'interval', seconds=self.heartbeat_interval)
 
     # =================== jobs ===================
 
@@ -81,7 +81,7 @@ class MoobiusBasicService:
         else:
             pass
         
-        # self.scheduler.start()
+        self.scheduler.start()
         logger.info("Scheduler started.")
 
         await self.on_start()
