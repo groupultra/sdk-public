@@ -3,7 +3,7 @@
 from moobius.dbtools.null_database import NullDatabase
 from moobius.dbtools.simple_json_database import SimpleJSONDatabase
 from moobius.dbtools.magical_storage import MagicalStorage
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
 class MoobiusBand(MagicalStorage):
     def __init__(self, service_id, band_id, db_settings=()):
         super().__init__()

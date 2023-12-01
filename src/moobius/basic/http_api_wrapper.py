@@ -1,6 +1,6 @@
 # http_api_wrapper.py
 import requests
-from moobius.basic._logging_config import logger
+from moobius.basic.logging_config import logger
 # todo: refresh
 # todo: return code
 class HTTPAPIWrapper:

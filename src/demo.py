@@ -22,7 +22,7 @@ if __name__ == "__main__":
     wand = main()
     
     async def test_async_send():
-        for i in range(5):
+        for i in range(3):
             await asyncio.sleep(1)
             msg_down_body = {
                 "channel_id": "3457120e-8f05-4786-a3d4-0b53d70e6bba",
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     
     asyncio.run(test_async_send())
     
-    for i in range(5):
+    for i in range(3):
         time.sleep(1)
         msg_down_body = {
             "channel_id": "3457120e-8f05-4786-a3d4-0b53d70e6bba",
@@ -51,5 +51,20 @@ if __name__ == "__main__":
             "timestamp": int(time.time() * 1000)
         }
         wand.send("msg_down", msg_down_body)
-        
+   
+    async def test_async_on():
+        for i in range(3):
+            await asyncio.sleep(1)
+            msg_up_body = {"subtype": "text", 
+                "content": {"text": "ping"}, 
+                "channel_id": "3457120e-8f05-4786-a3d4-0b53d70e6bba", 
+                "timestamp": 1697944692927, 
+                "recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"], 
+                "msg_id": "fae4c198-baca-48d3-ad07-2a7f95e2f0cc", 
+                "context": {
+                    "recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"], "group_id": None, "sender": "b42d0cb1-b97a-4c63-bbab-1d456cc26490"}
+            }
+            await wand.async_on("msg_up", msg_up_body)
+    
+    asyncio.run(test_async_on())
     
