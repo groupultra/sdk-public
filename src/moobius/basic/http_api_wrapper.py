@@ -147,7 +147,6 @@ class HTTPAPIWrapper:
             }
         }
         
-        
         response = requests.post(url, json=data, headers=self.headers)
                
         if response.json().get('code') == 10000:
@@ -158,6 +157,10 @@ class HTTPAPIWrapper:
             
             return None
         
+    def create_service_user_with_local_image(self, service_id, username, nickname, image_path, description):
+        avatar = self.upload_file(image_path)
+        return self.create_service_user(service_id, username, nickname, avatar, description)
+        
     def create_service_group(self, group_id, user_uuids):
         url = self.http_server_uri + "/service/group/create"
         data = {
@@ -165,7 +168,6 @@ class HTTPAPIWrapper:
             "members": user_uuids
         }
         response = requests.post(url, json=data, headers=self.headers)
-        # create_service_group response: {'code': 10000, 'data': '158929e8-808d-403f-b491-10de98206103', 'msg': 'Create success'}
         # Check response
         if response.json().get('code') == 10000:
             logger.info(f"Successfully created service group!")

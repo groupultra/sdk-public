@@ -53,6 +53,7 @@ class DemoService(MoobiusService):
         if msg_up.subtype == "text":
             if msg_up.content['text'] == "ping":
                 msg_up.content['text'] = "pong"
+                
         msg_down = self.msg_up_to_msg_down(msg_up)
         
         await self.send(payload_type='msg_down', payload_body=msg_down)
@@ -151,10 +152,10 @@ class DemoService(MoobiusService):
             if feature_call.arguments[0].value == "Meet Tubbs":
                 def _make_character(band_id, local_id, nickname):
                     username = f'{nickname}'
-                    avatar = self.http_api.upload_file("demo_images/tubbs.png")
                     description = f'I am {nickname}!'
+                    
+                    data = self.http_api.create_service_user_with_local_image(self.service_id, "tubbs", "tubbs", "demo_images/tubbs.png", "I'm tubbs!")
 
-                    data = self.http_api.create_service_user(self.service_id, username, nickname, avatar, description)
                     character = from_dict(data_class=Character, data=data)
                     return character
                 
