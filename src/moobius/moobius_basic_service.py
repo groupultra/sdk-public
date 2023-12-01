@@ -81,7 +81,7 @@ class MoobiusBasicService:
         else:
             pass
         
-        self.scheduler.start()
+        # self.scheduler.start()
         logger.info("Scheduler started.")
 
         await self.on_start()
