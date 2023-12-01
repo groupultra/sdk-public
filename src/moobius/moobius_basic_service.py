@@ -33,13 +33,6 @@ class MoobiusBasicService:
         self.heartbeat_interval = 30                    # 30s heartbeat
         self.service_id = service_id
 
-        # self.scheduler = AsyncIOScheduler()
-
-        # # The details of access_token and refresh_token are managed by self.http_api
-        # self.scheduler.add_job(self._do_refresh, 'interval', seconds=self.refresh_interval)
-        # self.scheduler.add_job(self._do_authenticate, 'interval', seconds=self.authenticate_interval)
-        # self.scheduler.add_job(self._do_send_heartbeat, 'interval', seconds=self.heartbeat_interval)
-
     # =================== jobs ===================
 
     # todo: if token expires for some reason, do authentication again
@@ -56,22 +49,7 @@ class MoobiusBasicService:
     async def _do_authenticate(self):
         access_token, refresh_token = self.http_api.authenticate()
         logger.info(f"Authenticated. Access token: {access_token}")
-    
-    async def _do_send_heartbeat_task(self):
-        while True:
-            await asyncio.sleep(self.heartbeat_interval)
-            await self._do_send_heartbeat()
-    
-    async def _do_refresh_task(self):
-        while True:
-            await asyncio.sleep(self.refresh_interval)
-            await self._do_refresh()
-    
-    async def _do_authenticate_task(self):
-        while True:
-            await asyncio.sleep(self.authenticate_interval)
-            await self._do_authenticate()
-        
+
     # =================== start ===================
     
     async def start(self, bind_to_channels=None):
@@ -95,8 +73,15 @@ class MoobiusBasicService:
         else:
             pass
         
-        # self.scheduler.start()
-        # logger.info("Scheduler started.")
+        self.scheduler = AsyncIOScheduler()
+        
+        # The details of access_token and refresh_token are managed by self.http_api
+        self.scheduler.add_job(self._do_refresh, 'interval', seconds=self.refresh_interval)
+        self.scheduler.add_job(self._do_authenticate, 'interval', seconds=self.authenticate_interval)
+        self.scheduler.add_job(self._do_send_heartbeat, 'interval', seconds=self.heartbeat_interval)
+
+        self.scheduler.start()
+        logger.info("Scheduler started.")
 
         await self.on_start()
         logger.info("on_start() finished.")
@@ -105,11 +90,7 @@ class MoobiusBasicService:
         await self._ws_client.connect()
         recv_task = self._ws_client.receive()
         listen_task = self.listen()
-        refresh_task = self._do_refresh_task()
-        authenticate_task = self._do_authenticate_task()
-        heartbeat_task = self._do_send_heartbeat_task()
-        await asyncio.gather(recv_task, listen_task, refresh_task, authenticate_task, heartbeat_task)
-        # await asyncio.gather(recv_task, listen_task)
+        await asyncio.gather(recv_task, listen_task)
     
     async def listen(self):
         while True:

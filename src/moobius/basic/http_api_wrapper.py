@@ -158,6 +158,32 @@ class HTTPAPIWrapper:
             
             return None
         
+    def create_service_user_with_local_image(self, service_id, username, nickname, avatar, description, image_path):
+        url = self.http_server_uri + "/service/user/create"
+        data = {
+            "service_id": service_id,
+            "username": username,
+            "context": {
+                "nickname": nickname,
+                "avatar": avatar,
+                "description": description
+            }
+        }
+        
+        files = {
+            "image": open(image_path, "rb")
+        }
+        
+        response = requests.post(url, data=data, files=files, headers=self.headers)
+               
+        if response.json().get('code') == 10000:
+            logger.info(f"Successfully created service user!")
+            return response.json().get('data')
+        else:
+            logger.error(f"Error creating service user: {response.json().get('msg')}")
+            
+            return None
+        
     def create_service_group(self, group_id, user_uuids):
         url = self.http_server_uri + "/service/group/create"
         data = {
