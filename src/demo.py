@@ -4,7 +4,11 @@ from demo_service import DemoService
 from moobius.moobius_wand import MoobiusWand
 import aioprocessing
 import time
-def main():    
+# def main():    
+    
+#     return wand
+    
+if __name__ == "__main__":
     # For newly bound channels. It doesn't hurt to bind multiple times.
     bind_to_channels = ["3457120e-8f05-4786-a3d4-0b53d70e6bba"]
     with open("config.json", "r") as f:
@@ -16,10 +20,6 @@ def main():
     service = DemoService(db_settings=db_settings, **config)
     wand = MoobiusWand(service)
     wand.start_background_service(bind_to_channels=bind_to_channels)
-    return wand
-    
-if __name__ == "__main__":
-    wand = main()
     
     async def test_async_send():
         for i in range(5):
