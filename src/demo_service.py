@@ -4,7 +4,7 @@ import asyncio
 import json
 
 from moobius.moobius_service import MoobiusService
-from moobius.basic._types import Character
+from moobius.basic._types import Character, Feature
 from moobius.dbtools.moobius_band import MoobiusBand
 from dacite import from_dict
 from moobius.basic.logging_config import log_info, log_error
@@ -33,7 +33,7 @@ class DemoService(MoobiusService):
 
         for channel_id in self.channel_ids:
             self.bands[channel_id] = MoobiusBand(self.service_id, channel_id, db_settings=self.db_settings)
-            real_characters = await self.fetch_real_characters(channel_id)
+            real_characters = self.http_api.fetch_real_characters(channel_id, self.service_id)
 
             for character in real_characters:
                 character_id = character.user_id
@@ -41,7 +41,7 @@ class DemoService(MoobiusService):
 
             for feature in features:
                 feature_id = feature["feature_id"]
-                self.bands[channel_id].features[feature_id] = feature
+                self.bands[channel_id].features[feature_id] = from_dict(data_class=Feature, data=feature)
 
 
     # on_xxx, default implementation, to be override
@@ -84,19 +84,15 @@ class DemoService(MoobiusService):
         log_info("join_channel")
         character_id = action.sender
         channel_id = action.channel_id
-        data = self.http_api.fetch_user_profile([character_id])
+        character = self.http_api.fetch_user_profile(character_id)
 
-        if data['code'] == 10000:
-            d = data['data'][character_id]
-            d['user_id'] = character_id
-            character = from_dict(data_class=Character, data=d)
-            
+        if character:            
             self.bands[action.channel_id].real_characters[character_id] = character
 
             real_characters = self.bands[action.channel_id].real_characters
             user_list = list(real_characters.values())
             character_ids = list(real_characters.keys())
-
+            
             await self.send_update_userlist(action.channel_id, user_list, character_ids)
 
             await self.send_msg_down(
@@ -143,7 +139,7 @@ class DemoService(MoobiusService):
         log_info(f"Feature call received: {feature_call}")
         channel_id = feature_call.channel_id
         feature_id = feature_call.feature_id
-        feature_name = self.bands[channel_id].features[feature_id]["feature_name"]
+        feature_name = self.bands[channel_id].features[feature_id].feature_name
         character = self.bands[channel_id].real_characters[feature_call.sender]
         nickname = character.user_context.nickname
         recipients = list(self.bands[channel_id].real_characters.keys())
@@ -154,9 +150,8 @@ class DemoService(MoobiusService):
                     username = f'{nickname}'
                     description = f'I am {nickname}!'
                     
-                    data = self.http_api.create_service_user_with_local_image(self.service_id, "tubbs", "tubbs", "demo_images/tubbs.png", "I'm tubbs!")
-
-                    character = from_dict(data_class=Character, data=data)
+                    character = self.http_api.create_service_user_with_local_image(self.service_id, "tubbs", "tubbs", "demo_images/tubbs.png", "I'm tubbs!")
+                    
                     return character
                 
                 tubbs = _make_character(channel_id, "tubbs", "tubbs")

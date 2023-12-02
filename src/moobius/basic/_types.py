@@ -19,7 +19,7 @@ class Feature:
     feature_name: str
     button_text: str
     new_window: bool
-    arguments: list[FeatureArgument]
+    arguments: list[FeatureArgument]|None
 
 
 @dataclass
@@ -65,7 +65,6 @@ class MessageContext:
 @dataclass
 class MessageUp:    # todo: MessageBody. Almost the same as MessageDown
     subtype: str
-    content: dict
     channel_id: str
     timestamp: int
     recipients: list[str]
@@ -77,7 +76,6 @@ class MessageUp:    # todo: MessageBody. Almost the same as MessageDown
 @dataclass
 class MessageDown:    # todo: MessageBody. Almost the same as MessageDown
     subtype: str
-    content: dict
     channel_id: str
     content: dict
     timestamp: int

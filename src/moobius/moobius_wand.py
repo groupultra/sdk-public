@@ -25,18 +25,6 @@ class MoobiusWand:
         p_service.start()
         time.sleep(10)
     
-    def fetch_real_characters(self, channel_id):
-        data = self.service.http_api.get_channel_userlist(channel_id, self.service.service_id)
-
-        if data["code"] == 10000:
-            userlist = data["data"]["userlist"]
-
-            return [from_dict(data_class=Character, data=d) for d in userlist]
-        else:
-            log_error(f"fetch_real_characters error {data}")
-
-            return []
-    
     # =================== send_xxx, to be used ===================
     def send(self, payload_type, payload_body):
         if isinstance(payload_body, dict):

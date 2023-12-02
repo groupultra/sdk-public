@@ -1,6 +1,8 @@
 # http_api_wrapper.py
 import requests
 from moobius.basic.logging_config import log_error, log_info
+from dacite import from_dict
+from moobius.basic._types import Character, Group
 # todo: refresh
 # todo: return code
 class HTTPAPIWrapper:
@@ -57,15 +59,17 @@ class HTTPAPIWrapper:
         # Check response
         if response.json().get('code') == 10000:
             log_info("Successfully fetched channel userlist!")
-            return response.json()
+            userlist = response.json()["data"]["userlist"]
+
+            return [from_dict(data_class=Character, data=d) for d in userlist]
         else:
             log_error(f"Error fetching channel userlist: {response.json().get('msg')}")
             return None
     
     
-    def fetch_user_profile(self, userlist):
+    def fetch_user_profile(self, user_id):
         data = {
-            "userlist": userlist
+            "userlist": [user_id]
         }
         url = self.http_server_uri + "/user/fetch_profile"
         response = requests.post(url, json=data, headers=self.headers)
@@ -73,10 +77,18 @@ class HTTPAPIWrapper:
         # Check response
         if response.json().get('code') == 10000:
             log_info("Successfully fetched user profile!")
-            return response.json()
+            character = from_dict(data_class=Character, data=response.json()['data'][user_id])
+            return character
         else:
             log_error(f"Error fetching user profile: {response.json().get('msg')}")
             return None
+    
+    def fetch_real_characters(self, channel_id, service_id):
+        channel_userlist = self.get_channel_userlist(channel_id, service_id)
+        if channel_userlist:
+            return channel_userlist
+        else:
+            return []
         
     
     def create_service(self, description):
@@ -151,7 +163,8 @@ class HTTPAPIWrapper:
                
         if response.json().get('code') == 10000:
             log_info(f"Successfully created service user!")
-            return response.json().get('data')
+            character = from_dict(data_class=Character, data=response.json()['data'])
+            return character
         else:
             log_error(f"Error creating service user: {response.json().get('msg')}")
             
@@ -171,7 +184,8 @@ class HTTPAPIWrapper:
         # Check response
         if response.json().get('code') == 10000:
             log_info(f"Successfully created service group!")
-            return response.json().get('data')
+            group = from_dict(data_class=Group, data=response.json()['data'])
+            return group
         else:
             log_error(f"Error creating service group: {response.json().get('msg')}")
             return None
@@ -184,7 +198,8 @@ class HTTPAPIWrapper:
         # Check response
         if response.json().get('code') == 10000:
             log_info(f"Successfully got service user!")
-            return response.json().get('data')
+            userlist = response.json()["data"]["userlist"]
+            return [from_dict(data_class=Character, data=d) for d in userlist]
         else:
             log_error(f"Error creating service user: {response.json().get('msg')}")
             return None
@@ -203,7 +218,8 @@ class HTTPAPIWrapper:
             # Check response
             if response_data.get('code') == 10000:
                 log_info("Successfully fetched user profile!")
-                return response_data
+                character = from_dict(data_class=Character, data=response_data['data'])
+                return character
             else:
                 log_error(f"Error fetching user profile: {response_data.get('msg')}")
                 return None
