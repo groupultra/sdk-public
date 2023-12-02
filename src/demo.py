@@ -6,7 +6,7 @@ import aioprocessing
 import time
 def main():    
     # For newly bound channels. It doesn't hurt to bind multiple times.
-    bind_to_channels = ["3457120e-8f05-4786-a3d4-0b53d70e6bba"]
+    bind_to_channels = ["c067ba03-106e-4119-9dc3-cc2bd339a28d"]
     with open("config.json", "r") as f:
         config = json.load(f)
     
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         for i in range(3):
             await asyncio.sleep(1)
             msg_down_body = {
-                "channel_id": "3457120e-8f05-4786-a3d4-0b53d70e6bba",
+                "channel_id": "c067ba03-106e-4119-9dc3-cc2bd339a28d",
                 "recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"],
                 "subtype": "text",
                 "content": {
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     for i in range(3):
         time.sleep(1)
         msg_down_body = {
-            "channel_id": "3457120e-8f05-4786-a3d4-0b53d70e6bba",
+            "channel_id": "c067ba03-106e-4119-9dc3-cc2bd339a28d",
             "recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"],
             "subtype": "text",
             "content": {
@@ -57,7 +57,7 @@ if __name__ == "__main__":
             await asyncio.sleep(1)
             msg_up_body = {"subtype": "text", 
                 "content": {"text": "ping"}, 
-                "channel_id": "3457120e-8f05-4786-a3d4-0b53d70e6bba", 
+                "channel_id": "c067ba03-106e-4119-9dc3-cc2bd339a28d", 
                 "timestamp": 1697944692927, 
                 "recipients": ["321e7409-e19a-4608-a623-2bae497568d0", "b42d0cb1-b97a-4c63-bbab-1d456cc26490"], 
                 "msg_id": "fae4c198-baca-48d3-ad07-2a7f95e2f0cc", 
