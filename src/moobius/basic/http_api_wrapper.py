@@ -198,7 +198,7 @@ class HTTPAPIWrapper:
         # Check response
         if response.json().get('code') == 10000:
             log_info(f"Successfully got service user!")
-            userlist = response.json()["data"]["userlist"]
+            userlist = response.json()["data"]
             return [from_dict(data_class=Character, data=d) for d in userlist]
         else:
             log_error(f"Error creating service user: {response.json().get('msg')}")
