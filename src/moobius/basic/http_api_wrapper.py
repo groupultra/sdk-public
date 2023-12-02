@@ -85,7 +85,7 @@ class HTTPAPIWrapper:
         }
         url = self.http_server_uri + "/service/create"
         response = requests.post(url, json=data, headers=self.headers)
-        log_info("create_service response", response.json())
+        log_info(f"create_service response{response.json()}")
         # Check response
         if response.json().get('code') == 10000:
             log_info("Successfully created service!")
