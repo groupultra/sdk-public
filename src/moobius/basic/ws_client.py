@@ -49,13 +49,11 @@ class WSClient:
                 log("WSClient.receive() Connection closed. Attempting to reconnect...")
                 await self.connect()
                 log("Reconnected!")
-                break
             except Exception as e:
                 traceback.print_exc()
                 log(f"WSClient.receive() Error occurred: {e}", error=True)
                 await self.connect()
                 log("Reconnected!")
-                break
 
     async def safe_handle(self, message):
         try:

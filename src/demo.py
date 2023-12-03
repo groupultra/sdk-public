@@ -37,7 +37,7 @@ if __name__ == "__main__":
             }
             await wand.async_send("msg_down", msg_down_body)
             await asyncio.sleep(5)
-            await wand.async_send("msg_down", "P"* 32 * 1024)
+            await wand.async_send("msg_down", "P"* 128 * 1024)
     
     asyncio.run(test_async_send())
     
@@ -53,7 +53,7 @@ if __name__ == "__main__":
             "sender": "321e7409-e19a-4608-a623-2bae497568d0",
             "timestamp": int(time.time() * 1000)
         }
-        wand.send("msg_down", "I" * 32 * 1024)
+        wand.send("msg_down", "I" * 128 * 1024)
         wand.send("msg_down", msg_down_body)
    
     async def test_async_on():
