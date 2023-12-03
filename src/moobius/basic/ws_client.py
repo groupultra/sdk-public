@@ -44,10 +44,9 @@ class WSClient:
         while True:
             try:
                 message = await self.websocket.recv()
-                log_info(f"WSClient.receive() {message}", True)
                 asyncio.create_task(self.safe_handle(message))
             except websockets.exceptions.ConnectionClosed:
-                log_info("WSClient.receive()Connection closed. Attempting to reconnect...")
+                log_info("WSClient.receive() Connection closed. Attempting to reconnect...")
                 await self.connect()
                 log_info("Reconnected!")
                 break

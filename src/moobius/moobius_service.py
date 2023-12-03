@@ -10,8 +10,8 @@ from moobius.moobius_basic_service import MoobiusBasicService
 
 # with database
 class MoobiusService(MoobiusBasicService):
-    def __init__(self, db_settings=(), **config):
-        super().__init__(**config)
+    def __init__(self, db_settings=(), config_path="", **config):
+        super().__init__(config_path=config_path, **config)
 
         self.bands = {}
         self.db_settings = db_settings

@@ -1,8 +1,8 @@
 {
     "http_server_uri": "https://api.sociyoo.com/",
     "ws_server_uri": "wss://ws.sociyoo.com/",
-    "email": "my email",
-    "password": "my password",
-    "service_id": "",
+    "email": "guoriyue1226@gmail.com",
+    "password": "hejpUf-5jabko-mintum",
+    "service_id": "720dc167-4506-48cd-a9dc-a36c8b542a37",
     "create_new": false
 }

@@ -7,13 +7,14 @@ import time
 def main():    
     # For newly bound channels. It doesn't hurt to bind multiple times.
     bind_to_channels = ["c067ba03-106e-4119-9dc3-cc2bd339a28d"]
-    with open("config.json", "r") as f:
+    config_path = "config.json"
+    with open(config_path, "r") as f:
         config = json.load(f)
     
     with open("db_settings.json", "r") as f:
         db_settings = json.load(f)
 
-    service = DemoService(db_settings=db_settings, **config)
+    service = DemoService(db_settings=db_settings, config_path=config_path, **config)
     wand = MoobiusWand(service)
     wand.start_background_service(bind_to_channels=bind_to_channels)
     return wand
@@ -35,6 +36,8 @@ if __name__ == "__main__":
                 "timestamp": int(time.time() * 1000)
             }
             await wand.async_send("msg_down", msg_down_body)
+            await asyncio.sleep(5)
+            await wand.async_send("msg_down", "P"* 32 * 1024)
     
     asyncio.run(test_async_send())
     
@@ -50,6 +53,7 @@ if __name__ == "__main__":
             "sender": "321e7409-e19a-4608-a623-2bae497568d0",
             "timestamp": int(time.time() * 1000)
         }
+        wand.send("msg_down", "I" * 32 * 1024)
         wand.send("msg_down", msg_down_body)
    
     async def test_async_on():

@@ -104,7 +104,7 @@ class DemoService(MoobiusService):
             )
         
         else:
-            logger.error(f"Error fetching user profile: {data['msg']}")
+            log_error(f"Error fetching user profile: {data['msg']}")
 
     async def on_leave_channel(self, action):
         log_info("leave_channel")
