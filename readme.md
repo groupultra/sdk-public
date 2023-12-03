@@ -1,4 +1,4 @@
-# Welcome to Moobius SDK!
+# Welcome to Moobius Python SDK!
 
 ## Quick Start
 
