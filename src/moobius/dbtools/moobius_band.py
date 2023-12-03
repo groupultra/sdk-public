@@ -3,7 +3,7 @@
 from moobius.dbtools.null_database import NullDatabase
 from moobius.dbtools.simple_json_database import SimpleJSONDatabase
 from moobius.dbtools.magical_storage import MagicalStorage
-from moobius.basic.logging_config import log_info, log_error
+from moobius.basic.logging_config import log
 class MoobiusBand(MagicalStorage):
     def __init__(self, service_id, band_id, db_settings=()):
         super().__init__()
@@ -21,7 +21,7 @@ class MoobiusBand(MagicalStorage):
         if db_type == 'json':
             database_class = SimpleJSONDatabase
         else:
-            log_error('Band: Unsupported database type. Using NullDatabase instead.')
+            log('Band: Unsupported database type. Using NullDatabase instead.', error=True)
             database_class = NullDatabase
 
         database = database_class(domain=domain, **db_config)

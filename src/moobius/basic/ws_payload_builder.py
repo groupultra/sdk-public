@@ -5,7 +5,7 @@ import json
 import time
 
 from moobius.utils import EnhancedJSONEncoder
-from moobius.basic.logging_config import log_info, log_error
+from moobius.basic.logging_config import log
 # This should be a basic builder. Do NOT put dependencies here.
 # todo: Use dataclass!
 class WSPayloadBuilder:
@@ -149,7 +149,7 @@ class WSPayloadBuilder:
                 "context": {}
             }
         }
-        log_info(f"msg_down {message}")
+        log(f"msg_down {message}")
         return self.dumps(message)
 
     

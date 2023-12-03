@@ -25,12 +25,26 @@ def configure_logger(name, log_dir="logs"):
 
 logger = configure_logger(__name__)
 
-def log_info(msg, print_to_console=False):
+color_dict = {
+    "red": "\033[1;31m",
+    "green": "\033[1;32m",
+    "yellow": "\033[1;33m",
+    "blue": "\033[1;34m",
+    "magenta": "\033[1;35m",
+    "cyan": "\033[1;36m",
+    "white": "\033[1;37m"
+}
+def log(msg, error=False, print_to_console=False, color=None):
+    """
+    print_color: "31" for red, "32" for green, "33" for yellow, "34" for blue, "35" for magenta, "36" for cyan, "37" for white
+    """
+    
     if print_to_console:
-        print(msg)
-    logger.info(msg)
-
-def log_error(msg, print_to_console=False):
-    if print_to_console:
-        print(msg)
-    logger.error(msg)
+        if color is not None and color in color_dict:
+            print(f"{color_dict[color]}{msg}\033[0m")
+        else:
+            print(msg)
+    if error:
+        logger.error(msg)
+    else:
+        logger.info(msg)

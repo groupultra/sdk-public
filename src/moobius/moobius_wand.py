@@ -8,7 +8,7 @@ import time
 from multiprocessing import Process
 
 from moobius.basic._types import MessageUp, Action, FeatureCall, Copy, Payload, Character
-from moobius.basic.logging_config import log_error, log_info
+from moobius.basic.logging_config import log
     
 class MoobiusWand:
     def __init__(self, service):
