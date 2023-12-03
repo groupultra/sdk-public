@@ -77,7 +77,9 @@ class HTTPAPIWrapper:
         # Check response
         if response.json().get('code') == 10000:
             log_info("Successfully fetched user profile!")
-            character = from_dict(data_class=Character, data=response.json()['data'][user_id])
+            data=response.json()['data'][user_id]
+            data['user_id'] = user_id
+            character = from_dict(data_class=Character, data=data)
             return character
         else:
             log_error(f"Error fetching user profile: {response.json().get('msg')}")
