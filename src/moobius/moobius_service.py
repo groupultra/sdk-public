@@ -1,8 +1,9 @@
 # moobius_service.py
 
-from dataclasses import asdict
+import json
 import time
 
+from dataclasses import asdict
 from dacite import from_dict
 
 from moobius.basic._types import MessageDown
@@ -10,11 +11,13 @@ from moobius.moobius_basic_service import MoobiusBasicService
 
 # with database
 class MoobiusService(MoobiusBasicService):
-    def __init__(self, db_settings=(), config_path="", **config):
-        super().__init__(config_path=config_path, **config)
+    def __init__(self, service_config_path="", db_config_path=""):
+        super().__init__(config_path=service_config_path)
+
+        with open(db_config_path, "r") as f:
+            self.db_config = json.load(f)
 
         self.bands = {}
-        self.db_settings = db_settings
 
     def msg_up_to_msg_down(self, msg_up, remove_self=False):
         """

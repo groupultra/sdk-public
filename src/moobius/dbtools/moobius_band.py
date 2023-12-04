@@ -5,13 +5,13 @@ from moobius.dbtools.simple_json_database import SimpleJSONDatabase
 from moobius.dbtools.magical_storage import MagicalStorage
 from moobius.basic.logging_config import log
 class MoobiusBand(MagicalStorage):
-    def __init__(self, service_id, band_id, db_settings=()):
+    def __init__(self, service_id, band_id, db_config=()):
         super().__init__()
 
         self.service_id = service_id
         self.band_id = band_id
  
-        for settings in db_settings:
+        for settings in db_config:
             self.add_container(**settings)
 
 

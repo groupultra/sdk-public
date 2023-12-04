@@ -34,7 +34,7 @@ color_dict = {
     "cyan": "\033[1;36m",
     "white": "\033[1;37m"
 }
-def log(msg, error=False, print_to_console=False, color=None):
+def log(msg, error=False, print_to_console=True, color=None):
     """
     print_color: "31" for red, "32" for green, "33" for yellow, "34" for blue, "35" for magenta, "36" for cyan, "37" for white
     """

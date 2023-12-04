@@ -1,8 +1,0 @@
-{
-    "http_server_uri": "https://api.sociyoo.com/",
-    "ws_server_uri": "wss://ws.sociyoo.com/",
-    "email": "my email",
-    "password": "my password",
-    "service_id": " ",
-    "create_new": true
-}

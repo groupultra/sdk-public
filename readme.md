@@ -2,17 +2,30 @@
 
 ## Quick Start
 
-1. Config
+Moobius Python SDK version 0.0.1
 
-- change the values of `config.json`
-  - If you don't have a `service_id` or prefer to use a new `service_id`, delete this item. Please notice that the new service_id won't be written to the config file, so you need to copy it manually from the console.
-- For `db_config`, currently two types of configurations are supported: json and redis. For json you need to specify `type`: "json" and `root_dir` as your root directory to save the database files. For redis you need to specify `type`: redis and `password` for your redis password. See the Database part for more info.
++ Service Config and Test Run
 
-2. Run `python demo.py`. It creates a `DemoService` object and run the service. It is a simple forwarding service with two test buttons. If the service run successfully, you will find two buttons on the "keyboard" panel and every message you send will be repeated, except that if you send 'ping', you will get 'pong'.
+Usage: 
+1. Change current directory to `src`
+2. Run `pip install . -e`. This command will install the package to your PYTHONPATH.
+- Note: `-e` means editable mode. With this option your changes to the source code will be applied immediately.
+3. Import the package in your code (Your code does not have to be in the same directory of `src/`): `import moobius`
+4. Change current directory of your terminal/shell/cmd to `projects/test/`
+5. Edit `config/service.json`. Fill in your `email`, `password` and a list of `channels` you want to run on. If you have a `service_id`, just fill in the field, otherwise please use `"service_id": ""` and the SDK will create a new `service_id` for you. 
+6. Run `python3 main.py`. The config file will automatically update so that you don't need to configure it the next time you start the program. You should expect a functional service in your band, that
+- Has two Keys ("Meet Tubbs or Hermeowne" and "Meet Ms Fortune"). Both of them are functional.
+- Will respond a "pong" to a "ping" message, and repeat other messages.
+- Would Show "SYNC", "ASYNC", "BOMB" and "SURVIVE" messages automatically.
 
-## Build Your Own Service
 
-1. If you want to modify the code and start your own service, please refer to the source code of `demo_service.py`. Basically, you need to write a subclass of `MoobiusService` and implement all the `on_xxx()` methods. There is a trivial noop implementation in `moobius_service.py` which does nothing but printing the messages to the console, and the code in `demo_service.py` could help you understand how it works.
++ Database Config: `config/db.json`, currently two types of configurations are supported: json and redis. For json you need to specify `type`: "json" and `root_dir` as your root directory to save the database files. For redis you need to specify `type`: redis and `password` for your redis password. See the Database part for more info. Each database can be configured independently. If `clear` is set, everything in the database would be erased during the initialization of the service. If `load` is set, the service will load a copy to the memory during initialization. Note:
+1. Data types supported are basic types (list, dict, int, str, etc) and all dataclass types defined in `basic/`
+2. If you modify a mutable object data record, the memory wouldn't be updated. You have to reassign it to the band (all abstractions are leaky!) (todo: elaborate this)
+
+## Build Your Own Service (todo: wand doc)
+
+1. If you want to modify the code and start your own service, please refer to the source code of `projects/test/test_service.py`.  Basically, you need to write a subclass of `MoobiusService` and implement all the `on_xxx()` methods. There is a trivial noop implementation in `moobius_service.py` which does nothing but printing the messages to the console, and the code in `demo_service.py` could help you understand how it works.
 
 2. There are a bunch of helper methods for you to use. For an instance `service` of `MoobiusService` class, you can use the following methods:
 

@@ -18,3 +18,5 @@ src/test_db/
 src/cicada_json_db
 src/cicada/games/*
 src/cicada/api_key.py
+
+projects/test/simple_json_db/

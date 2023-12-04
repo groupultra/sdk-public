@@ -1,4 +1,4 @@
-# demo_service.py
+# service.py
 
 import asyncio
 import json
@@ -8,31 +8,45 @@ from moobius.basic._types import Character, Feature
 from moobius.dbtools.moobius_band import MoobiusBand
 from dacite import from_dict
 from moobius.basic.logging_config import log
-class DemoService(MoobiusService):
+
+class TestService(MoobiusService):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
 
+
+    async def on_spell(self, spell):
+        try:
+            content, times = spell
+            content = str(content)
+            times = int(times)
+        except:
+            content = 'DEFAULT'
+            times = 1
+
+        text = f"WAND: {content * times}"
+
+        for channel_id in self.channels:
+            recipients = list(self.bands[channel_id].real_characters.keys())
+            await self.send_msg_down(
+                channel_id=channel_id,
+                recipients=recipients,
+                subtype="text",
+                message_content=text,
+                sender=recipients[0] if len(recipients) > 0 else 'no_sender'
+            )
+
+    # todo: channels and channel_ids, unbind_first, write back channels
     async def on_start(self):
         """
         Called after successful connection to websocket server and service login success.
         """
-        li = self.http_api.get_service_list()
-        self.channel_ids = []
-
-        for d in li:
-            if d.get('service_id', None) == self.service_id:
-                self.channel_ids = d.get('channel_ids', [])
-                break
-
-        log(f"channel_ids {self.channel_ids}")
-        
         # ==================== load features ====================
-        with open('demo_features.json', 'r') as f:
+        
+        with open('resources/test_features.json', 'r') as f:
             features = json.load(f)
 
-        for channel_id in self.channel_ids:
-            self.bands[channel_id] = MoobiusBand(self.service_id, channel_id, db_settings=self.db_settings)
+        for channel_id in self.channels:
+            self.bands[channel_id] = MoobiusBand(self.service_id, channel_id, db_config=self.db_config)
             real_characters = self.http_api.fetch_real_characters(channel_id, self.service_id)
 
             for character in real_characters:
@@ -150,7 +164,7 @@ class DemoService(MoobiusService):
                     username = f'{nickname}'
                     description = f'I am {nickname}!'
                     
-                    character = self.http_api.create_service_user_with_local_image(self.service_id, "tubbs", "tubbs", "demo_images/tubbs.png", "I'm tubbs!")
+                    character = self.http_api.create_service_user_with_local_image(self.service_id, "tubbs", "tubbs", "resources/tubbs.png", "I'm tubbs!")
                     
                     return character
                 
@@ -166,7 +180,7 @@ class DemoService(MoobiusService):
                     sender=feature_call.sender
                 )
             elif feature_call.arguments[0].value == "Meet Hermeowne":
-                image_uri = self.http_api.upload_file("demo_images/hermeowne.png")
+                image_uri = self.http_api.upload_file("resources/hermeowne.png")
                 playground_content = {
                     "path": image_uri,
                     "text": "I'm Hermeowne!"
@@ -182,7 +196,7 @@ class DemoService(MoobiusService):
                 )
                 
         elif feature_name == "name2":
-            image_uri = self.http_api.upload_file("demo_images/ms_fortune.png")
+            image_uri = self.http_api.upload_file("resources/ms_fortune.png")
             await self.send_msg_down(
                 channel_id=channel_id,
                 recipients=recipients,
