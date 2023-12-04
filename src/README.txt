@@ -2,7 +2,7 @@ Moobius Python SDK version 0.0.1
 
 Usage: 
 1. Change current directory to `src`
-2. Run `pip install . -e`. This command will install the package to your PYTHONPATH.
+2. Run `pip install -e .`. This command will install the package to your PYTHONPATH.
 - Note: `-e` means editable mode. With this option your changes to the source code will be applied immediately.
 3. Import the package in your code (Your code does not have to be in the same directory of `src/`): `import moobius`
 4. Change current directory to `projects/test`
