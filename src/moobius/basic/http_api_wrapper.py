@@ -1,8 +1,8 @@
 # http_api_wrapper.py
 import requests
-from moobius.basic.logging_config import log
+from loguru import logger
 from dacite import from_dict
-from moobius.basic._types import Character, Group
+from moobius.basic.moobius_types import Character, Group
 # todo: refresh
 # todo: return code
 class HTTPAPIWrapper:
@@ -31,7 +31,7 @@ class HTTPAPIWrapper:
             
             return self.access_token, self.refresh_token
         else:
-            log(f"Error during authentication: {response.json().get('msg')}", error=True)
+            logger.error(f"Error during authentication: {response.json().get('msg')}")
             return None
         
     def refresh(self):
@@ -44,7 +44,7 @@ class HTTPAPIWrapper:
             
             return self.access_token
         else:
-            log(f"Error during refresh: {response.json().get('msg')}", error=True)
+            logger.error(f"Error during refresh: {response.json().get('msg')}")
             return None
 
 
@@ -58,12 +58,12 @@ class HTTPAPIWrapper:
         response = requests.get(url, params=params, headers=self.headers)
         # Check response
         if response.json().get('code') == 10000:
-            log("Successfully fetched channel userlist!")
+            logger.debug("Successfully fetched channel userlist!")
             userlist = response.json()["data"]["userlist"]
 
             return [from_dict(data_class=Character, data=d) for d in userlist]
         else:
-            log(f"Error fetching channel userlist: {response.json().get('msg')}", error=True)
+            logger.error(f"Error fetching channel userlist: {response.json().get('msg')}")
             return None
     
     
@@ -76,13 +76,13 @@ class HTTPAPIWrapper:
         
         # Check response
         if response.json().get('code') == 10000:
-            log("Successfully fetched user profile!")
+            logger.debug("Successfully fetched user profile!")
             data=response.json()['data'][user_id]
             data['user_id'] = user_id
             character = from_dict(data_class=Character, data=data)
             return character
         else:
-            log(f"Error fetching user profile: {response.json().get('msg')}", error=True)
+            logger.error(f"Error fetching user profile: {response.json().get('msg')}")
             return None
     
     def fetch_real_characters(self, channel_id, service_id):
@@ -99,13 +99,13 @@ class HTTPAPIWrapper:
         }
         url = self.http_server_uri + "/service/create"
         response = requests.post(url, json=data, headers=self.headers)
-        log(f"create_service response{response.json()}")
+        logger.debug(f"create_service response{response.json()}")
         # Check response
         if response.json().get('code') == 10000:
-            log("Successfully created service!")
+            logger.debug("Successfully created service!")
             return response.json().get('data').get('service_id')
         else:
-            log(f"Error creating service: {response.json().get('msg')}", error=True)
+            logger.error(f"Error creating service: {response.json().get('msg')}")
             return None
     
     def bind_service_to_channel(self, service_id, channel_id):
@@ -115,13 +115,13 @@ class HTTPAPIWrapper:
         }
         url = self.http_server_uri + "/service/bind"
         response = requests.post(url, json=data, headers=self.headers)
-        log(f"bind_service_to_channel response {response.json()}")
+        logger.debug(f"bind_service_to_channel response {response.json()}")
         # Check response
         if response.json().get('code') == 10000:
-            log(f"Successfully binded service {service_id} with channel {channel_id}!")
+            logger.debug(f"Successfully binded service {service_id} to channel {channel_id}!")
             return True
         else:
-            log(f"Error binding service with channel: {response.json().get('msg')}", error=True)
+            logger.error(f"Error binding service to channel: {response.json().get('msg')}")
             return False
     
     def unbind_service_from_channel(self, service_id, channel_id):
@@ -134,19 +134,18 @@ class HTTPAPIWrapper:
         
         # Check response
         if response.json().get('code') == 10000:
-            log(f"Successfully unbinded service {service_id} with channel {channel_id}!")
+            logger.debug(f"Successfully unbinded service {service_id} from channel {channel_id}!")
         else:
-            log(f"Error unbinding service with channel: {response.json().get('msg')}", error=True)
+            logger.error(f"Error unbinding service from channel: {response.json().get('msg')}")
             
     def get_service_list(self):
         url = self.http_server_uri + "/service/list"
         response = requests.get(url, headers=self.headers)
-        # Check response
+        
         if response.json().get('code') == 10000:
-            log(f"Successfully get service list!")
             return response.json().get('data')
         else:
-            log(f"Error getting service list: {response.json().get('msg')}", error=True)
+            logger.error(f"Error getting service list: {response.json().get('msg')}")
             return None
     
     def create_service_user(self, service_id, username, nickname, avatar, description):
@@ -164,11 +163,11 @@ class HTTPAPIWrapper:
         response = requests.post(url, json=data, headers=self.headers)
                
         if response.json().get('code') == 10000:
-            log(f"Successfully created service user!")
+            logger.debug(f"Successfully created service user!")
             character = from_dict(data_class=Character, data=response.json()['data'])
             return character
         else:
-            log(f"Error creating service user: {response.json().get('msg')}", error=True)
+            logger.error(f" creating service user: {response.json().get('msg')}")
             
             return None
         
@@ -185,25 +184,25 @@ class HTTPAPIWrapper:
         response = requests.post(url, json=data, headers=self.headers)
         # Check response
         if response.json().get('code') == 10000:
-            log(f"Successfully created service group!")
+            logger.debug(f"Successfully created service group!")
             group = from_dict(data_class=Group, data=response.json()['data'])
             return group
         else:
-            log(f"Error creating service group: {response.json().get('msg')}", error=True)
+            logger.error(f"Error creating service group: {response.json().get('msg')}")
             return None
         
     def get_service_user_list(self, service_id):
         url = self.http_server_uri + f"/service/user/list?service_id={service_id}"
         
         response = requests.get(url, headers=self.headers)
-        log(f"get_service_user_list response: {response.json()}")
+        logger.debug(f"get_service_user_list response: {response.json()}")
         # Check response
         if response.json().get('code') == 10000:
-            log(f"Successfully got service user!")
+            logger.debug(f"Successfully got service user!")
             userlist = response.json()["data"]
             return [from_dict(data_class=Character, data=d) for d in userlist]
         else:
-            log(f"Error creating service user: {response.json().get('msg')}", error=True)
+            logger.error(f"Error creating service user: {response.json().get('msg')}")
             return None
     
     def fetch_user_from_group(self, user_id, channel_id, group_id):
@@ -219,17 +218,17 @@ class HTTPAPIWrapper:
             
             # Check response
             if response_data.get('code') == 10000:
-                log("Successfully fetched user profile!")
+                logger.debug("Successfully fetched user profile!")
                 character = from_dict(data_class=Character, data=response_data['data'])
                 return character
             else:
-                log(f"Error fetching user profile: {response_data.get('msg')}", error=True)
+                logger.error(f"Error fetching user profile: {response_data.get('msg')}")
                 return None
         except requests.RequestException as e:
-            log(f"Network error: {e}", error=True)
+            logger.error(f"Network error: {e}")
             return None
         except Exception as e:
-            log(f"Unexpected error: {e}", error=True)
+            logger.error(f"Unexpected error: {e}")
             return None
 
 
@@ -245,20 +244,20 @@ class HTTPAPIWrapper:
             
             # Check response
             if response_data.get('code') == 10000:
-                log("Successfully fetched upload url!")
+                logger.debug("Successfully fetched upload url!")
                 upload_url = response_data.get('data').get('url')
                 upload_fields = response_data.get('data').get('fields')
                 return upload_url, upload_fields
             else:
-                log(f"Error fetching upload url: {response_data.get('msg')}", error=True)
+                logger.error(f"Error fetching upload url: {response_data.get('msg')}")
                 return None
         except requests.RequestException as e:
-            log(f"Network error: {e}", error=True)
+            logger.error(f"Network error: {e}")
             return None
         except Exception as e:
-            log(f"Unexpected error: {e}", error=True)
+            logger.error(f"Unexpected error: {e}")
             return None
-        
+
     def do_upload_file(self, upload_url, upload_fields, file_path):
         try:
             with open(file_path, 'rb') as f:
@@ -269,10 +268,10 @@ class HTTPAPIWrapper:
                     return full_url
                 return response
         except requests.RequestException as e:
-            log(f"Network error: {e}", error=True)
+            logger.error(f"Network error: {e}")
             return None
         except Exception as e:
-            log(f"Unexpected error: {e}", error=True)
+            logger.error(f"Unexpected error: {e}")
             return None
         
     def upload_file(self, file_path):
@@ -281,12 +280,12 @@ class HTTPAPIWrapper:
         if upload_url and upload_fields:
             full_url = self.do_upload_file(upload_url, upload_fields, file_path)
             if full_url:
-                log(f"Successfully uploaded file! {full_url}")
+                logger.debug(f"Successfully uploaded file! {full_url}")
                 return full_url
             else:
-                log("Error uploading file!", error=True)
+                logger.error("Error uploading file!")
                 return None
         else:
-            log("Error uploading file!", error=True)
+            logger.error("Error uploading file!")
             return None
         

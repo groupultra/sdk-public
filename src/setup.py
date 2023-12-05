@@ -14,5 +14,6 @@ setup(
         'openai',
         'redis',
         'websockets',
+        'loguru',
     ],
 )

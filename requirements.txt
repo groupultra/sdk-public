@@ -6,3 +6,4 @@ openai
 redis
 Requests
 websockets
+loguru

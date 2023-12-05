@@ -6,11 +6,10 @@ import websockets
 
 import time
 import aioprocessing
-from moobius.basic.logging_config import log
+from loguru import logger
 
 
 class WSClient:
-    
     def __init__(self, ws_server_uri, on_connect=None, handle=None):
         self.websocket = None
         self.ws_server_uri = ws_server_uri
@@ -22,48 +21,47 @@ class WSClient:
         await self.on_connect()
 
     async def _on_connect(self):
-        log(f"WSClient.on_connect <Default> Connected to{self.ws_server_uri}")
+        logger.info(f"Connected to {self.ws_server_uri}")
 
-    # todo: max retries
+
     async def send(self, message):
         try:
+            logger.opt(colors=True).info(f"<blue>{message}</blue>")
             await self.websocket.send(message)  # Don't use asyncio.create_task() here, or the message could not be sent in order
         except websockets.exceptions.ConnectionClosed:
-            log("WSClient.send() Connection closed. Attempting to reconnect...")
+            logger.info("Connection closed. Attempting to reconnect...")
             await self.connect()
-            log("Reconnected! Attempting to send message again...")
+            logger.info("Reconnected! Attempting to send message again...")
             await self.websocket.send(message)
         except Exception as e:
-            traceback.print_exc()
-            log(f"WSClient.send() Error occurred: {e}", error=True)
+            logger.error(e)
             await self.connect()
-            log("Reconnected! Attempting to send message again...")
+            logger.info("Reconnected! Attempting to send message again...")
             await self.websocket.send(message)
 
     async def receive(self):
         while True:
             try:
                 message = await self.websocket.recv()
+                logger.opt(colors=True).info(f"<yellow>{message}</yellow>")
                 asyncio.create_task(self.safe_handle(message))
             except websockets.exceptions.ConnectionClosed:
-                log("WSClient.receive() Connection closed. Attempting to reconnect...")
+                logger.info("WSClient.receive() Connection closed. Attempting to reconnect...")
                 await self.connect()
-                log("Reconnected!")
+                logger.info("Reconnected!")
             except Exception as e:
                 traceback.print_exc()
-                log(f"WSClient.receive() Error occurred: {e}", error=True)
+                logger.error(e)
                 await self.connect()
-                log("Reconnected!")
+                logger.info("Reconnected!")
 
     async def safe_handle(self, message):
         try:
-            log(f"safe_handle message {message}" )
             await self.handle(message)
         except Exception as e:
-            traceback.print_exc()
-            log(f"WSClient.safe_handle() Error occurred: {e}", error=True)
+            logger.error(e)
             await self.connect()
-            log("Reconnected!")
+            logger.info("Reconnected!")
 
     async def _default_handle(self, message):
-        log(f"WSClient._handle <Default> Received: {message}")
+        logger.debug(f"{message}")

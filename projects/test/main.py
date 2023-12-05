@@ -4,8 +4,9 @@ import time
 
 from service import TestService
 from moobius.moobius_wand import MoobiusWand
+from loguru import logger
 
-
+@logger.catch
 def full_test(wand, handle):
     test_spell(wand, handle)
     asyncio.run(test_aspell(wand, handle))
@@ -40,10 +41,17 @@ async def test_survive(wand, handle):
 
 if __name__ == "__main__":
     wand = MoobiusWand()
-    handle = wand.run(TestService, service_config_path="config/service.json", db_config_path="config/db.json", background=True)
+    
+    handle = wand.run(
+        TestService,
+        log_file="logs/service.log",
+        service_config_path="config/service.json",
+        db_config_path="config/db.json",
+        background=True
+    )
 
     # ======================= Code below are only for test purposes! =========================
-    print("Test will start in 5 seconds...")
+    logger.debug("Test will start in 5 seconds...")
     time.sleep(5)
     full_test(wand, handle)
-    print('Test finished')
+    logger.debug('Test finished')

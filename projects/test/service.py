@@ -4,15 +4,15 @@ import asyncio
 import json
 
 from moobius.moobius_service import MoobiusService
-from moobius.basic._types import Character, Feature
+from moobius.basic.moobius_types import Character, Feature
 from moobius.dbtools.moobius_band import MoobiusBand
 from dacite import from_dict
-from moobius.basic.logging_config import log
+from loguru import logger
 
 class TestService(MoobiusService):
-    def __init__(self, **kwargs):
+    def __init__(self, log_file="logs/service.log", **kwargs):
         super().__init__(**kwargs)
-
+        logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
 
     async def on_spell(self, spell):
         try:
@@ -63,24 +63,29 @@ class TestService(MoobiusService):
         """
         Handle the received message.
         """
-        log(f"on_msg_up {msg_up}")
+        logger.debug(f"on_msg_up {msg_up}")
+        
         if msg_up.subtype == "text":
             if msg_up.content['text'] == "ping":
                 msg_up.content['text'] = "pong"
+            else:
+                pass
+        else:
+            pass
                 
         msg_down = self.msg_up_to_msg_down(msg_up)
         
         await self.send(payload_type='msg_down', payload_body=msg_down)
 
     async def on_fetch_userlist(self, action):
-        log("fetch_userlist")
+        logger.debug("fetch_userlist")
         real_characters = self.bands[action.channel_id].real_characters
         user_list = list(real_characters.values())
 
         await self.send_update_userlist(action.channel_id, user_list, [action.sender])
     
     async def on_fetch_features(self, action):
-        log("fetch_features")
+        logger.debug("fetch_features")
         features = self.bands[action.channel_id].features
         feature_data_list = list(features.values())
 
@@ -88,14 +93,14 @@ class TestService(MoobiusService):
 
     
     async def on_fetch_playground(self, action):
-        log("fetch_playground")
+        logger.debug("fetch_playground")
         """
         content = self.db_helper.get_playground_info(client_id)
         await self.send_update_playground(channel_id, content, [client_id])
         """
     
     async def on_join_channel(self, action):
-        log("join_channel")
+        logger.debug("join_channel")
         character_id = action.sender
         channel_id = action.channel_id
         character = self.http_api.fetch_user_profile(character_id)
@@ -118,10 +123,10 @@ class TestService(MoobiusService):
             )
         
         else:
-            log(f"Error fetching user profile", error=True)
+            logger.error(f"Error fetching user profile: {character_id}")
 
     async def on_leave_channel(self, action):
-        log("leave_channel")
+        logger.debug("leave_channel")
         character_id = action.sender
         channel_id = action.channel_id
         character = self.bands[action.channel_id].real_characters.pop(character_id, None)
@@ -141,7 +146,7 @@ class TestService(MoobiusService):
         )
         
     async def on_fetch_channel_info(self, action):
-        log("fetch_channel_info")
+        logger.debug("fetch_channel_info")
         """
         await self.send_update_channel_info(channel_id, self.db_helper.get_channel_info(channel_id))
         """
@@ -150,7 +155,7 @@ class TestService(MoobiusService):
         """
         Handle the received feature call.
         """
-        log(f"Feature call received: {feature_call}")
+        logger.debug(f"Feature call received: {feature_call}")
         channel_id = feature_call.channel_id
         feature_id = feature_call.feature_id
         feature_name = self.bands[channel_id].features[feature_id].feature_name
@@ -209,4 +214,4 @@ class TestService(MoobiusService):
         """
         Handle the received unknown message.
         """
-        log(f"Received unknown message: {message_data}")
+        logger.debug(f"Received unknown message: {message_data}")
