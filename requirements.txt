@@ -5,6 +5,4 @@ dacite
 openai
 redis
 Requests
-tenacity
-tiktoken
 websockets
