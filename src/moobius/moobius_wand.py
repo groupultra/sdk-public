@@ -17,11 +17,15 @@ class MoobiusWand:
         self.processes = {}
         self.current_service_handle = 0     # todo: use handle to terminate or restart a service
 
+    @staticmethod
+    def run_job(service):
+        asyncio.run(service.start())
+
     def run(self, service_cls, service_config_path, db_config_path, background=False):
         service = service_cls(service_config_path=service_config_path, db_config_path=db_config_path)
 
         if background:
-            p_service = Process(target=lambda x: asyncio.run(x.start()), args=(service,))
+            p_service = Process(target=self.run_job, args=(service,))
             p_service.start()
             self.current_service_handle += 1
             self.services[self.current_service_handle] = service

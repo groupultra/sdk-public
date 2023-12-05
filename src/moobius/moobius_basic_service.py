@@ -43,13 +43,7 @@ class MoobiusBasicService:
         self.authenticate_interval = 7 * 24 * 60 * 60   # 30d expire, 7d refresh
         self.heartbeat_interval = 30                    # 30s heartbeat
 
-        self.scheduler = AsyncIOScheduler()
-        
-        # The details of access_token and refresh_token are managed by self.http_api
-        self.scheduler.add_job(self._do_refresh, 'interval', seconds=self.refresh_interval)
-        self.scheduler.add_job(self._do_authenticate, 'interval', seconds=self.authenticate_interval)
-        self.scheduler.add_job(self._do_send_heartbeat, 'interval', seconds=self.heartbeat_interval)
-        
+        self.scheduler = None
 
     # =================== jobs ===================
 
@@ -142,6 +136,14 @@ class MoobiusBasicService:
 
             log(f"Config file updated: {self.config_path}")
             await self.send_service_login()
+
+            # Schedulers cannot be serialized so that you have to initialize it here
+            self.scheduler = AsyncIOScheduler()
+
+            # The details of access_token and refresh_token are managed by self.http_api
+            self.scheduler.add_job(self._do_refresh, 'interval', seconds=self.refresh_interval)
+            self.scheduler.add_job(self._do_authenticate, 'interval', seconds=self.authenticate_interval)
+            self.scheduler.add_job(self._do_send_heartbeat, 'interval', seconds=self.heartbeat_interval)
 
             self.scheduler.start()
             log("Scheduler started.")
