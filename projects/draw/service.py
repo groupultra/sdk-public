@@ -307,7 +307,7 @@ class DrawService(MoobiusService):
             await self.send_update_style(channel_id, content, [sender])
 
         elif action.subtype == "join_channel":
-            character = self.http_api.fetch_user_profile([sender])
+            character = self.http_api.fetch_user_profile(sender)
             self.bands[channel_id].real_characters[sender] = character
             self.bands[channel_id].status[sender] = copy.deepcopy(self.default_status)
 
