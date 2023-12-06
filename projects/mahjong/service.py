@@ -25,11 +25,7 @@ import base64
 import io
 from PIL import Image
 
-from moobius.moobius_service import MoobiusService
-from moobius.basic.types import Character, CharacterContext
-from moobius.dbtools.moobius_band import MoobiusBand
-
-from dacite import from_dict
+from moobius import MoobiusService, MoobiusStorage
 
 
 class MahjongService(MoobiusService):
@@ -38,7 +34,7 @@ class MahjongService(MoobiusService):
         logger.add("logs/service.log", rotation="1 day", retention="7 days", level="DEBUG")
         logger.add("logs/error.log", rotation="1 day", retention="7 days", level="ERROR")
 
-        self.image_dir = kwargs.get('image_dir', 'mahjong/images')
+        self.image_dir = kwargs.get('image_dir', 'temp/images')
 
         os.makedirs(self.image_dir, exist_ok=True)
 
@@ -49,7 +45,7 @@ class MahjongService(MoobiusService):
         """
 
         for channel_id in self.channels:
-            self.bands[channel_id] = MoobiusBand(self.service_id, channel_id, db_settings=self.db_settings)
+            self.bands[channel_id] = MoobiusStorage(self.service_id, channel_id, db_config=self.db_config)
 
             real_characters = await self.fetch_real_characters(channel_id)
 

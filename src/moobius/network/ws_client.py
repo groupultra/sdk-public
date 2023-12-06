@@ -22,7 +22,7 @@ class WSClient:
 
     async def send(self, message):
         try:
-            logger.opt(colors=True).info(f"<blue>{message}</blue>")
+            logger.opt(colors=True).info(f"<blue>{message.replace('<', '&lt;').replace('>', '&gt;')}</blue>")
             await self.websocket.send(message)  # Don't use asyncio.create_task() here, or the message could not be sent in order
         except websockets.exceptions.ConnectionClosed:
             logger.info("Connection closed. Attempting to reconnect...")
@@ -39,7 +39,7 @@ class WSClient:
         while True:
             try:
                 message = await self.websocket.recv()
-                logger.opt(colors=True).info(f"<yellow>{message}</yellow>")
+                logger.opt(colors=True).info(f"<yellow>{message.replace('<', '&lt;').replace('>', '&gt;')}</yellow>")
                 asyncio.create_task(self.safe_handle(message))
             except websockets.exceptions.ConnectionClosed:
                 logger.info("WSClient.receive() Connection closed. Attempting to reconnect...")

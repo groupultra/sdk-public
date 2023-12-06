@@ -4,6 +4,7 @@ src/moobius.egg-info/
 projects/*/json_db/
 projects/*/logs/
 projects/*/config/service.json
+projects/*/temp/
 
 .idea/
 /venv/

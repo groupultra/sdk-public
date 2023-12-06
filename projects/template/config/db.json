@@ -41,49 +41,5 @@
         "settings": {
             "root_dir": "json_db"
         }
-    },
-
-    {
-        "implementation": "json",
-        "load": true,
-        "clear": false,
-        "name": "game_status",
-        
-        "settings": {
-            "root_dir": "json_db"
-        }
-    },
-
-    {
-        "implementation": "json",
-        "load": true,
-        "clear": false,
-        "name": "view_characters",
-        
-        "settings": {
-            "root_dir": "json_db"
-        }
-    },
-
-    {
-        "implementation": "json",
-        "load": true,
-        "clear": false,
-        "name": "view_features",
-        
-        "settings": {
-            "root_dir": "json_db"
-        }
-    },
-
-    {
-        "implementation": "json",
-        "load": true,
-        "clear": false,
-        "name": "view_stages",
-        
-        "settings": {
-            "root_dir": "json_db"
-        }
     }
 ]
