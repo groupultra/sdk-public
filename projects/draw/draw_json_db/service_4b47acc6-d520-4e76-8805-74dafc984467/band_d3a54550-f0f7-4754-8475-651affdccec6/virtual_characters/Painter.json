@@ -1,0 +1,12 @@
+{
+    "Painter": {
+        "user_id": "5b9c2b7f-1b74-4c45-b6e4-880c2adfd251",
+        "username": "Picasso Sillica",
+        "user_context": {
+            "nickname": "Painter",
+            "description": "I am a Picasso Sillica",
+            "avatar": "https://social-public-bucket-1.s3.amazonaws.com/181d2662-4c14-40c6-84ab-9004a14a355c.jpg"
+        }
+    },
+    "_type": "Character"
+}

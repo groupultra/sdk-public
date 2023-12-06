@@ -1,0 +1,84 @@
+{
+    "EN": [
+        {
+            "feature_id": "SelectEN",
+            "feature_name": "SelectEN",
+            "button_text": "Select Riddle",
+            "new_window": true,
+            "arguments": [
+                {
+                    "name": "Please select a Riddle",
+                    "type": "enum",
+                    "values": [
+                        "0001 (1-1): One Plus One",
+                        "0002 (1-2): First Blood",
+                        "0003 (1-3): Long Story Short",
+                        "0004 (1-4): Short Story Short",
+                        "0005 (1-5): Palindrome",
+                        "0006 (1-6): Dogs out of Blue",
+                        "0007 (2-1): Prime Length",
+                        "0008 (2-2): Bigger and Bigger",
+                        "0009 (2-3): Smaller and Smaller",
+                        "0010 (2-4): Motto",
+                        "0011 (2-5): Square Root",
+                        "0012 (2-6): More Blue Dogs",
+                        "0013 (3-1): Talk to Yourself",
+                        "0014 (3-2): flesruoY ot klaT",
+                        "0015 (3-3): Dare to Say",
+                        "0016 (3-4): Palindrome Covariant",
+                        "0017 (4-1): Loop",
+                        "0018 (4-2): Save Words",
+                        "0019 (4-3): Nature's Secret",
+                        "0020 (5-1): Betray Yourself",
+                        "0021 (6-1): Interlace",
+                        "0022 (6-2): So Odd",
+                        "0023 (6-3): Induction",
+                        "0024 (6-4): Capitalism",
+                        "0025 (6-5): Going Once, Going Twice, Sold"
+                    ],
+                    "optional": false,
+                    "placeholder": "Please select"
+                }
+            ]
+        },
+        {
+            "feature_id": "SuggestionEN",
+            "feature_name": "Feedback",
+            "button_text": "Feedback",
+            "new_window": true,
+            "arguments": [
+                {
+                    "name": "Design your LLM Riddle",
+                    "type": "string",
+                    "optional": true,
+                    "placeholder": "Please enter your riddle"
+                },
+                {
+                    "name": "Let us know the name you want to be credited as",
+                    "type": "string",
+                    "optional": true,
+                    "placeholder": "Please enter your name"
+                },
+                {
+                    "name": "Bug/feedback/suggestions you want us to know",
+                    "type": "string",
+                    "optional": true,
+                    "placeholder": "Please enter your feedback"
+                }
+            ]
+        },
+        {
+            "feature_id": "AboutEN",
+            "feature_name": "AboutEN",
+            "button_text": "About",
+            "new_window": false
+        },
+        {
+            "feature_id": "CN",
+            "feature_name": "Chinese",
+            "button_text": "CN",
+            "new_window": false
+        }
+    ],
+    "_type": "list"
+}

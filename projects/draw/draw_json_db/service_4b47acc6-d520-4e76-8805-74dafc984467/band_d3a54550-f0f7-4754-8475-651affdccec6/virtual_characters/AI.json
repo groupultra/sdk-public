@@ -1,0 +1,12 @@
+{
+    "AI": {
+        "user_id": "21a8f056-a097-4352-b781-d4c1965f0dec",
+        "username": "Let me see!",
+        "user_context": {
+            "nickname": "AI",
+            "description": "I am a Let me see!",
+            "avatar": "https://social-public-bucket-1.s3.amazonaws.com/9a68a6e7-7892-4ef9-a155-f8f5e10b8167.jpg"
+        }
+    },
+    "_type": "Character"
+}

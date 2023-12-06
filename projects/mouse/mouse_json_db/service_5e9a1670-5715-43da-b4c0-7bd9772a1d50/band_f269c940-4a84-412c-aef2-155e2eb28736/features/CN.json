@@ -1,0 +1,84 @@
+{
+    "CN": [
+        {
+            "feature_id": "SelectCN",
+            "feature_name": "SelectCN",
+            "button_text": "\u9009\u62e9\u9898\u76ee",
+            "new_window": true,
+            "arguments": [
+                {
+                    "name": "\u8bf7\u9009\u62e9\u9898\u76ee",
+                    "type": "enum",
+                    "values": [
+                        "0001 (1-1): \u521d\u6765\u4e4d\u5230",
+                        "0002 (1-2): \u5c0f\u8bd5\u725b\u5200",
+                        "0003 (1-3): \u77ed\u8bf4\u957f\u8bdd",
+                        "0004 (1-4): \u77ed\u8bf4\u77ed\u8bdd",
+                        "0005 (1-5): \u56de\u6587\u4e0d\u53d8",
+                        "0006 (1-6): \u65e0\u4e2d\u751f\u72d7",
+                        "0007 (2-1): \u8d28\u6570\u957f\u5ea6",
+                        "0008 (2-2): \u8d8a\u8bf4\u8d8a\u5927",
+                        "0009 (2-3): \u8d8a\u8bf4\u8d8a\u5c0f",
+                        "0010 (2-4): \u8b66\u4e16\u540d\u8a00",
+                        "0011 (2-5): \u5f00\u5e73\u65b9\u6570",
+                        "0012 (2-6): \u5f97\u5bf8\u8fdb\u72d7",
+                        "0013 (3-1): \u81ea\u8bf4\u81ea\u8bdd",
+                        "0014 (3-2): \u8bdd\u81ea\u8bf4\u81ea",
+                        "0015 (3-3): \u5c31\u662f\u6562\u8bf4",
+                        "0016 (3-4): \u56de\u6587\u534f\u53d8",
+                        "0017 (4-1): \u5faa\u73af\u5f80\u590d",
+                        "0018 (4-2): \u60dc\u5b57\u5982\u91d1",
+                        "0019 (4-3): \u81ea\u7136\u4e4b\u5bc6",
+                        "0020 (5-1): \u53e3\u662f\u5fc3\u975e",
+                        "0021 (6-1): \u4ea4\u66ff\u5b57\u7b26",
+                        "0022 (6-2): \u5947\u53d8\u5076\u4e0d\u53d8",
+                        "0023 (6-3): \u4e3e\u4e00\u53cd\u4e09",
+                        "0024 (6-4): \u5927\u5c31\u662f\u597d",
+                        "0025 (6-5): \u4e00\u9524\u5b9a\u97f3"
+                    ],
+                    "optional": false,
+                    "placeholder": "\u8bf7\u9009\u62e9"
+                }
+            ]
+        },
+        {
+            "feature_id": "SuggestionCN",
+            "feature_name": "\u53cd\u9988",
+            "button_text": "\u53cd\u9988",
+            "new_window": true,
+            "arguments": [
+                {
+                    "name": "\u8bbe\u8ba1\u60a8\u7684\u8c1c\u9898",
+                    "type": "string",
+                    "optional": true,
+                    "placeholder": "\u8bf7\u8f93\u5165\u9898\u76ee"
+                },
+                {
+                    "name": "\u8bf7\u8f93\u5165\u60a8\u7684\u540d\u5b57",
+                    "type": "string",
+                    "optional": true,
+                    "placeholder": "\u8bf7\u8f93\u5165\u60a8\u7684\u540d\u5b57"
+                },
+                {
+                    "name": "\u8bf7\u5199\u4e0b\u60a8\u7684\u53cd\u9988\u610f\u89c1/\u5efa\u8bae/bug\u62a5\u544a",
+                    "type": "string",
+                    "optional": true,
+                    "placeholder": "\u8bf7\u8f93\u5165\u60a8\u7684\u53cd\u9988"
+                }
+            ]
+        },
+        {
+            "feature_id": "AboutCN",
+            "feature_name": "AboutCN",
+            "button_text": "\u5173\u4e8e",
+            "new_window": false
+        },
+        {
+            "feature_id": "EN",
+            "feature_name": "EN",
+            "button_text": "EN",
+            "new_window": false
+        }
+    ],
+    "_type": "list"
+}

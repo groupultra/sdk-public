@@ -1,0 +1,20 @@
+{
+    "a0cf0cbb-26af-4d9a-9e1f-b8bc5a01e72e": [
+        {
+            "riddle": "test",
+            "author": "etestes",
+            "feedback": "testestrs"
+        },
+        {
+            "riddle": "tet",
+            "author": "estest",
+            "feedback": "estest"
+        },
+        {
+            "riddle": "123123",
+            "author": "112233",
+            "feedback": "445566"
+        }
+    ],
+    "_type": "list"
+}

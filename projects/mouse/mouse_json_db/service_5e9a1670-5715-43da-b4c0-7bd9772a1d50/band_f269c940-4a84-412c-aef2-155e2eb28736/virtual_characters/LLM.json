@@ -1,0 +1,12 @@
+{
+    "LLM": {
+        "user_id": "25a51646-28f0-40dd-882d-d97993c7cfe4",
+        "username": "Little Light Mouse",
+        "user_context": {
+            "nickname": "LLM",
+            "description": "I am a Little Light Mouse",
+            "avatar": "https://social-public-bucket-1.s3.amazonaws.com/aeb3c11c-5a37-49d0-8d80-5fc83faf8f2e.jpg"
+        }
+    },
+    "_type": "Character"
+}
