@@ -7,21 +7,27 @@ Moobius Python SDK version 0.0.1
 + Service Config and Test Run
 
 Usage: 
-1. Change current directory to `src`
+1. Change current directory to `src/`
 2. Run `pip install -e .`. This command will install the package to your PYTHONPATH.
-- Note: `-e` means editable mode. With this option your changes to the source code will be applied immediately.
++ Note: for Mac OS, it could be `pip3 install -e .`
++ Note: `-e` means editable mode. With this option your changes to the source code will be applied immediately.
 3. Import the package in your code (Your code does not have to be in the same directory of `src/`): `import moobius`
 4. Change current directory of your terminal/shell/cmd to `projects/test/`
 5. Edit `config/service.json`. Fill in your `email`, `password` and a list of `channels` you want to run on. If you have a `service_id`, just fill in the field, otherwise please use `"service_id": ""` and the SDK will create a new `service_id` for you. 
-6. Run `python3 main.py`. The config file will automatically update so that you don't need to configure it the next time you start the program. You should expect a functional service in your band, that
+6. Run `python main.py`. The config file will automatically update so that you don't need to configure it the next time you start the program. You should expect a functional service in your band, that
 - Has two Keys ("Meet Tubbs or Hermeowne" and "Meet Ms Fortune"). Both of them are functional.
 - Will respond a "pong" to a "ping" message, and repeat other messages.
 - Would Show "SYNC", "ASYNC", "BOMB" and "SURVIVE" messages automatically.
++ Note: For Mac OS, it could be `python3 main.py`
 
 
-+ Database Config: `config/db.json`, currently two types of configurations are supported: json and redis. For json you need to specify `type`: "json" and `root_dir` as your root directory to save the database files. For redis you need to specify `type`: redis and `password` for your redis password. See the Database part for more info. Each database can be configured independently. If `clear` is set, everything in the database would be erased during the initialization of the service. If `load` is set, the service will load a copy to the memory during initialization. Note:
-1. Data types supported are basic types (list, dict, int, str, etc) and all dataclass types defined in `basic/`
++ Database Config: `config/db.json` in `projects/<your_project>`, currently two types of configurations are supported: json and redis. For json you need to specify `implementation: "json"` and `root_dir` as your root directory to save the database files. For redis you need to specify `implementation: "redis"` and `password` for your redis password. See the Database part for more info. Each database can be configured independently. If `clear` is set, everything in the database would be erased during the initialization of the service. If `load` is set, the service will load a copy to the memory during initialization. Note:
+1. Data types supported are basic types (list, dict, int, str, etc) and all dataclass types defined in `types.py`
 2. If you modify a mutable object data record, the memory wouldn't be updated. You have to reassign it to the band (all abstractions are leaky!) (todo: elaborate this)
+
+
+# ============================== Below Are Deprecated ======================================
+
 
 ## Build Your Own Service (todo: wand doc)
 
@@ -74,12 +80,9 @@ On JSON-based file db, it involves some trick to build a dict-like `MagicalStora
 Define them!
 
 ## Todo
-
-1. Database related refactoring, documentations, etc
-2. Detailed websocket payloads (channel_info, etc)
-3. Non-blocking operations after `start()` (multiprocessing)
-4. Async http and database
-5. Auto refresh tokens!
-6. Tutorials
-7. Database safety (lots of work)
-8. Data Types!
+1. Async http and database
+2. HTTP Data Types
+3. Ctrl + C multiple times, why
+4. Documentation
+5. Tutorials and better examples
+6. Unbind `others`
