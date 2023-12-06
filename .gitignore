@@ -4,7 +4,9 @@ src/moobius.egg-info/
 projects/test/simple_json_db/
 projects/test/logs/
 projects/mouse/mouse_json_db/
+projects/mouse/logs/
 projects/draw/draw_json_db/
+projects/draw/logs/
 
 .idea/
 /venv/
