@@ -4,8 +4,8 @@ import uuid
 import json
 import time
 
-from moobius.utils import EnhancedJSONEncoder
-# This should be a basic builder. Do NOT put dependencies here.
+from moobius.commons.utils import EnhancedJSONEncoder
+# This should be a commons builder. Do NOT put dependencies here.
 # todo: Use dataclass!
 class WSPayloadBuilder:
     def __init__(self):

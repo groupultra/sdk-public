@@ -1,16 +1,10 @@
-import asyncio
-from signal import SIGINT, SIGTERM
-from dataclasses import asdict
-from dacite import from_dict
-import uuid
-import json
-import time
-import traceback
+# wand.py
 
+import asyncio
 from multiprocessing import Process
 
 from loguru import logger
-from moobius.moobius_basic_service import MoobiusBasicService
+
 
 class MoobiusWand:
     def __init__(self):
@@ -35,7 +29,6 @@ class MoobiusWand:
             return self.current_service_handle
         else:
             asyncio.run(service.start())
-
 
     def spell(self, handle, obj):
         if handle in self.services:

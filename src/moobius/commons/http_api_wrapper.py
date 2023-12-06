@@ -2,7 +2,7 @@
 import requests
 from loguru import logger
 from dacite import from_dict
-from moobius.basic.moobius_types import Character, Group
+from moobius.commons.types import Character, Group
 # todo: refresh
 # todo: return code
 class HTTPAPIWrapper:

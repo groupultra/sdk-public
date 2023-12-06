@@ -1,22 +1,20 @@
-# simple_json_database.py
+# json_database.py
 
 import json
 import os
-import dataclasses
-import traceback
 from pydoc import locate
-from dataclasses import asdict
 
 from dacite import from_dict
 from loguru import logger
-from moobius.utils import EnhancedJSONEncoder
-from moobius.dbtools.database_interface import DatabaseInterface
+from moobius.commons.utils import EnhancedJSONEncoder
+from .database_interface import DatabaseInterface
+
 
 # todo: 
 # 1. validity check for key (must be str)
 # 2. json serializable check
 # 3. rolling back when error occurs
-class SimpleJSONDatabase(DatabaseInterface):
+class JSONDatabase(DatabaseInterface):
     # root_dir: root directory of the all the database files
     # domain: name of the database dir
     # key: name of the database json file
@@ -25,9 +23,9 @@ class SimpleJSONDatabase(DatabaseInterface):
         super().__init__()
         
         self.path = os.path.join(root_dir, domain.replace('.', os.sep))
+        self.ref_module_name = 'moobius.commons.moobius_types'
         os.makedirs(self.path, exist_ok=True)
 
-    
     @logger.catch
     def get_value(self, key):
         filename = os.path.join(self.path, key + '.json')
@@ -40,8 +38,8 @@ class SimpleJSONDatabase(DatabaseInterface):
                 return True, None   # You can't use NoneType(None) to construct a NoneType object, so we have to return None directly
             else:
                 class_name = data['_type']
-                data_type = locate(f'moobius.basic.moobius_types.{class_name}')
-                
+                data_type = locate(f'{self.ref_module_name}.{class_name}')
+
                 if data_type:   # dataclass
                     return True, from_dict(data_class=data_type, data=data[key])  # todo: add a field to indicate the type of the value
 

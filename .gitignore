@@ -1,26 +1,10 @@
-# 忽略 logs 文件夹下的所有内容
-logs/
-
-# 忽略 __pycache__ 文件夹下的所有内容
 __pycache__/
-
-# 忽略 config.json 文件
-src/config.json
-
-# 忽略 data.json 文件
-json/data.json
-
-src/resources
-src/simple_json_db
-src/cicada_agent.py
-
-src/test_db/
-src/cicada_json_db
-src/cicada/games/*
-src/cicada/api_key.py
+src/moobius.egg-info/
 
 projects/test/simple_json_db/
+projects/test/logs/
 projects/mouse/mouse_json_db/
 projects/draw/draw_json_db/
 
 .idea/
+/venv/

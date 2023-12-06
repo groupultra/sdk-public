@@ -1,4 +1,4 @@
-# moobius_service.py
+# service.py
 
 import json
 import time
@@ -6,10 +6,9 @@ import time
 from dataclasses import asdict
 from dacite import from_dict
 
-from moobius.basic.moobius_types import Character, MessageUp, MessageDown
-from moobius.moobius_basic_service import MoobiusBasicService
+from moobius.commons.types import MessageDown
+from .basic_service import MoobiusBasicService
 
-from loguru import logger
 
 # with database
 class MoobiusService(MoobiusBasicService):

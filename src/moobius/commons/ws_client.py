@@ -1,11 +1,8 @@
 # ws_client.py
 
 import asyncio
-import traceback
 import websockets
 
-import time
-import aioprocessing
 from loguru import logger
 
 
@@ -22,7 +19,6 @@ class WSClient:
 
     async def _on_connect(self):
         logger.info(f"Connected to {self.ws_server_uri}")
-
 
     async def send(self, message):
         try:
@@ -50,7 +46,6 @@ class WSClient:
                 await self.connect()
                 logger.info("Reconnected!")
             except Exception as e:
-                traceback.print_exc()
                 logger.error(e)
                 await self.connect()
                 logger.info("Reconnected!")

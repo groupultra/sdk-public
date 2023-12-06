@@ -1,13 +1,14 @@
 # service.py
 
-import asyncio
 import json
 
-from moobius.moobius_service import MoobiusService
-from moobius.basic.moobius_types import Character, Feature
-from moobius.dbtools.moobius_band import MoobiusBand
+from moobius import MoobiusService
+from moobius import MoobiusStorage
+from moobius import Moobius
+
 from dacite import from_dict
 from loguru import logger
+
 
 class TestService(MoobiusService):
     def __init__(self, log_file="logs/service.log", **kwargs):
@@ -46,7 +47,7 @@ class TestService(MoobiusService):
             features = json.load(f)
 
         for channel_id in self.channels:
-            self.bands[channel_id] = MoobiusBand(self.service_id, channel_id, db_config=self.db_config)
+            self.bands[channel_id] = MoobiusStorage(self.service_id, channel_id, db_config=self.db_config)
             real_characters = self.http_api.fetch_real_characters(channel_id, self.service_id)
 
             for character in real_characters:
@@ -55,8 +56,7 @@ class TestService(MoobiusService):
 
             for feature in features:
                 feature_id = feature["feature_id"]
-                self.bands[channel_id].features[feature_id] = from_dict(data_class=Feature, data=feature)
-
+                self.bands[channel_id].features[feature_id] = from_dict(data_class=Moobius.Feature, data=feature)
 
     # on_xxx, default implementation, to be override
     async def on_msg_up(self, msg_up):
@@ -91,7 +91,6 @@ class TestService(MoobiusService):
 
         await self.send_update_features(action.channel_id, feature_data_list, [action.sender])
 
-    
     async def on_fetch_playground(self, action):
         logger.debug("fetch_playground")
         """

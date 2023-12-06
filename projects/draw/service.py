@@ -1,7 +1,8 @@
 # service.py
 
-from moobius.moobius_service import MoobiusService
+from moobius.core.service import MoobiusService
 from loguru import logger
+
 
 class DrawService(MoobiusService):
     def __init__(self, log_file="logs/service.log", **kwargs):
@@ -14,15 +15,11 @@ import asyncio
 import json
 import copy
 import re
-import uuid
-import random
-from dataclasses import asdict
 import traceback
 
-from moobius.moobius_service import MoobiusService
-from moobius.basic.types import Character, CharacterContext
-from moobius.dbtools.moobius_band import MoobiusBand
-from moobius.gpt.utils import get_answer_simple
+from moobius.core.service import MoobiusService
+from moobius.commons.types import Character
+from moobius.database.band import MoobiusBand
 
 from dacite import from_dict
 from openai import AsyncOpenAI

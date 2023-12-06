@@ -1,7 +1,8 @@
 # service.py
 
 from loguru import logger
-from moobius.moobius_service import MoobiusService
+from moobius.core.service import MoobiusService
+
 
 class TemplateService(MoobiusService):
     def __init__(self, log_file="logs/service.log", **kwargs):

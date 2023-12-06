@@ -1,10 +1,10 @@
-import json
 import asyncio
 import time
 
 from service import TestService
-from moobius.moobius_wand import MoobiusWand
+from moobius.core.wand import MoobiusWand
 from loguru import logger
+
 
 @logger.catch
 def full_test(wand, handle):

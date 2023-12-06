@@ -3,20 +3,15 @@
 import asyncio
 import json
 import copy
-import uuid
-import random
-from dataclasses import asdict
 
-from moobius.basic.moobius_types import MessageUp, MessageDown
-from moobius.moobius_service import MoobiusService
-from moobius.dbtools.moobius_band import MoobiusBand
+from moobius.core.service import MoobiusService
+from moobius.database.magical_storage import MoobiusStorage
 
 from verifier import Verifier
 from loguru import logger
 
 from openai import AsyncOpenAI
 
-from dacite import from_dict
 
 class MouseService(MoobiusService):
     def __init__(self, **kwargs):
@@ -99,7 +94,7 @@ class MouseService(MoobiusService):
         # ==================== initialize the database ====================
 
         for channel_id in self.channels:
-            self.bands[channel_id] = MoobiusBand(self.service_id, channel_id, db_config=self.db_config)
+            self.bands[channel_id] = MoobiusStorage(self.service_id, channel_id, db_config=self.db_config)
 
             self.bands[channel_id].features['EN'] = copy.deepcopy(features_en)
             self.bands[channel_id].features['CN'] = copy.deepcopy(features_cn)

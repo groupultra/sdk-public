@@ -1,6 +1,7 @@
 # null_database.py
 
-from moobius.dbtools.database_interface import DatabaseInterface
+from .database_interface import DatabaseInterface
+
 
 class NullDatabase(DatabaseInterface):
     def __init__(self, domain='', **kwargs):

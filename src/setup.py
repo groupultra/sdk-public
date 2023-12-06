@@ -11,7 +11,6 @@ setup(
         'aiohttp',
         'APScheduler',
         'dacite',
-        'openai',
         'redis',
         'websockets',
         'loguru',

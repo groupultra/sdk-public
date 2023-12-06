@@ -11,7 +11,7 @@ class DatabaseInterface(ABC):
         Or different folders in the same file system.
         The keys inside different domains may overlap, but they are different entries.
         For example, two bands may have entries with the same feature id.
-        domains are '.' seperated strings, like '<band_id>.<character_id>'
+        domains are '.' separated strings, like '<band_id>.<character_id>'
         """
         super().__init__()
 
@@ -39,7 +39,7 @@ class DatabaseInterface(ABC):
     @abstractmethod
     def all_keys(self) -> any:
         """
-        Returns an iteratable of all keys
+        Returns an iterable of all keys
         """
         pass
         

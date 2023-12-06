@@ -1,9 +1,9 @@
-# storage.py
+# magical_storage.py.py
 
 from collections.abc import MutableMapping
-from moobius.dbtools.simple_json_database import SimpleJSONDatabase
-from moobius.dbtools.null_database import NullDatabase
+from .null_database import NullDatabase
 from loguru import logger
+
 
 class CachedDict(MutableMapping, dict):
     def __init__(self, database=None, strict_mode=False):
@@ -63,8 +63,6 @@ class CachedDict(MutableMapping, dict):
         return dict.__contains__(self, x)
 
 
-
-
 class MagicalStorage:
     def __init__(self):
         pass
@@ -83,4 +81,3 @@ class MagicalStorage:
                 pass
             
             self.__setattr__(attr_name, cached_dict)
-
