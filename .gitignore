@@ -3,12 +3,15 @@ src/moobius.egg-info/
 
 projects/test/simple_json_db/
 projects/test/logs/
+projects/test/config/service.json
 
 projects/mouse/mouse_json_db/
 projects/mouse/logs/
+projects/mouse/config/service.json
 
 projects/draw/draw_json_db/
 projects/draw/logs/
+projects/draw/config/service.json
 
 .idea/
 /venv/
