@@ -1,7 +1,7 @@
 __pycache__/
 src/moobius.egg-info/
 
-projects/*/simple_json_db/
+projects/*/json_db/
 projects/*/logs/
 projects/*/config/service.json
 

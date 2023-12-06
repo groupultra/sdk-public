@@ -6,7 +6,7 @@
         "clear": true,
         
         "settings": {
-            "root_dir": "draw_json_db"
+            "root_dir": "json_db"
         }
     },
 
@@ -17,7 +17,7 @@
         "clear": false,
 
         "settings": {
-            "root_dir": "draw_json_db"
+            "root_dir": "json_db"
         }
     },
 
@@ -28,7 +28,7 @@
         "clear": false,
 
         "settings": {
-            "root_dir": "draw_json_db"
+            "root_dir": "json_db"
         }
     },
 
@@ -39,7 +39,7 @@
         "clear": false,
 
         "settings": {
-            "root_dir": "draw_json_db"
+            "root_dir": "json_db"
         }
     },
 
@@ -50,7 +50,7 @@
         "clear": false,
         
         "settings": {
-            "root_dir": "draw_json_db"
+            "root_dir": "json_db"
         }
     }
 ]
