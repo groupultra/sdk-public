@@ -165,19 +165,24 @@ class MouseService(MoobiusService):
         return msg
 
     def get_feedbacks(self, channel_id):
+
+        msg = f"Feedbacks:\n\n"
+
         for character_id, entry in self.bands[channel_id].suggestions.items():
             if len(entry) > 0:
                 nickname = self.bands[channel_id].real_characters[character_id].user_context.nickname
-                msg = f"Feedbacks from {nickname}:\n\n"
+                msg += f"Feedbacks from {nickname}:\n\n"
 
                 for item in entry:
                     msg += f"Riddle: {item.get('riddle', None)}\n"
                     msg += f"Author: {item.get('author', None)}\n"
                     msg += f"Feedback: {item.get('feedback', None)}\n\n"
 
-                return msg
+                
             else:
                 continue
+
+        return msg
 
     async def update_hall_of_fame(self, channel_id, character_ids):
         content = {"text": self.get_hall_of_fame(channel_id)}
