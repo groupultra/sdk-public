@@ -1,11 +1,11 @@
 {
     "http_server_uri": "https://api.sociyoo.com/",
     "ws_server_uri": "wss://ws.sociyoo.com/",
-    "email": "dev089@moobius.app",
-    "password": "sdksdksdk",
-    "service_id": "4b47acc6-d520-4e76-8805-74dafc984467",
+    "email": "<your email>",
+    "password": "<your password>",
+    "service_id": "",
     "channels": [
-        "d3a54550-f0f7-4754-8475-651affdccec6"
+        
     ],
     "others": "ignore"
 }
