@@ -13,9 +13,10 @@ from verifier import Verifier
 
 
 class MouseService(MoobiusService):
-    def __init__(self, **kwargs):
+    def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
         logger.add("logs/service.log", rotation="1 day", retention="7 days", level="DEBUG")
+        logger.add("logs/error.log", rotation="1 day", retention="7 days", level="ERROR")
         
         self.riddles = {}
         self.model = 'gpt-4-1106-preview'

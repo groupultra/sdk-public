@@ -11,9 +11,10 @@ from moobius import MoobiusService, MoobiusStorage
 
 
 class DrawService(MoobiusService):
-    def __init__(self, log_file="logs/service.log", **kwargs):
+    def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
         logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
+        logger.add(error_log_file, rotation="1 day", retention="7 days", level="ERROR")
         
         self.default_status = {
             "total_score": 0,
