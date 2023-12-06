@@ -1,33 +1,19 @@
 # service.py
+import asyncio
+import json
+import copy
+import re
 
-from moobius.core.service import MoobiusService
 from loguru import logger
+from openai import AsyncOpenAI
+
+from moobius import MoobiusService, MoobiusStorage
 
 
 class DrawService(MoobiusService):
     def __init__(self, log_file="logs/service.log", **kwargs):
         super().__init__(**kwargs)
         logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
-
-# draw_service.py
-
-import asyncio
-import json
-import copy
-import re
-import traceback
-
-from moobius.core.service import MoobiusService
-from moobius.commons.types import Character
-from moobius.database.band import MoobiusBand
-
-from dacite import from_dict
-from openai import AsyncOpenAI
-
-
-class DrawService(MoobiusService):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         
         self.default_status = {
             "total_score": 0,
@@ -39,25 +25,27 @@ class DrawService(MoobiusService):
 
         self.welcome = '<welcome>'
 
-        self.openai_client = AsyncOpenAI()
+        self.openai_client = None
 
     async def on_start(self):
         
         # ==================== load features and fill in the template ====================
-        
-        with open('resources/draw_features.json', 'r') as f:
+
+        self.openai_client = AsyncOpenAI()
+
+        with open('resources/draw_features.json', 'r', encoding='utf-8') as f:
             self.features = json.load(f)
 
-        with open('resources/about.txt', 'r') as f:
+        with open('resources/about.txt', 'r', encoding='utf-8') as f:
             self.about = f.read()
 
-        with open('resources/welcome.txt', 'r') as f:
+        with open('resources/welcome.txt', 'r', encoding='utf-8') as f:
             self.welcome = f.read()
 
         # ==================== initialize the database ====================
 
-        for channel_id in self.channel_ids:
-            self.bands[channel_id] = MoobiusBand(self.service_id, channel_id, db_settings=self.db_settings)
+        for channel_id in self.channels:
+            self.bands[channel_id] = MoobiusStorage(self.service_id, channel_id, db_config=self.db_config)
 
             real_characters = await self.fetch_real_characters(channel_id)
 
@@ -94,7 +82,7 @@ class DrawService(MoobiusService):
 
             for name in names:
                 if name not in self.bands[channel_id].virtual_characters:
-                    print(f'Uploading avatar {name}...')
+                    logger.info(f'Uploading avatar {name}...')
                     file_name = f'resources/icons/{name}.jpg'
                     avatar_uri = self.http_api.upload_file(file_name)
                     self.bands[channel_id].avatars[name] = avatar_uri
@@ -104,14 +92,7 @@ class DrawService(MoobiusService):
                 else:
                     pass
 
-
-    # on_xxx, default implementation, to be override
     async def on_msg_up(self, msg_up):
-        """
-        Handle the received message.
-        """
-        print("on_msg_up", msg_up)
-
         channel_id = msg_up.channel_id
         sender = msg_up.context.sender
 
@@ -194,14 +175,10 @@ class DrawService(MoobiusService):
             else:
                 msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
 
-                print("msg_down", msg_down)
                 await self.send(payload_type='msg_down', payload_body=msg_down)
         else:
             msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
             await self.send(payload_type='msg_down', payload_body=msg_down)
-
-        
-
 
     async def _send_msg(self, channel_id, message_content, recipients, subtype='text', sent_by='Painter', virtual=True):
         """
@@ -297,18 +274,14 @@ class DrawService(MoobiusService):
 
             return image_b64, revised_prompt
 
-
     async def on_action(self, action):
         """
         Handle the received action.
         """
-        print("on_action", action)
         sender = action.sender
         channel_id = action.channel_id
 
         if action.subtype == "fetch_userlist":
-            print("fetch_userlist")
-
             real_characters = list(self.bands[channel_id].real_characters.values())
             virtual_characters = list(self.bands[channel_id].virtual_characters.values())
             user_list = virtual_characters + real_characters
@@ -316,13 +289,9 @@ class DrawService(MoobiusService):
             await self.send_update_userlist(channel_id, user_list, [sender])
 
         elif action.subtype == "fetch_features":
-            print("fetch_features")
-
             await self.send_update_features(action.channel_id, self.features, [action.sender])
 
         elif action.subtype == "fetch_playground":
-            print("fetch_playground")
-
             image_url = self.bands[channel_id].current['image_url']
             await self._send_playground_image(channel_id, image_url, [sender])
 
@@ -337,38 +306,23 @@ class DrawService(MoobiusService):
             await self.send_update_style(channel_id, content, [sender])
 
         elif action.subtype == "join_channel":
-            print("join_channel")
+            character = self.http_api.fetch_user_profile([sender])
+            self.bands[channel_id].real_characters[sender] = character
+            self.bands[channel_id].status[sender] = copy.deepcopy(self.default_status)
 
-            data = self.http_api.fetch_user_profile([sender])
+            real_characters = list(self.bands[channel_id].real_characters.values())
+            virtual_characters = list(self.bands[channel_id].virtual_characters.values())
+            user_list = virtual_characters + real_characters
+            character_ids = list(self.bands[channel_id].real_characters.keys())
 
-            if data['code'] == 10000:
-                d = data['data'][sender]
-                d['user_id'] = sender
-                character = from_dict(data_class=Character, data=d)
-                
-                self.bands[channel_id].real_characters[sender] = character
-                self.bands[channel_id].status[sender] = copy.deepcopy(self.default_status)
+            await self.send_update_userlist(channel_id, user_list, character_ids)
+            await self._send_msg(channel_id, f'{character.user_context.nickname} joined the band!', character_ids, sent_by='Painter')
 
-                real_characters = list(self.bands[channel_id].real_characters.values())
-                virtual_characters = list(self.bands[channel_id].virtual_characters.values())
-                user_list = virtual_characters + real_characters
-                
-                character_ids = list(self.bands[channel_id].real_characters.keys())
+            await asyncio.sleep(0.5)
 
-                await self.send_update_userlist(channel_id, user_list, character_ids)
+            await self._send_msg(channel_id, self.welcome, [sender])
 
-                await self._send_msg(channel_id, f'{character.user_context.nickname} joined the band!', character_ids, sent_by='Painter')
-
-                await asyncio.sleep(0.5)
-                
-
-                await self._send_msg(channel_id, self.welcome, [sender])
-
-            else:
-                print("Error fetching user profile:", data['msg'])
-        
         elif action.subtype == "leave_channel":
-            print("leave_channel")
             character = self.bands[channel_id].real_characters.pop(sender, None)
 
             self.bands[channel_id].status.pop(sender, None)
@@ -382,25 +336,20 @@ class DrawService(MoobiusService):
             await self._send_msg(channel_id, f'{character.user_context.nickname} left the band!', character_ids, sent_by='Painter')
 
         elif action.subtype == "fetch_channel_info":
-            print("fetch_channel_info")
+            logger.info("fetch_channel_info")
             """
             await self.send_update_channel_info(channel_id, self.db_helper.get_channel_info(channel_id))
             """
         else:
-            print("Unknown action subtype:", action_subtype)
-
+            logger.warning("Unknown action subtype:", action.subtype)
 
     async def on_feature_call(self, feature_call):
         """
         Handle the received feature call.
         """
-        print("Feature call received:", feature_call)
         sender = feature_call.sender
         channel_id = feature_call.channel_id
         feature_id = feature_call.feature_id
-        arguments = feature_call.arguments
-        character = self.bands[channel_id].real_characters[feature_call.sender]
-        nickname = character.user_context.nickname
 
         if feature_id == "Ask":
             prompt = 'What is in the image?'
@@ -411,7 +360,7 @@ class DrawService(MoobiusService):
                 answer = await self._see(image_url, prompt)
                 await self._send_msg(channel_id, f'{answer}', [sender], sent_by='AI')
             except Exception as e:
-                traceback.print_exc()
+                logger.warning(e)
                 await self._send_msg(channel_id, f'Sorry! I cannot see the image!\n\n{e}', [sender], sent_by='AI')
 
         elif feature_id == "About":
@@ -424,4 +373,4 @@ class DrawService(MoobiusService):
         """
         Handle the received unknown message.
         """
-        print("Received unknown message:", message_data)
+        logger.warning("Received unknown message:", message_data)

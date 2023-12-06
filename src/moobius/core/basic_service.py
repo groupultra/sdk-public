@@ -9,10 +9,10 @@ from dataclasses import asdict
 from dacite import from_dict
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from moobius.commons.ws_client import WSClient
-from moobius.commons.ws_payload_builder import WSPayloadBuilder
-from moobius.commons.http_api_wrapper import HTTPAPIWrapper
-from moobius.commons.types import MessageUp, Action, FeatureCall, Copy, Payload, Character
+from moobius.network.ws_client import WSClient
+from moobius.network.ws_payload_builder import WSPayloadBuilder
+from moobius.network.http_api_wrapper import HTTPAPIWrapper
+from moobius.types import MessageUp, Action, FeatureCall, Copy, Payload
 from loguru import logger
 
 

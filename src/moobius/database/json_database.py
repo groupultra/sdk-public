@@ -6,7 +6,9 @@ from pydoc import locate
 
 from dacite import from_dict
 from loguru import logger
-from moobius.commons.utils import EnhancedJSONEncoder
+
+from moobius.utils import EnhancedJSONEncoder
+from moobius import types
 from .database_interface import DatabaseInterface
 
 
@@ -23,7 +25,7 @@ class JSONDatabase(DatabaseInterface):
         super().__init__()
         
         self.path = os.path.join(root_dir, domain.replace('.', os.sep))
-        self.ref_module_name = 'moobius.commons.types'
+        self.ref_module = types
         os.makedirs(self.path, exist_ok=True)
 
     @logger.catch
@@ -38,10 +40,10 @@ class JSONDatabase(DatabaseInterface):
                 return True, None   # You can't use NoneType(None) to construct a NoneType object, so we have to return None directly
             else:
                 class_name = data['_type']
-                data_type = locate(f'{self.ref_module_name}.{class_name}')
+                data_type = locate(f'{self.ref_module.__name__}.{class_name}')
 
                 if data_type:   # dataclass
-                    return True, from_dict(data_class=data_type, data=data[key])  # todo: add a field to indicate the type of the value
+                    return True, from_dict(data_class=data_type, data=data[key])
 
                 else:   # possible built-in type, attempt to construct the object from the value
                     data_type = locate(class_name)

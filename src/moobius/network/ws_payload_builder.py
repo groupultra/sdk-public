@@ -4,8 +4,10 @@ import uuid
 import json
 import time
 
-from moobius.commons.utils import EnhancedJSONEncoder
-# This should be a commons builder. Do NOT put dependencies here.
+from moobius.utils import EnhancedJSONEncoder
+
+
+# Do NOT put dependencies here.
 # todo: Use dataclass!
 class WSPayloadBuilder:
     def __init__(self):
@@ -14,7 +16,6 @@ class WSPayloadBuilder:
     @staticmethod
     def dumps(data):
         return json.dumps(data, cls=EnhancedJSONEncoder)
-
 
     def update_userlist(self, client_id, channel_id, user_list, recipients):
         """
@@ -36,7 +37,7 @@ class WSPayloadBuilder:
         }
         # Print the message (for debugging purposes)
         return self.dumps(message)
-    
+
     def update_features(self, client_id, channel_id, features, recipients):
         """
         Constructs the update message for features list.
@@ -76,7 +77,7 @@ class WSPayloadBuilder:
         }
         # Print the message (for debugging purposes)
         return self.dumps(message)
-    
+
     def update_channel_info(self, client_id, channel_id, channel_data):
         """
         Constructs the update message for channel info.
@@ -91,7 +92,6 @@ class WSPayloadBuilder:
         }
         return self.dumps(message)
 
-    
     def update_playground(self, client_id, channel_id, content, recipients):
         """
         Constructs the update message for features list.
@@ -112,7 +112,6 @@ class WSPayloadBuilder:
         # Print the message (for debugging purposes)
         return self.dumps(message)
 
-    
     def service_login(self, service_id, access_token):
         """
         Constructs the service_login message.
@@ -126,7 +125,6 @@ class WSPayloadBuilder:
         }
         return self.dumps(message)
 
-    
     def msg_down(self, client_id, channel_id, recipients, subtype, message_content, sender):
         """
         Constructs the msg_down message.
@@ -139,7 +137,7 @@ class WSPayloadBuilder:
                 "subtype": subtype,
                 "channel_id": channel_id,
                 "content": {
-                    ("text" if subtype == "text" else "path"): message_content #+ " (from service)"
+                    ("text" if subtype == "text" else "path"): message_content  # + " (from service)"
                 },
                 "recipients": recipients,
                 # "group_id": group_id,
@@ -163,7 +161,6 @@ class WSPayloadBuilder:
         }
         return self.dumps(message)
 
-    
     def ping(self):
         """
         Constructs the ping message.

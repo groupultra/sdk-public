@@ -2,9 +2,7 @@
 
 import json
 
-from moobius import MoobiusService
-from moobius import MoobiusStorage
-from moobius import Moobius
+from moobius import MoobiusService, MoobiusStorage, Moobius
 
 from dacite import from_dict
 from loguru import logger

@@ -18,8 +18,10 @@ class MouseService(MoobiusService):
         logger.add("logs/service.log", rotation="1 day", retention="7 days", level="DEBUG")
         
         self.riddles = {}
-        self.verifier = Verifier(llm_func=lambda x: self.get_answer_simple(x, model='gpt-4-1106-preview', temperature=0.5))
-        self.openai_client = AsyncOpenAI()
+        self.model = 'gpt-4-1106-preview'
+        self.temperature = 0.5
+        self.verifier = Verifier(llm_func=self.get_answer_simple)
+        self.openai_client = None
 
         self.default_status = {
             "language": "EN",
@@ -27,55 +29,47 @@ class MouseService(MoobiusService):
             "current_riddle": None,
         }
 
-        self.about = {
-            'CN': '',
-            'EN': ''
-        }
+        self.about = {}
+        self.welcome = {}
 
-        self.welcome = {
-            'CN': '',
-            'EN': ''
-        }
+    @logger.catch
+    async def get_answer_simple(self, prompt):
+        completion = await self.openai_client.chat.completions.create(
+            model=self.model,
+            temperature=self.temperature,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ]
+        )
 
+        return completion.choices[0].message.content
 
-    async def get_answer_simple(self, prompt, model='gpt-4-1106-preview', temperature=0.5):
-        try:
-            completion = await self.openai_client.chat.completions.create(
-                model=model,
-                temperature=temperature,
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-
-            return completion.choices[0].message.content
-
-        except Exception as e:
-            return f"Error: {e}"
-
+    @logger.catch
     async def on_start(self):
         """
         Called after successful connection to websocket server and service login success.
         """
         # ==================== load features and fill in the template ====================
-        
-        with open('resources/mouse_feature_template.json', 'r') as f:
+
+        self.openai_client = AsyncOpenAI()  # not pickleable
+
+        with open('resources/mouse_feature_template.json', 'r', encoding='utf-8') as f:
             features = json.load(f)
 
-        with open('resources/riddles.json', 'r') as f:
+        with open('resources/riddles.json', 'r', encoding='utf-8') as f:
             self.riddles = json.load(f)
 
-        with open('resources/about_EN.txt', 'r') as f:
+        with open('resources/about_EN.txt', 'r', encoding='utf-8') as f:
             self.about['EN'] = f.read()
 
-        with open('resources/about_CN.txt', 'r') as f:
+        with open('resources/about_CN.txt', 'r', encoding='utf-8') as f:
             self.about['CN'] = f.read()
 
-        with open('resources/welcome_EN.txt', 'r') as f:
+        with open('resources/welcome_EN.txt', 'r', encoding='utf-8') as f:
             self.welcome['EN'] = f.read()
 
-        with open('resources/welcome_CN.txt', 'r') as f:
+        with open('resources/welcome_CN.txt', 'r', encoding='utf-8') as f:
             self.welcome['CN'] = f.read()
 
         features_en = copy.deepcopy(features['EN'])
@@ -88,7 +82,6 @@ class MouseService(MoobiusService):
 
             features_en[0]['arguments'][0]['values'].append(item_en)
             features_cn[0]['arguments'][0]['values'].append(item_cn)
-
 
         # ==================== initialize the database ====================
 
@@ -189,8 +182,6 @@ class MouseService(MoobiusService):
         content = {"text": self.get_hall_of_fame(channel_id)}
         await self.send_update_playground(channel_id, content, character_ids)
 
-
-    # on_xxx, default implementation, to be override
     async def on_msg_up(self, msg_up):
         """
         Handle the received message.

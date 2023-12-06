@@ -16,11 +16,11 @@ class MoobiusWand:
     def run_job(service):
         asyncio.run(service.start())
 
-    def run(self, service_cls, background=False, **kwargs):
-        service = service_cls(**kwargs)
+    def run(self, cls, background=False, **kwargs):
+        service = cls(**kwargs)
 
         if background:
-            p_service = Process(target=self.run_job, args=(service,), name=f"{service_cls.__name__}<handle={self.current_service_handle}>")
+            p_service = Process(target=self.run_job, args=(service,), name=f"{cls.__name__}<handle={self.current_service_handle}>")
             p_service.start()
             self.current_service_handle += 1
             self.services[self.current_service_handle] = service

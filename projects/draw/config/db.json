@@ -1,55 +1,55 @@
 [
     {
-        "db_type": "json",
+        "implementation": "json",
         "name": "real_characters",
         "load": true,
         "clear": true,
         
-        "db_config": {
+        "settings": {
             "root_dir": "draw_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "name": "virtual_characters",
         "load": true,
         "clear": false,
 
-        "db_config": {
+        "settings": {
             "root_dir": "draw_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "name": "status",
         "load": true,
         "clear": false,
 
-        "db_config": {
+        "settings": {
             "root_dir": "draw_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "name": "current",
         "load": true,
         "clear": false,
 
-        "db_config": {
+        "settings": {
             "root_dir": "draw_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "name": "avatars",
         "load": true,
         "clear": false,
         
-        "db_config": {
+        "settings": {
             "root_dir": "draw_json_db"
         }
     }

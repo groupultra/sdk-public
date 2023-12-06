@@ -2,9 +2,11 @@
 import requests
 from loguru import logger
 from dacite import from_dict
-from moobius.commons.types import Character, Group
+from moobius.types import Character, Group
 # todo: refresh
 # todo: return code
+
+
 class HTTPAPIWrapper:
     def __init__(self, http_server_uri="", email="", password=""):
         self.http_server_uri = http_server_uri
@@ -19,7 +21,8 @@ class HTTPAPIWrapper:
             "Auth-Origin": "cognito",
             "Authorization": f"Bearer {self.access_token}"
         }
-        
+
+    @logger.catch
     def authenticate(self):
         url = self.http_server_uri + "/auth/sign_in"
         data = {"username": self.username, "password": self.password}
@@ -31,8 +34,7 @@ class HTTPAPIWrapper:
             
             return self.access_token, self.refresh_token
         else:
-            logger.error(f"Error during authentication: {response.json().get('msg')}")
-            return None
+            raise Exception(f"Error during authentication: {response.json()}")
         
     def refresh(self):
         url = self.http_server_uri + "/auth/refresh"

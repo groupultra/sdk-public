@@ -6,7 +6,7 @@ import time
 from dataclasses import asdict
 from dacite import from_dict
 
-from moobius.commons.types import MessageDown
+from moobius.types import MessageDown
 from .basic_service import MoobiusBasicService
 
 

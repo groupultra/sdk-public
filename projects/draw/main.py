@@ -1,5 +1,5 @@
 from service import DrawService
-from moobius.core.wand import MoobiusWand
+from moobius import MoobiusWand
 
 if __name__ == "__main__":
     wand = MoobiusWand()

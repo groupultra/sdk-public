@@ -5,6 +5,7 @@ from moobius.database.null_database import NullDatabase
 from moobius.database.json_database import JSONDatabase
 from moobius.database.magical_storage import MagicalStorage
 
+
 class MoobiusStorage(MagicalStorage):
     def __init__(self, service_id, band_id, db_config=()):
         super().__init__()
