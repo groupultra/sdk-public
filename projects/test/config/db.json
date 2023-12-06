@@ -1,88 +1,88 @@
 [
     {
-        "db_type": "json",
+        "implementation": "json",
         "name": "features",
         "load": true,
         "clear": true,
         
-        "db_config": {
+        "settings": {
             "root_dir": "simple_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "load": true,
         "clear": true,
         "name": "real_characters",
         
-        "db_config": {
+        "settings": {
             "root_dir": "simple_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "load": true,
         "clear": false,
         "name": "virtual_characters",
         
-        "db_config": {
+        "settings": {
             "root_dir": "simple_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "load": true,
         "clear": false,
         "name": "stages",
         
-        "db_config": {
+        "settings": {
             "root_dir": "simple_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "load": true,
         "clear": false,
         "name": "game_status",
         
-        "db_config": {
+        "settings": {
             "root_dir": "simple_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "load": true,
         "clear": false,
         "name": "view_characters",
         
-        "db_config": {
+        "settings": {
             "root_dir": "simple_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "load": true,
         "clear": false,
         "name": "view_features",
         
-        "db_config": {
+        "settings": {
             "root_dir": "simple_json_db"
         }
     },
 
     {
-        "db_type": "json",
+        "implementation": "json",
         "load": true,
         "clear": false,
         "name": "view_stages",
         
-        "db_config": {
+        "settings": {
             "root_dir": "simple_json_db"
         }
     }

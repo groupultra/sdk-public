@@ -20,3 +20,5 @@ src/cicada/games/*
 src/cicada/api_key.py
 
 projects/test/simple_json_db/
+projects/mouse/mouse_json_db/
+projects/draw/draw_json_db/

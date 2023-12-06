@@ -6,8 +6,10 @@ import time
 from dataclasses import asdict
 from dacite import from_dict
 
-from moobius.basic.moobius_types import MessageDown
+from moobius.basic.moobius_types import Character, MessageUp, MessageDown
 from moobius.moobius_basic_service import MoobiusBasicService
+
+from loguru import logger
 
 # with database
 class MoobiusService(MoobiusBasicService):
@@ -26,16 +28,27 @@ class MoobiusService(MoobiusBasicService):
         msg_body = asdict(msg_up)
         msg_body['timestamp'] = int(time.time() * 1000)
         msg_body['sender'] = msg_body['context']['sender']
+        recipients = list(msg_body['context']['recipients'])
+
         msg_body.pop('msg_id', None)
         
-        if remove_self and (msg_body['sender'] in msg_body['recipients']):
-            msg_body['recipients'].remove(msg_body['sender'])
+        if remove_self and (msg_body['sender'] in recipients):
+            recipients.remove(msg_body['sender'])
         else:
             pass
 
+        msg_body['recipients'] = recipients
         msg_body['context'] = {}
 
         msg_down = from_dict(data_class=MessageDown, data=msg_body)
         
-    
         return msg_down
+
+    # fetch real users
+    async def fetch_real_characters(self, channel_id):
+        """
+        Fetches data from Moobius using HTTP request
+        """
+        
+        data = self.http_api.get_channel_userlist(channel_id, self.service_id)
+        return data

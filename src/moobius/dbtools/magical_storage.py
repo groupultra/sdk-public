@@ -27,7 +27,7 @@ class CachedDict(MutableMapping, dict):
                 self.__setitem__(key, value)
                 return dict.__getitem__(self, key)
             else:
-                return dict.__getitem__(self, key)
+                raise KeyError(f'Key {key} not found in database')
     
     def __setitem__(self, key, value):
         is_success, err_msg = self.database.set_value(key, value)

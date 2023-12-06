@@ -12,18 +12,18 @@ class MoobiusBand(MagicalStorage):
         self.service_id = service_id
         self.band_id = band_id
  
-        for settings in db_config:
-            self.add_container(**settings)
+        for config in db_config:
+            self.add_container(**config)
 
-
-    def add_container(self, db_type, db_config, name, load=True, clear=False):
+    @logger.catch
+    def add_container(self, implementation, settings, name, load=True, clear=False):
         domain = f'service_{self.service_id}.band_{self.band_id}.{name}'
         
-        if db_type == 'json':
+        if implementation == 'json':
             database_class = SimpleJSONDatabase
         else:
             logger.warning('Band: Unsupported database type. Using NullDatabase instead.')
             database_class = NullDatabase
 
-        database = database_class(domain=domain, **db_config)
+        database = database_class(domain=domain, **settings)
         self.put(name, database=database, load=load, clear=clear)

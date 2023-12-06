@@ -1,0 +1,14 @@
+😎 Welcome to LLM Riddle, I am your DM 😎 Here you can hack LLM's output with ✨Secret Prompts✨
+----------------------------------------------------------------
+🧩 How to play 🧩
+(1) Click "Select Riddle", which is above your message area ↙
+(2) Choose one from the drop down menu
+(3) Write your guess to the answer in a message
+(3) Send your guess to LLM (Find LLM: Click "All" that's next to your "Send" button; switch it to "∞", yes LLM is infinity and everything)
+(4) I'll tell you if you hacked it!
+----------------------------------------------------------------
+🏆 Hall of Fame 🏆
+LLM Challengers! The more LLM Riddle you solve, the higher you are in our Hall of Fame! Click the "Stage" button on the top-right ↗ to see how far you are from an LLM Riddle legend 
+----------------------------------------------------------------
+💬 Design your Riddle 💬
+Wanna design your own LLM Riddle? Wanna report a bug? If you have any feedback, click the "Feedback" button that's next to "Select Riddle". I promise I wouldn't hurt you for saying anything bad about us 😊

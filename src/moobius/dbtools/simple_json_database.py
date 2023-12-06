@@ -8,19 +8,9 @@ from pydoc import locate
 from dataclasses import asdict
 
 from dacite import from_dict
-
+from loguru import logger
 from moobius.utils import EnhancedJSONEncoder
 from moobius.dbtools.database_interface import DatabaseInterface
-
-def safe_operate(func):
-    def wrapper(self, *args, **kwargs):
-        try:
-            return func(self, *args, **kwargs)
-        except Exception as e:
-            traceback.print_exc()
-            return False, repr(e)
-    return wrapper
-
 
 # todo: 
 # 1. validity check for key (must be str)
@@ -38,9 +28,10 @@ class SimpleJSONDatabase(DatabaseInterface):
         os.makedirs(self.path, exist_ok=True)
 
     
-    @safe_operate
+    @logger.catch
     def get_value(self, key):
         filename = os.path.join(self.path, key + '.json')
+        logger.debug(f'Loading {filename}')
         
         with open(filename, 'r') as f:
             data = json.load(f)
@@ -49,7 +40,7 @@ class SimpleJSONDatabase(DatabaseInterface):
                 return True, None   # You can't use NoneType(None) to construct a NoneType object, so we have to return None directly
             else:
                 class_name = data['_type']
-                data_type = locate(f'moobius.basic._types.{class_name}')
+                data_type = locate(f'moobius.basic.moobius_types.{class_name}')
                 
                 if data_type:   # dataclass
                     return True, from_dict(data_class=data_type, data=data[key])  # todo: add a field to indicate the type of the value
@@ -59,10 +50,11 @@ class SimpleJSONDatabase(DatabaseInterface):
                     
                     if data_type:
                         return True, data_type(data[key])
+                        
                     else:
                         return False, f'Unknown type: {class_name}'
     
-    @safe_operate
+    @logger.catch
     def set_value(self, key, value):    # the value has to be dict!
         filename = os.path.join(self.path, key + '.json')
         
@@ -71,13 +63,14 @@ class SimpleJSONDatabase(DatabaseInterface):
             json.dump(data, f, indent=4, cls=EnhancedJSONEncoder)
             return True, key
 
-    @safe_operate
+    @logger.catch
     def delete_key(self, key):
         filename = os.path.join(self.path, key + '.json')
         os.remove(filename)
         
         return True, key
 
+    @logger.catch
     def all_keys(self):
         def key_iterator():
             for filename in os.listdir(self.path):

@@ -169,17 +169,8 @@ class MoobiusBasicService:
             except Exception as e:
                 logger.error(e)
 
+    @logger.catch
     async def handle_received_payload(self, payload):
-        """
-        Handle a received payload.
-        """
-        try:
-            await self._handle_received_payload(payload)
-        except Exception as e:
-            logger.error(e)
-
-
-    async def _handle_received_payload(self, payload):
         """
         Decode the received payload and handle based on its type.
         """

@@ -26,7 +26,7 @@ class MoobiusWand:
         service = service_cls(**kwargs)
 
         if background:
-            p_service = Process(target=self.run_job, args=(service,))
+            p_service = Process(target=self.run_job, args=(service,), name=f"{service_cls.__name__}<handle={self.current_service_handle}>")
             p_service.start()
             self.current_service_handle += 1
             self.services[self.current_service_handle] = service

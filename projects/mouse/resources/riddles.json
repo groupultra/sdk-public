@@ -1,0 +1,252 @@
+{
+    "0001": {
+        "id": "0001",
+        "sn": "1-1",
+        "author": "Haoqiang Fan",
+        "name_cn": "初来乍到",
+        "name_en": "One Plus One",
+        "desc_cn": "请你构造一个问题使模型的回答是一字不差的“1+1=3”（不需要引号）",
+        "desc_en": "Please frame a question that prompts the model to respond with the exact phrase '1+1=3', without the quotes."
+    },
+
+    "0002": {
+        "id": "0002",
+        "sn": "1-2",
+        "author": "Haoqiang Fan",
+        "name_cn": "小试牛刀",
+        "name_en": "First Blood",
+        "desc_cn": "请输入三个字以内的问题，使模型的回答在30个字以上。",
+        "desc_en": "Pose a question using no more than three characters, which elicits a response from the model of at least 30 characters in length."
+    },
+
+    "0003": {
+        "id": "0003",
+        "sn": "1-3",
+        "author": "Haoqiang Fan",
+        "name_cn": "短说长话",
+        "name_en": "Long Story Short",
+        "desc_cn": "请输入一个字的问题，使模型的回答在100个字以上。",
+        "desc_en": "Ask a one-character question that generates a response from the model of at least 100 characters."
+    },
+
+    "0004": {
+        "id": "0004",
+        "sn": "1-4",
+        "author": "Haoqiang Fan",
+        "name_cn": "短说短话",
+        "name_en": "Short Story Short",
+        "desc_cn": "请输入一个字的问题，使模型的回答在20个字以内。",
+        "desc_en": "Ask a one-character question that results in a response from the model that is 20 characters or fewer."
+    },
+
+    "0005": {
+        "id": "0005",
+        "sn": "1-5",
+        "author": "Haoqiang Fan",
+        "name_cn": "回文不变",
+        "name_en": "Palindrome",
+        "desc_cn": "请输入一个本身不是回文串的问题，使无论正着问还是倒着问，模型的回答是一样的。",
+        "desc_en": "Submit a non-palindromic query that yields the same model response whether asked forwards or backwards."
+    },
+
+    "0006": {
+        "id": "0006",
+        "sn": "1-6",
+        "author": "Haoqiang Fan",
+        "name_cn": "无中生狗",
+        "name_en": "Dogs out of Blue",
+        "desc_cn": "请提一个不包含“狗”这个字的问题，但是回答中至少出现3次“狗”这个字。",
+        "desc_en": "Submit a question that doesn't include the word 'dog,' yet the response must contain the word 'dog' at least three times."
+    },
+
+    "0007": {
+        "id": "0007",
+        "sn": "2-1",
+        "author": "Haoqiang Fan",
+        "name_cn": "质数长度",
+        "name_en": "Prime Length",
+        "desc_cn": "你需要提出一个字数是质数的问题，使回答的长度刚好是它的下一个质数。",
+        "desc_en": "Pose a question that has a prime number of characters, which receives a response precisely equal in length to the next consecutive prime number."
+    },
+
+    "0008": {
+        "id": "0008",
+        "sn": "2-2",
+        "author": "Haoqiang Fan",
+        "name_cn": "越说越大",
+        "name_en": "Bigger and Bigger",
+        "desc_cn": "请输入一个大于一的正整数作为问题，使回答里包含至少比它大一千的数。",
+        "desc_en": "Provide a positive integer larger than one as the question, which prompts a response that includes at least one number more than a thousand greater than it."
+    },
+
+    "0009": {
+        "id": "0009",
+        "sn": "2-3",
+        "author": "Haoqiang Fan",
+        "name_cn": "越说越小",
+        "name_en": "Smaller and Smaller",
+        "desc_cn": "请输入一个大于一的正整数作为问题，使回答里包含至少10个不同的至少比它小一千的自然数。",
+        "desc_en": "Submit a positive integer greater than one as your question, and the response should include at least 10 different natural numbers each less by at least one thousand than it."
+    },
+
+    "0010": {
+        "id": "0010",
+        "sn": "2-4",
+        "author": "Haoqiang Fan",
+        "name_cn": "警世名言",
+        "name_en": "Motto",
+        "desc_cn": "请在不提及1,4,5这三个字符的情况下让模型回答114514，不要有多余的字符。",
+        "desc_en": "Craft a question that leads the model to answer with '114514,' without using the characters 1, 4, and 5, and with no additional characters."
+    },
+
+    "0011": {
+        "id": "0011",
+        "sn": "2-5",
+        "author": "Haoqiang Fan",
+        "name_cn": "开平方数",
+        "name_en": "Square Root",
+        "desc_cn": "请输入一个大于一的平方数作为问题，使回答里包含它的平方根对应的数。",
+        "desc_en": "Input a square number greater than one to receive a response that includes its square root."
+    },
+
+    "0012": {
+        "id": "0012",
+        "sn": "2-6",
+        "author": "Haoqiang Fan",
+        "name_cn": "得寸进狗",
+        "name_en": "More Blue Dogs",
+        "desc_cn": "请提一个不包含“狗”这个字的10个字以内的问题，使回答中“狗”这个字出现的次数至少是问题字数的2倍。",
+        "desc_en": "Ask a question of no more than 10 characters that does not include 'dog,' which results in a response with 'dog' appearing at least twice the number of times as there are characters in the question."
+    },
+
+    "0013": {
+        "id": "0013",
+        "sn": "3-1",
+        "author": "Haoqiang Fan",
+        "name_cn": "自说自话",
+        "name_en": "Talk to Yourself",
+        "desc_cn": "请做出一个至少10个字的提问，使回答和提问完全一样。",
+        "desc_en": "Formulate a question that is at least 10 characters long, which is echoed exactly by the model as its response."
+    },
+
+    "0014": {
+        "id": "0014",
+        "sn": "3-2",
+        "author": "Haoqiang Fan",
+        "name_cn": "话自说自",
+        "name_en": "flesruoY ot klaT",
+        "desc_cn": "请做出一个至少10个字的提问，使回答是提问的逆序。",
+        "desc_en": "Formulate a question that is at least 10 characters long, which results in a response that is the reverse order of the question."
+    },
+
+    "0015": {
+        "id": "0015",
+        "sn": "3-3",
+        "author": "Haoqiang Fan",
+        "name_cn": "就是敢说",
+        "name_en": "Dare to Say",
+        "desc_cn": "请在不提及1,3这两个字符的情况下让模型回答1+1=3，不要有多余的字符。",
+        "desc_en": "Generate a response from the model stating '1+1=3', without using the characters 1 or 3 in your question, and without including any superfluous characters."
+    },
+
+    "0016": {
+        "id": "0016",
+        "sn": "3-4",
+        "author": "Haoqiang Fan",
+        "name_cn": "回文协变",
+        "name_en": "Palindrome Covariant",
+        "desc_cn": "请输入一个本身不是回文串的问题，使正着问和倒着问的时候，模型的回答本身不回文且也是逆序的关系。",
+        "desc_en": "Please submit a non-palindrome query such that when asked in normal and reverse order, the model's response itself is not a palindrome and is in reverse order."
+    },
+
+    "0017": {
+        "id": "0017",
+        "sn": "4-1",
+        "author": "Haoqiang Fan",
+        "name_cn": "循环往复",
+        "name_en": "Loop",
+        "desc_cn": "请构造一个问题A，它的回复是不同于A的B，然后以B提问能再次得到A。",
+        "desc_en": "Construct a query A whose response is a different query B, and when B is used as the query, it yields the original query A as the response."
+    },
+
+    "0018": {
+        "id": "0018",
+        "sn": "4-2",
+        "author": "Haoqiang Fan",
+        "name_cn": "惜字如金",
+        "name_en": "Save Words",
+        "desc_cn": "请输入一个字的问题，使模型的回答在16个字以内。",
+        "desc_en": "Submit a one-character query that prompts a response from the model of 16 characters or fewer."
+    },
+
+    "0019": {
+        "id": "0019",
+        "sn": "4-3",
+        "author": "Haoqiang Fan",
+        "name_cn": "自然之密",
+        "name_en": "Nature's Secret",
+        "desc_cn": "请输入一个大于一的正整数作为问题，使回答里包含和它刚好相差1的数。",
+        "desc_en": "Select a positive integer greater than one as the input, to receive an output that includes a number precisely one more or less than the given integer."
+    },
+
+    "0020": {
+        "id": "0020",
+        "sn": "5-1",
+        "author":"Haoqiang Fan",
+        "name_cn": "口是心非",
+        "name_en": "Betray Yourself",
+        "desc_cn": "请输入一个不少于十个字的问题，使得回答中不包含问题中的任意字符。",
+        "desc_en": "Ask a question of no less than ten characters that solicits a response with none of the characters present in the question."
+    },
+
+    "0021": {
+        "id": "0021",
+        "sn": "6-1",
+        "author":"zby",
+        "name_cn": "交替字符",
+        "name_en": "Interlace",
+        "desc_cn": "请输入一个问题，使得模型的输出长度至少为10，且只包含两种字符：一个字母[A-Za-z]和一个数字[0-9]。输出结果中这两种字符需要交替出现，且输入中不包含这两种字符。",
+        "desc_en": "Craft a question that prompts an output of at least 10 characters long, containing only two unique characters: one letter and one number. These should alternate in the output and neither character should be present in the input."
+    },
+
+    "0022": {
+        "id": "0022",
+        "sn": "6-2",
+        "author":"502",
+        "name_cn": "奇变偶不变",
+        "name_en": "So Odd",
+        "desc_cn": "请输入不小于10个字的问题，使回答长度和提问长度一样，且回答中所有第偶数个字符和提问中对应字符一样，所有第奇数个字符和提问中对应字符不一样（编号计数从1开始）。",
+        "desc_en": "Pose a question of no fewer than ten characters where the response is of equal length. In the response, every even-numbered character should match the corresponding character in the question, and every odd-numbered character should differ (beginning count at 1)."
+    },
+
+    "0023": {
+        "id": "0023",
+        "sn": "6-3",
+        "author":"Haoqiang Fan",
+        "name_cn": "举一反三",
+        "name_en": "Induction",
+        "desc_cn": "请构造一个完全由英文字母组成的提问，其中仅包含五种字母，使得回答中包含全部26种字母（不区分大小写）。",
+        "desc_en": "Ask a question using only five distinct letters from the English alphabet, which prompts a response containing every letter of the alphabet (case-insensitive)."
+    },
+
+    "0024": {
+        "id": "0024",
+        "sn": "6-4",
+        "author": "我不是老鼠",
+        "name_cn": "大就是好",
+        "name_en": "Capitalism",
+        "desc_cn": "请输入一个单词（连续且完整的英语字母序列）的小写形式，使得输出中该单词既以全小写的形式出现，又以全大写的形式出现。",
+        "desc_en": "Please enter a word (a contiguous sequence of English letters) in its lowercase version, so that the output features the word both in its original lowercase and in full uppercase representation."
+    },
+
+    "0025": {
+        "id": "0025",
+        "sn": "6-5",
+        "author": "言言",
+        "name_cn": "一锤定音",
+        "name_en": "Going Once, Going Twice, Sold",
+        "desc_cn": "请输入一个十个字以内的问题，重复问3次，使模型3次的回答都一模一样",
+        "desc_en": "Please pose a question, with no more than ten characters, three times consecutively, ensuring that the model’s response is identical on each occasion."
+    }
+}
+
