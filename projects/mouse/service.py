@@ -4,13 +4,12 @@ import asyncio
 import json
 import copy
 
-from moobius.core.service import MoobiusService
-from moobius.database.magical_storage import MoobiusStorage
-
-from verifier import Verifier
 from loguru import logger
-
 from openai import AsyncOpenAI
+
+from moobius import MoobiusService
+from moobius import MoobiusStorage
+from verifier import Verifier
 
 
 class MouseService(MoobiusService):

@@ -23,7 +23,7 @@ class JSONDatabase(DatabaseInterface):
         super().__init__()
         
         self.path = os.path.join(root_dir, domain.replace('.', os.sep))
-        self.ref_module_name = 'moobius.commons.moobius_types'
+        self.ref_module_name = 'moobius.commons.types'
         os.makedirs(self.path, exist_ok=True)
 
     @logger.catch
@@ -50,7 +50,7 @@ class JSONDatabase(DatabaseInterface):
                         return True, data_type(data[key])
                         
                     else:
-                        return False, f'Unknown type: {class_name}'
+                        raise TypeError(f'Unknown type: {class_name}')
     
     @logger.catch
     def set_value(self, key, value):    # the value has to be dict!
