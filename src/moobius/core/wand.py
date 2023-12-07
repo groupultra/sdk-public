@@ -2,7 +2,7 @@
 
 import asyncio
 from multiprocessing import Process
-
+import time
 from loguru import logger
 
 
@@ -23,6 +23,7 @@ class MoobiusWand:
             self.services[self.current_service_handle] = service
             p_service = Process(target=self.run_job, args=(self.current_service_handle,), name=f"{cls.__name__}<handle={self.current_service_handle}>")
             p_service.start()
+            time.sleep(5)
 
             self.processes[self.current_service_handle] = p_service
 
