@@ -3,9 +3,15 @@ import asyncio
 import json
 import copy
 import re
+import os
+import random
+import base64
+from datetime import datetime
+from io import BytesIO
 
 from loguru import logger
 from openai import AsyncOpenAI
+from PIL import Image
 
 from moobius import MoobiusService, MoobiusStorage
 
@@ -23,8 +29,9 @@ class DrawService(MoobiusService):
         self.features = []
 
         self.about = '<about>'
-
         self.welcome = '<welcome>'
+
+        self.image_dir = 'temp/'
 
         self.openai_client = None
 
@@ -33,6 +40,8 @@ class DrawService(MoobiusService):
         # ==================== load features and fill in the template ====================
 
         self.openai_client = AsyncOpenAI()
+
+        os.makedirs(self.image_dir, exist_ok=True)
 
         with open('resources/draw_features.json', 'r', encoding='utf-8') as f:
             self.features = json.load(f)
@@ -93,6 +102,14 @@ class DrawService(MoobiusService):
                 else:
                     pass
 
+    @staticmethod
+    def filter(content, prompt):
+        safe_content = content.replace(prompt, '𠓗' * len(prompt))
+        final_content = ''.join([(c if safe_content[i] != '𠓗' else '𠓗') for i, c in enumerate(content)])
+        final_content = re.sub(r'𠓗+', '<b>[REDACTED]</b>', final_content)
+
+        return final_content
+
     async def on_msg_up(self, msg_up):
         channel_id = msg_up.channel_id
         sender = msg_up.context.sender
@@ -121,7 +138,8 @@ class DrawService(MoobiusService):
                     await self._send_msg(channel_id, say, [sender], sent_by='Painter')
 
                     try:
-                        image_url, revised_prompt = await self._draw(prompt, response_format='url')
+                        # image_url, revised_prompt = await self._draw(prompt, response_format='url')
+                        image_url, revised_prompt = await self._draw(prompt, response_format='local')
 
                         last_prompt = self.bands[channel_id].current['prompt']
                         say = f'Last image: <b>{last_prompt}</b>'
@@ -153,11 +171,8 @@ class DrawService(MoobiusService):
                     
             elif self.bands[channel_id].current['prompt'] in content:
                 prompt = self.bands[channel_id].current['prompt']
-                safe_content = content.replace(prompt, '𠓗' * len(prompt))
-
-                final_content = ''.join([(c if safe_content[i] != '𠓗' else '𠓗') for i, c in enumerate(raw_content)])
+                final_content = self.filter(content, prompt)
                 
-                final_content = re.sub(r'𠓗+', '<b>[REDACTED]</b>', final_content)
                 new_recipients = [r for r in recipients if r != sender]
 
                 await self._send_msg(channel_id, final_content, new_recipients, sent_by=sender, virtual=False)
@@ -261,7 +276,7 @@ class DrawService(MoobiusService):
 
             return image_url, revised_prompt
         else:
-            response = self.openai_client.images.generate(
+            response = await self.openai_client.images.generate(
                 model="dall-e-3",
                 prompt=prompt,
                 size="1024x1024",
@@ -273,7 +288,15 @@ class DrawService(MoobiusService):
             image_b64 = response.data[0].b64_json
             revised_prompt = response.data[0].revised_prompt
 
-            return image_b64, revised_prompt
+            b64 = image_b64
+            image = Image.open(BytesIO(base64.b64decode(b64)))
+            file_name = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_{random.randint(10000, 99999)}.png'
+            file_path = os.path.join(self.image_dir, file_name)
+            
+            image.save(file_path)
+            image_url = self.http_api.upload_file(file_path)
+
+            return image_url, revised_prompt
 
     async def on_action(self, action):
         """
@@ -359,6 +382,8 @@ class DrawService(MoobiusService):
             try:
                 await self._send_msg(channel_id, f'I am trying to tell you what is in this image, please wait...', [sender], sent_by='AI')
                 answer = await self._see(image_url, prompt)
+                answer = self.filter(answer, self.bands[channel_id].current['prompt'])
+
                 await self._send_msg(channel_id, f'{answer}', [sender], sent_by='AI')
             except Exception as e:
                 logger.warning(e)
