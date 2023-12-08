@@ -2,37 +2,16 @@
 
 import json
 
-from moobius import MoobiusService, MoobiusStorage, Moobius
-
 from dacite import from_dict
 from loguru import logger
 
+from moobius import MoobiusService, MoobiusStorage, Moobius
 
-class TestService(MoobiusService):
+
+class NekoService(MoobiusService):
     def __init__(self, log_file="logs/service.log", **kwargs):
         super().__init__(**kwargs)
         logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
-
-    async def on_spell(self, spell):
-        try:
-            content, times = spell
-            content = str(content)
-            times = int(times)
-        except:
-            content = 'DEFAULT'
-            times = 1
-
-        text = f"WAND: {content * times}"
-
-        for channel_id in self.channels:
-            recipients = list(self.bands[channel_id].real_characters.keys())
-            await self.send_msg_down(
-                channel_id=channel_id,
-                recipients=recipients,
-                subtype="text",
-                message_content=text,
-                sender=recipients[0] if len(recipients) > 0 else 'no_sender'
-            )
 
     # todo: channels and channel_ids, unbind_first, write back channels
     async def on_start(self):

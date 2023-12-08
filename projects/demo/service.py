@@ -5,7 +5,7 @@ from loguru import logger
 from moobius import MoobiusService, MoobiusStorage
 
 
-class TemplateService(MoobiusService):
+class DemoService(MoobiusService):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
         logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
@@ -13,10 +13,10 @@ class TemplateService(MoobiusService):
         self.default_features = {}
         self.bands = {}
 
-
         self.LIGHT = "light"
         self.DARK = "dark"
         self.MICKEY = "Mickey"
+        self.WAND = "Wand"
         self.MICKEY_LIMIT = 5
         
         self.default_status = {
@@ -24,55 +24,12 @@ class TemplateService(MoobiusService):
             'mickey_num': 0
         }
 
-        self.LIGHT_IMAGE = "resources/light.png"
-        self.DARK_IMAGE = "resources/dark.png"
-        self.MICKEY_IMAGE = "resources/mickey.jpg"
-
-    async def create_message(self, channel_id, content, recipients, subtype='text', sender=None):
-        await self.send_msg_down(
-            channel_id=channel_id,
-            recipients=recipients,
-            subtype=subtype,
-            message_content=content,
-            sender=sender or 'no_sender'
-        )
-
-    async def send_features_from_database(self, channel_id, character_id):
-        feature_data_list = self.bands[channel_id].features.get(character_id, [])
-        await self.send_update_features(channel_id, feature_data_list, [character_id])
-
-    async def calculate_and_update_user_list_from_database(self, channel_id, character_id):
-        real_characters = self.bands[channel_id].real_characters
-        user_list = list(real_characters.values())
-        
-        mickey_num = self.bands[channel_id].states[character_id]['mickey_num']
-        
-        for sn in range(mickey_num):
-            key = f"{self.MICKEY}_{sn}"
-            user_list.append(self.bands[channel_id].virtual_characters[key])
-        
-        await self.send_update_userlist(channel_id, user_list, [character_id])
-
-    async def on_spell(self, spell):
-        try:
-            content, times = spell
-            content = str(content)
-            times = int(times)
-        except:
-            content = 'DEFAULT'
-            times = 1
-
-        text = f"WAND: {content * times}"
-
-        for channel_id in self.channels:
-            recipients = list(self.bands[channel_id].real_characters.keys())
-            await self.send_msg_down(
-                channel_id=channel_id,
-                recipients=recipients,
-                subtype="text",
-                message_content=text,
-                sender=recipients[0] if len(recipients) > 0 else 'no_sender'
-            )
+        self.images = {
+            self.LIGHT: "resources/light.png",
+            self.DARK: "resources/dark.png",
+            self.MICKEY: "resources/mickey.jpg",
+            self.WAND: "resources/wand.png"
+        }
 
     async def on_start(self):
         """
@@ -102,20 +59,11 @@ class TemplateService(MoobiusService):
                     pass
 
             # DEMO: upload image
-            if self.LIGHT not in self.bands[channel_id].image_paths:
-                self.bands[channel_id].image_paths[self.LIGHT] = self.http_api.upload_file(self.LIGHT_IMAGE)
-            else:
-                pass
-
-            if self.DARK not in self.bands[channel_id].image_paths:
-                self.bands[channel_id].image_paths[self.DARK] = self.http_api.upload_file(self.DARK_IMAGE)
-            else:
-                pass
-
-            if self.MICKEY not in self.bands[channel_id].image_paths:
-                self.bands[channel_id].image_paths[self.MICKEY] = self.http_api.upload_file(self.MICKEY_IMAGE)
-            else:
-                pass
+            for name in self.images:
+                if name not in self.bands[channel_id].image_paths:
+                    self.bands[channel_id].image_paths[name] = self.http_api.upload_file(self.images[name])
+                else:
+                    pass
 
             for sn in range(self.MICKEY_LIMIT):
                 key = f"{self.MICKEY}_{sn}"
@@ -128,6 +76,10 @@ class TemplateService(MoobiusService):
                     )
                 else:
                     continue
+            
+            self.bands[channel_id].virtual_characters[self.WAND] = self.http_api.create_service_user(
+                self.service_id, self.WAND, self.WAND, self.bands[channel_id].image_paths[self.WAND], f'I am {self.WAND}!'
+            )
 
             self.stage_dict = {
                 self.LIGHT: {
@@ -231,12 +183,6 @@ class TemplateService(MoobiusService):
 
         await self.send_update_userlist(channel_id, user_list, character_ids)
         await self.create_message(channel_id, f'{nickname} left the band!', character_ids, sender=character_id)
-        
-    async def on_fetch_channel_info(self, action):
-        logger.warning("fetch_channel_info")
-        """
-        await self.send_update_channel_info(channel_id, self.db_helper.get_channel_info(channel_id))
-        """
     
     async def on_feature_call(self, feature_call):
         channel_id = feature_call.channel_id
@@ -248,7 +194,6 @@ class TemplateService(MoobiusService):
         recipients = list(self.bands[channel_id].real_characters.keys())
         
         if feature_id == "key1":
-            logger.warning(f"{nickname} called key1")
             value = feature_call.arguments[0].value
 
             if value == 'Mickey':
@@ -282,7 +227,47 @@ class TemplateService(MoobiusService):
             logger.warning(f"Unknown feature_id: {feature_id}")
 
     async def on_unknown_message(self, message_data):
-        """
-        Handle the received unknown message.
-        """
-        logger.debug(f"Received unknown message: {message_data}")
+        logger.warning(f"Received unknown message: {message_data}")
+    
+    # ==================== DEMO: Wand Event Listener ====================
+    async def on_spell(self, spell):
+        try:
+            content, times = spell
+            content = str(content)
+            times = int(times)
+        except:
+            content = 'DEFAULT'
+            times = 1
+
+        text = f"WAND: {content * times}"
+
+        for channel_id in self.channels:
+            recipients = list(self.bands[channel_id].real_characters.keys())
+            talker = self.bands[channel_id].virtual_characters[f"{self.WAND}"].user_id
+            await self.create_message(channel_id, text, recipients, sender=talker)
+
+    # ==================== helper functions ====================
+    async def create_message(self, channel_id, content, recipients, subtype='text', sender=None):
+        await self.send_msg_down(
+            channel_id=channel_id,
+            recipients=recipients,
+            subtype=subtype,
+            message_content=content,
+            sender=sender or 'no_sender'
+        )
+
+    async def send_features_from_database(self, channel_id, character_id):
+        feature_data_list = self.bands[channel_id].features.get(character_id, [])
+        await self.send_update_features(channel_id, feature_data_list, [character_id])
+
+    async def calculate_and_update_user_list_from_database(self, channel_id, character_id):
+        real_characters = self.bands[channel_id].real_characters
+        user_list = list(real_characters.values())
+        
+        mickey_num = self.bands[channel_id].states[character_id]['mickey_num']
+        
+        for sn in range(mickey_num):
+            key = f"{self.MICKEY}_{sn}"
+            user_list.append(self.bands[channel_id].virtual_characters[key])
+        
+        await self.send_update_userlist(channel_id, user_list, [character_id])
