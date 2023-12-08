@@ -15,8 +15,8 @@ Usage:
 4. Change current directory of your terminal/shell/cmd to `projects/demo/`
 5. Edit `config/service.json`. Fill in your `email`, `password` and a list of `channels` you want to run on. If you have a `service_id`, just fill in the field, otherwise please use `"service_id": ""` and the SDK will create a new `service_id` for you. 
 6. Run `python main.py`. The config file will automatically update so that you don't need to configure it the next time you start the program. You should expect a functional service in your band, that
-- Has two Keys ("Meet Tubbs or Hermeowne" and "Meet Ms Fortune"). Both of them are functional.
-- Will respond a "pong" to a "ping" message, and repeat other messages.
+- Has two Keys ("Do Some Magic" and "Swap Stage"). Both of them are functional.
+- Will respond a "Moobius is Great!" to a "moobius" message, and repeat other messages.
 - Would Show "SYNC", "ASYNC", "BOMB" and "SURVIVE" messages automatically.
 + Note: For Mac OS, it could be `python3 main.py`
 
