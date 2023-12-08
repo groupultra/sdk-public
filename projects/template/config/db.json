@@ -3,7 +3,7 @@
         "implementation": "json",
         "name": "features",
         "load": true,
-        "clear": true,
+        "clear": false,
         
         "settings": {
             "root_dir": "json_db"
@@ -36,8 +36,19 @@
         "implementation": "json",
         "load": true,
         "clear": false,
-        "name": "stages",
+        "name": "states",
         
+        "settings": {
+            "root_dir": "json_db"
+        }
+    },
+
+    {
+        "implementation": "json",
+        "load": true,
+        "clear": false,
+        "name": "image_paths",
+
         "settings": {
             "root_dir": "json_db"
         }

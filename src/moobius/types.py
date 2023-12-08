@@ -19,7 +19,7 @@ class Feature:
     feature_name: str
     button_text: str
     new_window: bool
-    arguments: list[FeatureArgument]|None
+    arguments: list[FeatureArgument] | None
 
 
 @dataclass
