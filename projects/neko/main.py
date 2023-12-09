@@ -8,7 +8,7 @@ if __name__ == "__main__":
     wand = MoobiusWand()
     
     handle = wand.run(
-        TestService,
+        NekoService,
         log_file="logs/service.log",
         service_config_path="config/service.json",
         db_config_path="config/db.json",
