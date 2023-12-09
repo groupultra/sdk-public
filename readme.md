@@ -13,7 +13,7 @@ Usage:
 + Note: `-e` means editable mode. With this option your changes to the source code will be applied immediately.
 3. Import the package in your code (Your code does not have to be in the same directory of `src/`): `import moobius`
 4. Change current directory of your terminal/shell/cmd to `projects/demo/`
-5. Edit `config/service.json`. Fill in your `email`, `password` and a list of `channels` you want to run on. If you have a `service_id`, just fill in the field, otherwise please use `"service_id": ""` and the SDK will create a new `service_id` for you. 
+5. Copy `projects/service.json` into `projects/demo/config.json`, and edit the copied json file. Fill in your `email`, `password` and a list of `channels` you want to run on. If you have a `service_id`, just fill in the field, otherwise please use `"service_id": ""` and the SDK will create a new `service_id` for you. 
 6. Run `python main.py`. The config file will automatically update so that you don't need to configure it the next time you start the program. You should expect a functional service in your band, that
 - Has two Keys ("Do Some Magic" and "Swap Stage"). Both of them are functional.
 - Will respond a "Moobius is Great!" to a "moobius" message, and repeat other messages.

@@ -1,0 +1,25 @@
+[
+    {
+        "feature_id": "Cicada",
+        "feature_name": "Cicada",
+        "button_text": "Cicada",
+        "new_window": false
+    },
+
+    {
+        "feature_id": "Quit",
+        "feature_name": "Quit",
+        "button_text": "Quit",
+        "new_window": true,
+
+        "arguments": [
+            {
+                "name": "Do you really want to quit this game?",
+                "type": "enum",
+                "values": ["No", "Yes"],
+                "optional": false,
+                "placeholder": "Please select"
+            }
+        ]
+    }
+]

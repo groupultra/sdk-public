@@ -1,0 +1,45 @@
+[
+    {
+        "db_type": "json",
+        "name": "real_characters",
+        "load": true,
+        "clear": true,
+        
+        "db_config": {
+            "root_dir": "cicada_json_db"
+        }
+    },
+    
+    {
+        "db_type": "json",
+        "name": "features",
+        "load": true,
+        "clear": true,
+        
+        "db_config": {
+            "root_dir": "cicada_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "name": "game_status",
+        "load": true,
+        "clear": false,
+        
+        "db_config": {
+            "root_dir": "cicada_json_db"
+        }
+    },
+
+    {
+        "db_type": "json",
+        "load": true,
+        "clear": false,
+        "name": "avatars",
+        
+        "db_config": {
+            "root_dir": "cicada_json_db"
+        }
+    }
+]
