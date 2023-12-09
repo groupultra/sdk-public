@@ -34,8 +34,8 @@ if __name__ == "__main__":
      
     logger.info("Test will start in 5 seconds...")
     time.sleep(10)
-    test_spell('SYNC TEST! ', 10, 1)           # Sync spell
-    asyncio.run(test_aspell('ASYNC TEST! ', 10, 1))         # Async spell
+    test_spell('SYNC TEST! ', 5, 1)           # Sync spell
+    asyncio.run(test_aspell('ASYNC TEST! ', 5, 1))         # Async spell
     test_spell('BOMB' * 10000, 5, 2)    # Only the first BOMB (10000) will pass. Subsequent ones will cause the websocket to disconnect
-    asyncio.run(test_aspell('SURVIVED! ', 10, 1))       # There is an automatic reconnection mechanism. This will still work
+    asyncio.run(test_aspell('SURVIVED! ', 5, 1))       # There is an automatic reconnection mechanism. This will still work
     logger.info('Test finished. If you see this, it means the service is still running.')

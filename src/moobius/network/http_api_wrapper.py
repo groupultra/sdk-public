@@ -173,10 +173,6 @@ class HTTPAPIWrapper:
             
             return None
         
-    def create_service_user_with_local_image(self, service_id, username, nickname, image_path, description):
-        avatar = self.upload_file(image_path)
-        return self.create_service_user(service_id, username, nickname, avatar, description)
-        
     def create_service_group(self, group_id, user_uuids):
         url = self.http_server_uri + "/service/group/create"
         data = {

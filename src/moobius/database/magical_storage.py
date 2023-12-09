@@ -17,6 +17,9 @@ class CachedDict(MutableMapping, dict):
         for key in self.database.all_keys():
             self.__getitem__(key)
 
+    def save(self, key):
+        self.__setitem__(key, self.__getitem__(key))
+
     def __getitem__(self, key):
         if dict.__contains__(self, key):
             return dict.__getitem__(self, key)

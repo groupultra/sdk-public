@@ -51,3 +51,7 @@ class MoobiusService(MoobiusBasicService):
         
         data = self.http_api.get_channel_userlist(channel_id, self.service_id)
         return data
+
+    async def upload_avatar_and_create_character(self, service_id, username, nickname, image_path, description):
+        avatar = self.upload_file(image_path)
+        return self.create_service_user(service_id, username, nickname, avatar, description)

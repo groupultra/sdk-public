@@ -159,13 +159,12 @@ class MoobiusBasicService:
 
             await asyncio.gather(self._ws_client.receive(), self.listen())
     
+    @logger.catch
     async def listen(self):
         while True:
-            try:
-                obj = await self.queue.coro_get()
-                await self.on_spell(obj)
-            except Exception as e:
-                logger.error(e)
+            obj = await self.queue.coro_get()
+            await self.on_spell(obj)
+
 
     @logger.catch
     async def handle_received_payload(self, payload):
