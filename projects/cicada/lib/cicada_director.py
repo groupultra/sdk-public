@@ -8,12 +8,13 @@ from datetime import datetime
 from .cicada_game import CicadaGame
 from .cicada_agent import CicadaAgent
 
+
 class CicadaDirector:
-    def __init__(self, resource_dir=None, send_to_audience=None, send_to_all_players=None, notify_player=None):
+    def __init__(self, record_dir=None, send_to_audience=None, send_to_all_players=None, notify_player=None):
         super().__init__()
 
-        self.resource_dir = resource_dir or 'resources/cicada/'
-        self.record_file = f'{self.resource_dir}record.json'
+        self.record_dir = record_dir or 'resources/cicada/'
+        self.record_file = f'{self.record_dir}record.json'
         self._send_to_audience = send_to_audience or self._default_send_to_audience
         self._send_to_all_players = send_to_all_players or self._default_send_to_all_players
         self._notify_player = notify_player or self._default_notify_player
@@ -42,7 +43,6 @@ class CicadaDirector:
         self._load_games()
         self._save()
 
-
     async def _default_send_to_audience(self, game, content, sent_by=-1):
         print(f"Default send to audience:【Cicada {game.game_id}】{content} sent by Player {sent_by}")
 
@@ -52,19 +52,19 @@ class CicadaDirector:
     async def _default_notify_player(self, game, player_id, content, sent_by=-1):
         print(f"Default notify player:【Cicada {game.game_id}】{content} sent by Player {sent_by}")
 
-
     def _load(self):
-        with open(self.record_file, 'a+', encoding='utf-8') as f:
-            try:
+        try:
+            with open(self.record_file, 'a+', encoding='utf-8') as f:
                 f.seek(0)
                 self.records = json.load(f)
-            except Exception as e:
-                traceback.print_exc()
+        except Exception as e:
+            traceback.print_exc()
+            print('Create a new record file.')
+            self._save()
 
     def _load_games(self):
         for game_id in self.records['games']:
             self.games[game_id] = CicadaGame(from_file=self.records['games'][game_id]['record_path'])
-
 
     def query_real_id(self, real_id):
         for game_id in self.records['games']:
@@ -79,13 +79,11 @@ class CicadaDirector:
         
         return None, None
 
-
     def get_game(self, game_id):
         if game_id not in self.games:
             return None
         else:
             return self.games[game_id]
-
 
     def _save(self):
         with open(self.record_file, 'w', encoding='utf-8') as f:
@@ -192,7 +190,6 @@ class CicadaDirector:
         else:
             raise Exception(f"Error: {CicadaGame.error_to_msg[status]}")
 
-
     async def on_human_join(self, real_id, name):
         if not self.records['waiting_game_id']:
             game_id = f"{self.records['sn']:04d}"
@@ -201,7 +198,7 @@ class CicadaDirector:
             self.records['waiting_game_id'] = game_id
 
             file_name = f'{datetime.now().strftime("%Y%m%d%H%M%S")}_{random.randint(1000, 9999)}_{game_id}.json'
-            record_path = f"{self.resource_dir}{file_name}"
+            record_path = f"{self.record_dir}{file_name}"
             game = CicadaGame(game_id=game_id, record_path=record_path)
             self.games[game_id] = game
 
@@ -242,11 +239,9 @@ class CicadaDirector:
             
             self._save()
 
-
     async def on_load(self):
         for game_id in list(self.games.keys()):     # 固定一下，可能中途会有游戏结束导致size迭代中发生变化
             await self._direct(game_id)
-
 
     # 人：仅通知，人响应后外部触发_on_xxx
     # AI：通知并调用，直接触发_on_xxx
@@ -272,7 +267,6 @@ class CicadaDirector:
                 await self._on_enter_stage_end(game_id)
             else:
                 raise Exception("Invalid stage!")
-
 
     async def _on_enter_stage_talk(self, game_id):
         game = self.games[game_id]
@@ -304,7 +298,6 @@ class CicadaDirector:
             say = f"Your turn now. Please say whatever you want to say."
             await self._notify_player(game, game.current_turn, say)
 
-
     async def _on_enter_stage_vote(self, game_id):
         say = f"Now it's time to vote. Please send any WHISPER message to ALL you think are human (including yourself)"
         game = self.games[game_id]
@@ -312,7 +305,6 @@ class CicadaDirector:
         await self._send_to_all_players(game, say)
         await self._send_to_audience(game, say)
         await self._let_all_ai_vote(game_id)
-
 
     async def _on_enter_stage_end(self, game_id):
         game = self.games[game_id]
@@ -344,7 +336,6 @@ class CicadaDirector:
             pass
 
         self._save()
-
 
     async def _let_ai_talk(self, game_id):
         game = self.games[game_id]

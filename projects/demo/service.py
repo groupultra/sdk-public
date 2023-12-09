@@ -11,8 +11,10 @@ class DemoService(MoobiusService):
         super().__init__(**kwargs)
         logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
         logger.add(error_log_file, rotation="1 day", retention="7 days", level="ERROR")
+
         self._default_features = {}
         self.bands = {}
+        self.stage_dict = {}
 
         self.LIGHT = "light"
         self.DARK = "dark"
@@ -150,6 +152,7 @@ class DemoService(MoobiusService):
     async def on_fetch_playground(self, action):
         channel_id = action.channel_id
         sender = action.sender
+        band = self.bands[channel_id]
 
         state = band.states[sender]['stage']
         await self.send_update_playground(channel_id, self.stage_dict[state], [sender])
@@ -171,10 +174,10 @@ class DemoService(MoobiusService):
         character = self.http_api.fetch_user_profile(character_id)
         nickname = character.user_context.nickname
 
-        self.bands[action.channel_id].real_characters[character_id] = character
-        self.bands[character_id] = self.default_features
-        self.bands[action.channel_id].states[character_id] = self.default_status
-        real_characters = self.bands[action.channel_id].real_characters
+        self.bands[channel_id].real_characters[character_id] = character
+        self.bands[channel_id].features[character_id] = self.default_features
+        self.bands[channel_id].states[character_id] = self.default_status
+        real_characters = self.bands[channel_id].real_characters
 
         user_list = list(real_characters.values())
         character_ids = list(real_characters.keys())
@@ -187,11 +190,11 @@ class DemoService(MoobiusService):
         character_id = action.sender
         channel_id = action.channel_id
         character = self.bands[action.channel_id].real_characters.pop(character_id, None)
-        self.bands[action.channel_id].states.pop(character_id, None)
-        self.bands[action.channel_id].features.pop(character_id, None)
+        self.bands[channel_id].states.pop(character_id, None)
+        self.bands[channel_id].features.pop(character_id, None)
         nickname = character.user_context.nickname
 
-        real_characters = self.bands[action.channel_id].real_characters
+        real_characters = self.bands[channel_id].real_characters
         user_list = list(real_characters.values())
         character_ids = list(real_characters.keys())
 

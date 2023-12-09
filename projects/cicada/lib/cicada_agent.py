@@ -4,6 +4,7 @@ from openai import AsyncOpenAI
 openai_client = AsyncOpenAI()
 default_model = 'gpt-4-1106-preview'
 
+
 async def get_answer_full(system_prompt, user_prompt, use_proxy=False, model=default_model):
     try:
         completion = await openai_client.chat.completions.create(
@@ -18,6 +19,7 @@ async def get_answer_full(system_prompt, user_prompt, use_proxy=False, model=def
 
     except Exception as e:
         return f"Error: {e}"
+
 
 def post_process_talk(say: str) -> str:
     # try:
@@ -39,6 +41,7 @@ def post_process_talk(say: str) -> str:
     
     # except json.JSONDecodeError:
     #     raise ValueError("Invalid JSON format.")
+
 
 def post_process_vote(vote: str) -> str:
     try:
@@ -70,6 +73,7 @@ def post_process_vote(vote: str) -> str:
     except json.JSONDecodeError:
         raise ValueError("Invalid JSON format.")
 
+
 def load_message_from_text_file(txt_file_path):
     """
     Load message from a text file.
@@ -84,6 +88,7 @@ def load_message_from_text_file(txt_file_path):
         message = file.read()
     
     return message
+
 
 # for special char escape
 def custom_format(text, **kwargs):
@@ -115,10 +120,9 @@ class CicadaAgent(CicadaAgentBase):
         self.prompt_vote = ""
         self.on_init()
 
-
     def on_init(self):
-
-        self.prompt_talk = custom_format(load_message_from_text_file("cicada/lib/prompt_talk_template_v1.txt"),
+        self.prompt_talk = custom_format(
+            load_message_from_text_file("lib/prompt_talk_template_v1.txt"),
             total_players=self.total_players,
             total_rounds=self.total_rounds,
             char_limit=self.char_limit,
@@ -126,7 +130,8 @@ class CicadaAgent(CicadaAgentBase):
             voted_score=self.voted_score,
             other_players = self.total_players - 1
         )
-        self.prompt_vote = custom_format(load_message_from_text_file("cicada/lib/prompt_vote_template_v1.txt"),
+        self.prompt_vote = custom_format(
+            load_message_from_text_file("lib/prompt_vote_template_v1.txt"),
             total_players=self.total_players,
             total_rounds=self.total_rounds,
             char_limit=self.char_limit,
@@ -134,7 +139,6 @@ class CicadaAgent(CicadaAgentBase):
             voted_score=self.voted_score,
             other_players = self.total_players - 1
         )
-
 
     async def talk(self, round_id, player_id, chat_history):
         # print(chat_history)

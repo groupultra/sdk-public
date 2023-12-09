@@ -1,5 +1,6 @@
 import json
 
+
 class CicadaGame:
     SUCCESS = 0
     ERR_TOO_VERBOSE = 1
@@ -11,6 +12,7 @@ class CicadaGame:
     ERR_NOT_ENDED = 7
     ERR_ALREADY_STARTED = 8
     ERR_INVALID_PLAYER_ID = 9
+    ERR_NOT_FINISHED = 10
 
     # 先发言，再投票，再结束
     STAGE_WAIT = 100
@@ -32,6 +34,8 @@ class CicadaGame:
     }
 
     def __init__(self, from_file=None, total_players=5, total_rounds=3, vote_score=25, voted_score=100, char_limit=500, game_id='NO_GAME_ID', record_path=None):
+        self.stage = None
+        self.current_turn = None
         if not from_file:
             self._init_new(total_players, total_rounds, vote_score, voted_score, char_limit, game_id, record_path)
         else:
@@ -53,7 +57,6 @@ class CicadaGame:
             self.current_turn = record['current_turn']
 
             self.stage = record['stage']
-
             self.players = record['players']
 
     def _init_new(self, total_players, total_rounds, vote_score, voted_score, char_limit, game_id, record_path):
@@ -115,7 +118,6 @@ class CicadaGame:
             self.save()
             return self.SUCCESS
 
-
     def add_human_player(self, name, player_id, real_id):
         if self.stage != self.STAGE_WAIT:
             return self.ERR_ALREADY_STARTED
@@ -128,7 +130,6 @@ class CicadaGame:
             self.save()
 
             return self.SUCCESS
-
 
     def save(self):
         if not self.record_path:
@@ -164,7 +165,7 @@ class CicadaGame:
                 return self.SUCCESS
     
     # vote_to的合法性由调用者保证
-    def try_to_vote(self, player_id, vote_to=[]):
+    def try_to_vote(self, player_id, vote_to=()):
         if self.stage != self.STAGE_VOTE:
             return self.ERR_NOT_VOTE_STAGE
         elif self.players[player_id]['voted']:
@@ -191,7 +192,7 @@ class CicadaGame:
     
     def get_result(self):
         if not self.is_finished:
-            return ERR_NOT_FINISHED
+            return self.ERR_NOT_FINISHED
         else:
             correct_vote_count = [0 for _ in range(self.total_players)]
             voted_count = [0 for _ in range(self.total_players)]
@@ -212,7 +213,6 @@ class CicadaGame:
                             pass
                         else:
                             correct_vote_count[j] += 1
-
 
             for i in range(self.total_players):
                 vote_score = self.vote_score * correct_vote_count[i]
