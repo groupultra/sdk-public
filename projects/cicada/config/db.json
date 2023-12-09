@@ -6,7 +6,7 @@
         "clear": true,
         
         "settings": {
-            "root_dir": "cicada_json_db"
+            "root_dir": "json_db"
         }
     },
     
@@ -17,7 +17,7 @@
         "clear": true,
         
         "settings": {
-            "root_dir": "cicada_json_db"
+            "root_dir": "json_db"
         }
     },
 
@@ -28,7 +28,7 @@
         "clear": false,
         
         "settings": {
-            "root_dir": "cicada_json_db"
+            "root_dir": "json_db"
         }
     },
 
@@ -39,7 +39,7 @@
         "name": "avatars",
         
         "settings": {
-            "root_dir": "cicada_json_db"
+            "root_dir": "json_db"
         }
     }
 ]
