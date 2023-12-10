@@ -22,8 +22,8 @@ class CicadaDirector:
 
         self.records = {
             "sn": 0,
-            "waiting_game_id": None,    # 正在等待玩家加入的游戏id，如果没有则为None
-            "games": {}     # 所有未结束的游戏
+            "waiting_game_id": None,    # games actively awaiting players to join
+            "games": {}     # all in-progress games
         }
 
         """
@@ -126,7 +126,13 @@ class CicadaDirector:
             return []
 
     async def on_talk_attempt(self, game_id, player_id, content):
-        game = self.games[game_id]
+        game = self.get_game(game_id)
+
+        if not game:
+            return False, CicadaGame.ERROR_ALREADY_ENDED
+        else:
+            pass
+
         status = game.try_to_talk(player_id, content)
 
         if status == game.SUCCESS:
@@ -240,17 +246,17 @@ class CicadaDirector:
             self._save()
 
     async def on_load(self):
-        for game_id in list(self.games.keys()):     # 固定一下，可能中途会有游戏结束导致size迭代中发生变化
+        for game_id in list(self.games.keys()):     # fix the list in case dict size changes
             await self._direct(game_id)
 
-    # 人：仅通知，人响应后外部触发_on_xxx
-    # AI：通知并调用，直接触发_on_xxx
-    # 刚刚发生游戏状态变化时立即调用一次，程序重启时也会在on_load()中自动调用
+    # Human player: notify, and the _on_XXX is triggered externally
+    # AI：notify and call _on_xxx
+    # called on game status change, or on_load() when the program restarts
     async def _direct(self, game_id):
         game = self.get_game(game_id)
 
         if not game:
-            return      # 可能会有 game_id 不存在的情况，比如重启初始化遍历通知时有游戏自动结束并删除记录
+            return  # game_id may not exist
         else:
             if game.stage == game.STAGE_WAIT:
                 say = f"Game {game_id} is waiting for players to join. Please press the Cicada key to join the game."
@@ -340,7 +346,7 @@ class CicadaDirector:
     async def _let_ai_talk(self, game_id):
         game = self.games[game_id]
         say = await self._agent_talk(game_id, game.current_turn)
-        tf, status = await self.on_talk_attempt(game_id, game.current_turn, say)   # todo: 多几次attempt
+        tf, status = await self.on_talk_attempt(game_id, game.current_turn, say)   # todo: more attempts
 
         if tf:
             pass
@@ -361,7 +367,7 @@ class CicadaDirector:
             else:
                 pass
 
-        if game.stage == game.STAGE_END:    # 最后一个是AI投的
+        if game.stage == game.STAGE_END:    # The last vote is from AI
             await self._on_enter_stage_end(game_id)
         else:
             pass

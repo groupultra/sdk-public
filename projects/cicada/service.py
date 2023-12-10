@@ -10,9 +10,12 @@ from lib.cicada_director import CicadaDirector
 
 
 class CicadaService(MoobiusService):
-    def __init__(self, **kwargs):
+    def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
+        self.log_file = log_file
+        self.error_log_file = error_log_file
 
+        self.host = None
         self.names = None
         self.resource_dir = 'resources/'
         self.record_dir = 'temp/'
@@ -38,6 +41,8 @@ class CicadaService(MoobiusService):
         Called after successful connection to websocket server and service login success.
         """
         # ==================== load features ====================
+        logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
+        logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
 
         with open(f'{self.resource_dir}/features.json', 'r') as f:
             features = json.load(f)
@@ -45,7 +50,7 @@ class CicadaService(MoobiusService):
         for channel_id in self.channels:
             self.bands[channel_id] = MoobiusStorage(self.service_id, channel_id, db_config=self.db_config)
             
-            real_characters = await self.fetch_real_characters(channel_id)
+            real_characters = self.http_api.get_channel_user_list(channel_id, self.service_id)
 
             for character in real_characters:
                 character_id = character.user_id
@@ -65,24 +70,41 @@ class CicadaService(MoobiusService):
 
             for local_id, name in self.names.items():
                 if local_id not in self.bands[channel_id].avatars:
-                    print(f'Uploading avatar {local_id}...')
+                    logger.info(f'Uploading avatar {local_id}...')
                     file_name = f'resources/icons/{local_id}.jpg'
                     avatar_uri = self.http_api.upload_file(file_name)
                     self.bands[channel_id].avatars[local_id] = avatar_uri
                 else:
                     pass
         
+        self.host = self.create_and_save_character(self.game_band_id, '0000', 'Cicada Host')
+        
         await self.director.on_load()
 
-    def _make_character(self, band_id, local_id, nickname):
+    def create_and_save_character(self, band_id, local_id, nickname):
         username = f'{nickname}'
         avatar = self.bands[band_id].avatars[local_id]
         description = f'I am {nickname}!'
 
-        return self.http_api.create_service_user(self.service_id, username, nickname, avatar, description)
+        character = self.http_api.create_service_user(self.service_id, username, nickname, avatar, description)
+        self.bands[band_id].virtual_characters[character.user_id] = character
+
+        return character
+
+    def view_to_user_list(self, channel_id, sender):
+        user_list = []
+
+        band = self.bands[channel_id]
+
+        for cid in band.game_status[sender]['view_characters']:
+            if cid == sender:
+                user_list.append(band.real_characters[cid])
+            else:
+                user_list.append(band.virtual_characters[cid])
+
+        return user_list
 
     async def _send_to_audience(self, game, content, sent_by=-1):
-        host_character = self._make_character(self.game_band_id, '0000', 'Cicada Host')
         game_status = self.bands[self.game_band_id].game_status
 
         audience = [cid for cid in game_status if not self.query_character(self.game_band_id, cid)[0]]
@@ -92,13 +114,7 @@ class CicadaService(MoobiusService):
         else:
             prefix = f'Game[{game.game_id}] Player {sent_by} said: '
 
-        await self.send_msg_down(
-            channel_id=self.game_band_id,
-            recipients=audience,
-            subtype="text",
-            message_content=f'{prefix}{content}',
-            sender=host_character.user_id
-        )
+        await self.create_message(self.game_band_id, f'{prefix}{content}', audience, sender=self.host.user_id)
 
     @logger.catch
     async def _send_to_all_players(self, game, content, sent_by=-1):
@@ -109,19 +125,13 @@ class CicadaService(MoobiusService):
                 continue
             else:
                 if sent_by < 0:
-                    sender_id = self._make_character(self.game_band_id, '0000', 'Cicada Host').user_id
+                    sender_id = self.host.user_id
                 elif sent_by == player_id:
                     continue  # no repeat
                 else:
-                    sender_id = self.bands[self.game_band_id].game_status[real_id]['view_characters'][sent_by]['user_id']
+                    sender_id = self.bands[self.game_band_id].game_status[real_id]['view_characters'][sent_by]
 
-                await self.send_msg_down(
-                    channel_id=self.game_band_id,
-                    recipients=[real_id],
-                    subtype="text",
-                    message_content=f'{content}',
-                    sender=sender_id
-                )
+                await self.create_message(self.game_band_id, f'{content}', [real_id], sender=sender_id)
 
     @logger.catch
     async def _notify_player(self, game, player_id, content, sent_by=-1):
@@ -130,16 +140,9 @@ class CicadaService(MoobiusService):
         if not real_id or player_id == sent_by:     # no repeat!
             return
         else:
-            character = self._make_character(self.game_band_id, '0000', 'Cicada Host')
             prefix = f'Game[{game.game_id}] Host: ' if sent_by < 0 else f'Game[{game.game_id}] Player {sent_by}: '
 
-            await self.send_msg_down(
-                channel_id=self.game_band_id,
-                recipients=[real_id],
-                subtype="text",
-                message_content=f'{prefix}{content}',
-                sender=character.user_id
-            )
+            await self.create_message(self.game_band_id, f'{prefix}{content}', [real_id], sender=self.host.user_id)
 
     async def on_msg_up(self, msg_up):
         """
@@ -153,16 +156,9 @@ class CicadaService(MoobiusService):
             if msg_up.subtype == "text":
                 text = msg_up.content['text']
                 game = self.director.get_game(game_id)
-                host_character = self._make_character(self.game_band_id, '0000', 'Cicada Host')
                 
                 if game.stage == game.STAGE_WAIT:
-                    await self.send_msg_down(
-                        channel_id=msg_up.channel_id,
-                        recipients=[sender],
-                        subtype="text",
-                        message_content=f'Please wait for other players to join!',
-                        sender=host_character.user_id
-                    )
+                    await self.create_message(self.game_band_id, 'Please wait for other players to join!', [sender], sender=self.host.user_id)
 
                 elif game.stage == game.STAGE_TALK:
                     await self.director.on_talk_attempt(game_id, player_id, text)
@@ -175,7 +171,7 @@ class CicadaService(MoobiusService):
                     game_status = self.bands[msg_up.channel_id].game_status[sender]
 
                     for i in range(game.total_players):
-                        if game_status['view_characters'][i]['user_id'] in recipients:
+                        if game_status['view_characters'][i] in recipients:
                             vote_to.append(i)
                         else:
                             pass
@@ -185,27 +181,14 @@ class CicadaService(MoobiusService):
                     await self.director.on_vote_attempt(game_id, player_id, text)
                 
                 elif game.stage == game.STAGE_END:
-                    await self.send_msg_down(
-                        channel_id=msg_up.channel_id,
-                        recipients=[sender],
-                        subtype="text",
-                        message_content=f'The Game has ended!',
-                        sender=host_character.user_id
-                    )
+                    await self.create_message(self.game_band_id, 'The Game has ended!', [sender], sender=self.host.user_id)
 
                 else:
                     pass
             
             else:
-                host_character = self._make_character(self.game_band_id, '0000', 'Cicada Host')
+                await self.create_message(self.game_band_id, 'Please send text messages only!', [sender], sender=self.host.user_id)
 
-                await self.send_msg_down(
-                    channel_id=msg_up.channel_id,
-                    recipients=[sender],
-                    subtype="text",
-                    message_content=f'Please send text messages only!',
-                    sender=host_character.user_id
-                )
         else:
             msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
             await self.send(payload_type='msg_down', payload_body=msg_down)
@@ -215,86 +198,79 @@ class CicadaService(MoobiusService):
         audience_characters = [self.bands[channel_id].real_characters[cid] for cid in audience if cid in self.bands[channel_id].real_characters]
         audience_features = [self.bands[channel_id].features['Cicada']]
 
-        await self.send_update_userlist(channel_id, audience_characters, audience)
+        await self.send_update_user_list(channel_id, audience_characters, audience)
         await self.send_update_features(channel_id, audience_features, audience)
 
     # game_id, player_id
     def query_character(self, channel_id, character_id):
         return self.director.query_real_id(character_id)
 
-    async def on_action(self, action):
-        """
-        Handle the received action.
-        """
-        sender = action.sender
+    async def on_fetch_features(self, action):
         channel_id = action.channel_id
+        sender = action.sender
+        band = self.bands[channel_id]
+
+        if self.query_character(channel_id, sender)[0]:
+            feature_data_list = [band.features['Quit']]
+        else:
+            feature_data_list = [band.features['Cicada']]
+
+        await self.send_update_features(action.channel_id, feature_data_list, [action.sender])
+
+    async def on_fetch_user_list(self, action):
+        channel_id = action.channel_id
+        sender = action.sender
+        band = self.bands[channel_id]
 
         if action.subtype == "fetch_userlist":
-            game_status_dict = self.bands[channel_id].game_status
+            game_status_dict = band.game_status
 
             if sender in game_status_dict:
                 pass
             else:
                 game_status_dict[sender] = copy.deepcopy(self.default_game_status)
-            
-            game_status = game_status_dict[sender]
-            
+
             if self.query_character(channel_id, sender)[0]:
-                await self.send_update_userlist(action.channel_id, game_status['view_characters'], [sender])
+                user_list = self.view_to_user_list(channel_id, sender)
+                await self.send_update_user_list(channel_id, user_list, [sender])
             else:
-                audience = [cid for cid in self.bands[channel_id].game_status if self.query_character(channel_id, cid)[0] is None]
-                audience_characters = [self.bands[channel_id].real_characters[cid] for cid in audience]           
-                await self.send_update_userlist(channel_id, audience_characters, [sender])
+                audience = [cid for cid in band.game_status if
+                            self.query_character(channel_id, cid)[0] is None]
+                audience_characters = [band.real_characters[cid] for cid in audience]
+                await self.send_update_user_list(channel_id, audience_characters, [sender])
 
-        elif action.subtype == "fetch_features":
-            if self.query_character(channel_id, sender)[0]:
-                feature_data_list = [self.bands[channel_id].features['Quit']]
-            else:
-                feature_data_list = [self.bands[channel_id].features['Cicada']]
-            
-            await self.send_update_features(action.channel_id, feature_data_list, [action.sender])
+    async def on_fetch_playground(self, action):
+        pass
 
-        elif action.subtype == "fetch_playground":
-            pass
-        
-        elif action.subtype == "join_channel":
-            channel_id = action.channel_id
-            character = self.http_api.fetch_user_profile([sender])
-                
-            self.bands[action.channel_id].real_characters[sender] = character
-            self.bands[action.channel_id].game_status[sender] = copy.deepcopy(self.default_game_status)
+    async def on_join_channel(self, action):
+        sender = action.sender
+        channel_id = action.channel_id
+        character = self.http_api.fetch_user_profile(sender)
+        nickname = character.user_context.nickname
+        band = self.bands[channel_id]
 
-            await self.refresh_audience_views(channel_id)
-            audience = [cid for cid in self.bands[channel_id].game_status if self.query_character(channel_id, cid)[0] is None]
+        band.real_characters[sender] = character
+        band.game_status[sender] = copy.deepcopy(self.default_game_status)
 
-            await self.send_msg_down(
-                channel_id=channel_id,
-                recipients=audience,
-                subtype="text",
-                message_content=f'{character.user_context.nickname} joined the band!',
-                sender=sender
-            )
-        
-        elif action.subtype == "leave_channel":
-            channel_id = action.channel_id
-            character = self.bands[action.channel_id].real_characters.pop(sender, None)
+        await self.refresh_audience_views(channel_id)
+        audience = [cid for cid in band.game_status if self.query_character(channel_id, cid)[0] is None]
 
-            await self.dismiss_game(channel_id, sender)     # refresh audience view here
-            self.bands[action.channel_id].game_status.pop(sender, None)
+        await self.create_message(channel_id, f'{nickname} joined the band!', audience, sender=sender)
 
-            audience = [cid for cid in self.bands[channel_id].game_status
-                        if self.query_character(channel_id, cid)[0] is None]
+    async def on_leave_channel(self, action):
+        channel_id = action.channel_id
+        sender = action.sender
+        band = self.bands[channel_id]
+        character = band.real_characters.pop(sender, None)
+        nickname = character.user_context.nickname
 
-            await self.send_msg_down(
-                channel_id=channel_id,
-                recipients=audience,
-                subtype="text",
-                message_content=f'{character.user_context.nickname} left the band (but still talks~)!',
-                sender=sender
-            )
+        await self.dismiss_game(channel_id, sender)     # refresh audience view here
+        band.game_status.pop(sender, None)
 
-        else:
-            print("Unknown action subtype:", action.subtype)
+        await self.refresh_audience_views(channel_id)
+        audience = [cid for cid in band.game_status if self.query_character(channel_id, cid)[0] is None]
+
+        await self.create_message(channel_id, f'{nickname} left the band (but still talks~)!', audience, sender=sender)
 
     # Quit after director has been dismissed
     # todo: add on_end trigger!!!
@@ -309,11 +285,10 @@ class CicadaService(MoobiusService):
             for real_id in real_ids:
                 # do not just modify inner fields or the database will not update
                 self.bands[channel_id].game_status[real_id] = copy.deepcopy(self.default_game_status)   
-                
+
             await self.refresh_audience_views(channel_id)
         else:
             logger.warning('Warning: Attempted to dismiss an empty game!')
-
             last_game_id = self.bands[channel_id].game_status[sender]['last_game_id']
 
             if last_game_id:
@@ -336,6 +311,7 @@ class CicadaService(MoobiusService):
         feature_id = feature_call.feature_id
         character = self.bands[channel_id].real_characters[feature_call.sender]
         nickname = character.user_context.nickname
+        band = self.bands[channel_id]
 
         if feature_id == "Cicada":
             game_id, player_id = self.query_character(channel_id, sender)
@@ -349,7 +325,6 @@ class CicadaService(MoobiusService):
             game_id, player_id = self.query_character(channel_id, sender)
             game = self.director.get_game(game_id)
 
-            game_band = self.bands[self.game_band_id]
             game_status = copy.deepcopy(self.default_game_status)
 
             game_status['last_game_id'] = game_id
@@ -362,27 +337,27 @@ class CicadaService(MoobiusService):
             
             for i in range(game.total_players):
                 if i != player_id:
-                    game_status['view_characters'].append(self._make_character(self.game_band_id, local_ids[i], names[i]))
+                    game_status['view_characters'].append(self.create_and_save_character(channel_id, local_ids[i], names[i]).user_id)
                 else:
-                    game_status['view_characters'].append(character)
+                    game_status['view_characters'].append(sender)
             
-            game_band.game_status[feature_call.sender] = game_status
+            band.game_status[sender] = game_status
 
-            await self.send_update_userlist(self.game_band_id, game_status['view_characters'], [feature_call.sender])
+            user_list = self.view_to_user_list(channel_id, sender)
+            await self.send_update_user_list(self.game_band_id, user_list, [feature_call.sender])
             await self.refresh_audience_views(channel_id)
             
             total_human = [p['is_human'] for p in game.players].count(True)
 
-            if total_human >= 1:
+            if total_human >= 1:    # modify this
                 await self.director.start_game(game_id)
-
             else:
                 pass
             
         elif feature_id == "Quit":
             if feature_call.arguments[0].value == 'Yes':
                 await self.dismiss_game(channel_id, feature_call.sender)
-                feature_data_list = [self.bands[channel_id].features['Cicada']]
+                feature_data_list = [band.features['Cicada']]
                 await self.send_update_features(channel_id, feature_data_list, [feature_call.sender])
             else:
                 pass
@@ -390,7 +365,4 @@ class CicadaService(MoobiusService):
             pass
 
     async def on_unknown_message(self, message_data):
-        """
-        Handle the received unknown message.
-        """
-        print("Received unknown message:", message_data)
+        logger.warning(f"Received unknown message: {message_data}")

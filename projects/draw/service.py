@@ -19,9 +19,9 @@ from moobius import MoobiusService, MoobiusStorage
 class DrawService(MoobiusService):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
-        logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
-        logger.add(error_log_file, rotation="1 day", retention="7 days", level="ERROR")
-        
+        self.log_file = log_file
+        self.error_log_file = error_log_file
+
         self.default_status = {
             "total_score": 0,
         }
@@ -30,14 +30,14 @@ class DrawService(MoobiusService):
 
         self.about = '<about>'
         self.welcome = '<welcome>'
-
         self.image_dir = 'temp/'
 
         self.openai_client = None
 
     async def on_start(self):
-        
         # ==================== load features and fill in the template ====================
+        logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
+        logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
 
         self.openai_client = AsyncOpenAI()
 
@@ -310,7 +310,7 @@ class DrawService(MoobiusService):
             virtual_characters = list(self.bands[channel_id].virtual_characters.values())
             user_list = virtual_characters + real_characters
 
-            await self.send_update_userlist(channel_id, user_list, [sender])
+            await self.send_update_user_list(channel_id, user_list, [sender])
 
         elif action.subtype == "fetch_features":
             await self.send_update_features(action.channel_id, self.features, [action.sender])
@@ -339,7 +339,7 @@ class DrawService(MoobiusService):
             user_list = virtual_characters + real_characters
             character_ids = list(self.bands[channel_id].real_characters.keys())
 
-            await self.send_update_userlist(channel_id, user_list, character_ids)
+            await self.send_update_user_list(channel_id, user_list, character_ids)
             await self._send_msg(channel_id, f'{character.user_context.nickname} joined the band!', character_ids, sent_by='Painter')
 
             await asyncio.sleep(0.5)
@@ -356,7 +356,7 @@ class DrawService(MoobiusService):
             user_list = list(virtual_characters.values()) + list(real_characters.values())
             character_ids = list(real_characters.keys())
 
-            await self.send_update_userlist(channel_id, user_list, character_ids)
+            await self.send_update_user_list(channel_id, user_list, character_ids)
             await self._send_msg(channel_id, f'{character.user_context.nickname} left the band!', character_ids, sent_by='Painter')
 
         elif action.subtype == "fetch_channel_info":

@@ -9,9 +9,10 @@ from moobius import MoobiusService, MoobiusStorage, Moobius
 
 
 class NekoService(MoobiusService):
-    def __init__(self, log_file="logs/service.log", **kwargs):
+    def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
-        logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
+        self.log_file = log_file
+        self.error_log_file = error_log_file
 
     # todo: channels and channel_ids, unbind_first, write back channels
     async def on_start(self):
@@ -19,7 +20,9 @@ class NekoService(MoobiusService):
         Called after successful connection to websocket server and service login success.
         """
         # ==================== load features ====================
-        
+        logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
+        logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
+
         with open('resources/test_features.json', 'r') as f:
             features = json.load(f)
 
@@ -54,12 +57,12 @@ class NekoService(MoobiusService):
         
         await self.send(payload_type='msg_down', payload_body=msg_down)
 
-    async def on_fetch_userlist(self, action):
+    async def on_fetch_user_list(self, action):
         logger.debug("fetch_userlist")
         real_characters = self.bands[action.channel_id].real_characters
         user_list = list(real_characters.values())
 
-        await self.send_update_userlist(action.channel_id, user_list, [action.sender])
+        await self.send_update_user_list(action.channel_id, user_list, [action.sender])
     
     async def on_fetch_features(self, action):
         logger.debug("fetch_features")
@@ -88,7 +91,7 @@ class NekoService(MoobiusService):
             user_list = list(real_characters.values())
             character_ids = list(real_characters.keys())
             
-            await self.send_update_userlist(action.channel_id, user_list, character_ids)
+            await self.send_update_user_list(action.channel_id, user_list, character_ids)
 
             await self.send_msg_down(
                 channel_id=channel_id,
@@ -111,7 +114,7 @@ class NekoService(MoobiusService):
         user_list = list(real_characters.values())
         character_ids = list(real_characters.keys())
 
-        await self.send_update_userlist(action.channel_id, user_list, character_ids)
+        await self.send_update_user_list(action.channel_id, user_list, character_ids)
 
         await self.send_msg_down(
             channel_id=channel_id,
@@ -152,7 +155,7 @@ class NekoService(MoobiusService):
                 tubbs = _make_character(channel_id, "tubbs", "tubbs")
                 user_list = list(self.bands[channel_id].real_characters.values())
                 user_list.append(tubbs)
-                await self.send_update_userlist(channel_id, user_list, [feature_call.sender])
+                await self.send_update_user_list(channel_id, user_list, [feature_call.sender])
                 await self.send_msg_down(
                     channel_id=channel_id,
                     recipients=recipients,

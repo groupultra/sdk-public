@@ -25,7 +25,7 @@ class Feature:
 @dataclass
 class FeatureCallArgument:
     name: str
-    value: str|int
+    value: str | int
 
 
 @dataclass
@@ -55,6 +55,7 @@ class Group:
     group_id: str
     character_ids: list[str]
 
+
 @dataclass
 class MessageContext:
     sender: str
@@ -63,7 +64,7 @@ class MessageContext:
 
 
 @dataclass
-class MessageUp:    # todo: MessageBody. Almost the same as MessageDown
+class MessageUp:  # todo: MessageBody. Almost the same as MessageDown
     subtype: str
     channel_id: str
     timestamp: int
@@ -74,15 +75,15 @@ class MessageUp:    # todo: MessageBody. Almost the same as MessageDown
 
 
 @dataclass
-class MessageDown:    # todo: MessageBody. Almost the same as MessageDown
+class MessageDown:  # todo: MessageBody. Almost the same as MessageDown
     subtype: str
     channel_id: str
     content: dict
     timestamp: int
     recipients: list[str]
-    
+
     sender: str
-    msg_id: str|None
+    msg_id: str | None
 
 
 @dataclass
@@ -114,7 +115,7 @@ class Payload:
     type: str
     request_id: Optional[str]
     client_id: Optional[str]
-    body: MessageUp|FeatureCall|Action|Copy|Any
+    body: MessageUp | FeatureCall | Action | Copy | Any
 
 
 @dataclass
@@ -126,7 +127,6 @@ class CharacterContext:
 
 @dataclass
 class Character:
-    user_id: str|None
-    username: str|None
+    user_id: str | None
+    username: str | None
     user_context: CharacterContext
-

@@ -9,8 +9,8 @@ from moobius import MoobiusService, MoobiusStorage
 class DemoService(MoobiusService):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
-        logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
-        logger.add(error_log_file, rotation="1 day", retention="7 days", level="ERROR")
+        self.log_file = log_file
+        self.error_log_file = error_log_file
 
         self._default_features = {}
         self.bands = {}
@@ -47,6 +47,8 @@ class DemoService(MoobiusService):
         Called after successful connection to websocket server and service login success.
         """
         # ==================== load features ====================
+        logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
+        logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
         
         with open('resources/features.json', 'r') as f:
             self._default_features = json.load(f)
@@ -143,7 +145,7 @@ class DemoService(MoobiusService):
             msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
             await self.send(payload_type='msg_down', payload_body=msg_down)
 
-    async def on_fetch_userlist(self, action):
+    async def on_fetch_user_list(self, action):
         await self.calculate_and_update_user_list_from_database(action.channel_id, action.sender)
     
     async def on_fetch_features(self, action):
@@ -169,21 +171,21 @@ class DemoService(MoobiusService):
         
     # DEMO: a typical join channel handler
     async def on_join_channel(self, action):
-        character_id = action.sender
+        sender = action.sender
         channel_id = action.channel_id
-        character = self.http_api.fetch_user_profile(character_id)
+        character = self.http_api.fetch_user_profile([sender])
         nickname = character.user_context.nickname
+        band = self.bands[channel_id]
 
-        self.bands[channel_id].real_characters[character_id] = character
-        self.bands[channel_id].features[character_id] = self.default_features
-        self.bands[channel_id].states[character_id] = self.default_status
-        real_characters = self.bands[channel_id].real_characters
+        band.real_characters[sender] = character
+        band.features[sender] = self.default_features
+        band.states[sender] = self.default_status
 
-        user_list = list(real_characters.values())
-        character_ids = list(real_characters.keys())
+        user_list = list(band.real_characters.values())
+        character_ids = list(band.real_characters.keys())
         
-        await self.send_update_userlist(channel_id, user_list, character_ids)
-        await self.create_message(channel_id, f'{nickname} joined the band! Special Commands (to ∞): show|hide|reset', character_ids, sender=character_id)
+        await self.send_update_user_list(channel_id, user_list, character_ids)
+        await self.create_message(channel_id, f'{nickname} joined the band!', character_ids, sender=character_id)
 
     # DEMO: a typical leave channel handler
     async def on_leave_channel(self, action):
@@ -198,7 +200,7 @@ class DemoService(MoobiusService):
         user_list = list(real_characters.values())
         character_ids = list(real_characters.keys())
 
-        await self.send_update_userlist(channel_id, user_list, character_ids)
+        await self.send_update_user_list(channel_id, user_list, character_ids)
         await self.create_message(channel_id, f'{nickname} left the band!', character_ids, sender=character_id)
     
     async def on_feature_call(self, feature_call):
@@ -269,15 +271,6 @@ class DemoService(MoobiusService):
             await self.create_message(channel_id, text, recipients, sender=talker)
 
     # ==================== helper functions ====================
-    async def create_message(self, channel_id, content, recipients, subtype='text', sender=None):
-        await self.send_msg_down(
-            channel_id=channel_id,
-            recipients=recipients,
-            subtype=subtype,
-            message_content=content,
-            sender=sender or 'no_sender'
-        )
-
     async def send_features_from_database(self, channel_id, character_id):
         feature_data_list = self.bands[channel_id].features.get(character_id, [])
         await self.send_update_features(channel_id, feature_data_list, [character_id])
@@ -293,4 +286,4 @@ class DemoService(MoobiusService):
             key = f"{self.MICKEY}_{sn}"
             user_list.append(band.virtual_characters[key])
         
-        await self.send_update_userlist(channel_id, user_list, [character_id])
+        await self.send_update_user_list(channel_id, user_list, [character_id])

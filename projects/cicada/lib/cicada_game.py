@@ -13,8 +13,8 @@ class CicadaGame:
     ERR_ALREADY_STARTED = 8
     ERR_INVALID_PLAYER_ID = 9
     ERR_NOT_FINISHED = 10
+    ERROR_ALREADY_ENDED = 11
 
-    # 先发言，再投票，再结束
     STAGE_WAIT = 100
     STAGE_TALK = 101
     STAGE_VOTE = 102
@@ -30,7 +30,9 @@ class CicadaGame:
         ERR_INVALID_VOTES: "Invalid votes",
         ERR_NOT_ENDED: "Not ended",
         ERR_ALREADY_STARTED: "Already started",
-        ERR_INVALID_PLAYER_ID: "Invalid player id"
+        ERR_INVALID_PLAYER_ID: "Invalid player id",
+        ERR_NOT_FINISHED: "Not finished",
+        ERROR_ALREADY_ENDED: "Already ended"
     }
 
     def __init__(self, from_file=None, total_players=5, total_rounds=3, vote_score=25, voted_score=100, char_limit=500, game_id='NO_GAME_ID', record_path=None):

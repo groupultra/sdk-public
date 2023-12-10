@@ -12,7 +12,7 @@ from .basic_service import MoobiusBasicService
 
 # with database
 class MoobiusService(MoobiusBasicService):
-    def __init__(self, service_config_path="", db_config_path=""):
+    def __init__(self, service_config_path="", db_config_path="", **kwargs):
         super().__init__(config_path=service_config_path)
 
         with open(db_config_path, "r") as f:
@@ -43,15 +43,15 @@ class MoobiusService(MoobiusBasicService):
         
         return msg_down
 
-    # fetch real users
-    async def fetch_real_characters(self, channel_id):
-        """
-        Fetches data from Moobius using HTTP request
-        """
-        
-        data = self.http_api.get_channel_userlist(channel_id, self.service_id)
-        return data
-
     async def upload_avatar_and_create_character(self, service_id, username, nickname, image_path, description):
-        avatar = self.upload_file(image_path)
-        return self.create_service_user(service_id, username, nickname, avatar, description)
+        avatar = self.http_api.upload_file(image_path)
+        return self.http_api.create_service_user(service_id, username, nickname, avatar, description)
+
+    async def create_message(self, channel_id, content, recipients, subtype='text', sender=None):
+        await self.send_msg_down(
+            channel_id=channel_id,
+            recipients=recipients,
+            subtype=subtype,
+            message_content=content,
+            sender=sender or 'no_sender'
+        )

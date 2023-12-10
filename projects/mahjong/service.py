@@ -17,8 +17,8 @@ from moobius import MoobiusService, MoobiusStorage
 class MahjongService(MoobiusService):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
-        logger.add(log_file, rotation="1 day", retention="7 days", level="DEBUG")
-        logger.add(error_log_file, rotation="1 day", retention="7 days", level="ERROR")
+        self.log_file = log_file
+        self.error_log_file = error_log_file
 
         self.image_dir = kwargs.get('image_dir', 'temp/images')
 
@@ -28,6 +28,9 @@ class MahjongService(MoobiusService):
         """
         Called after successful connection to websocket server and service login success.
         """
+        logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
+        logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
+
         for channel_id in self.channels:
             self.bands[channel_id] = MoobiusStorage(self.service_id, channel_id, db_config=self.db_config)
 
@@ -128,7 +131,7 @@ class MahjongService(MoobiusService):
             virtual_characters = list(self.bands[channel_id].virtual_characters.values())
             user_list = virtual_characters + real_characters
 
-            await self.send_update_userlist(channel_id, user_list, [sender])
+            await self.send_update_user_list(channel_id, user_list, [sender])
 
         elif action.subtype == "fetch_features":
             await self.send_update_features(action.channel_id, [], [action.sender])
@@ -163,7 +166,7 @@ class MahjongService(MoobiusService):
 
             character_ids = list(self.bands[channel_id].real_characters.keys())
 
-            await self.send_update_userlist(channel_id, user_list, character_ids)
+            await self.send_update_user_list(channel_id, user_list, character_ids)
             await self._send_msg(channel_id, f'{character.user_context.nickname} joined the band!', character_ids, sent_by=sender, virtual=False)
 
             await asyncio.sleep(0.5)
@@ -177,7 +180,7 @@ class MahjongService(MoobiusService):
             character_ids = list(real_characters.keys())
             
             await self._send_msg(channel_id, f'{character.user_context.nickname} left the band!', character_ids, sent_by=sender, virtual=False)
-            await self.send_update_userlist(channel_id, user_list, character_ids)
+            await self.send_update_user_list(channel_id, user_list, character_ids)
 
         elif action.subtype == "fetch_channel_info":
             logger.info("fetch_channel_info")

@@ -49,8 +49,7 @@ class HTTPAPIWrapper:
             logger.error(f"Error during refresh: {response.json().get('msg')}")
             return None
 
-
-    def get_channel_userlist(self, channel_id, service_id):
+    def get_channel_user_list(self, channel_id, service_id):
         params = {
             "channel_id": channel_id,
             "service_id": service_id
@@ -66,7 +65,7 @@ class HTTPAPIWrapper:
             return [from_dict(data_class=Character, data=d) for d in userlist]
         else:
             logger.error(f"Error fetching channel userlist: {response.json().get('msg')}")
-            return None
+            return []
     
     
     def fetch_user_profile(self, user_id):
@@ -88,7 +87,7 @@ class HTTPAPIWrapper:
             return None
     
     def fetch_real_characters(self, channel_id, service_id):
-        channel_userlist = self.get_channel_userlist(channel_id, service_id)
+        channel_userlist = self.get_channel_user_list(channel_id, service_id)
         if channel_userlist:
             return channel_userlist
         else:

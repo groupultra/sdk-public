@@ -15,8 +15,9 @@ from verifier import Verifier
 class MouseService(MoobiusService):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
-        logger.add("logs/service.log", rotation="1 day", retention="7 days", level="DEBUG")
-        logger.add("logs/error.log", rotation="1 day", retention="7 days", level="ERROR")
+        self.log_file = log_file
+        self.error_log_file = error_log_file
+
         
         self.riddles = {}
         self.model = 'gpt-4-1106-preview'
@@ -52,6 +53,8 @@ class MouseService(MoobiusService):
         Called after successful connection to websocket server and service login success.
         """
         # ==================== load features and fill in the template ====================
+        logger.add("logs/service.log", rotation="1 day", retention="7 days", level="DEBUG")
+        logger.add("logs/error.log", rotation="1 day", retention="7 days", level="ERROR")
 
         self.openai_client = AsyncOpenAI()  # not pickleable
 
@@ -368,7 +371,7 @@ class MouseService(MoobiusService):
             virtual_characters = list(self.bands[channel_id].virtual_characters.values())
             user_list = virtual_characters + real_characters
 
-            await self.send_update_userlist(channel_id, user_list, [sender])
+            await self.send_update_user_list(channel_id, user_list, [sender])
 
         elif action.subtype == "fetch_features":
             logger.info("fetch_features")
@@ -397,7 +400,7 @@ class MouseService(MoobiusService):
             
             character_ids = list(self.bands[channel_id].real_characters.keys())
 
-            await self.send_update_userlist(channel_id, user_list, character_ids)
+            await self.send_update_user_list(channel_id, user_list, character_ids)
 
             await self.send_msg_down(
                 channel_id=channel_id,
@@ -429,7 +432,7 @@ class MouseService(MoobiusService):
             user_list = list(virtual_characters.values()) + list(real_characters.values())
             character_ids = list(real_characters.keys())
 
-            await self.send_update_userlist(channel_id, user_list, character_ids)
+            await self.send_update_user_list(channel_id, user_list, character_ids)
 
             await self.send_msg_down(
                 channel_id=channel_id,
@@ -446,8 +449,7 @@ class MouseService(MoobiusService):
             await self.send_update_channel_info(channel_id, self.db_helper.get_channel_info(channel_id))
             """
         else:
-            logger.info("Unknown action subtype:", action_subtype)
-
+            logger.info("Unknown action subtype:", action.subtype)
 
     async def on_feature_call(self, feature_call):
         """
@@ -459,7 +461,6 @@ class MouseService(MoobiusService):
         feature_id = feature_call.feature_id
         arguments = feature_call.arguments
         character = self.bands[channel_id].real_characters[feature_call.sender]
-        nickname = character.user_context.nickname
 
         if feature_id == "CN":
             entry = self.bands[channel_id].status[sender]

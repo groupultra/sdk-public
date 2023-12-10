@@ -41,5 +41,16 @@
         "settings": {
             "root_dir": "json_db"
         }
+    },
+
+    {
+        "implementation": "json",
+        "load": true,
+        "clear": false,
+        "name": "virtual_characters",
+
+        "settings": {
+            "root_dir": "json_db"
+        }
     }
 ]

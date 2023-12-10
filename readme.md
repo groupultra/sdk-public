@@ -25,7 +25,9 @@ Usage:
 1. Data types supported are basic types (list, dict, int, str, etc) and all dataclass types defined in `types.py`
 2. If you modify a mutable object data record, the memory wouldn't be updated. You have to reassign it to the band (all abstractions are leaky!) (todo: elaborate this)
 
-
++ Note:
+1. Avoid initializing of complex data types (such as a scheduler or an OpenAI client) in `__init__()`, which may cause pickling issues when running with `background=True`. In most cases, these attributes could be initialized in `on_start()` method.
+2. If the data you store in a database involves a mutable object and you modify it directly, it would only change the copy in the memory and won't be synchronized with the database automatically. This will cause inconsistencies. Use `save()` if you really want to do this, or you can explicitly assign the record to your database again (magic!).
 # ============================== Below Are Deprecated ======================================
 
 

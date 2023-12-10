@@ -220,9 +220,9 @@ class MoobiusBasicService:
         logger.debug(f"MessageUp received: {msg_up}")
         pass
 
-    async def on_fetch_userlist(self, action):
+    async def on_fetch_user_list(self, action):
         """
-        Handle the received action of fetching userlist.
+        Handle the received action of fetching user_list.
         """
         logger.debug("on_action fetch_userlist")
         pass
@@ -266,9 +266,8 @@ class MoobiusBasicService:
         """
         Handle an action from a user.
         """
-        logger.debug(f"Action received: {action}")
         if action.subtype == "fetch_userlist":
-            await self.on_fetch_userlist(action)
+            await self.on_fetch_user_list(action)
         elif action.subtype == "fetch_features":
             await self.on_fetch_features(action)
         elif action.subtype == "fetch_playground":
@@ -342,32 +341,26 @@ class MoobiusBasicService:
 
     async def send_update(self, target_client_id, data):
         payload = self._ws_payload_builder.update(self.service_id, target_client_id, data)
-        logger.debug(payload)
         await self._ws_client.send(payload)
 
-    async def send_update_userlist(self, channel_id, user_list, recipients):
+    async def send_update_user_list(self, channel_id, user_list, recipients):
         payload = self._ws_payload_builder.update_userlist(self.service_id, channel_id, user_list, recipients)
-        logger.debug(payload)
         await self._ws_client.send(payload)
 
     async def send_update_channel_info(self, channel_id, channel_data):
         payload = self._ws_payload_builder.update_channel_info(self.service_id, channel_id, channel_data)
-        logger.debug(payload)
         await self._ws_client.send(payload)
 
     async def send_update_playground(self, channel_id, content, recipients):
         payload = self._ws_payload_builder.update_playground(self.service_id, channel_id, content, recipients)
-        logger.debug(payload)
         await self._ws_client.send(payload)
 
     async def send_update_features(self, channel_id, feature_data, recipients):
         payload = self._ws_payload_builder.update_features(self.service_id, channel_id, feature_data, recipients)
-        logger.debug(payload)
         await self._ws_client.send(payload)
     
     async def send_update_style(self, channel_id, style_content, recipients):
         payload = self._ws_payload_builder.update_style(self.service_id, channel_id, style_content, recipients)
-        logger.debug(payload)
         await self._ws_client.send(payload)
 
     async def send_heartbeat(self):
