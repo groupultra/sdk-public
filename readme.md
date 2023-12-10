@@ -6,7 +6,7 @@
 
 Steps: 
 - Preparation
-1. Register an account on http://www.moobius.app (you have to have an email and password to use this SDK. Third-party login not supported).
+1. Register an account on [Moobius](http://www.moobius.app) (you have to have an email and password to use this SDK. Third-party login not supported).
 2. Create a band with your account and copy the `band_id` (referred below as `channel_id`).
 
 - Install the SDK on your computer/server
@@ -45,7 +45,7 @@ Congratulations! Now you have your first Moobius Service.
 - A service could be quiet simple, or dazzlingly complicated. You have the power to control every user's experience in your band -- everything they see on the stage and character list, and every consequence of their messages and key clicks. Each user's view could be independent (for example, each user would see different number of Mickeys), so that it is vital to have a database doing this. We have implemented a `MoobiusStorage` class for you to use with minimum extra effort. It magically turns a key-value pair database into a python `dict` that automatically synchronizes with the database under the hood (could be json file or redis service now, but new implementations are welcome!). See below for details.
 
 4. Logging
-- We use loguru for a colorful, comprehensive logging system. You can see the logs on your console and in the log files. All you need to do is to use functions like `logging.info()` or `logging.error()` instead of `print()` in your code. For advanced usage, please see the documentation of loguru.
+- We use [loguru](https://loguru.readthedocs.io/en/stable/) for a colorful, comprehensive logging system. You can see the logs on your console and in the log files. All you need to do is to use functions like `logging.info()` or `logging.error()` instead of `print()` in your code. For advanced usage, please see the documentation of [loguru](https://loguru.readthedocs.io/en/stable/)
 
 5. Wand
 - Here comes the most delicious part. The `MoobiusWand` is not only a loader of your service, but a remote controller of your services that allows you to "manually" control your service *AFTER* it starts. A wand can controll more than one background services (`background=True`) and you can call `wand.spell()` or `await wand.aspell()` in another (independent) script to use you service as an platform of output (say, you wrote another weather forecast program and notify your bands whenever it seems to start raining besides the original service logic). You just need to implement `on_spell()` and write a protocol between your band and the wand.
@@ -95,6 +95,7 @@ self.bands[channel_id].save('data')   # A more graceful way to do this.
 - `core/`: All core features and logic of a Moobius Serivce.
    - `basic_service.py`: `MoobiusBasicService` that defines all `on_xxx()` triggers and `send_xxx()` helper methods (for you to send payloads through websockets.)
    - `service.py`: `MoobiusService` that integrates database and high-level commonly used helper methods. It is the base class of a Service. It has a minimal but complete implementation of a fully functional Moobius Service instance (so that it is runnable!), including authentication, automatic heartbeat and a trivial handler to payloads (print and noops). It is highly recommended that your custom class inherit `MoobiusService` defined here.
+      - Note: A service instance has `http_api` and a `_ws_client` attribute that handles low-level network communications. In most cases it is not necessary to use their methods directly. Also there is a `scheduler` attribute that is an instance of class [APScheduler](https://apscheduler.readthedocs.io/en/3.x/) after the service starts. There are three jobs already scheduled on start (to handle automatic heartbeat and token refresh), and you can add your new jobs(DO NOT do this in your `__init__()` method!)
    - `storage.py`: `MoobiusStorage` that acts as a container of backed-up dictionaries (`CachedDict` instances)
    - `wand.py`: `MoobiusWand` class that handles all the multiprocessing and remote control magic. 
 
@@ -116,5 +117,5 @@ self.bands[channel_id].save('data')   # A more graceful way to do this.
 ## Todo
 1. Async http and database
 2. HTTP Data Types refactor
-3. Documentation
+3. Further Documentation
 4. Tutorials and better examples
