@@ -87,11 +87,13 @@ self.bands[channel_id].save('data')   # A more graceful way to do this.
 `projects/`: Example services. Each subfolder contains a separate service.
 
 `src/moobius`: The source code of the `moobius` package, which includes:
+
 - `core/`: All core features and logic of a Moobius Serivce.
    - `basic_service.py`: `MoobiusBasicService` that defines all `on_xxx()` triggers and `send_xxx()` helper methods (for you to send payloads through websockets.)
-   - `service.py`: `MoobiusService` that integrates database and high-level commonly used helper methods.
+   - `service.py`: `MoobiusService` that integrates database and high-level commonly used helper methods. It is the base class of a Service. It has a minimal but complete implementation of a fully functional Moobius Service instance (so that it is runnable!), including authentication, automatic heartbeat and a trivial handler to payloads (print and noops). It is highly recommended that your custom class inherit `MoobiusService` defined here.
    - `storage.py`: `MoobiusStorage` that acts as a container of backed-up dictionaries (`CachedDict` instances)
    - `wand.py`: `MoobiusWand` class that handles all the multiprocessing and remote control magic. 
+
 - `database/`: The infrastructure of `MoobiusStorage`.
    - `database_interface.py`: An abstract class definition of database implementations. As long as the methods defined in the interface are implemented (for a key-value pair), the instance of the concrete class can be used to initialize a `CachedDict` instance.
    - `null_database.py`: A trivial implementation.
@@ -102,29 +104,13 @@ self.bands[channel_id].save('data')   # A more graceful way to do this.
 - `network/`: All basic network communications
    - `http_api_wrapper.py`: a pure implementation of low-level HTTP APIs. `MoobiusService` instances have an attribute `self.http_api` of this class.
    - `ws_payload_builder.py`: a pure builder of websocket API payloads.
-   - `ws_client.py`: a websocket client based on `websockets` that facilitates exception handling and automatic reconnection attempts on error. `MoobiusService` instances have an attribute `self._ws_client` of this class.
+   - `ws_client.py`: a websocket client based on `websockets` that facilitates exception handling, asynchronous event handling and automatic reconnection attempts on error. `MoobiusService` instances have an attribute `self._ws_client` of this class.
 
 - `types.py`: All relevant dataclasses of a Moobius event (websocket package) payload.
 - `utils.py`: Basic utilities like `EnhancedJSONEncoder` which can recognize dataclasses.
 
-## File structures
-
-`moobius/basic`: Basic utilites
-
-- `http_api_wrapper.py`: a pure implementation of low-level HTTP APIs.
-- `ws_payload_builder.py`: a pure builder of websocket API payloads.
-- `ws_client.py`: a websocket client based on `websockets` that facilitates automatic reconnection, exception handling and `asyncio.create_task()` wrapper (so that you can simply use `await` in higher methods.)
-- `_types.py`: definition of all datatypes.
-- `logging_config.py`: all things about console logs.
-
-`moobius/moobius_basic_service.py`: The Base class of a Service. It has a minimal but complete implementation of a fully functional Moobius Service instance (so that it is runnable!), including authentication, automatic heartbeat and a trivial handler to payloads (print and noops).
-
-`moobius/moobius_service.py`: A Service with a built-in database helper (you can set it `None`), and some high level methods. It is highly recommended that your custom class inherit `MoobiusService` defined here.
-
-
 ## Todo
 1. Async http and database
 2. HTTP Data Types refactor
-4. Documentation
-5. Tutorials and better examples
-6. Unbind `others`
+3. Documentation
+4. Tutorials and better examples
