@@ -83,7 +83,28 @@ self.bands[channel_id].data['key'] = 2   # memory: 2, disk: 1 (not saved!)
 self.bands[channel_id].save('data')   # A more graceful way to do this.
 ```
 
-## File Structures
+## File Organization Structure
+`projects/`: Example services. Each subfolder contains a separate service.
+`src/moobius`: The source code of the `moobius` package, which includes:
+- `core/`: All core features and logic of a Moobius Serivce.
+   - `basic_service.py`: `MoobiusBasicService` that defines all `on_xxx()` triggers and `send_xxx()` helper methods
+   - `service.py`: `MoobiusService` that integrates database and high-level commonly used helper methods.
+   - `storage.py`: `MoobiusStorage` that acts as a container of backed-up dictionaries (`CachedDict` instances)
+   - `wand.py`: `MoobiusWand` class that handles all the multiprocessing and remote control magic. 
+- `database/`: The infrastructure of `MoobiusStorage`.
+   - `database_interface.py`: An abstract class definition of database implementations. As long as the methods defined in the interface are implemented (for a key-value pair), the instance of the concrete class can be used to initialize a `CachedDict` instance.
+   - `null_database.py`: A trivial implementation.
+   - `json_database.py`: A json file based implementation (simple but useful and intuitive -- you can see the data records easily!)
+   - `redis_database.py`: A redis implementation (which requires a redis service on your machine)
+   - `magical_storage.py`: `CachedDict` is a dictionary with a database under the hood, and the changes in the dict will be automatically synchronized to the database. `MagicalStorage` is built on `CachedDict`, which supports customized on-the-fly `CachedDict` containers (`put()`) which can automatically load (`load=True`) from a database on initialization, or automatically clear the database (`clear=True`) to clean out garbage records.
+
+
+For an instance `service` of `MoobiusService` class, you can use the following methods:
++ `service.send_xxx()`. These are higher level methods for you to send payloads through websockets. These are defined in its parent class `MoobiusBasicService`. Please see `moobius/moobius_basic_service.py`.
+   - `service.http_api.*()`. These are wrapped HTTP APIs you may occasionally use. Please see `moobius/basic/http_api_wrapper.py`.
+   - `service._ws_client.*()`. These are low-level websocket APIs. You are not recommended to call them directly. The methods are defined in `moobius/basic/ws_client.py`.
+   - `service.*()` defined in `MoobiusService`. These are high-level complex operations that could involve multiple API calls or database operations. There could be more! Please see `moobius/moobius_service.py`.
+
 
 1. If you want to modify the code and start your own service, please refer to the source code of `projects/demo/service.py`.  Basically, you need to write a subclass of `MoobiusService` and implement all the `on_xxx()` methods. There is a trivial noop implementation in `moobius_service.py` which does nothing but printing the messages to the console, and the code in `demo_service.py` could help you understand how it works.
 
