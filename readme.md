@@ -19,14 +19,18 @@ Steps:
 6. Change current directory on your terminal to `projects/demo/`
 7. Copy `projects/service.json` to `projects/demo/`, and edit the copied json file. Fill in your `email`, `password` and a list of `channels` you want to run on. If you have a `service_id`, just fill in the field, otherwise please use `"service_id": ""` and the SDK will create a new `service_id` for you and write back to `service.json` for future use.
    + Note: A channel previously binded to a `service_id` could not be binded again to a different `service_id`, unless the original service unbinds first. 
-8. Run `python main.py` (For Mac OS, it could be `python3 main.py`). The config file will automatically update so that you don't need to configure it the next time you start the program. You can see from your browser (after refresh) and expect an actively functional service in your band, that
-- Would begin to "SYNC", "ASYNC", "BOMB" and "SURVIVE" messages in order automatically (after 10 seconds).
-- Has two Keys ("Do Some Magic" and "Swap Stage"). The band would respond when you click them.
-- Will respond a "Moobius is Great!" to a "moobius" message, and repeat other messages. If you use another account and join the same band, you will observe a functional group chat service, but any "moobius" sent would become "Moobius is Great!" on the recipients' side.
+8. Run `python main.py test` (For Mac OS, it could be `python3 main.py test`). The config file will automatically update with a `service_id` so that you can just use it next time you start the program. You can see from your browser (after refresh) and expect an actively functional service in your band, that
+- A Character named "Wand" (not in the character list) would begin to send "SYNC", "ASYNC", "BOMB" and "SURVIVE" messages in order automatically (after 10 seconds).
+- The "Wand" will send "Check in every minute" with a timestamp every minute (as it is).
+- Has two Keys ("Do Some Magic" and "Swap Stage"). Something obvious will happen in the band when you click them.
+- If you type "moobius" in the text input area in your browser, recipients will receive "Moobius is Great!" instead. You can see this when your intended recipients include yourself, and you can also check this with another account joining the same band (be sure to use different browsers if you try multiple accounts on the same machine).
+- If you type other text messages, all your intended recipients would receive your messages. You will hear an "echo" from yourself if your intended recipients include yourself (which is the default option of our Web UI where the intended recipients is "All").
+- If you send an image, all your intended recipients EXCEPT YOURSELF would receive the image, even if your intended recipients include yourself (you may already be used to this behavior and did not even think it is a thing!).
 - If you send the following commands to Service(∞), the band would respond in some way.
   + `hide`: the keys (buttons) would disappear
   + `show`: the keys would reappear
   + `reset`: clear all Mickeys in your character list.
+9. Next time you can run `python main.py` or `python3 main.py` without the `test` argument. The test messages beginning with "WAND: " won't be sent on start.
 
 Congratulations! Now you have your first Moobius Service.
 

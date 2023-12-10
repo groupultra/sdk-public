@@ -1,6 +1,7 @@
 # service.py
 import json
 import copy
+from datetime import datetime
 
 from loguru import logger
 from moobius import MoobiusService, MoobiusStorage
@@ -52,6 +53,8 @@ class DemoService(MoobiusService):
         
         with open('resources/features.json', 'r') as f:
             self._default_features = json.load(f)
+
+        self.scheduler.add_job(self.cron_task, 'interval', minutes=1)
 
         for channel_id in self.channels:
             band = MoobiusStorage(self.service_id, channel_id, db_config=self.db_config)
@@ -107,6 +110,14 @@ class DemoService(MoobiusService):
                     "text": "Let There Be Dark!"
                 }
             }
+
+    async def cron_task(self):
+        for channel_id in self.channels:
+            band = self.bands[channel_id]
+            recipients = list(band.real_characters.keys())
+            talker = band.virtual_characters[self.WAND].user_id
+            txt = f"Check in every minute! {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            await self.create_message(channel_id, txt, recipients, sender=talker)
 
     async def on_msg_up(self, msg_up):
         if msg_up.subtype == "text":
@@ -267,7 +278,7 @@ class DemoService(MoobiusService):
         for channel_id in self.channels:
             band = self.bands[channel_id]
             recipients = list(band.real_characters.keys())
-            talker = band.virtual_characters[f"{self.WAND}"].user_id
+            talker = band.virtual_characters[self.WAND].user_id
             await self.create_message(channel_id, text, recipients, sender=talker)
 
     # ==================== helper functions ====================
