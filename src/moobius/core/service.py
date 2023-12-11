@@ -47,6 +47,9 @@ class MoobiusService(MoobiusBasicService):
         avatar = self.http_api.upload_file(image_path)
         return self.http_api.create_service_user(service_id, username, nickname, avatar, description)
 
+    async def fetch_real_characters(self, channel_id):
+        return self.http_api.fetch_real_characters(channel_id, self.service_id)
+
     async def create_message(self, channel_id, content, recipients, subtype='text', sender=None):
         await self.send_msg_down(
             channel_id=channel_id,
