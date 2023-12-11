@@ -17,7 +17,7 @@ Steps:
 
 - Run a demo (test) service
 6. Change current directory on your terminal to `projects/demo/`
-7. Copy `projects/service.json` to `projects/demo/`, and edit the copied json file. Fill in your `email`, `password` and a list of `channels` you want to run on. If you have a `service_id`, just fill in the field, otherwise please use `"service_id": ""` and the SDK will create a new `service_id` for you and write back to `service.json` for future use.
+7. Copy `projects/service.json` to `projects/demo/config/`, and edit the copied json file. Fill in your `email`, `password` and a list of `channels` you want to run on. If you have a `service_id`, just fill in the field, otherwise please use `"service_id": ""` and the SDK will create a new `service_id` for you and write back to `service.json` for future use.
    + Note: A channel previously binded to a `service_id` could not be binded again to a different `service_id`, unless the original service unbinds first. 
 8. Run `python main.py test` (For Mac OS, it could be `python3 main.py test`). The config file will automatically update with a `service_id` so that you can just use it next time you start the program. You can see from your browser (after refresh) and expect an actively functional service in your band, that
 - A Character named "Wand" (not in the character list) would begin to send "SYNC", "ASYNC", "BOMB" and "SURVIVE" messages in order automatically (after 10 seconds).
