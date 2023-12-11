@@ -1,0 +1,45 @@
+[
+    {
+        "implementation": "json",
+        "name": "features",
+        "load": true,
+        "clear": false,
+        
+        "settings": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "implementation": "json",
+        "load": false,
+        "clear": false,
+        "name": "real_characters",
+        
+        "settings": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "implementation": "json",
+        "load": true,
+        "clear": false,
+        "name": "virtual_characters",
+        
+        "settings": {
+            "root_dir": "simple_json_db"
+        }
+    },
+
+    {
+        "implementation": "json",
+        "load": true,
+        "clear": false,
+        "name": "script_progress",
+        
+        "settings": {
+            "root_dir": "simple_json_db"
+        }
+    }
+]

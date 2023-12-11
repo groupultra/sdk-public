@@ -1,0 +1,803 @@
+avatar:
+    captain:
+        name: 船长
+        image: mahjong_images/船长.jpg
+    east:
+        name: 东
+        image: mahjong_images/东.jpg
+    east_provoke:
+        name: 东
+        image: mahjong_images/东嘲笑.jpg
+    west:
+        name: 西
+        image: mahjong_images/西.jpg
+    north:
+        name: 北
+        image: mahjong_images/北.jpg
+    north_os:
+        name: 北（内心OS)
+        image: mahjong_images/北OS.jpg
+    audience:
+        name: 路人甲
+        image: mahjong_images/路人甲.jpg
+    narrator:
+        name: 旁白
+        image: mahjong_images/旁白.jpg
+    you:
+        name: 我
+        image: mahjong_images/南.jpg
+property:
+    health: 0
+    impression: 0
+global:
+    # 跨周目继承的属性，除了这点外和property一致
+    active_loss: 0   # 对日输游戏
+    passive_loss: 0  # 缩卵输一生
+    active_win: 0    # 人打不过狗
+    passive_win: 0   # 天选之人
+start: stage1
+
+act:
+    stage1:
+        member:
+            - east
+            - west
+            - north
+            - captain
+        dialog:
+            -
+                speaker: narrator
+                content: "你打麻雀赢了一大笔钱，于是坐了个豪华游轮度假。"
+                delay: 5000
+            -
+                speaker: narrator
+                content: "在公海上，船突然撞到了礁石，漏水了，船长表示必须在两个小时之内把一些人扔到海里去减轻重量，否则会在到达最近的码头之前就沉了，所有人一起喂鱼。"
+                delay: 5000
+            -
+                speaker: narrator
+                content: "船上的人炸锅了，吵吵个不停，最后为了公平起见，船长下令以打麻雀的方式决定谁扔出去。船上的人四个四个一组，在船上警卫们的监督下开起了麻雀。"
+                delay: 5000
+
+            -
+                speaker: captain
+                content: "船上一共有80个人，就打20桌麻将吧，我们用立直麻雀的规则去打，每桌的四位扔到海里喂鱼，所有财产由一位继承！这里是公海！所以我就是法！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你虽然打麻雀平时赢过点小钱，可你也不是每次都走运。但没有办法，为了生存，你还是得硬着头皮坐到了牌桌旁。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "可惜这次命运之神似乎并没有站你这边。你虽然极其谨慎，但每局不是起手五向听无进张，就是十几巡的一向听地狱。偶尔小和了两把，一不小心还点了个7700。眼看就ALL LAST了，船上的80个人已经扔下去19个，所有人都在你这桌旁边围观。你全身都冒冷汗，在潮湿的空气中颤抖。"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "ALL LAST了，大家报一下各自的点...点数吧。我只有16000点了。"
+                delay: 5000
+
+            -
+                speaker: east
+                content: "哈哈哈，我36100点！这局只要我不出意外，我是一定不会喂鱼的！但是我还要拿你们的遗产！会是哪个倒霉鬼呢？上家还是下家？"
+                delay: 5000
+
+            -
+                speaker: north
+                content: "15700点。听天由命吧。"
+                delay: 5000
+
+            -
+                speaker: west
+                content: "32200点。"
+                delay: 5000
+            
+            -
+                speaker: narrator
+                content: "西家声音不大，但你能清晰地听到他语气中的冷漠。随着骰子一响，你们开始了最后的决战。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "很快十几巡过去了，你上家已经三副露，两个红五在桌上像鲜血一样刺眼，你感到一阵眩晕。"
+                delay: 5000
+
+            -
+                speaker: east_provoke
+                content: "<此处应当有图，显示[340]饼，[666]饼（碰北家），[706]万 1-1.png>"
+                delay: 5000
+
+            -
+                speaker: east_provoke
+                content: "六饼！来啊！"
+                delay: 5000
+
+            
+            -
+                speaker: narrator
+                content: "你上家坐庄，已经摸切8巡了，虽然看起来只有断幺九，但只要和牌，1位就能确立，更何况三个宝牌已经把打点提升到了11700，简直像杀人诛心一般。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你下家看上去从三巡之前就开始防守了，一副与世无争的态势。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你对家一副露，碰了一个你下家的六索。作为ALL LAST的四位，他比你更绝望，他不顾一切地强攻，喂你对家三张牌也不以为意。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你起手还是一副稀烂的牌，但是你通过超强的读牌和读山技巧，加上一点点运气，还是把手牌做成了七对子的一向听。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "牌山一张一张减少，就像你的燃烧着的生命线一样，在连续而稳定地消耗。你渴望一切都停下来，但时间就像海上的阴风一样，残酷地打在你的脸上，迅即毫不犹豫地呼啸而过。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你只有三次摸牌机会了，如果你能和牌，那么你会保住小命，甚至有希望逆一。如果你放铳，那么即使1000点也会让你直接变到四位去喂鱼。如果你防守但听不了牌，那么只要你对家听牌了，你也会被罚符至死。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "牌山的下一张牌就在你手边，但你瘫软的手几乎无力抓到牌。会是下一个一向听地狱吗？"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "<此处应当有图，显示224饼57788万6索南南西西4饼 1-2.png>"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "终于，你进张了！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "如果你想听牌，你需要切出5万或者6索。但是考虑到庄家现在很可能断幺九听牌，所以这两张都是极为危险的。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "此外，6索已经出现3枚，如果你切5万，即使听牌，下一巡之内也不可能和牌。你思前想后，在众人的注视下，做出了一个艰难的抉择。"
+                delay: 5000
+
+        choice:
+            -
+                name: 进攻
+                constraint:
+                    # 这里填一些约束
+                    # min和max至少有一个，闭区间
+                    # 这些约束需要同时满足
+                value:
+                    active_loss: 1
+                    # 这里是值的变化，如health10是+10health，不填的均为0
+                goto: stage2
+
+            -
+                name: 防守
+                constraint:
+                    # 这里填一些约束
+                    # min和max至少有一个，闭区间
+                    # 这些约束需要同时满足
+                value:
+                    # 这里是值的变化，如health10是+10health，不填的均为0
+                goto: stage3
+
+
+        default: stage3
+        # 为了robustness，必须有一个default，如果没有选项或没有任何一个选项满足则直接跳
+        end: false
+        # 可以不写，不写默认为false；如果end为true，可以不需要default，表示剧本结束啦
+        # 如果有end，忽略default和choice
+
+
+    stage2:
+        member:
+            - east
+            - west
+            - north
+            - captain
+        dialog:
+            -
+                speaker: you
+                content: "对家显然已经穷途末路，只求和牌，极有可能已经听牌了。"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "现在是ALL LAST，庄是一位，这局之后无论什么结果都会结束。我不听牌就一定没有机会了。5万和6索一定要切一张的话，还是6索相对安全一些吧，毕竟是对家现物，而且上家已经副露了3枚，会再听第4枚绝张吗？"
+                delay: 5000
+            
+            -
+                speaker: narrator
+                content: "与其寄希望于对家不听牌，被动等死，不如把命运掌握在自己手里。是时候孤注一掷了，通过了就是胜利。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你的身体不再颤抖，脸上闪过一丝狡黠的冷笑。在生死关头，你却异常平静。你在众人的愕然之中，飞快地拔出那张6索，啪地拍在了桌子上，清脆的声响在海风中回荡。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "随之而来的，是一阵令人尴尬的沉默和死一般的寂静。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你的意识游荡在虚空，你的时间仿佛静止了，也不知过了多久，你被一个声音拉回到了现实。"
+                delay: 5000
+
+            -
+                speaker: east
+                content: "荣！"
+                delay: 5000
+
+            -
+                speaker: east_provoke
+                content: "断幺九，宝牌三，11700！钱和命都归我了，哈哈哈哈！"
+                delay: 5000
+
+            -
+                speaker: east_provoke
+                content: "<此处有图，显示2278索 2-1.png>"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "庄家的一对雀头2索在你眼里，已经变成了两根筷子，直戳你的心脏，毫不留情地饕餮着你的肉身。那七索上的一点红，可能是你尚存血液中的最后一丝顽强的献祭。你瞬间失去了意识，倒在了桌子上，你的手牌散落满桌，你也没有听到船长冰冷的命令。"
+                delay: 5000
+
+            -
+                speaker: captain
+                content: "17桌，南家落败，扔出去！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你解锁了结局【对日输游戏】"
+                delay: 5000
+
+        choice:
+        default:
+        # 为了robustness，必须有一个default，如果没有选项或没有任何一个选项满足则直接跳
+        end: true
+        # 可以不写，不写默认为false；如果end为true，可以不需要default，表示剧本结束啦
+        # 如果有end，忽略default和choice
+
+
+    stage3:
+        member:
+            - east
+            - west
+            - north
+            - captain
+        dialog:
+            -
+                speaker: you
+                content: "上家几乎确定已经听牌，从副露情况看，5万和6索的中张都是极其危险的，现在虽然可以立即听牌，但是放铳了直接死。"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "先活下去，才有更多可能。牌山还有8张，我还有两次摸牌机会，在这8张之内可能发生很多情况，越是紧要关头，就越该沉得住气，不能被陷阱冲昏头脑，一念之差葬身鱼腹。"
+                delay: 5000
+            
+            -
+                speaker: you
+                content: "最安全的应该是这张西风，当前是南场，只有西家的西风刻子会有役，但西家显然已经弃和防守，并且切出了一张西风。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "凛冽的西风带着海水咸味冲进你的鼻孔，你虽然意识到拆牌防守极大概率会让你无法听牌，可能等同于慢性死亡，但你的理智还是占据了上风。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你深吸一口气，你的肺仿佛被瞬间冻住了。你的全身都变得僵直。你机械地抽出一张西风，像慢动作回放一样放在了桌子上。"
+                delay: 5000
+
+            -
+                speaker: east
+                content: "哈，手切了嘛，不敢了对不对？"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你不理会庄家的嘲讽，目光死死盯着下家。你不想错过每一个细节。手切还是摸切，从第几张切出来的。每多一点信息，就意味着多一点取胜的机会。但你也深切地意识到，在不可避免的命运面前，任何基于统计学的挣扎都是徒劳的。"
+                delay: 5000
+
+            -
+                speaker: west
+                content: "九万。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "二位的西家还是一脸漠不关心，对他来说，再打两张牌就像例行公事，仿佛这世界上没有任何事情能让他触动，哪怕他即使留在船上也活不下来。"
+                delay: 5000
+
+            -
+                speaker: north
+                content: "中。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你对家几乎看都没看牌，就直接打了出去。"
+                delay: 5000
+
+            -
+                speaker: east
+                content: "哈哈哈，你们这些杂碎，尽打这些破牌，看我一个自摸！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "庄家把手伸向了牌山，用拇指重重地搓了两下牌的正面，脸上的肌肉似乎僵硬了几毫秒，把牌放在手里把玩了两秒钟，然后拍了出来。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "一张九索。所幸无人和牌。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "最后两次摸牌机会。你从牌山里抓了一张牌，皱了皱眉。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "又是一张西风。如果你想防守，那么你手里这两张西风会是绝对的安张，你不需要担心放铳了。但如果你想和牌甚至只想听牌，这也几乎是你最后的进攻机会了。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "舍牌又立即摸回来，是命运的指引，还是诱惑的陷阱呢？"
+                delay: 5000
+
+        choice:
+            -
+                name: 命运的指引
+                constraint:
+                    # 这里填一些约束
+                    # min和max至少有一个，闭区间
+                    # 这些约束需要同时满足
+                value:
+                    passive_win: 1
+                    # 这里是值的变化，如health10是+10health，不填的均为0
+                goto: stage4
+
+            -
+                name: 诱惑的陷阱
+                constraint:
+                    # 这里填一些约束
+                    # min和max至少有一个，闭区间
+                    # 这些约束需要同时满足
+                value:
+                    passive_loss: 1
+                    # 这里是值的变化，如health10是+10health，不填的均为0
+                goto: stage5
+
+            -
+                name: 疯狂的觉醒
+                constraint:
+                    active_loss:
+                      min: 1
+                    passive_loss:
+                      min: 1
+                    passive_win:
+                      min: 1
+                value:
+                    active_win: 1
+                    # 这里是值的变化，如health10是+10health，不填的均为0
+                goto: stage6
+        default: stage5
+        # 为了robustness，必须有一个default，如果没有选项或没有任何一个选项满足则直接跳
+        end: false
+        # 可以不写，不写默认为false；如果end为true，可以不需要default，表示剧本结束啦
+        # 如果有end，忽略default和choice
+
+
+    stage4:
+        member:
+            - east
+            - west
+            - north
+            - captain
+        dialog:
+            -
+                speaker: you
+                content: "上家刚刚切出了9索。假设上家断幺九78索良型听牌69索，那么此时正处于振听状态，这也是我切出这张6索的绝好时机。"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "另一方面，这西风一直这样吹，再去强行防守，是不是太不给面子了呢？"
+                delay: 5000
+            
+            -
+                speaker: narrator
+                content: "你惊讶于此时还有这种幽默感。你的心情不再沉重，手也不再颤抖，你知道你的这张6索如果通过，那么你大概率能活下来了。你死死地盯着上家的眼睛，你的目光如同一把利剑，看穿了他的一切粉饰。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你轻轻地切出了那张6索，你能看出你的上家瞬间收回了之前嘲弄的表情。是的。东手里78索听牌，6索绝张已经被你打出。"
+                delay: 5000
+
+            -
+                speaker: west
+                content: "三饼。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你看到北家摸了一张牌，此时突然感到一丝凉意，之间的喜悦转瞬之间烟消云散。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你意识到游戏还没有结束，对家可能马上自摸。即使对家不自摸，接下来的两张牌中，庄家或者你自己都可能点对家。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "甚至庄家如果气急败坏，随便打一张，让对家和了，都不是没有可能。想到这里，你突然后悔刚才那样咄咄逼人。谁给你的勇气！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "对家的手里拿着一张牌，在把手一点一点收回靠近手牌，但是在你看来，他的手不是远离你而是靠近你，在靠近你的五脏六腑，可能下一秒就把它们都捏得稀碎。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你的心跳像停止了一样，每一秒都极其漫长。不知过了多久，你意识到对家已经把摸的牌横放在了手牌上方。看上去没有自摸。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "看得出来他似乎很焦灼，可你转念一想他也算可怜人吧。你和他必有一个死。此时的你已经不知道该如何进行道德判断，求生的本能超越了所有理性。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "北家叹了一口气，从手牌里抽出一张牌，手在半空中犹豫了一下，最后还是拍在了桌子上。在他的手离开牌的过程中，你清楚地看到了两个令你五味杂陈的汉字。"
+                delay: 5000
+
+            -
+                speaker: north
+                content: "<此处应有图，五万 4-1.png>"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "即使凶手不是你，即使你只是为了活命，你也不得不立刻终结眼前这个人的性命。因为你知道，你死我活的场是没有道义可言的。虽然你可能此后都会生活在悔恨中，哪怕你只是把眼前这个无奈又无辜的人的生命减少了几秒，你也会认为是你的过错。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "甚至，万一，有没有可能，他是替你去死的呢？"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你的意识开始模糊，你用尽最后的理智的力量，推倒了手里的牌。那声【荣！】卡在你的喉咙里，你无法说出，你不听使唤地倒在了地上，两秒钟之后恢复了意识，但是所有人都看到了。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "七对子，宝牌2，6400点。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "等你醒来的时候，你发现你身上挂着吊瓶，周围是雪白的墙壁。你像做了个梦一样，仿佛经历了一场惊心动魄的生死搏斗，但你却想不起来是什么。你只知道你开始厌恶不确定性，厌恶一切形式的赌博。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "时不时地，你会在晚上突然做噩梦，梦里你被凛冽的西风裹挟，感到一阵阵刺痛。那阴森的海风仿佛要穿透你的皮肤和肌肉，直达你的骨髓。周围是一片黑暗和死寂，你想求救，但是却发不出任何声音。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你解锁了结局【天选之人】。"
+                delay: 5000
+
+        choice:
+        default: 
+        # 为了robustness，必须有一个default，如果没有选项或没有任何一个选项满足则直接跳
+        end: true
+        # 可以不写，不写默认为false；如果end为true，可以不需要default，表示剧本结束啦
+        # 如果有end，忽略default和choice
+
+    stage5:
+        member:
+            - east
+            - west
+            - north
+            - captain
+        dialog:
+            -
+                speaker: you
+                content: "既然选择了防守，就不该犹豫。"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "虽说上家切出了9索，但6索未必安全，因为还有45索听36索良形听牌，或者57索待绝张6索的可能性。"
+                delay: 5000
+            
+            -
+                speaker: narrator
+                content: "你的两张西风不可能再放铳。你只需要赌对家不会听牌或和牌即可。你的下家已经开始防守，你的对家和上家一共只有两张牌的机会而已，何况你还有海底再摸一张五万的可能性。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你切出了刚摸到的那张西风。"
+                delay: 5000
+
+            -
+                speaker: east
+                content: "这就怂了吗？哈哈哈哈！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你不理会上家的嘲讽，你的心里非常轻松。已经没有什么需要你控制的事情了，一切听天由命是最好的选择。毕竟生在这世上便是偶然，万物终究不是游戏一场吗？"
+                delay: 5000
+
+            -
+                speaker: west
+                content: "三饼。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你对家摸了一张牌，犹疑了一秒钟，从手里切出了一张五万。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "如果你刚才切的是6索，现在已经和了。你突然有一丝后悔，但瞬间从后悔变成了惊恐。不祥的预感笼罩着你。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "对家此时手切中张，很可能是已经听牌了。而牌山只剩最后两张，你除了尾巡再摸一张五万求形式听牌以外，已经别无他法了。"
+                delay: 5000
+
+            -
+                speaker: east
+                content: "哈哈哈，最后一张牌，三万！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "庄家癫狂的笑声在冰冷的寒风中回荡，你突然像一条毛巾被拧了一下，窒息交织着恐惧，把你仅存的意识囚禁在了虚空。"
+                delay: 5000
+
+            -
+                speaker: north
+                content: "荣。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你甚至没有看清对家和的是什么役，但你知道，一切都完蛋了。"
+                delay: 5000
+
+            -
+                speaker: captain
+                content: "17桌，南家落败，扔出去！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "冰冷的海水从你的口鼻冲入你的胸腔。你在疼痛中失去了方向感。你最后的一个念头：命运。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你解锁了结局【缩卵输一生】。"
+                delay: 5000
+
+        choice:
+        default: 
+        # 为了robustness，必须有一个default，如果没有选项或没有任何一个选项满足则直接跳
+        end: true
+        # 可以不写，不写默认为false；如果end为true，可以不需要default，表示剧本结束啦
+        # 如果有end，忽略default和choice
+
+
+
+    stage6:
+        member:
+            - east
+            - west
+            - north
+            - captain
+            - audience
+        dialog:
+            -
+                speaker: narrator
+                content: "你看着手里的西风，感觉到扑面而来的西风，瞬间意识到了什么。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "仿佛冥冥之中受到了某种启示，你不再害怕死亡，不再担心不确定性，不再精打细算。"
+                delay: 5000
+            
+            -
+                speaker: narrator
+                content: "你知道，一切都是命运，不是凡人的意志能左右的，既然活一场，不如活个痛快，生生死死，死而复生，生不如死，死里逃生！"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "立直！"
+                delay: 5000
+
+            -
+                speaker: audience
+                content: "这，这是疯了吗！送了棒子直接从三位变四位了！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "众人的唏嘘在你听来变得万分可笑。蝼蚁们不懂，只有赌上一切，才会赢得一切！"
+                delay: 5000
+
+            -
+                speaker: west
+                content: "三饼。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你对家摸了一张牌，迟疑了很久。"
+                delay: 5000
+
+            - 
+                speaker: north_os
+                content: "对家这简直是疯了，如果无人和牌，场上的所有立直棒将归top所有，现在我的点数突然比南家多了700。"
+                delay: 5000
+
+            - 
+                speaker: north_os
+                content: "那么我只需要保持形式听牌，就能活到最后了。我这样一手牌，只有切4万或者5万才可能听牌。"
+                delay: 5000
+
+            - 
+                speaker: north_os
+                content: "<此处应当有图，显示45万223344索88饼[666索]5万 6-1.png>"
+                delay: 5000
+
+            - 
+                speaker: north_os
+                content: "切5万是良形听牌，但是很危险。4万是对家现物，切出去是安全的，只是我振听了。可只剩下两张牌了，我又有多大的和牌可能呢？"
+                delay: 5000
+
+            
+            -
+                speaker: narrator
+                content: "于是，北家摇了摇头，从手中切了一张4万。"
+                delay: 5000
+
+            -
+                speaker: east
+                content: "哈哈哈哈，3万！有人和吗！我等着给收你们尸！"
+                delay: 5000
+            
+            -
+                speaker: narrator
+                content: "你看着上家一副志在必得的狂妄神态，心中充满了鄙夷。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "你若无其事地把手伸向了牌山最后一张牌，看都不看一眼，直接翻过来放在面前，优雅地一把把手牌摊开。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "在众人的惊叹声中，你缓缓报出"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "立直"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "一发"
+                delay: 5000
+            
+            -
+                speaker: you
+                content: "门前清自摸和"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "海底摸月"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "七对子"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "宝牌2"
+                delay: 5000
+
+            -
+                speaker: you
+                content: "倍满16000-8000，里宝牌不必翻了。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "于是这场对战，你以32000点的一位结束了游戏。"
+                delay: 5000
+
+            -
+                speaker: captain
+                content: "17桌，北家落败，扔下去！"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "船长的声音在你听来如此悦耳，你无所畏惧，也不会愧疚。互相残害和争夺永远是世间万物的本性，没有什么必要掩盖。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "几个警卫把他抬着扔了下去，你轻轻地转过身，拍了拍衣袖。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "潮湿冰冷的西风现在对你而言无比惬意。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "此后没有人再见过你或听说过你，但麻雀爱好者会时常说起你，他们只以为你是一个比喻，但并不知道你真实存在过。"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "他们谈论到你的时候，往往会这样一句话"
+                delay: 5000
+
+            -
+                speaker: narrator
+                content: "【人是打不过狗的】"
+                delay: 5000
+
+        choice:
+        default: 
+        # 为了robustness，必须有一个default，如果没有选项或没有任何一个选项满足则直接跳
+        end: true
+        # 可以不写，不写默认为false；如果end为true，可以不需要default，表示剧本结束啦
+        # 如果有end，忽略default和choice
+
+        
