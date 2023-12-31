@@ -1,0 +1,6 @@
+{
+    "http_server_uri": "https://api.sociyoo.com/",
+    "ws_server_uri": "wss://ws.sociyoo.com/",
+    "email": "<agent email>",
+    "password": "<agent password>"
+}
