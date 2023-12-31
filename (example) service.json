@@ -5,7 +5,7 @@
     "password": "<Your password>",
     "service_id": "",
     "channels": [
-      "<Your bandid>"  
+      "<Your bandId>"  
     ],
     "others": "ignore"
 }
