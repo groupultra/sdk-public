@@ -149,7 +149,7 @@ class CicadaService(MoobiusService):
         Handle the received message.
         """
         channel_id = msg_up.channel_id
-        sender = msg_up.context.sender
+        sender = msg_up.sender
         game_id, player_id = self.query_character(channel_id, sender)
 
         if game_id:
@@ -164,7 +164,7 @@ class CicadaService(MoobiusService):
                     await self.director.on_talk_attempt(game_id, player_id, text)
                     
                 elif game.stage == game.STAGE_VOTE:
-                    recipients = msg_up.context.recipients
+                    recipients = msg_up.recipients
 
                     vote_to = []
 
@@ -190,8 +190,7 @@ class CicadaService(MoobiusService):
                 await self.create_message(self.game_band_id, 'Please send text messages only!', [sender], sender=self.host.user_id)
 
         else:
-            msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
-            await self.send(payload_type='msg_down', payload_body=msg_down)
+            await self.send(payload_type='msg_down', payload_body=msg_up)
 
     async def refresh_audience_views(self, channel_id):
         audience = [cid for cid in self.bands[channel_id].game_status if self.query_character(channel_id, cid)[0] is None]

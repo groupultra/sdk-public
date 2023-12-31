@@ -123,8 +123,8 @@ class DemoService(MoobiusService):
         if msg_up.subtype == "text":
             txt = msg_up.content['text']
             channel_id = msg_up.channel_id
-            sender = msg_up.context.sender
-            recipients = msg_up.context.recipients
+            sender = msg_up.sender
+            recipients = msg_up.recipients
             band = self.bands[channel_id]
             
             if recipients:
@@ -132,8 +132,7 @@ class DemoService(MoobiusService):
                 if txt.lower() == "moobius":
                     await self.create_message(channel_id, "Moobius is Great!", recipients, sender=sender)
                 else:
-                    msg_down = self.msg_up_to_msg_down(msg_up, remove_self=False)
-                    await self.send(payload_type='msg_down', payload_body=msg_down)
+                    await self.send(payload_type='msg_down', payload_body=msg_up)
             
             # DEMO: Infinity
             else:   # send to Service(Infinity)
@@ -153,8 +152,7 @@ class DemoService(MoobiusService):
         
         # DEMO: other message types. TODO: save to your disk
         else:   
-            msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
-            await self.send(payload_type='msg_down', payload_body=msg_down)
+            await self.send(payload_type='msg_down', payload_body=msg_up)
 
     async def on_fetch_user_list(self, action):
         await self.calculate_and_update_user_list_from_database(action.channel_id, action.sender)
@@ -184,7 +182,7 @@ class DemoService(MoobiusService):
     async def on_join_channel(self, action):
         sender = action.sender
         channel_id = action.channel_id
-        character = self.http_api.fetch_user_profile([sender])
+        character = self.http_api.fetch_user_profile(sender)
         nickname = character.user_context.nickname
         band = self.bands[channel_id]
 
@@ -196,15 +194,15 @@ class DemoService(MoobiusService):
         character_ids = list(band.real_characters.keys())
         
         await self.send_update_user_list(channel_id, user_list, character_ids)
-        await self.create_message(channel_id, f'{nickname} joined the band!', character_ids, sender=character_id)
+        await self.create_message(channel_id, f'{nickname} joined the band!', character_ids, sender=sender)
 
     # DEMO: a typical leave channel handler
     async def on_leave_channel(self, action):
-        character_id = action.sender
+        sender = action.sender
         channel_id = action.channel_id
-        character = self.bands[action.channel_id].real_characters.pop(character_id, None)
-        self.bands[channel_id].states.pop(character_id, None)
-        self.bands[channel_id].features.pop(character_id, None)
+        character = self.bands[action.channel_id].real_characters.pop(sender, None)
+        self.bands[channel_id].states.pop(sender, None)
+        self.bands[channel_id].features.pop(sender, None)
         nickname = character.user_context.nickname
 
         real_characters = self.bands[channel_id].real_characters
@@ -212,7 +210,7 @@ class DemoService(MoobiusService):
         character_ids = list(real_characters.keys())
 
         await self.send_update_user_list(channel_id, user_list, character_ids)
-        await self.create_message(channel_id, f'{nickname} left the band!', character_ids, sender=character_id)
+        await self.create_message(channel_id, f'{nickname} left the band!', character_ids, sender=sender)
     
     async def on_feature_call(self, feature_call):
         channel_id = feature_call.channel_id

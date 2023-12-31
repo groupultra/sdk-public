@@ -112,9 +112,9 @@ class DrawService(MoobiusService):
 
     async def on_msg_up(self, msg_up):
         channel_id = msg_up.channel_id
-        sender = msg_up.context.sender
+        sender = msg_up.sender
 
-        recipients = msg_up.context.recipients
+        recipients = msg_up.recipients
 
         if msg_up.subtype == "text":
             raw_content = msg_up.content['text'].strip()
@@ -189,12 +189,9 @@ class DrawService(MoobiusService):
                 await self._send_msg(channel_id, f'Congratulations, {nickname} guessed the drawing!', recipients, sent_by='Painter')
 
             else:
-                msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
-
-                await self.send(payload_type='msg_down', payload_body=msg_down)
+                await self.send(payload_type='msg_down', payload_body=msg_up)
         else:
-            msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
-            await self.send(payload_type='msg_down', payload_body=msg_down)
+            await self.send(payload_type='msg_down', payload_body=msg_up)
 
     async def _send_msg(self, channel_id, message_content, recipients, subtype='text', sent_by='Painter', virtual=True):
         """

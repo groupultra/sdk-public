@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 
 
 class DatabaseInterface(ABC):
+    """
+    This is the interface for the database.
+    We now have: JSONDatabase, NullDatabase, RedisDatabase and MagicalStorage.
+    """
     @abstractmethod
     def __init__(self, domain='', **kwargs):
         """

@@ -36,7 +36,7 @@ if __name__ == "__main__":
             await wand.aspell(handle, (word, i + 1))
             await asyncio.sleep(interval)
     
-    if sys.argv[1] == 'test':
+    if len(sys.argv) >= 2 and sys.argv[1] == 'test':
         logger.info("Test will start in 5 seconds...")
         time.sleep(10)
         test_spell('SYNC TEST! ', 5, 1)           # Sync spell

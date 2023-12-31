@@ -6,13 +6,14 @@ from dacite import from_dict
 from loguru import logger
 
 from moobius import MoobiusService, MoobiusStorage, Moobius
-
+from moobius.types import FeatureCall
 
 class NekoService(MoobiusService):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
         self.log_file = log_file
         self.error_log_file = error_log_file
+        self.NEKO = "neko"
 
     # todo: channels and channel_ids, unbind_first, write back channels
     async def on_start(self):
@@ -36,7 +37,18 @@ class NekoService(MoobiusService):
 
             for feature in features:
                 feature_id = feature["feature_id"]
-                self.bands[channel_id].features[feature_id] = from_dict(data_class=Moobius.Feature, data=feature)
+                self.bands[channel_id].features[feature_id] = from_dict(data_class=Moobius.Feature, data=feature)    
+                
+            if self.NEKO not in self.bands[channel_id].virtual_characters:
+                image_path = "resources/neko.png"
+
+                virtual_neko = await self.upload_avatar_and_create_character(
+                    self.service_id, self.NEKO, self.NEKO, image_path, f'I am {self.NEKO}!'
+                )
+                self.bands[channel_id].virtual_characters[self.NEKO] = virtual_neko
+                
+            else:
+                continue
 
     # on_xxx, default implementation, to be override
     async def on_msg_up(self, msg_up):
@@ -48,14 +60,7 @@ class NekoService(MoobiusService):
         if msg_up.subtype == "text":
             if msg_up.content['text'] == "ping":
                 msg_up.content['text'] = "pong"
-            else:
-                pass
-        else:
-            pass
-                
-        msg_down = self.msg_up_to_msg_down(msg_up)
-        
-        await self.send(payload_type='msg_down', payload_body=msg_down)
+        await self.send(payload_type='msg_down', payload_body=msg_up)     
 
     async def on_fetch_user_list(self, action):
         logger.debug("fetch_userlist")
@@ -70,23 +75,22 @@ class NekoService(MoobiusService):
         feature_data_list = list(features.values())
 
         await self.send_update_features(action.channel_id, feature_data_list, [action.sender])
-
+        
     async def on_fetch_playground(self, action):
-        logger.debug("fetch_playground")
-        """
-        content = self.db_helper.get_playground_info(client_id)
-        await self.send_update_playground(channel_id, content, [client_id])
-        """
-    
+        image_uri = self.http_api.upload_file("resources/tubbs.png")
+        playground_content = {
+            "path": image_uri,
+            "text": "I'm Tubbs on playground!"
+        }
+        await self.send_update_playground(action.channel_id, playground_content, [action.sender])
+
     async def on_join_channel(self, action):
-        logger.debug("join_channel")
         character_id = action.sender
         channel_id = action.channel_id
         character = self.http_api.fetch_user_profile(character_id)
 
         if character:            
             self.bands[action.channel_id].real_characters[character_id] = character
-
             real_characters = self.bands[action.channel_id].real_characters
             user_list = list(real_characters.values())
             character_ids = list(real_characters.keys())
@@ -126,9 +130,6 @@ class NekoService(MoobiusService):
         
     async def on_fetch_channel_info(self, action):
         logger.debug("fetch_channel_info")
-        """
-        await self.send_update_channel_info(channel_id, self.db_helper.get_channel_info(channel_id))
-        """
     
     async def on_feature_call(self, feature_call):
         """
@@ -144,15 +145,13 @@ class NekoService(MoobiusService):
         
         if feature_name == "name1":
             if feature_call.arguments[0].value == "Meet Tubbs":
-                def _make_character(band_id, local_id, nickname):
+                async def _make_character(band_id, local_id, nickname):
                     username = f'{nickname}'
                     description = f'I am {nickname}!'
-                    
-                    character = self.http_api.create_service_user_with_local_image(self.service_id, "tubbs", "tubbs", "resources/tubbs.png", "I'm tubbs!")
-                    
+                    character = await self.upload_avatar_and_create_character(self.service_id, "tubbs", "tubbs", "resources/tubbs.png", "I'm tubbs!")
                     return character
                 
-                tubbs = _make_character(channel_id, "tubbs", "tubbs")
+                tubbs = await _make_character(channel_id, "tubbs", "tubbs")
                 user_list = list(self.bands[channel_id].real_characters.values())
                 user_list.append(tubbs)
                 await self.send_update_user_list(channel_id, user_list, [feature_call.sender])
@@ -190,7 +189,11 @@ class NekoService(MoobiusService):
             )
 
     async def on_unknown_message(self, message_data):
-        """
-        Handle the received unknown message.
-        """
         logger.debug(f"Received unknown message: {message_data}")
+    
+    async def on_spell(self, text):
+        for channel_id in self.channels:
+            band = self.bands[channel_id]
+            recipients = list(band.real_characters.keys())
+            talker = band.virtual_characters[self.NEKO].user_id
+            await self.create_message(channel_id, text, recipients, sender=talker)

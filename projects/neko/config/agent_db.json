@@ -1,0 +1,22 @@
+[
+    {
+        "implementation": "json",
+        "name": "features",
+        "load": true,
+        "clear": true,
+        
+        "settings": {
+            "root_dir": "json_db"
+        }
+    },
+    {
+        "implementation": "json",
+        "load": true,
+        "clear": false,
+        "name": "characters",
+        
+        "settings": {
+            "root_dir": "json_db"
+        }
+    }
+]

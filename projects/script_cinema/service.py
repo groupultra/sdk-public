@@ -76,10 +76,16 @@ class ScriptService(MoobiusService):
                 # 创建那些暂未被创建的avatar
                 # key是avatar_id，name是nickname
                 if avatar_key not in self.avatar_key_map:
-                    character = self.upload_avatar_and_create_character(
+                    character = await self.upload_avatar_and_create_character(
                         self.service_id, avatar_key, avatar.name, avatar.image, "")
                     self.avatar_key_map[avatar_key] = character.user_id
                     virtual_characters[character.user_id] = character
+            
+            # 把图片预上传
+            for image in self.story.used_images:
+                if image not in self.bands[channel_id].image_url:
+                    url = self.http_api.upload_file(self.story.get_full_image_path(image))
+                    self.bands[channel_id].image_url[image] = url
 
             # for feature in features:
                 # feature_id = feature["feature_id"]
@@ -87,40 +93,40 @@ class ScriptService(MoobiusService):
         
         self.continue_feature = {
                         "feature_id": "play",
-                        "feature_name": "继续剧本",
-                        "button_text": "继续剧本",
+                        "feature_name": "Continue Playing",
+                        "button_text": "Continue Playing",
                         "new_window": False,
                         "arguments": [
                         ]
                     }
         self.pause_feature = {
                         "feature_id": "pause",
-                        "feature_name": "暂停剧本",
-                        "button_text": "暂停剧本",
+                        "feature_name": "Pause Script",
+                        "button_text": "Pause Script",
                         "new_window": False,
                         "arguments": [
                         ]
                     }
         self.revert_feature = {
                         "feature_id": "revert",
-                        "feature_name": "回退至上一节点",
-                        "button_text": "回退至上一节点",
+                        "feature_name": "Back to Previous Choice",
+                        "button_text": "Back to Previous Choice",
                         "new_window": False,
                         "arguments": [
                         ]
                     }
         self.replay_feature = {
                         "feature_id": "replay",
-                        "feature_name": "重新播放",
-                        "button_text": "重新播放",
+                        "feature_name": "Replay this Unit",
+                        "button_text": "Replay this Unit",
                         "new_window": False,
                         "arguments": [
                         ]
                     }
         self.default_next_feature = {
                         "feature_id": "next",
-                        "feature_name": "继续",
-                        "button_text": "继续",
+                        "feature_name": "Continue",
+                        "button_text": "Continue",
                         "new_window": False,
                         "arguments": [
                         ]
@@ -138,14 +144,13 @@ class ScriptService(MoobiusService):
                 msg_up.content['text'] = "pong"'''
         
         channel_id = msg_up.channel_id
-        character_id = msg_up.context.sender
+        character_id = msg_up.sender
         # 如果他在玩，就直接忽略掉
         if self.bands[channel_id].script_progress[character_id]['playing_script']:
             return
 
         # 如果他不在玩，就过滤掉在玩的
-        recipients = msg_up.context.recipients
-        msg_down = self.msg_up_to_msg_down(msg_up)
+        recipients = msg_up.recipients
 
         result_recipients = []
 
@@ -154,7 +159,7 @@ class ScriptService(MoobiusService):
                 result_recipients.append(recipient)
         msg_down.recipients = result_recipients
 
-        await self.send(payload_type='msg_down', payload_body=msg_down)
+        await self.send(payload_type='msg_down', payload_body=msg_up)
     
 
     async def on_fetch_user_list(self, action):
@@ -297,13 +302,23 @@ class ScriptService(MoobiusService):
 
         for dialog in unit.dialog:
             sender_id = self.avatar_key_map[dialog.speaker]
-            await self.send_msg_down(
-                channel_id=channel_id,
-                recipients=[recipient],
-                subtype="text",
-                message_content=dialog.content,
-                sender=sender_id
-            )
+            if dialog.type == "image":
+                url = self.bands[channel_id].image_url[dialog.content]
+                await self.send_msg_down(
+                    channel_id=channel_id,
+                    recipients=[recipient],
+                    subtype="image",
+                    message_content=url,
+                    sender=sender_id
+                )
+            else:
+                await self.send_msg_down(
+                    channel_id=channel_id,
+                    recipients=[recipient],
+                    subtype="text",
+                    message_content=dialog.content,
+                    sender=sender_id
+                )
             if not ignore_delay:
                 await asyncio.sleep(dialog.delay / 1000)
             else:

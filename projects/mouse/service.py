@@ -198,9 +198,9 @@ class MouseService(MoobiusService):
         logger.info("on_msg_up", msg_up)
 
         channel_id = msg_up.channel_id
-        sender = msg_up.context.sender
+        sender = msg_up.sender
 
-        recipients = msg_up.context.recipients
+        recipients = msg_up.recipients
 
         if not recipients or len(recipients) == 1 and recipients[0] == self.bands[channel_id].virtual_characters['LLM'].user_id:
             if msg_up.subtype == 'text':
@@ -329,8 +329,7 @@ class MouseService(MoobiusService):
                     sender=self.bands[channel_id].virtual_characters['LLM'].user_id
                 )
         else:
-            msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
-            await self.send(payload_type='msg_down', payload_body=msg_down)
+            await self.send(payload_type='msg_down', payload_body=msg_up)
 
 
     def make_feature_buttons(self, channel_id, character_id):

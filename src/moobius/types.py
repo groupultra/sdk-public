@@ -64,26 +64,15 @@ class MessageContext:
 
 
 @dataclass
-class MessageUp:  # todo: MessageBody. Almost the same as MessageDown
-    subtype: str
-    channel_id: str
-    timestamp: int
-    recipients: list[str]
-    msg_id: str
-    context: MessageContext
-    content: dict
-
-
-@dataclass
-class MessageDown:  # todo: MessageBody. Almost the same as MessageDown
+class MessageBody:  # todo: MessageBody for one message class.
     subtype: str
     channel_id: str
     content: dict
     timestamp: int
     recipients: list[str]
-
     sender: str
     msg_id: str | None
+    context: dict | None
 
 
 @dataclass
@@ -115,7 +104,7 @@ class Payload:
     type: str
     request_id: Optional[str]
     client_id: Optional[str]
-    body: MessageUp | FeatureCall | Action | Copy | Any
+    body: MessageBody | FeatureCall | Action | Copy | Any
 
 
 @dataclass

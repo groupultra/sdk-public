@@ -55,9 +55,9 @@ class MahjongService(MoobiusService):
         Handle the received message.
         """
         channel_id = msg_up.channel_id
-        sender = msg_up.context.sender
+        sender = msg_up.sender
 
-        recipients = msg_up.context.recipients
+        recipients = msg_up.recipients
 
         if msg_up.subtype == "text":
             txt = msg_up.content['text'].strip()
@@ -68,8 +68,9 @@ class MahjongService(MoobiusService):
             else:
                 river = False
                 content = txt
-
-            res = requests.post('http://localhost:3001/mahgen', json={'content': content, 'river': river})
+            #url = 'http://localhost:3001/mahgen'
+            url = 'http://3.140.72.12/mahgen'
+            res = requests.post(url, json={'content': content, 'river': river})
 
             if res.status_code == 200:
                 b64_str = res.text
@@ -79,13 +80,9 @@ class MahjongService(MoobiusService):
                 await self._send_msg(channel_id, image_url, recipients, subtype='image', sent_by=sender, virtual=False)
 
             else:
-                msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
-
-                print("msg_down", msg_down)
-                await self.send(payload_type='msg_down', payload_body=msg_down)
+                await self.send(payload_type='msg_down', payload_body=msg_up)
         else:
-            msg_down = self.msg_up_to_msg_down(msg_up, remove_self=True)
-            await self.send(payload_type='msg_down', payload_body=msg_down)
+            await self.send(payload_type='msg_down', payload_body=msg_up)
 
     async def _send_msg(self, channel_id, message_content, recipients, subtype='text', sent_by='Painter', virtual=True):
         """

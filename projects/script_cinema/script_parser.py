@@ -1,6 +1,7 @@
 from ruamel.yaml import YAML
 from typing import List, Dict
 from copy import deepcopy
+import os
 
 yaml = YAML(typ='safe')
 
@@ -13,7 +14,32 @@ class SingleDialog:
     def __init__(self, speaker: str, content: str, delay: int):
         self.speaker = speaker
         self.content = content
+        self.type = 'base'
         self.delay = int(delay)
+
+    def __repr__(self) -> str:
+        return f'{self.speaker}: {self.content}\nDelay: {self.delay}'
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+
+class TextDialog(SingleDialog):
+    def __init__(self, speaker: str, content: str, delay: int):
+        super().__init__(speaker, content, delay)
+        self.type = 'text'
+
+    def __repr__(self) -> str:
+        return f'{self.speaker}: {self.content}\nDelay: {self.delay}'
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+
+class ImageDialog(SingleDialog):
+    def __init__(self, speaker: str, content: str, delay: int):
+        super().__init__(speaker, content, delay)
+        self.type = 'image'
 
     def __repr__(self) -> str:
         return f'{self.speaker}: {self.content}\nDelay: {self.delay}'
@@ -126,7 +152,11 @@ class Story:
         self.avatar: Dict[str, Avatar] = {}
         self.property: Dict[str, int] = {}
         self.global_property: Dict[str, int] = {}
+        self.used_images: List[str] = []
+        # self.image_dialog: List[str] = []
         self.start_unit: str = None
+        self.avatar_dir = ''
+        self.image_dir = ''
 
     def add_story_unit(self, story_unit: StoryUnit):
         self.story[story_unit.key] = story_unit
@@ -142,7 +172,7 @@ class Story:
             global_properties: Dict = story_yaml['global']
             story_units: Dict = story_yaml['act']
         except KeyError as e:
-            raise ParseStoryException('story yaml is not valid, error: {e}')
+            raise ParseStoryException(f'story yaml is not valid, error: {e}')
         for avatar_key, avatar_value in avatars.items():
             try:
                 avatar = Avatar(
@@ -150,23 +180,25 @@ class Story:
                 self.add_avatar(avatar)
             except KeyError:
                 raise ParseStoryException(f'avatar {avatar_key} is not valid')
-        for property_key, property_value in properties.items():
-            try:
-                self.property[property_key] = int(property_value)
-            except ValueError:
-                raise ParseStoryException(
-                    f'property {property_key} is not valid')
-        for global_key, global_value in global_properties.items():
-            try:
-                self.global_property[global_key] = int(global_value)
-            except ValueError:
-                raise ParseStoryException(
-                    f'global property {global_key} is not valid')
+        if properties and len(properties) > 0:
+            for property_key, property_value in properties.items():
+                try:
+                    self.property[property_key] = int(property_value)
+                except ValueError:
+                    raise ParseStoryException(
+                        f'property {property_key} is not valid')
+        if global_properties and len(global_properties) > 0:
+            for global_key, global_value in global_properties.items():
+                try:
+                    self.global_property[global_key] = int(global_value)
+                except ValueError:
+                    raise ParseStoryException(
+                        f'global property {global_key} is not valid')
         try:
             for act_key, act_value in story_units.items():
                 try:
                     story_unit = StoryUnit(
-                        act_key, act_value['default'], act_value.get('end', False))
+                        act_key, act_value.get('default', None), act_value.get('end', False))
                 except KeyError:
                     raise ParseStoryException(
                         f'act {act_key} default next is not defined')
@@ -187,8 +219,17 @@ class Story:
                             f'avatar {member} in act {act_key} is not defined')
                 for dialog in act_value['dialog']:
                     try:
-                        story_unit.add_dialog(SingleDialog(
-                            dialog['speaker'], dialog['content'], dialog['delay']))
+                        if 'content' in dialog and dialog['content']:
+                            story_unit.add_dialog(TextDialog(
+                                dialog['speaker'], dialog['content'], dialog['delay']))
+                        elif 'image' in dialog and dialog['image']:
+                            story_unit.add_dialog(ImageDialog(
+                                dialog['speaker'], dialog['image'], dialog['delay']))
+                            self.used_images.append(dialog['image'])
+                            # self.image_dialog.append(dialog['image'])
+                        else:
+                            raise ParseStoryException(
+                                f'dialog in act {act_key} is not valid')
                     except KeyError:
                         raise ParseStoryException(
                             f'dialog in act {act_key} is not valid')
@@ -237,6 +278,28 @@ class Story:
         if self.start_unit not in self.story:
             raise ParseStoryException(
                 f'start unit {self.start_unit} is not any unit')
+        self.image_dir = story_yaml.get('image_dir', '')
+        self.avatar_dir = story_yaml.get('avatar_dir', '')
+        # 这里只处理member而不处理image的原因是在service里还得建立image到url的映射
+        for member in self.avatar.values():
+            member.image = os.path.join(self.avatar_dir, member.image)
+        if story_yaml.get('file_validate', False):
+            ret = self.file_validate()
+            if ret:
+                raise ParseStoryException(
+                    f'story file validate failed on {ret}, please check your file path')
+    
+    def file_validate(self) -> str | None:
+        for member in self.avatar.values():
+            if not os.path.isfile(member.image):
+                return member.image
+        for image in self.used_images:
+            if not os.path.isfile(os.path.join(self.image_dir, image)):
+                return os.path.join(self.image_dir, image)
+        return None
+    
+    def get_full_image_path(self, image: str) -> str:
+        return os.path.join(self.image_dir, image)
     
     def get_init_value(self) -> (Dict[str, int], Dict[str, int]):
         return deepcopy(self.property), deepcopy(self.global_property)
@@ -253,7 +316,7 @@ class Story:
 
 def parse_story(path: str) -> Story:
     story_map = None
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         story_map = yaml.load(f)
     story = Story()
     story.parse_yaml(story_map)
