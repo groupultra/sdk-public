@@ -4,7 +4,7 @@
         "name": "features",
         "load": true,
         "clear": false,
-        
+
         "settings": {
             "root_dir": "json_db"
         }
@@ -15,7 +15,7 @@
         "load": true,
         "clear": true,
         "name": "real_characters",
-        
+
         "settings": {
             "root_dir": "json_db"
         }
@@ -26,7 +26,7 @@
         "load": true,
         "clear": false,
         "name": "virtual_characters",
-        
+
         "settings": {
             "root_dir": "json_db"
         }
@@ -37,7 +37,7 @@
         "load": true,
         "clear": false,
         "name": "states",
-        
+
         "settings": {
             "root_dir": "json_db"
         }
@@ -51,6 +51,19 @@
 
         "settings": {
             "root_dir": "json_db"
+        }
+    },
+
+    {
+        "implementation": "redis",
+        "load": true,
+        "clear": false,
+        "name": "currency",
+
+        "settings": {
+            "root_dir": "json_db",
+            "host":"localhost",
+            "port":8984
         }
     }
 ]

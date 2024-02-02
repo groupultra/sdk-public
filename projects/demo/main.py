@@ -4,40 +4,76 @@ import asyncio
 import sys
 
 from service import DemoService
+from agent import DemoAgent
 from moobius import MoobiusWand
 
 from loguru import logger
 
 if __name__ == "__main__":
     wand = MoobiusWand()
-    
+
     handle = wand.run(
         DemoService,
-        service_config_path="config/service.json",
+        config_path="config/service.json",
         db_config_path="config/db.json",
+        is_agent=False, # It defaults to False anyway.
         background=True
     )
 
+    agent_handle = wand.run(
+        DemoAgent,
+        log_file="logs/agent.log",
+        error_log_file="logs/error.log",
+        config_path="config/agent.json",
+        db_config_path="config/agent_db.json",
+        is_agent=True,
+        background=True)
+
+    # service on_spell
+    #wand.spell(handle, "meow")
+    #wand.spell(handle, "nya")
+
+    #asyncio.run(asyncio.sleep(3))
+    # agent on_spell
+    #wand.spell(agent_handle, "send_fetch_userlist")
+    #wand.spell(agent_handle, "send_fetch_features")
+
+    #wand.spell(agent_handle, "nya_all")
+
+    #asyncio.run(asyncio.sleep(3))
+
+    #wand.spell(agent_handle, "send_fetch_playground")
+
+    #wand.spell(agent_handle, "send_fetch_channel_info")
+    #wand.spell(agent_handle, "send_feature_call_key1")
+    #wand.spell(agent_handle, "send_feature_call_key2")
+
+    #asyncio.run(asyncio.sleep(3))
+    #wand.spell(agent_handle, "send_leave_channel")
+    #asyncio.run(asyncio.sleep(3))
+
+    #wand.spell(agent_handle, "send_join_channel")
+
     # ======================= Code below are only for test purposes! =========================
     # ======================= And a DEMO for wand spells =====================================
-    
     # use `python main.py test` to run the test
     # use `python main.py` to run the service without test
 
-    @logger.catch
+
     def test_spell(word='SYNC', repeat=10, interval=1):
         for i in range(repeat):
             wand.spell(handle, (word, i + 1))
             time.sleep(interval)
 
-    @logger.catch
+
     async def test_aspell(word='ASYNC', repeat=10, interval=1):
         for i in range(repeat):
             await wand.aspell(handle, (word, i + 1))
             await asyncio.sleep(interval)
-    
+
+
     if len(sys.argv) >= 2 and sys.argv[1] == 'test':
-        logger.info("Test will start in 5 seconds...")
+        logger.info("Test will start in 10 seconds...")
         time.sleep(10)
         test_spell('SYNC TEST! ', 5, 1)           # Sync spell
         asyncio.run(test_aspell('ASYNC TEST! ', 5, 1))         # Async spell

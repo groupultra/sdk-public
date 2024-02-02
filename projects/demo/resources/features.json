@@ -2,7 +2,7 @@
     {
         "feature_id": "key1",
         "feature_name": "magic",
-        "button_text": "Do Some Magic",
+        "button_text": "Do Magic",
         "new_window": true,
         "arguments": [
             {
@@ -19,6 +19,43 @@
         "feature_id": "key2",
         "feature_name": "stage",
         "button_text": "Swap Stage",
+        "new_window": false
+    },
+
+    {
+        "feature_id": "key3",
+        "feature_name": "money stuff",
+        "button_text": "Paycheck",
+        "new_window": true,
+        "arguments": [
+            {
+                "name": "currency_type",
+                "type": "enum",
+                "optional": false,
+                "values": ["(Print Savings)", "(Donate all)", "Naira", "Dollar", "Peso", "Yuan", "Euro", "Kina", "Penguin"],
+                "placeholder": "Select currency"
+            }
+        ]
+    },
+    {
+        "feature_id": "key4",
+        "feature_name": "bandy choice",
+        "button_text": "Band!",
+        "new_window": true,
+        "arguments": [
+            {
+                "name": "Select option",
+                "type": "enum",
+                "optional": false,
+                "values": ["New band", "Ping Bands", "Reset extra bands"],
+                "placeholder": "(choose))"
+            }
+        ]
+    },
+    {
+        "feature_id": "key5",
+        "feature_name": "Show Commands",
+        "button_text": "Commands",
         "new_window": false
     }
 ]

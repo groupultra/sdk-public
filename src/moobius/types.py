@@ -1,10 +1,28 @@
-# _types.py
+# Common dataclasses.
+#  TODO: use of types is inconsistent between dicts and the actual dataclasses.
 
+import dataclasses
 from dataclasses import dataclass
 from typing import Optional, Any
 
 
+def add_str_method(cls):
+  #Example from https://stackoverflow.com/questions/71344648/how-to-define-str-for-dataclass-that-omits-default-values
+  def __str__(self):
+    """Returns a string containing only the non-default field values."""
+    s = ', '.join(f'{field.name}={getattr(self, field.name)}'
+                  for field in dataclasses.fields(self)
+                  if getattr(self, field.name) != field.default)
+    ty = 'moobius.'+type(self).__name__.split('.')[-1]
+    return f'{ty}({s})'
+
+  setattr(cls, '__str__', __str__)
+  setattr(cls, '__repr__', __str__)
+  return cls
+
+
 @dataclass
+@add_str_method
 class FeatureArgument:
     name: str
     type: str
@@ -14,6 +32,7 @@ class FeatureArgument:
 
 
 @dataclass
+@add_str_method
 class Feature:
     feature_id: str
     feature_name: str
@@ -23,12 +42,14 @@ class Feature:
 
 
 @dataclass
+@add_str_method
 class FeatureCallArgument:
     name: str
     value: str | int
 
 
 @dataclass
+@add_str_method
 class FeatureCall:
     feature_id: str
     channel_id: str
@@ -38,12 +59,14 @@ class FeatureCall:
 
 
 @dataclass
+@add_str_method
 class Stage:
     stage_id: str
     stage_args: dict
 
 
 @dataclass
+@add_str_method
 class View:
     character_ids: list[str]
     feature_ids: list[str]
@@ -51,20 +74,23 @@ class View:
 
 
 @dataclass
+@add_str_method
 class Group:
     group_id: str
     character_ids: list[str]
 
 
 @dataclass
+@add_str_method
 class MessageContext:
     sender: str
-    recipients: list[str]  # todo: remove this field
-    group_id: Optional[str]  # todo: remove Optional
+    recipients: list[str]  # TODO: remove this field
+    group_id: Optional[str]  # TODO: remove Optional
 
 
 @dataclass
-class MessageBody:  # todo: MessageBody for one message class.
+@add_str_method
+class MessageBody:
     subtype: str
     channel_id: str
     content: dict
@@ -76,6 +102,7 @@ class MessageBody:  # todo: MessageBody for one message class.
 
 
 @dataclass
+@add_str_method
 class Action:
     subtype: str
     channel_id: str
@@ -84,14 +111,15 @@ class Action:
 
 
 @dataclass
+@add_str_method
 class ChannelInfo:
     channel_id: str
     channel_name: str
     context: dict
 
 
-# test 3
 @dataclass
+@add_str_method
 class Copy:
     request_id: str
     origin_type: str
@@ -100,6 +128,7 @@ class Copy:
 
 
 @dataclass
+@add_str_method
 class Payload:
     type: str
     request_id: Optional[str]
@@ -108,6 +137,7 @@ class Payload:
 
 
 @dataclass
+@add_str_method
 class CharacterContext:
     nickname: str
     description: str
@@ -115,6 +145,7 @@ class CharacterContext:
 
 
 @dataclass
+@add_str_method
 class Character:
     user_id: str | None
     username: str | None

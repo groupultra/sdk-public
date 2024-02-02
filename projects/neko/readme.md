@@ -1,1 +1,0 @@
-This is the source code of a simple demo service. Most of its elements are carefully moved into the Demo Service, and it is here for legacy reasons.
