@@ -3,8 +3,9 @@
 from .database_interface import DatabaseInterface
 from loguru import logger
 
+
 class NullDatabase(DatabaseInterface):
-    '''Null database does not store anything and always returns (True, "") or (True, None).'''
+    """The NullDatabase is like /dev/null. Gets returns (True, None) and sets/deletes return (True, "")."""
     def __init__(self, domain='', **kwargs):
         super().__init__(domain=domain, **kwargs)
 

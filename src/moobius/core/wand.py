@@ -8,32 +8,17 @@ import signal
 import os
 
 class MoobiusWand:
-    '''
+    """
     MoobiusWand is a class that starts and manages services.
     It can also be used to send messages to a service using the spell() function or the async aspell() function.
     To use this class, you need to specify the service config in the config file.
+    """
 
-    Functions:
-        run(): Run a service.
-        spell(): Send a message to a service.
-        aspell(): Async version of spell().
-    '''
     def __init__(self):
-        '''
-        Initialize a MoobiusWand object.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-
-        Example:
-            >>> wand = MoobiusWand()
-        '''
+        """Initialize an "empty" MoobiusWand object."""
         self.services = {}
         self.processes = {}
-        self.current_service_handle = 0     # todo: use handle to terminate or restart a service
+        self.current_service_handle = 0     # TODO: use handle to terminate or restart a service
         signal.signal(signal.SIGINT, self.stop)
 
     @staticmethod
@@ -41,29 +26,24 @@ class MoobiusWand:
         asyncio.run(service.start())
 
     def run(self, cls, background=False, **kwargs):
-        '''
-        Run a service.
+        """
+        Starts a service or agent.
 
         Parameters:
-            cls: class
-                The class of the service.
-            background: bool
-                Whether to run the service in the background.
-            kwargs: dict
-                The parameters of the service.
+          cls (Class object). A subclass of the SDK class but NOT an instance.
+          background=False: If True run on another Process instead of creating an infinite loop.
+          **kwargs: These are passed to the constructor of cls.
 
-        Returns:
-            None
+        No return value.
 
         Example:
-            >>> wand = MoobiusWand()
-            >>> handle = wand.run(
-            >>>     CicadaService,
-            >>>     service_config_path="config/service.json",
-            >>>     db_config_path="config/db.json",
-            >>>     background=True
-            >>> )
-        '''
+          >>> wand = MoobiusWand()
+          >>> handle = wand.run(
+          >>>     CicadaService,
+          >>>     service_config_path="config/service.json",
+          >>>     db_config_path="config/db.json",
+          >>>     background=True)
+        """
         service = cls(**kwargs)
 
         if background:
@@ -81,38 +61,33 @@ class MoobiusWand:
             asyncio.run(service.start())
 
     def stop(self, signum, frame):
-        '''Stops all processes using the_process.kill()
+        """Stops all processes using the_process.kill()
            Also stops asyncio's event loop.
-
-           TODO: Unused arguments sgnum and frame. Maybe renamining this to stop_all()?'''
+           TODO: Unused arguments sgnum and frame. Maybe renamining this to stop_all()?"""
         for _process in self.processes.values():
             _process.kill()
             logger.info(f"Service {_process.name} terminated")
         asyncio.get_event_loop().stop()
 
     def spell(self, handle, obj):
-        '''
+        """
         Send a message to a service.
 
         Parameters:
-            handle: int
-                The handle of the service, created by the run() function.
-            obj: object
-                The message to be sent.
+          handle (int): The handle of the service created by the run() function.
+          obj (anything picklable): The message to be sent.
 
-        Returns:
-            None
+        No return value
 
         Example:
-            >>> wand = MoobiusWand()
-            >>> handle = wand.run(
-            >>>     CicadaService,
-            >>>     service_config_path="config/service.json",
-            >>>     db_config_path="config/db.json",
-            >>>     background=True
-            >>> )
-            >>> wand.spell(handle=handle, obj=MessageDown(msg_type="test", context={"sender": "1", "recipients": ["2"]}))
-        '''
+          >>> wand = MoobiusWand()
+          >>> handle = wand.run(
+          >>>     CicadaService,
+          >>>     service_config_path="config/service.json",
+          >>>     db_config_path="config/db.json",
+          >>>     background=True)
+          >>> wand.spell(handle=handle, obj=MessageDown(msg_type="test", context={"sender": "1", "recipients": ["2"]}))
+        """
         if handle in self.services:
             try:
                 self.services[handle].queue.put(obj)
@@ -122,28 +97,7 @@ class MoobiusWand:
             logger.error(f"Service handle {handle} not found")
 
     async def aspell(self, handle, obj):
-        '''
-        Async version of spell().
-
-        Parameters:
-            handle: int
-                The handle of the service, created by the run() function.
-            obj: object
-                The message to be sent.
-
-        Returns:
-            None
-
-        Example:
-            >>> wand = MoobiusWand()
-            >>> handle = wand.run(
-            >>>     CicadaService,
-            >>>     service_config_path="config/service.json",
-            >>>     db_config_path="config/db.json",
-            >>>     background=True
-            >>> )
-            >>> await wand.aspell(handle=handle, obj=MessageDown(msg_type="test", context={"sender": "1", "recipients": ["2"]}))
-        '''
+        """Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = self.services[handle].queue."""
         if handle in self.services:
             try:
                 await self.services[handle].queue.coro_put(obj)

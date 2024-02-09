@@ -10,6 +10,23 @@ from moobius import MoobiusWand
 from loguru import logger
 
 if __name__ == "__main__":
+    test_json_encode = False
+    if test_json_encode:
+        import json, dataclasses
+        from moobius import types
+        from moobius.utils import EnhancedJSONEncoder
+        msg = types.MessageBody(subtype="A subtype", channel_id="e4-123", content={'a':1,'b':2}, timestamp=123,
+                                recipients=['id_1', 'id_2'], sender='Sender_id 1234', msg_id='<random id>', context={})
+        msgj = json.dumps(msg, cls=EnhancedJSONEncoder)
+        msg1 = json.loads(msgj)
+        print('Object:', msg)
+        print('Object dict:', dataclasses.asdict(msg))
+        print('JSON:', msgj)
+        print('Object1:', msg1)
+        x = input('Simple test done, press enter to continue or q to quit.')
+        if x and x.lower()=='q':
+            quit()
+
     wand = MoobiusWand()
 
     handle = wand.run(

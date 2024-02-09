@@ -19,26 +19,25 @@ from .database_interface import DatabaseInterface
 class JSONDatabase(DatabaseInterface):
     # key: name of the database json file
     # file content: {key: value}
-    '''
+    """
     JSONDatabase simply stores information as JSON strings in a list of files.
-    '''
+    """
     def __init__(self, domain='', root_dir='', **kwargs):
-        '''
+        """
         Initialize a JSONDatabase object.
 
         Parameters:
-            domain: str
-                The name of the database directory. Will be automatically added in the add_container() function in MoobiusStorage.
-            root_dir: str
-                The root directory of the all the database files.
+          domain: str
+            The name of the database directory. Will be automatically added in the add_container() function in MoobiusStorage.
+          root_dir: str
+            The root directory of the all the database files.
 
-        Returns:
-            None
+        No return value.
 
         Example:
-            Note: This should not be called directly. Users should config the database in the config file, and call MoobiusStorage to initialize the database.
-            >>> database = JSONDatabase(domain='service_1.band_1', root_dir='data')
-        '''
+          Note: This should not be called directly. Users should config the database in the config file, and call MoobiusStorage to initialize the database.
+          >>> database = JSONDatabase(domain='service_1.band_1', root_dir='data')
+        """
 
         super().__init__()
 
@@ -48,26 +47,17 @@ class JSONDatabase(DatabaseInterface):
 
     @logger.catch
     def get_value(self, key):
-        '''
-        Get the value of a key.
-
-        Parameters:
-            key: str
-                Here key is the name of the json file.
-
-        Returns:
-            A tuple of (is_success, value) or (is_success, None)
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> is_success, value = database.get_value('character_1')
+        """
+        Gets the value (which is a dict) of a string-valued key. Returns (is_success, the_value).
+        Note: This function should not be called directly.
 
         Raises:
-            TypeError: If the type of the value is unknown, so we can't construct the object.
-        '''
+          TypeError: If the type of the value is unknown, so we can't construct the object.
+        """
         filename = os.path.join(self.path, key + '.json')
-        logger.debug(f'Loading {filename}')
 
+        if not os.path.exists(filename):
+            return False, f'No json file found for {key}.'
         with open(filename, 'r') as f:
             data = json.load(f)
 
@@ -82,31 +72,17 @@ class JSONDatabase(DatabaseInterface):
 
                 else:   # possible built-in type, attempt to construct the object from the value
                     data_type = locate(class_name)
-                    
+
                     if data_type:
                         return True, data_type(data[key])
-                        
+
                     else:
                         raise TypeError(f'Unknown type: {class_name}')
 
     @logger.catch
-    def set_value(self, key, value):    # the value has to be dict!
-        '''
-        Set the value of a key. Here key is the name of the json file.
-
-        Parameters:
-            key: str
-                Here key is the name of the json file, not the key inside the json file.
-            value: dict
-                Content of the json file, in dict format.
-
-        Returns:
-            A tuple of (is_success, key)
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> is_success, key = database.set_value('character_1', {'name': 'Alice', 'age': 18})
-        '''
+    def set_value(self, key, value):
+        """Set the value (a dict) of a key (a string). Returns (is_success, the_key).
+           Note: This function should not be called directly."""
         filename = os.path.join(self.path, key + '.json')
 
         with open(filename, 'w') as f:
@@ -116,20 +92,8 @@ class JSONDatabase(DatabaseInterface):
 
     @logger.catch
     def delete_key(self, key):
-        '''
-        Delete a key.
-
-        Parameters:
-            key: str
-                Here key is the name of the json file, not the key inside the json file.
-
-        Returns:
-            A tuple of (is_success, key)
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> is_success, key = database.delete_key('character_1')
-        '''
+        """Delete a (string-valued) key. Returns (is_success, key)
+           Note: This function should not be called directly."""
         filename = os.path.join(self.path, key + '.json')
         os.remove(filename)
 
@@ -137,27 +101,13 @@ class JSONDatabase(DatabaseInterface):
 
     @logger.catch
     def all_keys(self):
-        '''
-        Get all keys in the database, return an iterable.
-
-        Parameters:
-            None
-
-        Returns:
-            An iterable of all keys
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> for key in self.database.all_keys():
-            >>>     logger.info(key)
-        '''
+        """Gets all keys in the database. Returns an iterable which internally uses yield()."""
         def key_iterator():
             for filename in os.listdir(self.path):
                 if filename.endswith('.json'):
                     yield filename[:-5]
                 else:
                     continue
-
         return key_iterator()
 
     def __str__(self):

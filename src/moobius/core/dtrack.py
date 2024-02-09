@@ -19,19 +19,24 @@ if use_loguru:
 else:
     logger = None # No need to even have loguru installed if using this library
 
+
 def check_if_logio_i_fied():
-    with open(enclosing_folder+'/service.py','r', encoding='utf-8') as f_obj:
+    """Returns weather @dtrack.logios are enabled by checking the wand.py file."""
+    with open(enclosing_folder+'/wand.py','r', encoding='utf-8') as f_obj:
         txt = f_obj.read()
     return '@dtrack.logio' in txt
 
+
 def errorfree_str(x):
-    '''Attempts repr(x) and catches any errors thrown by i.e. custom __repr__ methods.'''
+    """Returns an attempted repr(x), catching and str()-ing errors thrown by i.e. custom __repr__ methods."""
     try:
         return repr(x)
     except Exception as e:
         return str(type(x))+'(exception in objects __str__ method: '+str(e)+')'
 
-def _convert_http_response(response):
+
+def _convert_http_response(response): # TODO: support both requests and aiohttp.
+    """Returns the response-as-str or an error code."""
     if type(response) is not requests.models.Response:
         return response # Not sure if this will ever happen, but just in case.
     status_code = response.status_code
@@ -43,7 +48,7 @@ def _convert_http_response(response):
 ############# Classes ###############
 
 class Fcall:
-    '''Information about a single function call'''
+    """Function call class that holds information about a single function call."""
     def __init__(self, is_async, sym_qual, argnames, args, kwargs, f_output):
         self.pid = os.getpid()
         self.thread_id = threading.get_ident()
@@ -56,6 +61,7 @@ class Fcall:
         self.f_output = f_output
 
     def get_report(self):
+        """Returns a pretty-printed string representation."""
         #Based on https://www.geeksforgeeks.org/python-get-function-signature/
         async_ness = 'async ' if self.is_async else ''
         txt = 'FUNCTIONCALL: '+async_ness+self.sym_qual+ "("
@@ -74,8 +80,9 @@ class Fcall:
     def __repr__(self):
         return self.get_report()
 
+
 class LogStore:
-    '''Thread-safe log storage. Note: (I think) each process spawned gets it's own LogStore'''
+    """Thread-safe log storage. Note: (I think) each process spawned gets it's own LogStore"""
     def __init__(self):
         self.fcalls = {} # Dict from qualified symbol to function call.
         self.fcall_list = [] # Chronological.
@@ -93,6 +100,20 @@ class LogStore:
         self.disk_save_thread.start()
 
     def add_fcall(self, is_async, sym_qual, argnames, args, kwargs, f_output):
+        """
+        Adds a single function call to the storage. Thread-safe like all operations
+
+        Parameters:
+          is_async (bool): If the function is async.
+          sym_qual (str): The name of the function and any enclosing modules.
+            Example: "module_name.Class_name.method_name"
+          argnames (list): The name of each argument.
+          kwargs (dict): The kv-pair passed to the function.
+            Example: (a=1, b=2) => {'a':1, 'b':2}
+          f_output: The functions output.
+
+        Returns None
+        """
         fcall = Fcall(is_async, sym_qual, argnames, args, kwargs, f_output)
         with self.lock:
             self.fcalls[sym_qual] = self.fcalls.get(sym_qual, [])
@@ -117,28 +138,33 @@ class LogStore:
                 print(f'WARNING: debug_on_fcall is set and raises an error, {e}')
 
     def filter_txt(self, log_txt):
+        """Removes a specific "spam-test" in Moobius demo."""
         for k in [65536, 8192, 1024, 128, 16]:
             log_txt = log_txt.replace('BOMB'*k,f'BOMB*{k}') # Stress test of large packet sizes.
         return log_txt
 
     def clear_logs(self): # This is also called by the file_save_loop if there is a log_file specified.
-        self.fcalls = {}; self.fcall_list = []
-        self.GET_calls = []; self.POST_calls = []; self.errors = []; self.other_logs = []
+        """Empties the entire storage."""
+        with self.lock:
+            self.fcalls = {}; self.fcall_list = []
+            self.GET_calls = []; self.POST_calls = []; self.errors = []; self.other_logs = []
 
     def add_log_entry(self, x):
+        """Adds and (optionally) prints a log that is not related to a specific function call. Much like loguru.info()"""
         with self.lock:
             self.other_logs.append(x)
         if self.print_others:
             print(errorfree_str(x)); sys.stdout.flush()
 
     def add_error(self, x):
+        """Adds a special high-alert log message. Does not throw an exception. Much like loguru.error()"""
         with self.lock:
             self.errors.append(x)
         if self.print_errors:
             print('ERROR:', errorfree_str(x)); sys.stdout.flush()
 
     def file_save_loop(self):
-        '''Save logs to disk, clearning them from this file.'''
+        """Save logs to disk, clearning them from this file."""
         def _get_log_txt(self, highlev_only):
             append_lines = []
             try:
@@ -179,11 +205,13 @@ class LogStore:
             time.sleep(4)
 
     def add_GET_call(self, url, response, **kwargs):
+        """Stores a get call given a url, response, and the .get()'s **kwargs. Optionally prints it."""
         response = _convert_http_response(response)
         self.GET_calls.append({**kwargs, **{'url':url, 'response':response}})
         if self.print_api:
             print('APIGET:',self.GET_calls[-1])
     def add_POST_call(self, url, response, **kwargs):
+        """Same as add_GET_call but for POST."""
         response = _convert_http_response(response)
         self.POST_calls.append({**kwargs, **{'url':url, 'response':response}})
         if self.print_api:
@@ -197,6 +225,7 @@ class LogStore:
 ############### Core logging API ################
 
 def add_logfile(disk_file, *args, **kwargs):
+    """Adds a log file given a disk_file string and "level" kwarg. Pass in disk_file=None to instead clear all disk_files."""
     if disk_file:
         high_alert_only = False
         lev = str(kwargs.get('level','info')).lower().strip()
@@ -211,8 +240,21 @@ def add_logfile(disk_file, *args, **kwargs):
         main_logstore.disk_files = []
         print('All logfiles disabled')
 
+
 def _log_core(func, args, kwargs, out, is_async):
-    '''Logs a function given its inputs and outputs.'''
+    """
+    Logs a function given its inputs and outputs, returning the function output.
+
+    Parameters:
+      func (callable): The function object.
+      args (list): Positional arguments to said function.
+      kwargs (dict): key-value args to said function.
+      out: The output of the function.
+      is_async (bool): If the function is a coroutine.
+        coroutines are logged twice, with a <Begin await> output and then the actual output.
+
+    Returns: the "out" param it is given (this isn't generally used).
+    """
     fname = '(unknown fn name)'
     argnames = ['(unknown argname)']*len(args)
     mname = '(unknown module name)'
@@ -229,7 +271,9 @@ def _log_core(func, args, kwargs, out, is_async):
     main_logstore.add_fcall(is_async, sym_qual, argnames, args, kwargs, out)
     return out
 
-def logio(func): # Log i/o decorator.
+
+def logio(func):
+    """Log i/o decorator that takes in a function and returns a function which behaves the same except that it logs it's inputs and outputs."""
     if inspect.iscoroutinefunction(func):
         async def logio_wrapped_function(*args, **kwargs):
             _log_core(func, args, kwargs, '<Begin await>', True)
@@ -248,34 +292,39 @@ def logio(func): # Log i/o decorator.
     functools.update_wrapper(logio_wrapped_function, func) # Prevents pickling problems with multiprocessing.
     return logio_wrapped_function
 
-def log_info(*args):
-    if len(args)==1:
-        args = args[0]
-    main_logstore.add_log_entry(args)
 
 def log_info_color(*args):
     # TODO: colors!
     if len(args)==1:
         args = args[0]
     main_logstore.add_log_entry(args)
-
 def log_debug(*args):
+    """Drop-in replacement for loguru.debug()"""
     log_info(*(['(debug)']+list(args)))
-
+def log_info(*args):
+    """Drop-in replacement for loguru.info()"""
+    if len(args)==1:
+        args = args[0]
+    main_logstore.add_log_entry(args)
 def log_warning(*args):
+    """Drop-in replacement for loguru.warning()"""
     log_info(*(['WARNING']+list(args)))
-
 def log_error(*args):
+    """Drop-in replacement for loguru.error()"""
     txt = ', '.join([errorfree_str(a) for a in args])
     main_logstore.add_error(txt)
 
+
 def log_get_call(url, response, **kwargs):
+    """Logs a get call given a url, reponse, and any kwargs passed to .get() to the main_logstore singleton object."""
     main_logstore.add_GET_call(url, response, **kwargs)
 def log_post_call(url, response, **kwargs):
+    """log_get_call but POST instead of GET."""
     main_logstore.add_POST_call(url, response, **kwargs)
 
+
 def recent_calls(n=8):
-    '''Returns up to n recent Fcall objects in chronolgical order. But for this process only.'''
+    """Returns up to n recent Fcall objects in chronolgical order. But for this process only."""
     with main_logstore.lock:
         clist = main_logstore.fcall_list
         if len(clist)<=n:
@@ -285,7 +334,7 @@ def recent_calls(n=8):
 ############# Enable/disable per-function logging mode ###############
 
 def _decorator_update(txt,f):
-    '''Applies f(decorator lines, def_line) => decorator lines to each def. Returns the modified txt.'''
+    """Applies f(decorator lines, def_line) => decorator lines to each def. Returns the modified txt."""
     def _is_def_line(the_line):
         return the_line.strip().replace('async def ','def ').startswith('def ') and ':' in the_line
     def _is_class_line(the_line):
@@ -317,9 +366,10 @@ def _decorator_update(txt,f):
     lines1.extend(local_dec_lines); local_dec_lines = []
     return '\n'.join(lines1)
 
+
 def set_to_dtrack_or_loguru(txt, is_to_dtrack):
-    '''Sets the source code *txt* to use dtrack's logger system instead of loguru OR the reverse of this, if *is_to_dtrack*=False.
-       Modify main_logstore.print_fcalls, etc to change what is printed to console.'''
+    """Sets the source code *txt* to use dtrack's logger system instead of loguru OR the reverse of this, if *is_to_dtrack*=False.
+       Modify main_logstore.print_fcalls, etc to change what is printed to console."""
     import_txt = 'import moobius.core.dtrack as dtrack\n'
     import_txt1 = 'from loguru import logger'
     if import_txt not in txt and is_to_dtrack:
@@ -374,8 +424,10 @@ def set_to_dtrack_or_loguru(txt, is_to_dtrack):
         txt1 = txt1.replace(pair[0], pair[1])
     return txt1
 
+
 def checked_modification(to_dtrack):
-    '''Extra care is taken to ensure modifications are reversable.'''
+    """Modifies ALL files to use or not use dtrack.
+       When modifying files to use dtrack, an exception is thrown and NO files are modified unless ALL modifications are reversable."""
     src_root = os.path.realpath(enclosing_folder+'/../../..').replace('\\','/')
     print(f'dtrack enable={to_dtrack} applied to all .py files recursivly in {src_root}')
     def show_difference(str1, str2, diff_msg):
@@ -474,7 +526,7 @@ def checked_modification(to_dtrack):
 ############### Delete logs or databases if they get too big #############
 
 def delete_all_logs():
-    '''Deletes all logs across all projects, both loguru and dtrack-based logs are deleted.'''
+    """Deletes all logs across all projects, both loguru and dtrack-based logs are deleted."""
     projects_folder = os.path.realpath(enclosing_folder+'/../../../projects').replace('\\','/')
     for project_folder in os.listdir(projects_folder):
         log_folder = (projects_folder+'/'+project_folder+'/logs')
@@ -486,8 +538,9 @@ def delete_all_logs():
                     print(f'  Deleting: {fnamefull}')
                     os.remove(fnamefull)
 
+
 def delete_all_databases(): # TODO: duplicate code with delete_all_logs.
-    '''Deletes all logs across all projects, both loguru and dtrack-based logs are deleted.'''
+    """Deletes all logs across all projects, both loguru and dtrack-based logs are deleted."""
     projects_folder = os.path.realpath(enclosing_folder+'/../../../projects').replace('\\','/')
     for project_folder in os.listdir(projects_folder):
         json_folder = (projects_folder+'/'+project_folder+'/json_db')

@@ -17,9 +17,7 @@ class DemoAgent(SDK):
 
     # todo: channels and channel_ids, unbind_first, write back channels
     async def on_start(self):
-        """
-        Called after successful connection to websocket server and agent login success.
-        """
+        """Called after successful connection to websocket server and agent login success. Launches join tasks."""
         # ==================== load features ====================
         logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
         logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
@@ -32,9 +30,7 @@ class DemoAgent(SDK):
         await asyncio.wait(join_tasks)
 
     async def on_msg_down(self, msg_down: MessageBody):
-        """
-        Handle the received message.
-        """
+        """Listen to messages the user sends and respond to them."""
         ch_id = msg_down.channel_id
         content = msg_down.content
         if not ch_id in self.bands:
@@ -45,6 +41,7 @@ class DemoAgent(SDK):
         if msg_down.context['sender'] == self.client_id:
             # avoid infinite loop
             return
+        will_log_out = False
         if msg_down.subtype == "text":
             if content['text'] == "nya":
                 content['text'] = "meow"
@@ -53,7 +50,21 @@ class DemoAgent(SDK):
                 await self.send_update_features(ch_id, feature_list, [msg_down.sender]) # TODO: can buttons be updated by agent?
             elif content['text'] == "meow":
                 content['text'] = "nya"
-
+            elif content['text'] == "log agent out":
+                content['text'] = "Agent logging out. Will not be usable until restart."
+                will_log_out = True
+            elif content['text'] == "agent info":
+                the_agent_id = self.client_id
+                agent_info1 = await self.fetch_user_profile(the_agent_id) # Should be equal to self.agent_info
+                content['text'] = f"Agent profile:\n{agent_info1}"
+            elif content['text'].strip().startswith("rename agent"):
+                new_name = content['text'].strip().replace("rename agent",'').strip()
+                the_agent_id = self.client_id
+                logger.info('About to update the agent\'s name!')
+                await self.update_real_user(user_id=the_agent_id, avatar="null", description='Agent got an updated name!', nickname=new_name)
+                content['text'] = "renamed the agent (refresh)!"
+            elif len(content['text']) > 160:
+                content['text'] = f'Long message len={len(content["text"])}.'
             content['text'] = f"agent repeat: {content['text']}"
 
         msg_down.timestamp = int(time.time() * 1000)
@@ -61,12 +72,14 @@ class DemoAgent(SDK):
         msg_down.recipients = recipients
 
         await self.send(payload_type='msg_up', payload_body=msg_down)
+        if will_log_out: # After the message is sent.
+            await self.sign_out()
 
     async def on_update_userlist(self, update):
         for user_id in update['userlist']:
             if type(user_id) is not str:
                 raise Exception('The userlist update should be a list of user_ids not users.') # Extra assert just to be sure the update is the list of user ids.
-            self.bands[update['channel_id']].characters[user_id] = self.http_api.fetch_user_profile(user_id)
+            self.bands[update['channel_id']].characters[user_id] = await self.fetch_user_profile(user_id)
 
     async def on_update_features(self, update):
         logger.info("agent_update_features", update['features'])
@@ -85,6 +98,7 @@ class DemoAgent(SDK):
         logger.info("agent_on_feature_call", feature_call)
 
     async def on_spell(self, text):
+        """The agent can be tested with spells which call the self.send_... functions."""
         # 7 Actions
         if text == "send_fetch_userlist":
             for channel_id in self.bands:

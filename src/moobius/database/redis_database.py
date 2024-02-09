@@ -1,11 +1,14 @@
 import json, redis
 from .database_interface import DatabaseInterface
+
+from moobius.utils import EnhancedJSONEncoder
 from loguru import logger
 
 autosave = False # Only set True for debugging, saving is O(N)!
 
+
 class RedisDatabase(DatabaseInterface):
-    '''The redis database make use of a redis.Redis(...) server set to localhost:6379 by default'''
+    """The redis database make use of a redis.Redis(...) server (Redis servers are set to localhost:6379 by default)."""
     def __init__(self, domain='', host="localhost", port=6379, db=0, password="", **kwargs):
         super().__init__(domain, **kwargs)
         logger.info(f'Redis initialized on {host} port {port}')
@@ -20,7 +23,7 @@ class RedisDatabase(DatabaseInterface):
 
     @logger.catch
     def set_value(self, key, value) -> (bool, any):
-        balue = json.dumps(value).encode()
+        balue = json.dumps(value, cls=EnhancedJSONEncoder).encode()
         self.redis.set(key, balue)
         if autosave:
             self.redis.save()

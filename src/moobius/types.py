@@ -1,5 +1,4 @@
 # Common dataclasses.
-#  TODO: use of types is inconsistent between dicts and the actual dataclasses.
 
 import dataclasses
 from dataclasses import dataclass
@@ -7,9 +6,10 @@ from typing import Optional, Any
 
 
 def add_str_method(cls):
+  """Decorator function to make __str__ return the following format:
+     "Foo(bar=1, baz='two', etc)"; only the non-default fields are included."""
   #Example from https://stackoverflow.com/questions/71344648/how-to-define-str-for-dataclass-that-omits-default-values
   def __str__(self):
-    """Returns a string containing only the non-default field values."""
     s = ', '.join(f'{field.name}={getattr(self, field.name)}'
                   for field in dataclasses.fields(self)
                   if getattr(self, field.name) != field.default)
@@ -38,7 +38,7 @@ class Feature:
     feature_name: str
     button_text: str
     new_window: bool
-    arguments: list[FeatureArgument] | None
+    arguments: Optional[list[FeatureArgument]]=None
 
 
 @dataclass

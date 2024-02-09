@@ -7,7 +7,7 @@ from loguru import logger
 
 
 def get_engine(implementation):
-    '''Only import the database engine that is needed.'''
+    """Only import the database engine that is needed. Returns a Class object given a string."""
 
     def _hit(matches):
         for m in matches:
@@ -31,88 +31,46 @@ def get_engine(implementation):
 
 
 class CachedDict(dict):
-    '''
-    CachedDict is a custom dictionary-like class that inherits from MutableMapping and the built-in dict class.
+    """
+    CachedDict is a custom dictionary-like class that inherits from the built-in dict class.
     The MagicalStorage class manages the creation of CachedDict instances with different attribute names, allowing users to cache and retrieve data in a structured way, with optional database interaction.
-    '''
+    """
 
     def __init__(self, database, strict_mode=False):
-        '''
+        """
         Initialize a CachedDict object.
 
         Parameters:
-            database: DatabaseInterface
-                The database to be used, currently supports JSONDatabase and NullDatabase.
-            strict_mode: bool
-                Whether to use strict mode. In strict mode, set value will raise exception if database save fails, but the value will still be set in the dict.
+          database (DatabaseInterface): The database to be used, currently supports JSONDatabase and NullDatabase.
+          strict_mode=False: Whether to use strict mode.
+            In strict mode, set value will raise exception if database save fails, but the value will still be set in the dict.
 
-        Returns:
-            None
+        No return value.
 
         Example:
-            Note: This should not be called directly. Users should call MoobiusStorage to initialize the database.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-        '''
+          Note: This should not be called directly. Users should call MoobiusStorage to initialize the database.
+          >>> cached_dict = CachedDict(database=database, strict_mode=True)
+        """
         super().__init__()
         self.database = database
         self.strict_mode = strict_mode  
 
     def load(self):
-        '''
-        Load all keys from the database to the cache.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-            >>> cached_dict.load()
-        '''
+        """Load all keys from the database to the cache. Returns None."""
         for key in self.database.all_keys():
             self.__getitem__(key)
 
     def save(self, key):
-        '''
-        Save a key to the database. For JSONDatabase, this will create a new json file named after the key.
-
-        Parameters:
-            key: str
-                The key to be saved.
-
-        Returns:
-            None
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-            >>> cached_dict.save('character_1')
-        '''
+        """Save a key to the database. given a string-valued key. Returns None.
+        For JSONDatabase, this will create a new json file named after the key."""
         self.__setitem__(key, self.__getitem__(key))
 
     def __getitem__(self, key):
-        '''
-        Override the __getitem__ method of the CachedDict class to support database interaction.
-        This function enables accessing elements using index notation and square brackets.
-
-        Parameters:
-            key: str
-                The key to be retrieved.
-
-        Returns:
-            The value of the key.
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-            >>> cached_dict['character_1']
-
-        Raises:
-            KeyError: If the key is not found in the database and strict_mode is True, this function will raise a KeyError.
-        '''
+        """
+        Override the __getitem__, __setitem__, and __delitem__ methods of the CachedDict class to support database interaction.
+        These methods are called when accessing elements using index notation and square brackets.
+        Raises a KeyError if strict_mode is True and the key is not found.
+        """
         if dict.__contains__(self, key):
             return dict.__getitem__(self, key)
         else:
@@ -125,28 +83,8 @@ class CachedDict(dict):
                 raise KeyError(f'Key {key} not found in database')
 
     def __setitem__(self, key, value):
-        '''
-        Override the __setitem__ method of the CachedDict class to support database interaction.
-        This function enables assigning elements using index notation and square brackets.
-
-        Parameters:
-            key: str
-                The key to be set.
-            value: dict
-                The value to be set. Should be a dict.
-
-        Returns:
-            None
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-            >>> cached_dict['character_1'] = {'name': 'Alice', 'age': 18}
-
-        Raises:
-            Exception: If the database save fails and strict_mode is True, this function will raise an exception about the failure.
-        '''
-
+        """Allows i.e. "my_cached_dict["foo"] = some_dict" to access the underlying database, much like __getitem__.
+           Raises an Exception if in strict_mode and the database cannot set the value for whatever reason."""
         is_success, err_msg = self.database.set_value(key, value)
 
         if is_success:
@@ -159,24 +97,8 @@ class CachedDict(dict):
                 dict.__setitem__(self, key, value)    
 
     def __delitem__(self, key):
-        '''
-        Enable deleting elements from CachedDict using index notation and square brackets.
-
-        Parameters:
-            key: str
-                The key to be deleted.
-
-        Returns:
-            None
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-            >>> del cached_dict['character_1']
-
-        Raises:
-            Exception: If the database delete fails and strict_mode is True, this function will raise an exception about the failure.
-        '''
+        """Allows i.e. "del my_cached_dict["foo"]" to access the underlying database, much like __getitem__.
+           Raises an Exception if in strict_mode and the database cannot delete the key for whatever reason (or does not have the key)."""
         is_success, err_msg = self.database.delete_key(key)
 
         if is_success:
@@ -188,59 +110,6 @@ class CachedDict(dict):
                 logger.error(f'Failed to delete key {key} from database: {err_msg}. Inconsistency may occur.')
                 dict.__delitem__(self,key)
 
-    def __iter__(self):
-        '''
-        Enable iteration over the CachedDict.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-            >>> for key in cached_dict:
-            >>>     logger.info(key)
-        '''
-        return dict.__iter__(self)
-
-    def __len__(self):
-        '''
-        Enable getting the length of the CachedDict.
-
-        Parameters:
-            None
-
-        Returns:
-            None
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-            >>> logger.info(len(cached_dict))
-        '''
-        return dict.__len__(self)
-
-    def __contains__(self, x):
-        '''
-        Enable checking if a key exists in the CachedDict.
-
-        Parameters:
-            x: str
-                The key to be checked.
-
-        Returns:
-            None
-
-        Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> cached_dict = CachedDict(database=database, strict_mode=True)
-            >>> logger.info('character_1' in cached_dict)
-        '''
-        return dict.__contains__(self, x)
-
     def __str__(self):
         return f'moobius.CachedDict({repr(dict)})'
     def __repr__(self):
@@ -248,45 +117,33 @@ class CachedDict(dict):
 
 
 class MoobiusStorage():
-    '''
+    """
     MoobiusStorage combines multiple databases into a single interface.
 
-    To use this class, you need to specify the database config in the config file.
-
-    The config file should be a list of dicts. The dict parameters are:
-        implementation: str
-            The type of the database.
-        load: bool
-            Whether to load the database when initializing the database.
-        clear: bool
-            Whether to clear the database when initializing the database.
-        name: str
-            The name of the json database.
-        settings: dict
-            root_dir: str
-                The root directory of the all the json files.
-    '''
+    The config file to specify this database should be a list of dicts. The dict parameters are:
+      implementation (str): The type of the database.
+      load (bool): Whether to load the database when initializing the database.
+      clear (bool): Whether to clear the database when initializing the database.
+      name (str): The name of the json database.
+      settings (dict): Misc settings such as Redis port, etc.
+      root_dir (str): The root directory of the all the json files.
+    """
     def __init__(self, service_id, band_id, db_config=()):
-        '''
+        """
         Initialize a MoobiusStorage object.
 
         Parameters:
-            service_id: str
-                The id of the service.
-            band_id: str
-                The id of the band.
-            db_config: list
-                The config of the databases, should be a list of config dicts.
-                  Each dict's 'implemetation' selects the engine. (TODO? use the field 'engine' instead of 'implementation'?)
-                  'settings' gives settings such as Redis port etc.
+          service_id (str): The id of the service.
+          band_id (str): The id of the band.
+          db_config(list): The config of the databases, should be a list of config dicts.
+            Each dict's 'implemetation' selects the engine. (TODO? use the field 'engine' instead of 'implementation'?)
 
-        Returns:
-            None
+        No return value.
 
         Example:
-            >>> storage = MoobiusStorage(service_id='1', band_id='1', db_config=[{'implementation': 'json', 'load': True, 'clear': False, 'name': 'character', 'settings': {'root_dir': 'data'}}])
-            >>> storage.get('character').set_value('1', {'name': 'Alice'})
-        '''
+          >>> storage = MoobiusStorage(service_id='1', band_id='1', db_config=[{'implementation': 'json', 'load': True, 'clear': False, 'name': 'character', 'settings': {'root_dir': 'data'}}])
+          >>> storage.get('character').set_value('1', {'name': 'Alice'})
+        """
         super().__init__()
 
         self.service_id = service_id
@@ -296,7 +153,8 @@ class MoobiusStorage():
             self.add_container(**config)
 
     def put(self, attr_name, database, load=True, clear=False):
-        '''Sets self.attr_name to the storage for later retrieval.'''
+        """Sets self.attr_name to database (a DatabaseInterface object) for later retrieval.
+           load (default True) to load the dict, clear (default False) to clear the dict and skip loading it."""
         if attr_name in self.__dict__:
             raise Exception('Domain {n} already exists'.format(n=attr_name))
         else:
@@ -313,30 +171,23 @@ class MoobiusStorage():
 
     @logger.catch
     def add_container(self, implementation, settings, name, load=True, clear=False):
-        '''
+        """
         Add a database using the config dict.
 
         Parameters:
-            implementation: str
-                The type of the database.
-            settings: dict
-                root_dir: str
-                    The root directory of the all the json files.
-            name: str
-                The name of the json database.
-            load=True: bool
-                Whether to load the database when initializing the database.
-            clear=False: bool
-                Whether to clear the database when initializing the database.
+          implementation (str): The engine of the database.
+          settings (dict): Contains "root_dir" of the json files, for example
+          name (str): The attribute that will be added to self for later use.
+          load=True: Whether to load the database when initializing the database.
+          clear=False: Whether to clear the database when initializing the database.
 
-        Returns:
-            None
+        No return value.
 
         Example:
-            Note: This is a hidden function, you don't need to call it directly.
-            >>> storage = MoobiusStorage(service_id='1', band_id='1')
-            >>> storage.add_container(implementation='json', settings={'root_dir': 'data'}, name='character', load=True, clear=False)
-        '''
+          Note: This is a hidden function, you don't need to call it directly.
+          >>> storage = MoobiusStorage(service_id='1', band_id='1')
+          >>> storage.add_container(implementation='json', settings={'root_dir': 'data'}, name='character', load=True, clear=False)
+        """
         domain = f'service_{self.service_id}.band_{self.band_id}.{name}'
 
         database_class = get_engine(implementation)

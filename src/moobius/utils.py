@@ -1,9 +1,10 @@
 # MISC functions TODO: Just move these to a better place, having a MISC category isn't clean code.
-
 import json
 import dataclasses
 
+
 class EnhancedJSONEncoder(json.JSONEncoder):
+    """Json Encoder but with automatic conversion of dataclasses to dict."""
     def default(self, o):
         if dataclasses.is_dataclass(o):
             return dataclasses.asdict(o)

@@ -48,8 +48,8 @@ The database configuration in our case is stores in *config/db.json*. It is a li
 }
 ```
 To create a moobius storage object, call it's constructor with this configuration:
-**band = MoobiusStorage(self.service_id, channel_id, db_config=json.load("./config/db.json"))**
-band.service_id and band.band_id are set to the service_id and channel_id respectivly.
+**band = MoobiusStorage(self.client_id, channel_id, db_config=json.load("./config/db.json"))**
+band.service_id and band.band_id are set to the client_id and channel_id respectivly.
 Each element's "implementation", in this case "json", determines the engine to use.
 Each element's "name", in this case "real_characters", creates an attribute of band dynamically.
 This means that band.real_characters is set to an initally empty **CachedDict**. Modifications to the dict will automatically keep the database up-to-date, there is no need to manually call save().
@@ -138,7 +138,7 @@ async def cron_task(self):
         await self.create_message(channel_id, txt, recipients, sender=talker)
 ```
 
-On startup MoobiusService populates self.channels() with a list of band_id values. It searches over all the channels and selects those for which service_id == self.service_id.
+On startup MoobiusService populates self.channels() with a list of band_id values. It searches over all the channels and selects those for which service_id == self.client_id.
 
 Each band is a **MoobiusStorage** object as described earlier.
 
@@ -147,9 +147,9 @@ Demo uses the attributes *band.real_characters* and *band.virtual_characters* re
 
 Populate the real characters:
 ```
-    band = MoobiusStorage(self.service_id, channel_id, db_config=self.db_config)
+    band = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
     self.bands[channel_id] = band
-    real_characters = self.http_api.fetch_real_characters(channel_id, self.service_id)
+    real_characters = await self.fetch_real_characters(channel_id)
 
     for character in real_characters:
         character_id = character.user_id
@@ -166,7 +166,8 @@ Populate the real characters:
             pass
 ```
 
-In this demo the bots are mickey-mouses which talk when a button is pressed. They can be initalized with self.http_api.create_service_user():
+In this demo the bots are mickey-mouses which talk when a button is pressed. They can be initalized given a name and avatar:
+create_service_user():
 
 ```
     for sn in range(self.MICKEY_LIMIT):
@@ -175,8 +176,8 @@ In this demo the bots are mickey-mouses which talk when a button is pressed. The
         if key not in band.virtual_characters:
             image_path = band.image_paths[self.MICKEY]
 
-            band.virtual_characters[key] = self.http_api.create_service_user(
-                self.service_id, self.MICKEY, f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
+            band.virtual_characters[key] = await self.create_service_user(
+                self.MICKEY, f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
             )
         else:
             continue
@@ -186,7 +187,7 @@ Then upload the local images to it:
 ```
     for name in self.images:
         if name not in band.image_paths:
-            band.image_paths[name] = self.http_api.upload_file(self.images[name])
+            band.image_paths[name] = await self.upload_file(self.images[name])
         else:
             pass
 ```
@@ -278,7 +279,7 @@ Lets also send a message to let people know:
 async def on_join_channel(self, action):
     sender = action.sender
     channel_id = action.channel_id
-    character = self.http_api.fetch_user_profile(sender)
+    character = await self.fetch_user_profile(sender)
     nickname = character.user_context.nickname
     band = self.bands[channel_id]
 
