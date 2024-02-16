@@ -86,7 +86,7 @@ def all_keys(self) -> any:
     return [k.decode() for k in out]
 ```
 
-Note: Redis is supposed to save automaticly before exiting when a "kill" command is sent to the process. However, only redis-stack-server, not redis-server, seems to autosave on exit. A single call to band.database.redis.save() will save *all* changes to the dict.
+Note: Redis is supposed to save automaticly before exiting when a "kill" command is sent to the process. However, only redis-stack-server, not redis-server, seems to autosave on exit. A single call to channel.database.redis.save() will save *all* changes to the dict.
 
 ## Redis OM Setup
 

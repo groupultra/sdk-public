@@ -10,7 +10,7 @@ To make an agent first create an account. Put these credentials into config/agen
 }
 ```
 
-To run an agent it is first necessary to log in and join a band (TODO: automatic way to do this). Do so by clicking on "Join Band" (if it isn't already selected) and pasting in the band ID. **If the agent is not showing up at all make sure it is joined to this band and not used by any other app**.
+To run an agent it is first necessary to log in and join a channel (TODO: automatic way to do this). Do so by clicking on "Join Channel" (if it isn't already selected) and pasting in the channel ID. **If the agent is not showing up at all make sure it is joined to this channel and not used by any other app**.
 
 It's also fun to customize the profile pic. Click the user icon at the top left and click on "settings". Click on "profile picture" and a filebrowser should open. Ideally the pictures are square. 256x256 resolution is sufficient.
 
@@ -44,11 +44,11 @@ message = {
 The SDK provides seperate agent self.send_agent_login() and self.send_service_login()
 
 2. Some SDK actuator functions are specific to use as an agent (and conversly, service-specific functions will not be used):
-`msg_up` and `msg_down` are reversed, so `on_msg_down` instead of `on_msg_up` and `send_msg_up` instead of `send_msg_down`.
-Some functions are restricted, for example "send_update_features" doesn't seem to work.
+`message_up` and `message_down` are reversed, so `on_message_down` instead of `on_message_up` and `send_message_up` instead of `send_message_down`.
+Some functions are restricted, for example "send_update_buttons" doesn't seem to work.
 
 
-3. The set of callbacks that are generally used is quite different. `on_update` functions such as `on_update_playground` are dispatched when the service updates the playground, for example.
+3. The set of callbacks that are generally used is quite different. `on_update` functions such as `on_update_canvas` are dispatched when the service updates the canvas, for example.
 
 There are also fetch callbacks such as `send_fetch_channel_info`.
 

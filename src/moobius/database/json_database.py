@@ -36,7 +36,7 @@ class JSONDatabase(DatabaseInterface):
 
         Example:
           Note: This should not be called directly. Users should config the database in the config file, and call MoobiusStorage to initialize the database.
-          >>> database = JSONDatabase(domain='service_1.band_1', root_dir='data')
+          >>> database = JSONDatabase(domain='service_1.channel_1', root_dir='data')
         """
 
         super().__init__()

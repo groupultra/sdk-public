@@ -7,7 +7,7 @@ class DatabaseInterface(ABC):
     Currently available as of Jan 2024: JSONDatabase, NullDatabase, and RedisDatabase.
     Each demo's on_start() function passes calls MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
     Instead of hardcoding self.db_config each demo it stores it as a JSON list, each element of the form:
-        {"implementation": "json", "name": "features", "load": true, "clear": false,
+        {"implementation": "json", "name": "buttons", "load": true, "clear": false,
          "settings": {"root_dir": "json_db"}}
          Where different elements in the list have different "name" values.
     To use a config file, pass db_config_path="my/db_config/file.json" into wand.run()
@@ -25,8 +25,8 @@ class DatabaseInterface(ABC):
         Like different tables in the same database.
         Or different folders in the same file system.
         The keys inside different domains may overlap, but they are different entries.
-        For example, two bands may have entries with the same feature id.
-        domains are '.' separated strings, like '<band_id>.<character_id>'
+        For example, two channels may have entries with the same button id.
+        domains are '.' separated strings, like '<channel_id>.<character_id>'
         """
         super().__init__()
 

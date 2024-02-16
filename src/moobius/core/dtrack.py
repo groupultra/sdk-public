@@ -338,7 +338,7 @@ def _decorator_update(txt,f):
     def _is_def_line(the_line):
         return the_line.strip().replace('async def ','def ').startswith('def ') and ':' in the_line
     def _is_class_line(the_line):
-        return the_line.strip().replace('async class ','class ').startswith('class ') and ':' in the_line # aync classes are a favorite Python 4.0 feature.
+        return the_line.strip().replace('async class ','class ').startswith('class ') and ':' in the_line # aync classes are a favorite in Python 4.0.
     def _is_decorator_line(the_line):
         return the_line.strip().replace('#','').startswith('@') # Include commentet-out decorators.
     def _is_emptyish_line(the_line):

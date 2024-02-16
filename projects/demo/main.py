@@ -16,7 +16,7 @@ if __name__ == "__main__":
         from moobius import types
         from moobius.utils import EnhancedJSONEncoder
         msg = types.MessageBody(subtype="A subtype", channel_id="e4-123", content={'a':1,'b':2}, timestamp=123,
-                                recipients=['id_1', 'id_2'], sender='Sender_id 1234', msg_id='<random id>', context={})
+                                recipients=['id_1', 'id_2'], sender='Sender_id 1234', message_id='<random id>', context={})
         msgj = json.dumps(msg, cls=EnhancedJSONEncoder)
         msg1 = json.loads(msgj)
         print('Object:', msg)
@@ -53,17 +53,17 @@ if __name__ == "__main__":
     #asyncio.run(asyncio.sleep(3))
     # agent on_spell
     #wand.spell(agent_handle, "send_fetch_userlist")
-    #wand.spell(agent_handle, "send_fetch_features")
+    #wand.spell(agent_handle, "send_fetch_buttons")
 
     #wand.spell(agent_handle, "nya_all")
 
     #asyncio.run(asyncio.sleep(3))
 
-    #wand.spell(agent_handle, "send_fetch_playground")
+    #wand.spell(agent_handle, "send_fetch_canvas")
 
     #wand.spell(agent_handle, "send_fetch_channel_info")
-    #wand.spell(agent_handle, "send_feature_call_key1")
-    #wand.spell(agent_handle, "send_feature_call_key2")
+    #wand.spell(agent_handle, "send_button_click_key1")
+    #wand.spell(agent_handle, "send_button_click_key2")
 
     #asyncio.run(asyncio.sleep(3))
     #wand.spell(agent_handle, "send_leave_channel")

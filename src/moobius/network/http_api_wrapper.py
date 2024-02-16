@@ -2,6 +2,7 @@
 import json
 from loguru import logger
 from dacite import from_dict
+from moobius import utils
 from moobius.types import Character, Group
 # TODO: refresh
 # TODO: return code
@@ -54,7 +55,7 @@ async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_erro
                 raise Exception(f'Cannot JSON this string: {repr(response_object)}\nError message: {e}')
             else:
                 return {'blob': str(response_object.text()), 'code':response_object.status_code}
-    return response_dict
+    return utils.dictlegacy2modern(response_dict, None)[0]
 
 
 class BadResponseException(Exception):
@@ -72,7 +73,7 @@ class HTTPAPIWrapper:
       Auth: Authentication and sign in/out.
       User: Dealing with real users.
       Service: Apps use this API to be a service.
-      Channel: Dealing with bands/channels/chat-rooms etc.
+      Channel: Dealing with threads/channels/chat-rooms etc.
       File: Upload files (automatically fetches the URL needed).
       Group: Combine users, services, or channels into groups which can be addressed by a single group_id.
     """
@@ -117,6 +118,7 @@ class HTTPAPIWrapper:
             raise Exception(f'the_request must be None or a dict, not a {type(the_request)} because; dicts are turned into json.')
         if requests_kwargs is None:
             requests_kwargs = {}
+        the_request, url = utils.dictmodern2legacy(the_request, url)
         if the_request is not None:
             requests_kwargs['json'] = the_request
         kwarg_str = [] # Debug.
@@ -148,7 +150,7 @@ class HTTPAPIWrapper:
         if (url not in URL2example) and show_first_example:
             pretty_printed = json.dumps(response_dict, sort_keys=True, indent=2)
             logger.opt(colors=True).info(f"<fg 120,96,240>FIRST EXAMPLE OF: {req_info_str}\nRESULT:\n{pretty_printed.replace('<', '&lt;').replace('>', '&gt;')}</>") # Uncomment this line to see the callbacks of each GET and POST statement.
-        URL2example[url] = response_dict # Debug feature.
+        URL2example[url] = response_dict # Debug.
         return response_dict
 
     async def checked_get(self, url, the_request, requests_kwargs=None, good_msg=None, bad_msg="This HTTPs GET request failed", raise_errors=True):
@@ -206,15 +208,15 @@ class HTTPAPIWrapper:
 
     async def fetch_user_profile(self, user_id):
         """Returns a Character object that contains user profile of (string-valued) user_id."""
-        response_dict = await self.checked_post(url=self.http_server_uri + "/user/fetch_profile", the_request={"userlist": [user_id]}, requests_kwargs={'headers':self.headers}, good_msg=None, bad_msg="Error fetching user profile", raise_errors=True)
+        response_dict = await self.checked_post(url=self.http_server_uri + "/character/fetch_profile", the_request={"userlist": [user_id]}, requests_kwargs={'headers':self.headers}, good_msg=None, bad_msg="Error fetching user profile", raise_errors=True)
         data=response_dict['data'][user_id]
         data['user_id'] = user_id
         character = from_dict(data_class=Character, data=data)
         return character
 
-    async def fetch_real_characters(self, channel_id, service_id, raise_empty_list_err=True):
+    async def fetch_channel_users(self, channel_id, service_id, raise_empty_list_err=True):
         """
-        Fetches the real characters of a channel. More of a service than an Agent function.
+        Fetches the real user ids of a channel. A service function, will not work as an Agent function.
 
         Parameters:
           channel_id (str): The channel ID.
@@ -230,7 +232,7 @@ class HTTPAPIWrapper:
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
-        response_dict = await self.checked_get(url=self.http_server_uri + "/channel/userlist", the_request=None, requests_kwargs=rkwargs, good_msg="Successfully fetched channel userlist!", bad_msg="Error fetching channel userlist", raise_errors=True)
+        response_dict = await self.checked_get(url=self.http_server_uri + "/channel/character_list", the_request=None, requests_kwargs=rkwargs, good_msg="Successfully fetched channel userlist", bad_msg="Error fetching channel userlist", raise_errors=True)
 
         userlist = response_dict["data"]["userlist"]
         channel_userlist = [u['user_id'] if type(u) is dict else u for u in userlist] # Convert to user_id if and only if given a user dict.
@@ -240,28 +242,39 @@ class HTTPAPIWrapper:
         else:
             raise Exception(f"Empty user_list error, channel_id: {channel_id}, service_id: {service_id}.")
 
-    async def fetch_service_user_list(self, service_id):
+    async def fetch_character_list(self, service_id):
         """Get the user list (a list of Character objects), of a service given the string-valued service_id."""
-        response_dict = await self.checked_get(url=self.http_server_uri + f"/service/user/list?service_id={service_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_msg="Successfully got service user", bad_msg="Error creating service user", raise_errors=True)
-        userlist = response_dict["data"]
-        return [from_dict(data_class=Character, data=d) for d in userlist]
+        version = 0 # All three seem broken in the .app version.
+        m0 = "Successfully fetched character list"
+        mr = "Error fetching character list"
+        if version==0:
+            response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list?service_id={service_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_msg=m0, bad_msg=mr, raise_errors=True)
+        elif version==1:
+            params = {"service_id": service_id}
+            rkwargs = {'params':params, 'headers':self.headers}
+            response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list", the_request=None, requests_kwargs=rkwargs, good_msg=m0, bad_msg=mr, raise_errors=True)
+        else:
+            response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list", the_request={"service_id": service_id}, requests_kwargs={'headers':self.headers}, good_msg=m0, bad_msg=mr, raise_errors=True)
+        charlist = response_dict["data"]
+        return [from_dict(data_class=Character, data=d) for d in charlist]
 
     async def fetch_user_info(self):
         """Used by the agent to get the agent info as a dict."""
-        response_dict = await self.checked_get(url=self.http_server_uri + f"/user/info", the_request=None, requests_kwargs={'headers':self.headers}, good_msg="Successfully got user info", bad_msg="Error getting user info", raise_errors=True)
+        response_dict = await self.checked_get(url=self.http_server_uri + f"/user/info", the_request=None, requests_kwargs={'headers':self.headers}, good_msg="Successfully fetched user info", bad_msg="Error getting user info", raise_errors=True)
         return response_dict.get('data')
 
-    async def update_real_user(self, user_id, avatar, description, nickname):
-        """Updates the user info.
+    async def update_current_user(self, avatar, description, name, user_id=None):
+        """Updates the user info. Will only be an Agent function in the .net version.
 
            Parameters:
              avatar: Link to image.
              description: Of the user.
-             nickname: The name that shows in chat, differen than username.
+             name: The name that shows in chat, differen than username.
+             user_id=None: Legacy for .app version, Moobius will automatically use self.client_id as the for the .net version.
 
            No return value.
         """
-        the_request={"avatar": avatar, 'description':description, 'nickname':nickname, 'user_id':user_id}
+        the_request=utils.add_user_id({"avatar": avatar, 'description':description, 'name':name}, user_id)
         response_dict = await self.checked_post(url=self.http_server_uri + f"/user/info", the_request=the_request, requests_kwargs={'headers':self.headers}, good_msg="Successfully updated user info", bad_msg="Error updating user info", raise_errors=True)
         return response_dict.get('data')
 
@@ -277,15 +290,15 @@ class HTTPAPIWrapper:
         response_dict = await self.checked_get(url=self.http_server_uri + "/service/list", the_request=None, requests_kwargs={'headers':self.headers}, good_msg=None, bad_msg='Error getting service list', raise_errors=True)
         return response_dict.get('data')
 
-    async def create_service_user(self, service_id, username, nickname, avatar, description):
+    async def create_character(self, service_id, username, name, avatar, description):
         """
-        Creates a service user with given username, nickname, avatar, and description.
+        Creates a character with given username, name, avatar, and description.
         The created user will be bound to the given service.
 
         Parameters:
           service_id (str): The service_id/client_id.
           username (str): The username of the user.
-          nickname (str): The nickname of the user.
+          name (str): The name of the user.
           avatar (str): The image URL of the user's picture/
           description (str): The description of the user.
 
@@ -294,29 +307,29 @@ class HTTPAPIWrapper:
         jsonr = {"service_id": service_id,
                  "username": username,
                  "context": {
-                   "nickname": nickname,
+                   "name": name,
                    "avatar": avatar,
                    "description": description}}
-        response_dict = await self.checked_post(url=self.http_server_uri + "/service/user/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg="Successfully created service user", bad_msg="Error creating service user", raise_errors=True)
+        response_dict = await self.checked_post(url=self.http_server_uri + "/service/character/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg="Successfully created character", bad_msg="Error creating character", raise_errors=True)
         character = from_dict(data_class=Character, data=response_dict['data'])
         return character
 
-    async def update_service_user(self, service_id, user_id, username, avatar, description, nickname):
-        """Updates the user info for a FAKE user, for real users use update_real_user.
+    async def update_character(self, service_id, user_id, username, avatar, description, name):
+        """Updates the user info for a FAKE user, for real users use update_current_user.
 
            Parameters:
              service_id (str): Which service holds the user.
              user_id (str): Of the user.
-             username (str): User name, different than nickname.
+             username (str): User name, different than name.
              avatar (str): Link to user's image.
              description (str): Description of user.
-             nickname (str): The name that shows in chat, differen than username.
+             name (str): The name that shows in chat, different than username.
 
            Returns:
             Data about the user as a dict.
         """
-        the_request = {"service_id": service_id, 'user_id':user_id, 'username': username, 'context': {'avatar':avatar, 'description':description, 'nickname':nickname}}
-        response_dict = await self.checked_post(url=self.http_server_uri + f"/service/user/update", the_request=the_request, requests_kwargs={'headers':self.headers}, good_msg="Successfully updated service user info", bad_msg="Error updating service user info", raise_errors=True)
+        the_request = {"service_id": service_id, 'user_id':user_id, 'username': username, 'context': {'avatar':avatar, 'description':description, 'name':name}}
+        response_dict = await self.checked_post(url=self.http_server_uri + f"/service/character/update", the_request=the_request, requests_kwargs={'headers':self.headers}, good_msg="Successfully updated character info", bad_msg="Error updating character info", raise_errors=True)
         return response_dict.get('data')
 
     ############################# Channel ############################
@@ -524,18 +537,17 @@ class HTTPAPIWrapper:
         jsonr = {"channel_id": channel_id, "members": members}
         await self.checked_post(url=self.http_server_uri + "/user/group/temp", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg="Successfully updated channel group {group_name}!", bad_msg="Error updating channel group {group_name}", raise_errors=True)
 
-    async def fetch_channel_group(self, channel_id):
-        """Returns the group_id that the given channel_id string is in."""
-        raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
-        jsonr = {'channel_id':channel_id}
-        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/list", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg=f"Successfully fetched group for channel {channel_id}", bad_msg=f"Error fetching group for channel {channel_id}", raise_errors=True)
-        return response_dict['data']['group_id']
-
     async def fetch_channel_temp_group(self, channel_id):
         """Returns the TEMP group data that the given channel_id string is in."""
         raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
         jsonr = {'channel_id':channel_id}
         response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/temp", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg=f"Successfully fetched group for channel {channel_id}", bad_msg=f"Error fetching group for channel {channel_id}", raise_errors=True)
+        return response_dict['data']
+
+    async def fetch_channel_group_list(self, channel_id):
+        raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
+        jsonr = {'channel_id':channel_id}
+        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/list", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg=f"Successfully fetched group for channel {channel_id}", bad_msg=f"Error fetching group for channel {channel_id}", raise_errors=True)
         return response_dict['data']
 
     async def fetch_user_from_group(self, user_id, channel_id, group_id):

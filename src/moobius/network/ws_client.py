@@ -9,7 +9,7 @@ import uuid
 import json
 import time
 
-from moobius.utils import EnhancedJSONEncoder
+from moobius.utils import dictmodern2legacy, EnhancedJSONEncoder
 
 
 class WSClient:
@@ -21,7 +21,7 @@ class WSClient:
     Users should call all websocket APIs through this class just as they should call all HTTP APIs through HTTPAPIWrapper.
     """
 
-    ############################## Standard socket features ########################
+    ############################## Standard socket interaction ########################
     def __init__(self, ws_server_uri, on_connect=None, handle=None):
         """
         Initialize a WSClient object.
@@ -55,12 +55,13 @@ class WSClient:
 
     async def send(self, message):
         """
-        Sends a string-valued message to the websocket server. Call this and other socket features after self.authenticate()
+        Sends a string-valued message to the websocket server. Call this and other socket functions after self.authenticate()
         If the connection is closed, reconnect and send again.
         If an exception is raised, reconnect and send again.
         Returns None, but if the server responds to the message it will be detected in the self.recieve() loop.
         """
         if type(message) is dict:
+            message, _ = dictmodern2legacy(message, None)
             message = self.dumps(message)
         try:
             logger.opt(colors=True).info(f"<fg 128,0,240>{message.replace('<', '&lt;').replace('>', '&gt;')}</>")
@@ -110,14 +111,14 @@ class WSClient:
             await self.connect()
             logger.info("Reconnected!")
 
-    async def ping(self, *, dry_run=False):
-        """Sends a ping unless dry_run is True. Returns the message dict."""
+    async def heartbeat(self, *, dry_run=False):
+        """Sends a heartbeat unless dry_run is True. Returns the message dict."""
         message = {
-            "type": "ping",
+            "type": "heartbeat",
             "request_id": str(uuid.uuid4())
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     @staticmethod
@@ -150,7 +151,7 @@ class WSClient:
         }
         if not dry_run:
             logger.info("service_login payload, should show up as another log in a second or so")
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     async def agent_login(self, access_token, *, dry_run=False):
@@ -173,11 +174,11 @@ class WSClient:
         }
         if not dry_run:
             logger.info("agent_login payload, should show up as another log in a second or so")
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     async def leave_channel(self, client_id, channel_id, *, dry_run=False):
-        """Makes the character with client_id leave band channel_id, unless dry_run is True. Returns the message dict."""
+        """Makes the character with client_id leave the channel with channel_id, unless dry_run is True. Returns the message dict."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -189,11 +190,11 @@ class WSClient:
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     async def join_channel(self, client_id, channel_id, *, dry_run=False):
-        """Makes the character with client_id join band channel_id, unless dry_run is True. Returns the message dict."""
+        """Makes the character with client_id join the channel with channel_id, unless dry_run is True. Returns the message dict."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -205,7 +206,7 @@ class WSClient:
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     #################################### Updating ########################################
@@ -241,17 +242,17 @@ class WSClient:
             if type(ul) is not str:
                 raise Exception('User list must be a list of ids.')
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
-    async def update_features(self, client_id, channel_id, features, recipients, *, dry_run=False):
+    async def update_buttons(self, client_id, channel_id, buttons, recipients, *, dry_run=False):
         """
-        Constructs and sends the update message for features list.
+        Constructs and sends the update message for buttons list.
 
         Parameters:
           client_id (str): The client id. This is actually the service id.
           channel_id (str): The channel id.
-          features (list of Features): The features list to be updated.
+          buttons (list of Buttons): The buttons list to be updated.
           recipients (list): The recipients to see the update.
           dry_run=False: Don't acually send anything if True.
 
@@ -259,29 +260,33 @@ class WSClient:
           The message as a dict.
 
         Example:
-          >>> continue_feature =
-          >>>   {"feature_name": "Continue Playing", "feature_id": "play",
+          >>> continue_button =
+          >>>   {"button_name": "Continue Playing", "button_id": "play",
           >>>    "button_text": "Continue Playing", "new_window": False,
           >>>    "arguments": []}
-          >>> ws_client.update_features("client_id", "channel_id", [continue_feature], ["user1", "user2"])
+          >>> ws_client.update_buttons("client_id", "channel_id", [continue_button], ["user1", "user2"])
         """
-        feature_dicts = [f if type(f) is dict else dataclasses.asdict(f) for f in features]
+        button_dicts = [b if type(b) is dict else dataclasses.asdict(b) for b in buttons]
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
             "client_id": client_id,
             "body": {
-                "subtype": "update_features",
+                "subtype": "update_buttons",
                 "channel_id": channel_id,
                 "recipients": recipients,
-                "features": feature_dicts,
+                "buttons": button_dicts,
                 "group_id": "temp",
                 "context": {}
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
+
+    async def update_rclick_buttons(self, client_id, channel_id, button_data, recipients):
+        """Updates the right click context menu."""
+        raise Exception("Updating the right click context menu is only available in the .link version.")
 
     async def update_style(self, client_id, channel_id, style_content, recipients, *, dry_run=False):
         """
@@ -304,14 +309,14 @@ class WSClient:
             >>>   "display": "invisible",
             >>> },
             >>> {
-            >>>   "widget": "feature",
+            >>>   "widget": "button",
             >>>   "display": "highlight",
-            >>>   "feature_hook": {
-            >>>     "feature_id": "feature_id",
+            >>>   "button_hook": {
+            >>>     "button_id": "button_id",
             >>>     "button_text": "done",
             >>>     "arguments": []
             >>>     },
-            >>>   "text": "<h1>Start from here.</h1><p>This is a Feature, what the most channles has</p>"
+            >>>   "text": "<h1>Start from here.</h1><p>This is a Button, what the most channles has</p>"
             >>> }]
             >>> ws_client.update_style("client_id", "channel_id", content, ["user1", "user2"])
         """
@@ -329,7 +334,7 @@ class WSClient:
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     async def update_channel_info(self, client_id, channel_id, channel_data, *, dry_run=False):
@@ -356,12 +361,12 @@ class WSClient:
             "body": channel_data
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
-    async def update_playground(self, client_id, channel_id, content, recipients, *, dry_run=False):
+    async def update_canvas(self, client_id, channel_id, content, recipients, *, dry_run=False):
         """
-        Constructs and sends the update message for the playground.
+        Constructs and sends the update message for the canvas.
 
         Parameters:
           client_id (str): The client id. This is actually the service id.
@@ -378,14 +383,14 @@ class WSClient:
           >>>   "path": "4003110a-d480-43da-9a2d-77202deac4a3",
           >>>   "text": ""
           >>> }
-          >>> ws_client.update_playground("client_id", "channel_id", content, ["user1", "user2"])
+          >>> ws_client.update_canvas("client_id", "channel_id", content, ["user1", "user2"])
         """
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
             "client_id": client_id,
             "body": {
-                "subtype": "update_playground",
+                "subtype": "update_canvas",
                 "channel_id": channel_id,
                 "recipients": recipients,
                 "content": content,
@@ -394,7 +399,7 @@ class WSClient:
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     async def update(self, client_id, target_client_id, data, *, dry_run=False):
@@ -419,13 +424,13 @@ class WSClient:
             "body": data
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     ########################## Sending messages ###################################
-    async def msg_up(self, client_id, channel_id, recipients, subtype, message_content, *, dry_run=False):
+    async def message_up(self, client_id, channel_id, recipients, subtype, message_content, *, dry_run=False):
         """
-        Constructs and sends a msg_up message. The same parameters as self.msg_down, except that no sender is needed.
+        Constructs and sends a message_up message. The same parameters as self.message_down, except that no sender is needed.
 
         Parameters:
           client_id (str): An agent id generally.
@@ -438,7 +443,7 @@ class WSClient:
         Returns: The message as a dict.
         """
         message = {
-            "type": "msg_up",
+            "type": "message_up",
             "request_id": str(uuid.uuid4()),
             "client_id": client_id,
             "body": {
@@ -454,12 +459,12 @@ class WSClient:
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
-    async def msg_down(self, client_id, channel_id, recipients, subtype, message_content, sender, *, dry_run=False):
+    async def message_down(self, client_id, channel_id, recipients, subtype, message_content, sender, *, dry_run=False):
         """
-        Constructs and sends the msg_down message.
+        Constructs and sends the message_down message.
         Currently, only text message is supported, so the subtype is always "text".
 
         Parameters:
@@ -475,13 +480,13 @@ class WSClient:
           The message as a dict.
 
         Example:
-          >>> ws_client.msg_down("client_id", "channel_id", ["user1", "user2"], "text", "message_content", "sender")
+          >>> ws_client.message_down("client_id", "channel_id", ["user1", "user2"], "text", "message_content", "sender")
         """
-        message = await self.msg_up(client_id, channel_id, recipients, subtype, message_content, dry_run=True)
-        message['type'] = "msg_down"
+        message = await self.message_up(client_id, channel_id, recipients, subtype, message_content, dry_run=True)
+        message['type'] = "message_down"
         message['body']['sender'] = sender
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     ######################### Fetching data ############################
@@ -510,23 +515,23 @@ class WSClient:
         }
         if not dry_run:
             logger.info("send_fetch_userlist", channel_id)
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
-    async def fetch_features(self, client_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_userlist but for the features. Returns the message dict."""
+    async def fetch_buttons(self, client_id, channel_id, *, dry_run=False):
+        """Same usage as fetch_userlist but for the buttons. Returns the message dict."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
             "client_id": client_id,
             "body": {
-                "subtype": "fetch_features",
+                "subtype": "fetch_buttons",
                 "channel_id": channel_id,
                 "context": {}
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     async def fetch_style(self, client_id, channel_id, *, dry_run=False):
@@ -542,23 +547,23 @@ class WSClient:
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
-    async def fetch_playground(self, client_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_userlist but for the playground/stage. Returns the message dict."""
+    async def fetch_canvas(self, client_id, channel_id, *, dry_run=False):
+        """Same usage as fetch_userlist but for the canvas. Returns the message dict."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
             "client_id": client_id,
             "body": {
-                "subtype": "fetch_playground",
+                "subtype": "fetch_canvas",
                 "channel_id": channel_id,
                 "context": {}
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     async def fetch_channel_info(self, client_id, channel_id, *, dry_run=False):
@@ -574,7 +579,7 @@ class WSClient:
             }
         }
         if not dry_run:
-            await self.send(self.dumps(message))
+            await self.send(message)
         return message
 
     def __str__(self):

@@ -23,7 +23,7 @@ def add_str_method(cls):
 
 @dataclass
 @add_str_method
-class FeatureArgument:
+class ButtonArgument:
     name: str
     type: str
     optional: Optional[bool]
@@ -33,28 +33,28 @@ class FeatureArgument:
 
 @dataclass
 @add_str_method
-class Feature:
-    feature_id: str
-    feature_name: str
+class Button:
+    button_id: str
+    button_name: str
     button_text: str
     new_window: bool
-    arguments: Optional[list[FeatureArgument]]=None
+    arguments: Optional[list[ButtonArgument]]=None
 
 
 @dataclass
 @add_str_method
-class FeatureCallArgument:
+class ButtonCallArgument:
     name: str
     value: str | int
 
 
 @dataclass
 @add_str_method
-class FeatureCall:
-    feature_id: str
+class ButtonCall:
+    button_id: str
     channel_id: str
     sender: str
-    arguments: list[FeatureCallArgument]
+    arguments: list[ButtonCallArgument]
     context: dict
 
 
@@ -69,7 +69,7 @@ class Stage:
 @add_str_method
 class View:
     character_ids: list[str]
-    feature_ids: list[str]
+    button_ids: list[str]
     stage_id: str
 
 
@@ -97,7 +97,7 @@ class MessageBody:
     timestamp: int
     recipients: list[str]
     sender: str
-    msg_id: str | None
+    message_id: str | None
     context: dict | None
 
 
@@ -133,13 +133,13 @@ class Payload:
     type: str
     request_id: Optional[str]
     client_id: Optional[str]
-    body: MessageBody | FeatureCall | Action | Copy | Any
+    body: MessageBody | ButtonCall | Action | Copy | Any
 
 
 @dataclass
 @add_str_method
 class CharacterContext:
-    nickname: str
+    name: str
     description: str
     avatar: str
 

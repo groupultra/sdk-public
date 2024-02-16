@@ -41,7 +41,7 @@ class CachedDict(dict):
         Initialize a CachedDict object.
 
         Parameters:
-          database (DatabaseInterface): The database to be used, currently supports JSONDatabase and NullDatabase.
+          database (DatabaseInterface): The database to be used, currently supports JSONDatabase and RedisDatabase.
           strict_mode=False: Whether to use strict mode.
             In strict mode, set value will raise exception if database save fails, but the value will still be set in the dict.
 
@@ -74,7 +74,10 @@ class CachedDict(dict):
         if dict.__contains__(self, key):
             return dict.__getitem__(self, key)
         else:
-            is_success, value = self.database.get_value(key)
+            try:
+                is_success, value = self.database.get_value(key)
+            except Exception as e:
+                raise Exception(f'Error with extracting {key} from database {self.database}: {e}')
 
             if is_success:
                 self.__setitem__(key, value)
@@ -111,7 +114,9 @@ class CachedDict(dict):
                 dict.__delitem__(self,key)
 
     def __str__(self):
-        return f'moobius.CachedDict({repr(dict)})'
+        kys = list(self.keys())
+        vs = [self.get(k) for k in kys]
+        return f'moobius.CachedDict({dict(zip(kys, vs))})'
     def __repr__(self):
         return self.__str__()
 
@@ -128,26 +133,26 @@ class MoobiusStorage():
       settings (dict): Misc settings such as Redis port, etc.
       root_dir (str): The root directory of the all the json files.
     """
-    def __init__(self, service_id, band_id, db_config=()):
+    def __init__(self, service_id, channel_id, db_config=()):
         """
         Initialize a MoobiusStorage object.
 
         Parameters:
           service_id (str): The id of the service.
-          band_id (str): The id of the band.
+          channel_id (str): The id of the channel.
           db_config(list): The config of the databases, should be a list of config dicts.
             Each dict's 'implemetation' selects the engine. (TODO? use the field 'engine' instead of 'implementation'?)
 
         No return value.
 
         Example:
-          >>> storage = MoobiusStorage(service_id='1', band_id='1', db_config=[{'implementation': 'json', 'load': True, 'clear': False, 'name': 'character', 'settings': {'root_dir': 'data'}}])
+          >>> storage = MoobiusStorage(service_id='1', channel_id='1', db_config=[{'implementation': 'json', 'load': True, 'clear': False, 'name': 'character', 'settings': {'root_dir': 'data'}}])
           >>> storage.get('character').set_value('1', {'name': 'Alice'})
         """
         super().__init__()
 
         self.service_id = service_id
-        self.band_id = band_id
+        self.channel_id = channel_id
 
         for config in db_config:
             self.add_container(**config)
@@ -185,10 +190,10 @@ class MoobiusStorage():
 
         Example:
           Note: This is a hidden function, you don't need to call it directly.
-          >>> storage = MoobiusStorage(service_id='1', band_id='1')
+          >>> storage = MoobiusStorage(service_id='1', channel_id='1')
           >>> storage.add_container(implementation='json', settings={'root_dir': 'data'}, name='character', load=True, clear=False)
         """
-        domain = f'service_{self.service_id}.band_{self.band_id}.{name}'
+        domain = f'service_{self.service_id}.channel_{self.channel_id}.{name}'
 
         database_class = get_engine(implementation)
 
@@ -196,6 +201,14 @@ class MoobiusStorage():
         self.put(name, database, load=load, clear=clear)
 
     def __str__(self):
-        return f'moobius.MoobiusStorage(service_id={self.service_id}, band_id={self.band_id}, database={self.database}, strict={self.strict_mode})'
+        if hasattr(self, 'database'):
+            db = self.database
+        else:
+            db = '<Not init yet>'
+        if hasattr(self, 'strict_mode'):
+            stm = self.strict_mode
+        else:
+            stm = '<Not set yet>'
+        return f'moobius.MoobiusStorage(service_id={self.service_id}, channel_id={self.channel_id}, database={db}, strict={stm})'
     def __repr__(self):
         return self.__str__()

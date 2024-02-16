@@ -1,15 +1,15 @@
 # Set up a simple demo using moobius
 
-This tutorial sets up a basic demo which showcases the essential features of Moobius. Almost all of the code is in ./service.py
+This tutorial sets up a basic demo which showcases the essential usage of Moobius. Almost all of the code is in ./service.py
 
-## Configuration and "bands"
+## Configuration and "channels"
 
-Once Moobius is installed (see the quickstart guide) you need to create a *band* and link the app to the band. Each backend SDK app is associated with one more bands.
+Once Moobius is installed (see the quickstart guide) you need to create a *channels* and link the app to the channels. Each backend SDK app is associated with one more channels.
 
-To create a band, log into Moobius via the browser and create a new band (click the + next to My Bands).
-Enter a nice *name* and *description*, such as "Demo" and "This-is-my-test". Doing so will see the *band ID* (example: "2c76aba1-73f4-4834-55f5-7ac8431640b1"). Alternativlty, the band ID of the currently selected band is shown in the URL. It is also possible to join bands by entering an ID.
+To create a channel, log into Moobius via the browser and create a new channel (click the + next to My channels).
+Enter a nice *name* and *description*, such as "Demo" and "This-is-my-test". Doing so will see the *channel ID* (example: "2c76aba1-73f4-4834-55f5-7ac8431640b1"). Alternativlty, the channel ID of the currently selected channel is shown in the URL. It is also possible to join channels by entering an ID.
 
-To delete a band that you created, click the ... and select "Leave Band".
+To delete a channel that you created, click the ... and select "Leave channel".
 
 Create config/service.json with this format to link it to your account:
 ```
@@ -20,7 +20,7 @@ Create config/service.json with this format to link it to your account:
     "password": "<Moobius login password>",
     "service_id": "",
     "channels": [
-        "<Band id>"
+        "<channel id>"
     ],
     "others": "ignore"
 }
@@ -48,18 +48,18 @@ The database configuration in our case is stores in *config/db.json*. It is a li
 }
 ```
 To create a moobius storage object, call it's constructor with this configuration:
-**band = MoobiusStorage(self.client_id, channel_id, db_config=json.load("./config/db.json"))**
-band.service_id and band.band_id are set to the client_id and channel_id respectivly.
+**channel = MoobiusStorage(self.client_id, channel_id, db_config=json.load("./config/db.json"))**
+channel.service_id and channel.channel_id are set to the client_id and channel_id respectivly.
 Each element's "implementation", in this case "json", determines the engine to use.
-Each element's "name", in this case "real_characters", creates an attribute of band dynamically.
-This means that band.real_characters is set to an initally empty **CachedDict**. Modifications to the dict will automatically keep the database up-to-date, there is no need to manually call save().
+Each element's "name", in this case "real_characters", creates an attribute of channel dynamically.
+This means that channel.real_characters is set to an initally empty **CachedDict**. Modifications to the dict will automatically keep the database up-to-date, there is no need to manually call save().
 The "settings" stores engine-dependent parameters.
 
 ## Platform GUI structure
 
-All created and joined bands will be shown in the list at the left panel.
+All created and joined channels will be shown in the list at the left panel.
 
-Each band has it's own GUI independent of the others. There is a chat history, a collapsable *playground* (stage) to show images and text, and a *character list*. On the right there is a list of characters who may be real users or AI bots.
+Each channel has it's own GUI independent of the others. There is a chat history, a collapsable *canvas* to show images and text, and a *character list*. On the right there is a list of characters who may be real users or AI bots.
 
 **The GUI state can be set independently per-user**. This means one user could see characters Alice and Bob while another sees Charlie and Dave. This provides flexibility for a wide variety of social deduction games, study groups, etc.
 
@@ -98,9 +98,9 @@ class DemoService(MoobiusService):
         self.log_file = log_file
         self.error_log_file = error_log_file
 
-        self._default_features = {}
-        self.bands = {}
-        self.stage_dict = {}
+        self._default_buttons = {}
+        self.channels = {}
+        self.image_show_dict = {}
 
         self.LIGHT = "light"
         self.DARK = "dark"
@@ -109,7 +109,7 @@ class DemoService(MoobiusService):
         self.MICKEY_LIMIT = 5
 
         self._default_status = {
-            'stage': self.LIGHT,
+            'canvas_mode': self.LIGHT,
             'mickey_num': 0
         }
 
@@ -131,52 +131,52 @@ self.scheduler.add_job(self.cron_task, 'interval', minutes=1)
 
 async def cron_task(self):
     for channel_id in self.channels:
-        band = self.bands[channel_id]
-        recipients = list(band.real_characters.keys())
-        talker = band.virtual_characters[self.WAND].user_id
+        channel = self.channels[channel_id]
+        recipients = list(channel.real_characters.keys())
+        talker = channel.virtual_characters[self.WAND].user_id
         txt = f"Check in every minute! {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         await self.create_message(channel_id, txt, recipients, sender=talker)
 ```
 
-On startup MoobiusService populates self.channels() with a list of band_id values. It searches over all the channels and selects those for which service_id == self.client_id.
+On startup MoobiusService populates self.channels() with a list of channel_id values. It searches over all the channels and selects those for which service_id == self.client_id.
 
-Each band is a **MoobiusStorage** object as described earlier.
+Each channel is a **MoobiusStorage** object as described earlier.
 
-Each band's moobius chat can have both real users as well as chatbots or other computer-controlled characters.
-Demo uses the attributes *band.real_characters* and *band.virtual_characters* respectivly.
+Each channel's moobius chat can have both real users as well as chatbots or other computer-controlled characters.
+Demo uses the attributes *channel.real_characters* and *channel.virtual_characters* respectivly.
 
 Populate the real characters:
 ```
-    band = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
-    self.bands[channel_id] = band
-    real_characters = await self.fetch_real_characters(channel_id)
+    channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
+    self.channels[channel_id] = channel
+    real_characters = await self.fetch_channel_users(channel_id)
 
     for character in real_characters:
         character_id = character.user_id
-        band.real_characters[character_id] = character
+        channel.real_characters[character_id] = character
 
-        if character_id not in band.features:
-            band.features[character_id] = self.default_features
+        if character_id not in channel.buttons:
+            channel.buttons[character_id] = self.default_buttons
         else:
             pass
 
-        if character_id not in band.states:
-            band.states[character_id] = self.default_status
+        if character_id not in channel.states:
+            channel.states[character_id] = self.default_status
         else:
             pass
 ```
 
 In this demo the bots are mickey-mouses which talk when a button is pressed. They can be initalized given a name and avatar:
-create_service_user():
+create_character():
 
 ```
     for sn in range(self.MICKEY_LIMIT):
         key = f"{self.MICKEY}_{sn}"
 
-        if key not in band.virtual_characters:
-            image_path = band.image_paths[self.MICKEY]
+        if key not in channel.virtual_characters:
+            image_path = channel.image_paths[self.MICKEY]
 
-            band.virtual_characters[key] = await self.create_service_user(
+            channel.virtual_characters[key] = await self.create_character(
                 self.MICKEY, f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
             )
         else:
@@ -186,24 +186,24 @@ create_service_user():
 Then upload the local images to it:
 ```
     for name in self.images:
-        if name not in band.image_paths:
-            band.image_paths[name] = await self.upload_file(self.images[name])
+        if name not in channel.image_paths:
+            channel.image_paths[name] = await self.upload_file(self.images[name])
         else:
             pass
 ```
 
 There are other, less important odds-and-ends in this function.
-**TODO:** self.stage_dict setup has a bug which will break if there is more than one band.
+**TODO:** self.image_show_dict setup has a bug which will break if there is more than one channel.
 
-## Overriding self.on_message_up(msg_up)
+## Overriding self.on_message_up(message_up)
 
 This callback triggers when users send messages "up" to the backend server.
 Here are some important properties of a messageUp object:
 ```
-txt = msg_up.content['text']
-channel_id = msg_up.channel_id
-sender = msg_up.context.sender
-recipients = msg_up.context.recipients
+txt = message_up.content['text']
+channel_id = message_up.channel_id
+sender = message_up.context.sender
+recipients = message_up.context.recipients
 ```
 
 Lets replace messages of "moobius" sent to ALL with "Moobius is Great!":
@@ -213,57 +213,57 @@ if recipients:
     if txt.lower() == "moobius":
         await self.create_message(channel_id, "Moobius is Great!", recipients, sender=sender)
     else:
-        await self.send(payload_type='msg_down', payload_body=msg_up)
+        await self.send(payload_type='message_down', payload_body=message_up)
 ```
 
-## Overriding self.on_fetch_user_list(action) and self.on_fetch_features(action)
+## Overriding self.on_fetch_user_list(action) and self.on_fetch_buttons(action)
 
-It is important to keep the database up-to-date with the features.
+It is important to keep the database up-to-date with the buttons.
 First define the function that does so:
 ```
 async def calculate_and_update_user_list_from_database(self, channel_id, character_id):
-    band = self.bands[channel_id]
-    real_characters = band.real_characters
+    channel = self.channels[channel_id]
+    real_characters = channel.real_characters
     user_list = [rc.user_id for rc in list(real_characters.values())]
     user_list = list(real_characters.keys()) # Equivalent to previous line for real_characters in these demo examples, but NOT for virtual_characters
-    mickey_num = band.states[character_id]['mickey_num']
+    mickey_num = channel.states[character_id]['mickey_num']
 
     for sn in range(mickey_num):
         key = f"{self.MICKEY}_{sn}"
-        user_list.append(band.virtual_characters[key])
+        user_list.append(channel.virtual_characters[key])
 
     await self.send_update_user_list(channel_id, user_list, [character_id])
 ```
 
-Then keeping up to date when fetching the features and user list is easy. The **Action** dataclass has *channel_id* and *sender* attributes as well as *subtype* and an optional *context* attribute.
+Then keeping up to date when fetching the buttons and user list is easy. The **Action** dataclass has *channel_id* and *sender* attributes as well as *subtype* and an optional *context* attribute.
 
 ```
-async def send_features_from_database(self, channel_id, character_id): # Doesn't overloading any method.
-    feature_data_list = self.bands[channel_id].features.get(character_id, [])
-    await self.send_update_features(channel_id, feature_data_list, [character_id])
+async def send_buttons_from_database(self, channel_id, character_id): # Doesn't overloading any method.
+    button_data_list = self.channels[channel_id].buttons.get(character_id, self._default_buttons)
+    await self.send_update_buttons(channel_id, button_data_list, [character_id])
 
 async def on_fetch_user_list(self, action):
     await self.calculate_and_update_user_list_from_database(action.channel_id, action.sender)
 
-async def on_fetch_features(self, action):
-    await self.send_features_from_database(action.channel_id, action.sender)
+async def on_fetch_buttons(self, action):
+    await self.send_buttons_from_database(action.channel_id, action.sender)
 ```
 
-## Overriding self.on_fetch_playground(action)
+## Overriding self.on_fetch_canvas(action)
 This is an excellent time to set up the widgets by using the parent **self.send_update_style()**
 
 ```
-async def on_fetch_playground(self, action):
+async def on_fetch_canvas(self, action):
     channel_id = action.channel_id
     sender = action.sender
-    band = self.bands[channel_id]
+    channel = self.channels[channel_id]
 
-    state = band.states[sender]['stage']
-    await self.send_update_playground(channel_id, self.stage_dict[state], [sender])
+    state = channel.states[sender]['canvas_mode']
+    await self.send_update_canvas(channel_id, self.image_show_dict[state], [sender])
 
     content = [
         {
-            "widget": "playground",
+            "widget": "canvas",
             "display": "visible",
             "expand": "true"
         }
@@ -272,7 +272,7 @@ async def on_fetch_playground(self, action):
 ```
 
 ## Overriding self.on_join_channel(action) and self.on_leave_channel(action)
-When users join or leave channels it's time to update the band.real_characters() list.
+When users join or leave channels it's time to update the channel.real_characters() list.
 Lets also send a message to let people know:
 
 ```
@@ -280,33 +280,33 @@ async def on_join_channel(self, action):
     sender = action.sender
     channel_id = action.channel_id
     character = await self.fetch_user_profile(sender)
-    nickname = character.user_context.nickname
-    band = self.bands[channel_id]
+    name = character.user_context.name
+    channel = self.channels[channel_id]
 
-    band.real_characters[sender] = character
-    band.features[sender] = self.default_features
-    band.states[sender] = self.default_status
+    channel.real_characters[sender] = character
+    channel.buttons[sender] = self.default_buttons
+    channel.states[sender] = self.default_status
 
-    user_list = list(band.real_characters.keys()) # Keys are user_ids for real characters generally.
-    character_ids = list(band.real_characters.keys()) # In this example user_list is the same as character_ids; every user gets to see the update.
+    user_list = list(channel.real_characters.keys()) # Keys are user_ids for real characters generally.
+    character_ids = list(channel.real_characters.keys()) # In this example user_list is the same as character_ids; every user gets to see the update.
 
     await self.send_update_user_list(channel_id, user_list, character_ids)
-    await self.create_message(channel_id, f'{nickname} joined the band!', character_ids, sender=sender)
+    await self.create_message(channel_id, f'{name} joined the channel!', character_ids, sender=sender)
 
 async def on_leave_channel(self, action):
     sender = action.sender
     channel_id = action.channel_id
-    character = self.bands[action.channel_id].real_characters.pop(sender, None)
-    self.bands[channel_id].states.pop(sender, None)
-    self.bands[channel_id].features.pop(sender, None)
-    nickname = character.user_context.nickname
+    character = self.channels[action.channel_id].real_characters.pop(sender, None)
+    self.channels[channel_id].states.pop(sender, None)
+    self.channels[channel_id].buttons.pop(sender, None)
+    name = character.user_context.name
 
-    real_characters = self.bands[channel_id].real_characters
+    real_characters = self.channels[channel_id].real_characters
     user_list = list(real_characters.keys())
     character_ids = list(real_characters.keys())
 
     await self.send_update_user_list(channel_id, user_list, character_ids)
-    await self.create_message(channel_id, f'{nickname} left the band!', character_ids, sender=sender)
+    await self.create_message(channel_id, f'{name} left the channel!', character_ids, sender=sender)
 ```
 
 ## Overriding **self.on_spell(spell)**
@@ -325,64 +325,64 @@ async def on_spell(self, spell):
     text = f"WAND: {content * times}"
 
     for channel_id in self.channels:
-        band = self.bands[channel_id]
-        recipients = list(band.real_characters.keys())
-        talker = band.virtual_characters[self.WAND].user_id
+        channel = self.channels[channel_id]
+        recipients = list(channel.real_characters.keys())
+        talker = channel.virtual_characters[self.WAND].user_id
         await self.create_message(channel_id, text, recipients, sender=talker)
 ```
 
-## Overriding self.on_feature_call(feature_call)
-*Feature calls* encode button presses, etc and dispatched when a given client-side wigit is used used.
-feature_call.feature_id gives the id of the wigit.
-feature_call.Arguments is a list of arguments, an example argument, which happens when the user selects the "create new Mickey" character option is: "FeatureCallArgument(name='magic_type', value='Mickey')". Arguments encode which choice of a drop-down menu was used.
+## Overriding self.on_button_click(button_click)
+*Button calls* encode button presses, etc and dispatched when a given client-side wigit is used used.
+button_click.button_id gives the id of the wigit.
+button_click.Arguments is a list of arguments, an example argument, which happens when the user selects the "create new Mickey" character option is: "ButtonCallArgument(name='magic_type', value='Mickey')". Arguments encode which choice of a drop-down menu was used.
 
-The resulting function is a siwthyard that handels different features:
+The resulting function is a siwthyard that handels different buttons:
 ```
-async def on_feature_call(self, feature_call):
-    channel_id = feature_call.channel_id
-    feature_id = feature_call.feature_id
-    sender = feature_call.sender
-    band = self.bands[channel_id]
+async def on_button_click(self, button_click):
+    channel_id = button_click.channel_id
+    button_id = button_click.button_id
+    sender = button_click.sender
+    channel = self.channels[channel_id]
 
-    character = band.real_characters[sender]
-    nickname = character.user_context.nickname
-    recipients = list(band.real_characters.keys())
+    character = channel.real_characters[sender]
+    name = character.user_context.name
+    recipients = list(channel.real_characters.keys())
 
-    if feature_id == "key1":
-        value = feature_call.arguments[0].value
+    if button_id == "key1":
+        value = button_click.arguments[0].value
 
         if value == 'Mickey':
-            if band.states[sender]['mickey_num'] >= self.MICKEY_LIMIT:
+            if channel.states[sender]['mickey_num'] >= self.MICKEY_LIMIT:
                 await self.create_message(channel_id, "You have reached the limit of Mickey!", [sender], sender=sender)
             else:
-                band.states[sender]['mickey_num'] += 1
-                band.states.save(sender)
+                channel.states[sender]['mickey_num'] += 1
+                channel.states.save(sender)
 
                 await self.calculate_and_update_user_list_from_database(channel_id, sender)
         elif value == 'Talk':
-            if band.states[sender]['mickey_num'] == 0:
+            if channel.states[sender]['mickey_num'] == 0:
                 await self.create_message(channel_id, "Please Create Mickey First!", [sender], sender=sender)
             else:
-                sn = band.states[sender]['mickey_num'] - 1
-                talker = band.virtual_characters[f"{self.MICKEY}_{sn}"].user_id
+                sn = channel.states[sender]['mickey_num'] - 1
+                talker = channel.virtual_characters[f"{self.MICKEY}_{sn}"].user_id
                 await self.create_message(channel_id, f"Mickey {sn} Here!", [sender], sender=talker)
         else:
             dtrack.log_warning(f"Unknown value: {value}")
 
-    elif feature_id == "key2":
-        if band.states[sender]['stage'] == self.LIGHT: 
-                band.states[sender]['stage'] = self.DARK
+    elif button_id == "key2":
+        if channel.states[sender]['canvas_mode'] == self.LIGHT: 
+                channel.states[sender]['canvas_mode'] = self.DARK
         else:
-                band.states[sender]['stage'] = self.LIGHT
+                channel.states[sender]['canvas_mode'] = self.LIGHT
 
-        band.states.save(sender)
-        state = band.states[sender]['stage']
-        await self.send_update_playground(channel_id, self.stage_dict[state], [sender])
+        channel.states.save(sender)
+        state = channel.states[sender]['canvas_mode']
+        await self.send_update_canvas(channel_id, self.image_show_dict[state], [sender])
 
-        image_uri = band.image_paths[state]
+        image_uri = channel.image_paths[state]
         await self.create_message(channel_id, image_uri, [sender], subtype='image', sender=sender)
     else:
-        dtrack.log_warning(f"Unknown feature_id: {feature_id}")
+        dtrack.log_warning(f"Unknown button_id: {button_id}")
 ```
 
 ## Callback Service Methods with a default behavior:
@@ -390,10 +390,10 @@ Most callbacks do nothing and are designed to be overriden. However, a few have 
 
 @logger.catch
 **async def handle_received_payload(self, payload)**
-This is a switchyard method that calls other callbacks such as "on_msg_up" dependent on the type of the payload. It rarely needs to be overriden.
+This is a switchyard method that calls other callbacks such as "on_message_up" dependent on the type of the payload. It rarely needs to be overriden.
 
 **async def on_action(self, action: Action)**
-This is another switchyard method but it can be useful to override, such is in the *mahjong* demo. It calls functions such as "on_fetch_features", "on_join_playground" dependent on *action.subtype*.
+This is another switchyard method but it can be useful to override, such is in the *mahjong* demo. It calls functions such as "on_fetch_buttons", "on_join_channel" dependent on *action.subtype*.
 
 **async def on_copy_client(self, copy: Copy)**
 Will call self.send_service_login() if copy.status is invalid. Generally not useful to override.
@@ -403,7 +403,7 @@ Will call self.send_service_login() if copy.status is invalid. Generally not use
 **async def on_fetch_channel_info(self, action)**
 This method is uncommon to override.
 
-**async def upload_avatar_and_create_character(self, service_id, username, nickname, image_path, description)**
+**async def upload_avatar_and_create_character(self, service_id, username, name, image_path, description)**
 Uses HTTPS to uploade an image and assign it to a new character. Used by the demos *neko* and *script_cinema*.
 
 
@@ -413,7 +413,7 @@ This is used as a catchall in the handle_received_payload switchyard and is unco
 **async def send_service_login(self)**
 Used internally in the Service class.
 
-**async def send_msg_down(self, channel_id, recipients, subtype, message_content, sender)**
+**async def send_message_down(self, channel_id, recipients, subtype, message_content, sender)**
 Used by virtual characters to send messages to users. Used many times in the demo *mouse*.
 
 **async def send_update(self, target_client_id, data)**
