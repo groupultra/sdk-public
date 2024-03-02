@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='moobius',
-    version='0.0.1',
+    version='1.0.0',
     description='Moobius SDK',
     packages=['moobius'],
     install_requires=[
