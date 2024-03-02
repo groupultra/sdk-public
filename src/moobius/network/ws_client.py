@@ -495,7 +495,7 @@ class WSClient:
           channel_id (str): Which channel to broadcast the message in.
           recipients (str): The group id to send to.
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
-          message_content (str TODO: is it a str?): What is inside the message['body']['content'] JSON.
+          message_content (str or dict): What is inside the message['body']['content'] JSON.
           sender (str): The sender ID of the message, which determines who the chat shows the message as sent by.
           dry_run=False: Don't acually send anything if True.
 

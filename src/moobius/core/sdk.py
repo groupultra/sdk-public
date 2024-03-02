@@ -329,8 +329,9 @@ class MoobiusClient:
 
         Parameters:
           channel_id (str): The id of the channel.
-          message_content (str): The text of the message such as "Hello everyone on this channel!".
-          recipients (list): The recipients of the message.
+          message_content (str or dict): The text of the message such as "Hello everyone on this channel!".
+          recipients (list or string): The recipients character_id list or group_id string of the message.
+            This choice of list vs string is the case whenever there is a "recipients" argument in a MoobiusClient method.
           subtype='text': The subtype of the message.
           sender: The sender of the message. None for Agents.
 
@@ -480,15 +481,15 @@ class MoobiusClient:
 
     async def send_agent_login(self): """Calls self.ws_client.agent_login using self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.agent_login(self.http_api.access_token)
     async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
-    async def send_message_up(self, channel_id, recipients, subtype, message_content): """Calls self.ws_client.message_up using self.client_id."""; return await self.ws_client.message_up(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, False, channel_id), subtype, message_content)
-    async def send_message_down(self, channel_id, recipients, subtype, message_content, sender): """Calls self.ws_client.TODO using self.client_id."""; return await self.ws_client.message_down(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, True), subtype, message_content, sender)
+    async def send_message_up(self, channel_id, recipients, subtype, message_content): """Calls self.ws_client.message_up using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_up(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, False, channel_id), subtype, message_content)
+    async def send_message_down(self, channel_id, recipients, subtype, message_content, sender): """Calls self.ws_client.TODO using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_down(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, True), subtype, message_content, sender)
     async def send_update(self, target_client_id, data): """Calls self.ws_client.TODO"""; return await self.ws_client.update(self.client_id, target_client_id, data)
-    async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
+    async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
     async def send_update_channel_info(self, channel_id, channel_data): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_data)
-    async def send_update_canvas(self, channel_id, canvas_content, recipients): """Calls self.ws_client.update_canvas using self.client_id."""; return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_content, await self._update_rec(recipients, True))
-    async def send_update_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_buttons using self.client_id."""; return await self.ws_client.update_buttons(self.client_id, channel_id, button_data, await self._update_rec(recipients, True))
-    async def send_update_rclick_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_rclick_buttons using self.client_id."""; return await self.ws_client.update_rclick_buttons(self.client_id, channel_id, button_data, await self._update_rec(recipients, True))
-    async def send_update_style(self, channel_id, style_content, recipients): """Calls self.ws_client.update_style using self.client_id."""; return await self.ws_client.update_style(self.client_id, channel_id, style_content, await self._update_rec(recipients, True))
+    async def send_update_canvas(self, channel_id, canvas_content, recipients): """Calls self.ws_client.update_canvas using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_content, await self._update_rec(recipients, True))
+    async def send_update_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(self.client_id, channel_id, button_data, await self._update_rec(recipients, True))
+    async def send_update_rclick_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_rclick_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_rclick_buttons(self.client_id, channel_id, button_data, await self._update_rec(recipients, True))
+    async def send_update_style(self, channel_id, style_content, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(self.client_id, channel_id, style_content, await self._update_rec(recipients, True))
     async def send_fetch_characters(self, channel_id): """Calls self.ws_client.fetch_characters using self.client_id."""; return await self.ws_client.fetch_characters(self.client_id, channel_id)
     async def send_fetch_buttons(self, channel_id): """Calls self.ws_client.fetch_buttons using self.client_id."""; return await self.ws_client.fetch_buttons(self.client_id, channel_id)
     async def send_fetch_style(self, channel_id): """Calls self.ws_client.fetch_style using self.client_id."""; return await self.ws_client.fetch_style(self.client_id, channel_id)
@@ -526,7 +527,6 @@ class MoobiusClient:
         payload_body = payload_data['body']
         async def _group2ids(g_id):
             if g_id=='service':
-                logger.warning('I think sent to service means no recipients. Remove this warning when sure.')
                 return []
             if type(g_id) is not str:
                 raise Exception('Group id not a string.')
@@ -573,7 +573,6 @@ class MoobiusClient:
         else:
             rec_group = payload_body['recipients']
             payload_body['recipients'] = await _group2ids(rec_group)
-            #print("NEED group2ids:", payload, rec_group, payload_body['recipients'])
 
         if 'type' in payload_data:
             if 'sender' not in payload_body and payload_body.get('context',{}).get('sender'):

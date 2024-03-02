@@ -163,17 +163,17 @@ class DemoService(MoobiusClient):
         """Runs various commands, such as resetting when the user types in "reset".
            (Agent-related commands are found in the agent.py instead of here)."""
         example_socket_callback_payloads['on_message_up'] = message_up
+        channel_id = message_up.channel_id
+        recipients = message_up.recipients
+        sender = message_up.sender
         if message_up.subtype == "text":
             txt = message_up.content['text']
             txt1 = txt.lower().strip()
-            channel_id = message_up.channel_id
             the_channel = await self.get_channel(channel_id)
-            sender = message_up.sender
             if type(sender) is not str:
                 raise Exception(f'Sender must be a string, instead it is: {sender}')
             if sender not in list(the_channel.real_characters.keys()):
                 await self.add_real_character(channel_id, sender, intro="oops looks like (bug) did not add this character on startup.")
-            recipients = message_up.recipients
 
             if recipients: # DEMO: text modification
                 if txt1.lower() == "moobius":
@@ -231,7 +231,7 @@ class DemoService(MoobiusClient):
                     txt = txt+' (this message has no recipients, either it was sent to service or there is a bug).'
                     await self.create_message(channel_id, txt, [sender], sender=sender)
         else:
-            await self.create_message(channel_id, str(message_up), recipients, sender=sender) # Not sure if this works or the generic next line is needed?
+            await self.convert_and_send_message(message_up) # Not sure if this works or the generic next line is needed?
 
     async def on_fetch_service_characters(self, action):
         example_socket_callback_payloads['on_fetch_service_characters'] = action
