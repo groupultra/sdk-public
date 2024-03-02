@@ -43,18 +43,18 @@ class Button:
 
 @dataclass
 @add_str_method
-class ButtonCallArgument:
+class ButtonClickArgument:
     name: str
     value: str | int
 
 
 @dataclass
 @add_str_method
-class ButtonCall:
+class ButtonClick:
     button_id: str
     channel_id: str
     sender: str
-    arguments: list[ButtonCallArgument]
+    arguments: list[ButtonClickArgument]
     context: dict
 
 
@@ -95,7 +95,7 @@ class MessageBody:
     channel_id: str
     content: dict
     timestamp: int
-    recipients: list[str]
+    recipients: list[str] # The API uses a group id which is converted to/from a list.
     sender: str
     message_id: str | None
     context: dict | None
@@ -132,8 +132,8 @@ class Copy:
 class Payload:
     type: str
     request_id: Optional[str]
-    client_id: Optional[str]
-    body: MessageBody | ButtonCall | Action | Copy | Any
+    user_id: Optional[str]
+    body: MessageBody | ButtonClick | Action | Copy | Any
 
 
 @dataclass
@@ -147,6 +147,6 @@ class CharacterContext:
 @dataclass
 @add_str_method
 class Character:
-    user_id: str | None
-    username: str | None
-    user_context: CharacterContext
+    character_id: str | None
+    name: str | None
+    character_context: CharacterContext

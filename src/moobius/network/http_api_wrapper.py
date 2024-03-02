@@ -38,7 +38,13 @@ async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_erro
                 except aiohttp.client_exceptions.ContentTypeError:
                     response_txt = await resp.text()
                     if raise_json_decode_errors:
-                        raise Exception(f'JSON cannot decode: {response_txt}')
+                        if len(response_txt)<384:
+                            raise Exception(f'JSON cannot decode: {response_txt}')
+                        elif '<div' in response_txt or 'div>' in response_txt: # HTML when it should be JSON.
+                            summary_txt = utils.summarize_html(response_txt)
+                            raise Exception(f'JSON cannot decode long HTML stuff, here is a summary: {summary_txt}')
+                        else:
+                            raise Exception(f'JSON cannot decode long string: {response_txt[0:384]}...')
                     else:
                         status_code = resp.status
                         if status_code is None:
@@ -55,7 +61,7 @@ async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_erro
                 raise Exception(f'Cannot JSON this string: {repr(response_object)}\nError message: {e}')
             else:
                 return {'blob': str(response_object.text()), 'code':response_object.status_code}
-    return utils.dictlegacy2modern(response_dict, None)[0]
+    return response_dict
 
 
 class BadResponseException(Exception):
@@ -118,7 +124,6 @@ class HTTPAPIWrapper:
             raise Exception(f'the_request must be None or a dict, not a {type(the_request)} because; dicts are turned into json.')
         if requests_kwargs is None:
             requests_kwargs = {}
-        the_request, url = utils.dictmodern2legacy(the_request, url)
         if the_request is not None:
             requests_kwargs['json'] = the_request
         kwarg_str = [] # Debug.
@@ -206,15 +211,24 @@ class HTTPAPIWrapper:
 
     ######################## User #########################
 
-    async def fetch_user_profile(self, user_id):
-        """Returns a Character object that contains user profile of (string-valued) user_id."""
-        response_dict = await self.checked_post(url=self.http_server_uri + "/character/fetch_profile", the_request={"userlist": [user_id]}, requests_kwargs={'headers':self.headers}, good_msg=None, bad_msg="Error fetching user profile", raise_errors=True)
-        data=response_dict['data'][user_id]
-        data['user_id'] = user_id
-        character = from_dict(data_class=Character, data=data)
-        return character
+    def _xtract_character(self, resp_data):
+        c_data = {}
+        c_data['character_id'] = resp_data['character_id']
+        c_data['name'] = resp_data['character_context']['name']
+        c_data['character_context'] = resp_data['character_context']
+        return from_dict(data_class=Character, data=c_data)
 
-    async def fetch_channel_users(self, channel_id, service_id, raise_empty_list_err=True):
+    async def fetch_character_profile(self, character_id):
+        """Returns a Character object (or list) given a string-valued (or list-valued) character_id."""
+        is_list = True
+        if type(character_id) is str:
+            is_list = False
+            character_id = [character_id]
+        response_dict = await self.checked_post(url=self.http_server_uri + "/character/fetch_profile", the_request={"character_list": character_id}, requests_kwargs={'headers':self.headers}, good_msg=None, bad_msg="Error fetching user profile", raise_errors=True)
+        characters = [self._xtract_character(d) for d in response_dict['data']]
+        return characters if is_list else characters[0]
+
+    async def fetch_real_characters(self, channel_id, service_id, raise_empty_list_err=True):
         """
         Fetches the real user ids of a channel. A service function, will not work as an Agent function.
 
@@ -224,7 +238,7 @@ class HTTPAPIWrapper:
           raise_empty_list_err=True: Raises an Exception if the list is empty.
 
         Returns:
-         A list of user_ids strings.
+         A list of [character_id strings.
 
         Raises:
           Exception (empty list) if raise_empty_list_err is True and the list is empty.
@@ -232,49 +246,74 @@ class HTTPAPIWrapper:
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
-        response_dict = await self.checked_get(url=self.http_server_uri + "/channel/character_list", the_request=None, requests_kwargs=rkwargs, good_msg="Successfully fetched channel userlist", bad_msg="Error fetching channel userlist", raise_errors=True)
-
-        userlist = response_dict["data"]["userlist"]
-        channel_userlist = [u['user_id'] if type(u) is dict else u for u in userlist] # Convert to user_id if and only if given a user dict.
-
-        if channel_userlist or not raise_empty_list_err:
-            return channel_userlist
+        use_groups = False
+        if use_groups:
+            response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/list", the_request=None, requests_kwargs=rkwargs, good_msg="Successfully fetched channel character list", bad_msg="Error fetching channel character list", raise_errors=True)
+            character_list = []
+            logger.info(f'Who is on this channel? {channel_id}:\n{response_dict}')
+            for x in response_dict['data']:
+                if 'characters' in x:
+                    character_list.extend(x['characters'])
+                elif 'character_ids' in x: # I don't think this key is used.
+                    character_list.extend(x['character_ids'])
+                else:
+                    raise Exception('The /user/group/list fetch did not return the characters as well, so maybe it should be extract-from-group time?')
         else:
-            raise Exception(f"Empty user_list error, channel_id: {channel_id}, service_id: {service_id}.")
+            response_dict = await self.checked_get(url=self.http_server_uri + "/channel/character_list", the_request=None, requests_kwargs=rkwargs, good_msg="Successfully fetched channel character list", bad_msg="Error fetching channel character list", raise_errors=True)
+            character_list = response_dict['data']['character_list']
 
-    async def fetch_character_list(self, service_id):
+        if type(character_list) is not list:
+            raise Exception('Got a character list which actually was not a list.')
+        if character_list or not raise_empty_list_err:
+            return character_list
+        else:
+            raise Exception(f"Empty character_list error, channel_id: {channel_id}, service_id: {service_id}.")
+
+    async def fetch_service_characters(self, service_id):
         """Get the user list (a list of Character objects), of a service given the string-valued service_id."""
-        version = 0 # All three seem broken in the .app version.
         m0 = "Successfully fetched character list"
         mr = "Error fetching character list"
-        if version==0:
-            response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list?service_id={service_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_msg=m0, bad_msg=mr, raise_errors=True)
-        elif version==1:
-            params = {"service_id": service_id}
-            rkwargs = {'params':params, 'headers':self.headers}
-            response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list", the_request=None, requests_kwargs=rkwargs, good_msg=m0, bad_msg=mr, raise_errors=True)
-        else:
-            response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list", the_request={"service_id": service_id}, requests_kwargs={'headers':self.headers}, good_msg=m0, bad_msg=mr, raise_errors=True)
+        worked = False
+        if not worked:
+            try:
+                response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list?service_id={service_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_msg=m0, bad_msg=mr, raise_errors=True)
+                worked = True
+            except Exception as e:
+                logger.warning(f'Version 0 fetch_characters failed: {e}')
+        if not worked:
+            try:
+                params = {"service_id": service_id}
+                rkwargs = {'params':params, 'headers':self.headers}
+                response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list", the_request=None, requests_kwargs=rkwargs, good_msg=m0, bad_msg=mr, raise_errors=True)
+                worked = True
+            except Exception as e:
+                logger.warning(f'Version 1 fetch_characters failed: {e}')
+        if not worked:
+            try:
+                response_dict = await self.checked_get(url=self.http_server_uri + f"/service/character/list", the_request={"service_id": service_id}, requests_kwargs={'headers':self.headers}, good_msg=m0, bad_msg=mr, raise_errors=True)
+                worked = True
+            except Exception as e:
+                logger.error(f'All three versions failed: {e}')
+                raise e
         charlist = response_dict["data"]
-        return [from_dict(data_class=Character, data=d) for d in charlist]
+        return [self._xtract_character(d) for d in charlist]
 
     async def fetch_user_info(self):
         """Used by the agent to get the agent info as a dict."""
         response_dict = await self.checked_get(url=self.http_server_uri + f"/user/info", the_request=None, requests_kwargs={'headers':self.headers}, good_msg="Successfully fetched user info", bad_msg="Error getting user info", raise_errors=True)
         return response_dict.get('data')
 
-    async def update_current_user(self, avatar, description, name, user_id=None):
+    async def update_current_user(self, avatar, description, name):
         """Updates the user info. Will only be an Agent function in the .net version.
 
            Parameters:
              avatar: Link to image.
              description: Of the user.
-             name: The name that shows in chat, differen than username.
-             user_id=None: Legacy for .app version, Moobius will automatically use self.client_id as the for the .net version.
+             name: The name that shows in chat.
 
            No return value.
         """
-        the_request=utils.add_user_id({"avatar": avatar, 'description':description, 'name':name}, user_id)
+        the_request={"avatar": avatar, 'description':description, 'name':name}
         response_dict = await self.checked_post(url=self.http_server_uri + f"/user/info", the_request=the_request, requests_kwargs={'headers':self.headers}, good_msg="Successfully updated user info", bad_msg="Error updating user info", raise_errors=True)
         return response_dict.get('data')
 
@@ -290,14 +329,13 @@ class HTTPAPIWrapper:
         response_dict = await self.checked_get(url=self.http_server_uri + "/service/list", the_request=None, requests_kwargs={'headers':self.headers}, good_msg=None, bad_msg='Error getting service list', raise_errors=True)
         return response_dict.get('data')
 
-    async def create_character(self, service_id, username, name, avatar, description):
+    async def create_character(self, service_id, name, avatar, description):
         """
-        Creates a character with given username, name, avatar, and description.
+        Creates a character with given name, avatar, and description.
         The created user will be bound to the given service.
 
         Parameters:
           service_id (str): The service_id/client_id.
-          username (str): The username of the user.
           name (str): The name of the user.
           avatar (str): The image URL of the user's picture/
           description (str): The description of the user.
@@ -305,30 +343,28 @@ class HTTPAPIWrapper:
         Returns: A Character object representing the created user, None if doesn't receive a valid response (error condition). TODO: Should these error conditions jsut raise Exceptions instead?
         """
         jsonr = {"service_id": service_id,
-                 "username": username,
                  "context": {
                    "name": name,
                    "avatar": avatar,
                    "description": description}}
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/character/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg="Successfully created character", bad_msg="Error creating character", raise_errors=True)
-        character = from_dict(data_class=Character, data=response_dict['data'])
+        character = self._xtract_character(response_dict['data'])
         return character
 
-    async def update_character(self, service_id, user_id, username, avatar, description, name):
+    async def update_character(self, service_id, character_id, avatar, description, name):
         """Updates the user info for a FAKE user, for real users use update_current_user.
 
            Parameters:
              service_id (str): Which service holds the user.
-             user_id (str): Of the user.
-             username (str): User name, different than name.
+             character_id (str): Of the user.
              avatar (str): Link to user's image.
              description (str): Description of user.
-             name (str): The name that shows in chat, different than username.
+             name (str): The name that shows in chat.
 
            Returns:
             Data about the user as a dict.
         """
-        the_request = {"service_id": service_id, 'user_id':user_id, 'username': username, 'context': {'avatar':avatar, 'description':description, 'name':name}}
+        the_request = {"service_id": service_id, 'character_id':character_id, 'context': {'avatar':avatar, 'description':description, 'name':name}}
         response_dict = await self.checked_post(url=self.http_server_uri + f"/service/character/update", the_request=the_request, requests_kwargs={'headers':self.headers}, good_msg="Successfully updated character info", bad_msg="Error updating character info", raise_errors=True)
         return response_dict.get('data')
 
@@ -391,13 +427,13 @@ class HTTPAPIWrapper:
             out.append(ch)
         return out
 
-    async def fetch_history_message(self, channel_id, limit=1024, before="null"):
+    async def fetch_message_history(self, channel_id, limit=64, before="null"):
         """
-        Returns the message history. TODO: May not be working yet.
+        Returns the message chat history.
 
         Parameters:
           channel_id (str): Channel with the messages inside of it.
-          limit=1024: Max number of messages to return (messages further back in time, if any, will not be returned).
+          limit=64: Max number of messages to return (messages further back in time, if any, will not be returned).
           before="null": Only return messages older than this.
 
         Returns a list of dicts, each dict has this structure:
@@ -406,9 +442,19 @@ class HTTPAPIWrapper:
         """
         if type(limit) is not str:
             limit = str(limit)
-        jsonr = {'channel_id':channel_id, 'limit':limit, 'before':before}
-        the_response = await self.checked_get(url=self.http_server_uri + "/channel/history_message", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg=f"Successfully fetched messages for channel {channel_id}", bad_msg=f"Error fetching messages for channel {channel_id}", raise_errors=False)
+        params = {'channel_id':channel_id, 'limit':limit, 'before':before}
+        rkwargs = {'params':params, 'headers':self.headers}
+        jsonr = {"limit": limit} # Not where to put the limit, so it is put in both places.
+
+        the_response = await self.checked_get(url=self.http_server_uri + "/channel/history_message", the_request=jsonr, requests_kwargs=rkwargs, good_msg=f"Successfully fetched message history for channel {channel_id}", bad_msg=f"Error fetching message history for channel {channel_id}", raise_errors=False)
+        if 'blob' in the_response: # HTML style.
+            return the_response['blob']
         return the_response
+
+    async def this_user_channels(self):
+        """What channels this user is joined to?"""
+        the_response = await self.checked_get(url=self.http_server_uri + "/channel/list", the_request=None, requests_kwargs={'headers':self.headers}, good_msg=f"Successfully listed channels current user is in.", bad_msg=f"Error listing channels current user is in.", raise_errors=False)
+        return [x['channel_id'] for x in the_response['data']]
 
     ############################# File ############################
 
@@ -475,37 +521,99 @@ class HTTPAPIWrapper:
 
     ############################# Groups ############################
 
-    async def create_channel_group(self, channel_id, group_name, members):
+    async def fetch_channel_group_dict(self, channel_id, service_id):
+        """Like fetch_real_characters but returns a dict from group_id to all characters."""
+        params = {"channel_id": channel_id, "service_id": service_id}
+        rkwargs = {'params':params, 'headers':self.headers}
+
+        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/list", the_request=None, requests_kwargs=rkwargs, good_msg="Successfully fetched channel group dict", bad_msg="Error fetching channel group dict", raise_errors=True)
+        id2members = {}
+        for x in response_dict['data']:
+            if type(x['characters']) is not list:
+                raise Exception('The characters field of data for /user/group/list should be a list.')
+            id2members[x['group_id']] = x['characters']
+        return id2members
+
+    async def fetch_channel_group_list(self, channel_id, service_id):
+        """Like fetch_channel_group_dict but returns the raw data."""
+        params = {"channel_id": channel_id, "service_id": service_id}
+        rkwargs = {'params':params, 'headers':self.headers}
+
+        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/list", the_request=None, requests_kwargs=rkwargs, good_msg="Successfully fetched channel group list", bad_msg="Error fetching channel group list", raise_errors=True)
+        return response_dict['data']
+
+    async def create_channel_group(self, channel_id, group_name, characters):
         """
         Creates a channel group.
 
         Parameters:
           channel_id (str): The id of the group leader?
           group_name (str): What to call it.
-          members (list): A list of channel_id strings that will be inside the group.
+          characters (list): A list of channel_id strings that will be inside the group.
 
         Returns:
           The group id string.
         """
-        raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
-        jsonr = {"channel_id": channel_id, "group_name":group_name, "members": members}
+        jsonr = {"channel_id": channel_id, "group_name":group_name, "characters": characters}
         response_dict = await self.checked_post(url=self.http_server_uri + "/user/group/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg="Successfully created channel group {group_name}!", bad_msg="Error creating channel group {group_name}", raise_errors=True)
-        return response_dict['data']['channel_group_id']
+        return from_dict(data_class=Group, data={'group_id': response_dict['data']['group_id'], 'character_ids':characters})
 
-    async def create_service_group(self, group_id, members):
+    async def character_ids_of_service_group(self, group_id):
+        """Gets a list of character ids belonging to a service group."""
+
+        use_questionmark = True
+        if use_questionmark:
+            response_dict = await self.checked_get(url=self.http_server_uri + f"/service/group?group_id={group_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_msg="Successfully fetched service group roster!", bad_msg="Error fetching service group roster", raise_errors=True)
+        else:
+            the_json = {'group_id':group_id}
+            response_dict = await self.checked_get(url=self.http_server_uri + f"/service/group", the_request=the_json, requests_kwargs={'headers':self.headers}, good_msg="Successfully fetched service group roster!", bad_msg="Error fetching service group roster", raise_errors=True)
+        if len(response_dict['data']) == 0:
+            logger.warning(f'This group, if service group, seems to have no character ids in it: {group_id}')
+            return []
+        logger.info(f'Character id, service group HTTP response: {response_dict}')
+        return response_dict['data']['characters']
+
+    async def character_ids_of_channel_group(self, sender_id, channel_id, group_id):
         """
-        Create a user group. The group will be created with the given group ID and user UUIDs.
+        Gets a list of character ids belonging to a channel group that is returned by a message.
+
+        Parameters:
+          sender_id: The message's sender.
+          channel_id: The message specified that it was sent in this channel.
+          group_id: The messages recipients.
+        """
+
+        use_questionmark = True
+        if use_questionmark:
+            response_dict = await self.checked_get(url=self.http_server_uri + f"/user/group?group_id={group_id}&channel_id={channel_id}&user_id={sender_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_msg="Successfully fetched channel group roster!", bad_msg="Error fetching channel group roster", raise_errors=True)
+        else:
+            the_json = {'user_id':sender_id, 'group_id':group_id, 'channel_id':channel_id}
+            response_dict = await self.checked_get(url=self.http_server_uri + f"/user/group", the_request=the_json, requests_kwargs={'headers':self.headers}, good_msg="Successfully fetched channel group roster!", bad_msg="Error fetching channel group roster", raise_errors=True)
+        logger.info(f'List character IDs of channel group HTTP response: {response_dict}')
+        if len(response_dict['data']) == 0:
+            logger.warning(f'This group, if channel group, seems to have no character ids in it: {group_id}')
+            return []
+        return response_dict['data']['characters']
+
+    async def create_service_group(self, characters):
+        """
+        Create a group containing characters id list, returning a Group object.
+        Sending messages down for the new .net API requires giving myGroup.group_id instead of a list of character_ids.
 
         Parameters:
           group_name (str): What to call it.
-          members (list): A list of channel_id strings that will be inside the group.
+          characters (list): A list of character_id strings that will be inside the group.
 
         Returns:
           A Group object."""
-        raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
-        jsonr = {"group_id": group_id, "members": members}
+        if type(characters) is not list:
+            raise Exception('Create service group expects a list of strings.')
+        jsonr = {"group_id": "", "characters": characters}
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/group/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg="Successfully created service group!", bad_msg="Error creating service group", raise_errors=True)
-        group = from_dict(data_class=Group, data=response_dict['data'])
+        group_id = response_dict['data']
+        if type(group_id) is not str:
+            raise Exception('The group id returned was not a string.')
+        group = from_dict(data_class=Group, data={'group_id': group_id, 'character_ids':characters})
         return group
 
     async def update_channel_group(self, channel_id, group_id, members):
@@ -537,17 +645,12 @@ class HTTPAPIWrapper:
         jsonr = {"channel_id": channel_id, "members": members}
         await self.checked_post(url=self.http_server_uri + "/user/group/temp", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg="Successfully updated channel group {group_name}!", bad_msg="Error updating channel group {group_name}", raise_errors=True)
 
-    async def fetch_channel_temp_group(self, channel_id):
-        """Returns the TEMP group data that the given channel_id string is in."""
-        raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
-        jsonr = {'channel_id':channel_id}
-        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/temp", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg=f"Successfully fetched group for channel {channel_id}", bad_msg=f"Error fetching group for channel {channel_id}", raise_errors=True)
-        return response_dict['data']
+    async def fetch_channel_temp_group(self, channel_id, service_id):
+        """Like fetch_channel_group_list but for Temp groups."""
+        params = {"channel_id": channel_id, "service_id": service_id}
+        rkwargs = {'params':params, 'headers':self.headers}
 
-    async def fetch_channel_group_list(self, channel_id):
-        raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
-        jsonr = {'channel_id':channel_id}
-        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/list", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_msg=f"Successfully fetched group for channel {channel_id}", bad_msg=f"Error fetching group for channel {channel_id}", raise_errors=True)
+        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/temp", the_request=None, requests_kwargs=rkwargs, good_msg="Successfully fetched channel temp group list", bad_msg="Error fetching channel temp group list", raise_errors=True)
         return response_dict['data']
 
     async def fetch_user_from_group(self, user_id, channel_id, group_id):

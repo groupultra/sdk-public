@@ -5,7 +5,7 @@ import sys
 
 from service import DemoService
 from agent import DemoAgent
-from moobius import MoobiusWand
+from moobius import MoobiusWand, utils
 
 from loguru import logger
 
@@ -34,68 +34,52 @@ if __name__ == "__main__":
         config_path="config/service.json",
         db_config_path="config/db.json",
         is_agent=False, # It defaults to False anyway.
-        background=True
-    )
-
-    agent_handle = wand.run(
-        DemoAgent,
-        log_file="logs/agent.log",
-        error_log_file="logs/error.log",
-        config_path="config/agent.json",
-        db_config_path="config/agent_db.json",
-        is_agent=True,
         background=True)
 
-    # service on_spell
-    #wand.spell(handle, "meow")
-    #wand.spell(handle, "nya")
+    do_agent = True
+    if do_agent:
+        agent_handle = wand.run(
+            DemoAgent,
+            log_file="logs/agent.log",
+            error_log_file="logs/error.log",
+            config_path="config/agent.json",
+            db_config_path="config/agent_db.json",
+            is_agent=True,
+            background=True)
 
-    #asyncio.run(asyncio.sleep(3))
-    # agent on_spell
-    #wand.spell(agent_handle, "send_fetch_userlist")
-    #wand.spell(agent_handle, "send_fetch_buttons")
+    else:
+        agent_handle = None
+        logger.warning('Agent has been DISABLED this run (debugging).')
 
-    #wand.spell(agent_handle, "nya_all")
+    do_simple_spells = True
+    if do_simple_spells:
+        for i in range(8):
+            time.sleep(8)
+            wand.spell(handle, [f'Simple spell {i} of 8 ', i]) # The Service expects spells to be (string, times) spells.
 
-    #asyncio.run(asyncio.sleep(3))
+    ################# Testing code below: `python main.py test` to run these tests ###############
 
-    #wand.spell(agent_handle, "send_fetch_canvas")
+    if len(sys.argv) >= 2 and sys.argv[1].lower().strip() in ['test', '-test', '--test']:
+        logger.info("Test will start in 48 seconds...")
+        time.sleep(48)
+        wand.spell(handle, ['SYNC SPELL!', 1])
+        asyncio.run(wand.aspell(handle,['ASYNC SPELL!', 1])) # Both Sync and Async spells should be supported.
+        wand.spell(handle,['OVERFLOW' * 10000, 1]) # Only the first BOMB (10000) will pass. Subsequent ones will cause the websocket to disconnect. This message will NOT go through.
+        asyncio.run(wand.aspell(handle,['SURVIVED!', 1])) # There is an automatic reconnection mechanism. This will still work
 
-    #wand.spell(agent_handle, "send_fetch_channel_info")
-    #wand.spell(agent_handle, "send_button_click_key1")
-    #wand.spell(agent_handle, "send_button_click_key2")
+        if agent_handle:
+            wand.spell(agent_handle, "meow")
+            wand.spell(agent_handle, "nya")
+            wand.spell(agent_handle, "send_fetch_characters") # Agent spells expect a single string.
+            wand.spell(agent_handle, "send_fetch_buttons")
+            wand.spell(agent_handle, "nya_all")
+            wand.spell(agent_handle, "send_fetch_canvas")
+            wand.spell(agent_handle, "send_fetch_channel_info")
+            wand.spell(agent_handle, "send_button_click_key1")
+            wand.spell(agent_handle, "send_button_click_key2")
+            wand.spell(agent_handle, "send_leave_channel")
+            wand.spell(agent_handle, "send_join_channel")
 
-    #asyncio.run(asyncio.sleep(3))
-    #wand.spell(agent_handle, "send_leave_channel")
-    #asyncio.run(asyncio.sleep(3))
-
-    #wand.spell(agent_handle, "send_join_channel")
-
-    # ======================= Code below are only for test purposes! =========================
-    # ======================= And a DEMO for wand spells =====================================
-    # use `python main.py test` to run the test
-    # use `python main.py` to run the service without test
-
-
-    def test_spell(word='SYNC', repeat=10, interval=1):
-        for i in range(repeat):
-            wand.spell(handle, (word, i + 1))
-            time.sleep(interval)
-
-
-    async def test_aspell(word='ASYNC', repeat=10, interval=1):
-        for i in range(repeat):
-            await wand.aspell(handle, (word, i + 1))
-            await asyncio.sleep(interval)
-
-
-    if len(sys.argv) >= 2 and sys.argv[1] == 'test':
-        logger.info("Test will start in 10 seconds...")
-        time.sleep(10)
-        test_spell('SYNC TEST! ', 5, 1)           # Sync spell
-        asyncio.run(test_aspell('ASYNC TEST! ', 5, 1))         # Async spell
-        test_spell('BOMB' * 10000, 5, 2)    # Only the first BOMB (10000) will pass. Subsequent ones will cause the websocket to disconnect
-        asyncio.run(test_aspell('SURVIVED! ', 5, 1))       # There is an automatic reconnection mechanism. This will still work
         logger.info('Test finished. If you see this, it means the service is still running.')
     else:
         logger.info("Demo service started.")

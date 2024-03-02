@@ -73,7 +73,7 @@ if __name__ == "__main__":
     
     handle = wand.run(
         <YourCustomClassType>,
-        service_config_path="config/service.json",
+        config_path="config/service.json",
         db_config_path="config/db.json",
         background=True
     )
@@ -133,7 +133,7 @@ async def cron_task(self):
     for channel_id in self.channels:
         channel = self.channels[channel_id]
         recipients = list(channel.real_characters.keys())
-        talker = channel.virtual_characters[self.WAND].user_id
+        talker = channel.virtual_characters[self.WAND].character_id
         txt = f"Check in every minute! {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         await self.create_message(channel_id, txt, recipients, sender=talker)
 ```
@@ -149,10 +149,10 @@ Populate the real characters:
 ```
     channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
     self.channels[channel_id] = channel
-    real_characters = await self.fetch_channel_users(channel_id)
+    real_characters = await self.fetch_real_characters(channel_id)
 
     for character in real_characters:
-        character_id = character.user_id
+        character_id = character.character_id
         channel.real_characters[character_id] = character
 
         if character_id not in channel.buttons:
@@ -177,7 +177,7 @@ create_character():
             image_path = channel.image_paths[self.MICKEY]
 
             channel.virtual_characters[key] = await self.create_character(
-                self.MICKEY, f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
+                f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
             )
         else:
             continue
@@ -213,26 +213,26 @@ if recipients:
     if txt.lower() == "moobius":
         await self.create_message(channel_id, "Moobius is Great!", recipients, sender=sender)
     else:
-        await self.send(payload_type='message_down', payload_body=message_up)
+        await self.convert_and_send_message(message_up)
 ```
 
-## Overriding self.on_fetch_user_list(action) and self.on_fetch_buttons(action)
+## Overriding self.on_fetch_service_characters(action) and self.on_fetch_buttons(action)
 
 It is important to keep the database up-to-date with the buttons.
 First define the function that does so:
 ```
-async def calculate_and_update_user_list_from_database(self, channel_id, character_id):
+async def calculate_and_update_character_list_from_database(self, channel_id, character_id):
     channel = self.channels[channel_id]
     real_characters = channel.real_characters
-    user_list = [rc.user_id for rc in list(real_characters.values())]
-    user_list = list(real_characters.keys()) # Equivalent to previous line for real_characters in these demo examples, but NOT for virtual_characters
+    character_list = [rc.character_id for rc in list(real_characters.values())]
+    character_list = list(real_characters.keys()) # Equivalent to previous line for real_characters in these demo examples, but NOT for virtual_characters
     mickey_num = channel.states[character_id]['mickey_num']
 
     for sn in range(mickey_num):
         key = f"{self.MICKEY}_{sn}"
-        user_list.append(channel.virtual_characters[key])
+        character_list.append(channel.virtual_characters[key])
 
-    await self.send_update_user_list(channel_id, user_list, [character_id])
+    await self.send_update_character_list(channel_id, character_list, [character_id])
 ```
 
 Then keeping up to date when fetching the buttons and user list is easy. The **Action** dataclass has *channel_id* and *sender* attributes as well as *subtype* and an optional *context* attribute.
@@ -242,8 +242,8 @@ async def send_buttons_from_database(self, channel_id, character_id): # Doesn't 
     button_data_list = self.channels[channel_id].buttons.get(character_id, self._default_buttons)
     await self.send_update_buttons(channel_id, button_data_list, [character_id])
 
-async def on_fetch_user_list(self, action):
-    await self.calculate_and_update_user_list_from_database(action.channel_id, action.sender)
+async def on_fetch_service_characters(self, action):
+    await self.calculate_and_update_character_list_from_database(action.channel_id, action.sender)
 
 async def on_fetch_buttons(self, action):
     await self.send_buttons_from_database(action.channel_id, action.sender)
@@ -261,14 +261,14 @@ async def on_fetch_canvas(self, action):
     state = channel.states[sender]['canvas_mode']
     await self.send_update_canvas(channel_id, self.image_show_dict[state], [sender])
 
-    content = [
+    message_content = [
         {
             "widget": "canvas",
             "display": "visible",
             "expand": "true"
         }
     ]
-    await self.send_update_style(channel_id, content, [sender])
+    await self.send_update_style(channel_id, message_content, [sender])
 ```
 
 ## Overriding self.on_join_channel(action) and self.on_leave_channel(action)
@@ -279,18 +279,18 @@ Lets also send a message to let people know:
 async def on_join_channel(self, action):
     sender = action.sender
     channel_id = action.channel_id
-    character = await self.fetch_user_profile(sender)
-    name = character.user_context.name
+    character = await self.fetch_character_profile(sender)
+    name = character.character_context.name
     channel = self.channels[channel_id]
 
     channel.real_characters[sender] = character
     channel.buttons[sender] = self.default_buttons
     channel.states[sender] = self.default_status
 
-    user_list = list(channel.real_characters.keys()) # Keys are user_ids for real characters generally.
-    character_ids = list(channel.real_characters.keys()) # In this example user_list is the same as character_ids; every user gets to see the update.
+    character_list = list(channel.real_characters.keys()) # Keys are character_ids for real characters generally.
+    character_ids = list(channel.real_characters.keys()) # In this example character_list is the same as character_ids; every user gets to see the update.
 
-    await self.send_update_user_list(channel_id, user_list, character_ids)
+    await self.send_update_character_list(channel_id, character_list, character_ids)
     await self.create_message(channel_id, f'{name} joined the channel!', character_ids, sender=sender)
 
 async def on_leave_channel(self, action):
@@ -299,13 +299,13 @@ async def on_leave_channel(self, action):
     character = self.channels[action.channel_id].real_characters.pop(sender, None)
     self.channels[channel_id].states.pop(sender, None)
     self.channels[channel_id].buttons.pop(sender, None)
-    name = character.user_context.name
+    name = character.character_context.name
 
     real_characters = self.channels[channel_id].real_characters
-    user_list = list(real_characters.keys())
+    character_list = list(real_characters.keys())
     character_ids = list(real_characters.keys())
 
-    await self.send_update_user_list(channel_id, user_list, character_ids)
+    await self.send_update_character_list(channel_id, character_list, character_ids)
     await self.create_message(channel_id, f'{name} left the channel!', character_ids, sender=sender)
 ```
 
@@ -327,7 +327,7 @@ async def on_spell(self, spell):
     for channel_id in self.channels:
         channel = self.channels[channel_id]
         recipients = list(channel.real_characters.keys())
-        talker = channel.virtual_characters[self.WAND].user_id
+        talker = channel.virtual_characters[self.WAND].character_id
         await self.create_message(channel_id, text, recipients, sender=talker)
 ```
 
@@ -345,7 +345,7 @@ async def on_button_click(self, button_click):
     channel = self.channels[channel_id]
 
     character = channel.real_characters[sender]
-    name = character.user_context.name
+    name = character.character_context.name
     recipients = list(channel.real_characters.keys())
 
     if button_id == "key1":
@@ -358,13 +358,13 @@ async def on_button_click(self, button_click):
                 channel.states[sender]['mickey_num'] += 1
                 channel.states.save(sender)
 
-                await self.calculate_and_update_user_list_from_database(channel_id, sender)
+                await self.calculate_and_update_character_list_from_database(channel_id, sender)
         elif value == 'Talk':
             if channel.states[sender]['mickey_num'] == 0:
                 await self.create_message(channel_id, "Please Create Mickey First!", [sender], sender=sender)
             else:
                 sn = channel.states[sender]['mickey_num'] - 1
-                talker = channel.virtual_characters[f"{self.MICKEY}_{sn}"].user_id
+                talker = channel.virtual_characters[f"{self.MICKEY}_{sn}"].character_id
                 await self.create_message(channel_id, f"Mickey {sn} Here!", [sender], sender=talker)
         else:
             dtrack.log_warning(f"Unknown value: {value}")
@@ -403,7 +403,7 @@ Will call self.send_service_login() if copy.status is invalid. Generally not use
 **async def on_fetch_channel_info(self, action)**
 This method is uncommon to override.
 
-**async def upload_avatar_and_create_character(self, service_id, username, name, image_path, description)**
+**async def upload_avatar_and_create_character(self, service_id, name, image_path, description)**
 Uses HTTPS to uploade an image and assign it to a new character. Used by the demos *neko* and *script_cinema*.
 
 
@@ -417,7 +417,7 @@ Used internally in the Service class.
 Used by virtual characters to send messages to users. Used many times in the demo *mouse*.
 
 **async def send_update(self, target_client_id, data)**
-Generaic send_update. It is generally not used, more specific functions such as send_update_user_list are used instead.
+Generaic send_update. It is generally not used, more specific functions such as send_update_character_list are used instead.
 
 **async def send_update_channel_info(self, channel_id, channel_data)**
 Generally not used.

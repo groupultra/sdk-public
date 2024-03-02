@@ -45,7 +45,6 @@ class JSONDatabase(DatabaseInterface):
         self.ref_module = types
         os.makedirs(self.path, exist_ok=True)
 
-    @logger.catch
     def get_value(self, key):
         """
         Gets the value (which is a dict) of a string-valued key. Returns (is_success, the_value).
@@ -79,7 +78,6 @@ class JSONDatabase(DatabaseInterface):
                     else:
                         raise TypeError(f'Unknown type: {class_name}')
 
-    @logger.catch
     def set_value(self, key, value):
         """Set the value (a dict) of a key (a string). Returns (is_success, the_key).
            Note: This function should not be called directly."""
@@ -90,7 +88,6 @@ class JSONDatabase(DatabaseInterface):
             json.dump(data, f, indent=4, cls=EnhancedJSONEncoder)
             return True, key
 
-    @logger.catch
     def delete_key(self, key):
         """Delete a (string-valued) key. Returns (is_success, key)
            Note: This function should not be called directly."""
@@ -99,7 +96,6 @@ class JSONDatabase(DatabaseInterface):
 
         return True, key
 
-    @logger.catch
     def all_keys(self):
         """Gets all keys in the database. Returns an iterable which internally uses yield()."""
         def key_iterator():

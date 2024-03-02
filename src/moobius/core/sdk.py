@@ -1,7 +1,6 @@
 # SDK interface, agent or service. Automatically wraps the two platform APIs (HTTP and Socket)
 
-import json
-import time
+import json, os
 
 from dataclasses import asdict
 from dacite import from_dict
@@ -16,8 +15,9 @@ import aioprocessing
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from moobius.network.ws_client import WSClient
+import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageBody, Action, Button, ButtonCall, ButtonCallArgument, Copy, Payload
+from moobius.types import MessageBody, Action, Button, ButtonClick, ButtonClickArgument, Payload
 from moobius.database.storage import MoobiusStorage
 from moobius import utils
 from loguru import logger
@@ -25,7 +25,60 @@ from loguru import logger
 strict_kwargs = False # If True all functions (except __init__) with more than one non-self arg will require kwargs. If False a default ordering will be used.
 
 
-class SDK:
+class ServiceGroupLib():
+    """Converts a list of character_ids into a service group id, creating one if need be.
+       The lookup is O(n) so performance issues at extremly large list sizes are a theoretical possibility."""
+
+    def __init__(self):
+        logger.info(f'Initialized new, empty ServiceGroupLib on process {os.getpid()}')
+        self.id2ids_mdown = {} # Message down creates service group with /service/group/create
+        self.ids2id_mdown = {}
+        self.id2ids_mup = {}
+        self.ids2id_mup = {}
+        self.alock = asyncio.Lock()
+
+    async def convert_list(self, http_api, character_ids, is_message_down, channel_id=None):
+        """
+        Converts a list to single group id unless it is already a group id.
+
+        Parameters:
+          http_api: The http_api client in MoobiusClient
+          character_ids: List of ids.
+            If a string, the conversion will return the unmodified string.
+          is_message_down: True = message_down (Service sends message), False = message_up (Agent sends message).
+          channel_id=None: If None and the conversion still needs to happen it will raise an Exception.
+
+        Returns: The group id.
+        """
+        if is_message_down:
+            ids2id = self.id2ids_mdown
+            id2ids = self.id2ids_mdown
+        else:
+            ids2id = self.id2ids_mup
+            id2ids = self.id2ids_mup
+        async with self.alock: # Make sure the old list is stored before the new list is created.
+            if type(character_ids) is str:
+                return character_ids
+            else: # Convert list to a single group id in this mode.
+                character_ids = sorted(list(character_ids))
+                massive_str = '_'.join(character_ids)
+                need_new_group = massive_str not in ids2id
+                if need_new_group: # Call /service/group/create
+                    character_ids = character_ids.copy()
+                    if is_message_down:
+                        group_id = (await http_api.create_service_group(character_ids)).group_id
+                    else:
+                        if not channel_id:
+                            raise Exception('A channel_id must be specified when is_message_down is False')
+                        group_id = (await http_api.create_channel_group(channel_id, 'A_message_up_group', character_ids)).group_id
+                    ids2id[massive_str] = group_id
+                    id2ids[group_id] = character_ids
+                out = ids2id[massive_str]
+                logger.info(f'Converted recipient list (is_mdown={is_message_down}) {character_ids} to group id {out} on process {os.getpid()}. {"Created new service group." if need_new_group else "Group already exists."}')
+                return out
+
+
+class MoobiusClient:
 
     ############################ Startup functions ########################################
 
@@ -40,23 +93,23 @@ class SDK:
           is_agent=False: True for an agent, False for a service.
             Agents and services have slight differences in auth and how the platform reacts to them, etc.
 
-        Returns:
-          None
+        No return value.
 
         Example:
-          >>> service = SDK(service_config_path="./config/service.json", db_config_path="./config/database.json", is_agent=False)
+          >>> service = SDK(config_path="./config/service.json", db_config_path="./config/database.json", is_agent=False)
         """
         self.config_path = config_path
         self.is_agent = is_agent
 
         if type(config_path) is dict:
             logger.info('Be careful to keep the secrets in your service config safe!')
-            self.config = config_path
+            the_config = config_path
         elif type(config_path) is str:
             with open(config_path, "r") as f:
-                self.config = json.load(f)
+                the_config = json.load(f)
         else:
             raise Exception('config_path not understood')
+        self.config = the_config
 
         if type(db_config_path) is dict:
             self.db_config = db_config_path
@@ -77,6 +130,7 @@ class SDK:
             self.client_id = self.config.get("service_id", "")
 
         self.channels = {} # Generally filled up by self.initialize_channel().
+        self.group_lib = ServiceGroupLib()
 
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
         self.ws_client = WSClient(ws_server_uri, on_connect=self.send_agent_login if self.is_agent else self.send_service_login, handle=self.handle_received_payload)
@@ -91,13 +145,13 @@ class SDK:
 
     async def start(self):
         """
-        Start the service/agent. start() fns are called with wand.run. There are 6 steps:
-          1. Authenticate the service.
+        Start the Service/Agent. start() fns are called with wand.run. There are 6 steps:
+          1. Authenticate.
           2. Connect to the websocket server.
-          3. Bind the service to the channels. If there is no service_id in the config file, create a new service and update the config file.
+          3. (if a Service) Bind the Service to the channels. If there is no service_id in the config file, create a new service and update the config file.
           4. Start the scheduler, run refresh(), authenticate(), send_heartbeat() periodically.
-          5. Call on_start() to perform initialization tasks (override this method to do your own initialization tasks).
-          6. Start listening to the websocket and the wand.
+          5. Call the on_start() callback (override this method to perform your own initialization tasks).
+          6. Start listening to the websocket and the Wand.
 
         No parameters or return value.
         """
@@ -113,7 +167,7 @@ class SDK:
                 if not self.is_agent:
                     raise Exception('Not an agent.')
                 self.agent_info = await self.http_api.fetch_user_info()
-                self.client_id = self.agent_info["sub"]
+                self.client_id = self.agent_info['user_id']
             await _get_agent_info()
             await self.send_agent_login()
         else:
@@ -128,6 +182,18 @@ class SDK:
                 logger.info(f"Please wait for 5 seconds...")
                 self.config["service_id"] = self.client_id
                 await asyncio.sleep(5) # TODO: Sleeps "long enough" should be replaced with polling.
+            if not self.client_id:
+                raise Exception("Error creating a new service and getting its id.")
+
+            if type(self.config_path) is str: # Save the newly created service if any.
+                with open(self.config_path, "r") as f:
+                    old_config = json.load(f)
+                s_id = self.config['service_id']
+                if s_id != old_config.get('service_id'):
+                    old_config['service_id'] = s_id
+                    with open(self.config_path, "w") as f:
+                        json.dump(old_config, f, indent=4)
+                        logger.info(f"Config file 'service_id' updated to {s_id}: {self.config_path}")
 
             if len(self.config["channels"]) == 0:
                 logger.error('No channels specified in self.config')
@@ -140,33 +206,32 @@ class SDK:
                 bound_to = channelid2serviceid.get(channel_id)
                 if bound_to == self.client_id:
                     logger.info(f"Channel {channel_id} already bound to {self.client_id}, no need to bind it.")
-                    await self.initialize_channel(channel_id)
-                    continue
                 elif bound_to: # Conflict resolution.
                     if others=='ignore': # Do not intefere with channels bound to other users.
                         logger.info(f"Channel {channel_id} bound to service {bound_to} and will not be re-bound.")
-                        continue
                     elif others=='unbind': # Be spiteful: Unbind channels bound to other users but don't use them.
                         logger.info(f"Unbinding channel {channel_id} from service {bound_to} but this service will not use this channel.")
                         await self.http_api.unbind_service_from_channel(bound_to, channel_id)
-                        continue
                     elif others=='include': # Steal channels from other services. Hopefully they won't mind.
                         logger.info(f"Unbinding channel {channel_id} from service {bound_to} so it can be used by this service instead.")
                         await self.http_api.unbind_service_from_channel(bound_to, channel_id)
+                        bind_info = await self.http_api.bind_service_to_channel(self.client_id, channel_id) # may already be binded to the service itself
+                        logger.info(f"Re-bound service to channel {channel_id}: {bind_info}")
                     else:
                         raise Exception(f'Unknown others (other channels) option for handling channels already bound to other services: {others}')
-                bind_info = await self.http_api.bind_service_to_channel(self.client_id, channel_id) # may already be binded to the service itself
-                logger.info(f"Bound service to channel {channel_id}: {bind_info}")
+                else:
+                    bind_info = await self.http_api.bind_service_to_channel(self.client_id, channel_id) # may already be binded to the service itself
+                    if bind_info:
+                        logger.info(f"Bound service to channel {channel_id}: {bind_info}")
+
+                groupid2ids = await self.http_api.fetch_channel_group_dict(channel_id, self.client_id)
+                logger.info(f'The channel {channel_id} has groups {groupid2ids}, adding these to self.group_lib.')
+                self.group_lib.id2ids_mdown = {**self.group_lib.id2ids_mdown, **groupid2ids}
                 await self.initialize_channel(channel_id)
 
             if not self.channels:
                 logger.error("All channels are used up by other services and the 'others' option is not set to 'include' to steal them back.")
                 return
-
-            if type(self.config_path) is str:
-                with open(self.config_path, "w") as f:
-                    json.dump(self.config, f, indent=4)
-                logger.info(f"Config file updated: {self.config_path}")
 
             await self.send_service_login() # It is OK (somehow) to log in after all of this not before.
 
@@ -186,14 +251,47 @@ class SDK:
 
         await asyncio.gather(self.ws_client.receive(), self.listen_loop())
 
+    async def agent_join_service_channels(self, service_config_fname):
+        """Joins service channels given by service config filename."""
+        if not self.is_agent:
+            logger.warning('Called agent_join_service_channels when not an agent.')
+        if type(service_config_fname) is dict:
+            s_config = service_config_fname
+        else:
+            with open(service_config_fname, 'r') as f_obj:
+                s_config = json.load(f_obj)
+            channels = s_config.get('channels', [])
+        if len(channels)==0:
+            logger.warning('No channels for Agent to join.')
+        else:
+            logger.info(f'Agent joining Service default channels (if not already joined). Will not join to any extra channels: {channels}')
+
+        try:
+            ch1 = await self.http_api.this_user_channels()
+        except Exception as e:
+            logger.warning(f'Error fetching channels this user is in: {e}')
+            ch1 = []
+        for channel_id in channels:
+            if channel_id not in ch1:
+                try:
+                    chars = await self.fetch_real_characters(channel_id, raise_empty_list_err=False)
+                except Exception as e:
+                    logger.warning(f'fetch_real_characters failed: {e}. Channel will be joined')
+                    chars = []
+                try:
+                    if type(chars) is not list or self.client_id not in chars:
+                        await self.send_join_channel(channel_id)
+                    else:
+                        logger.info(f'Agent already in channel {channel_id}, no need to join.')
+                except Exception as e:
+                    logger.warning(f'Agent error joining channel: {e}')
+
     ################################## Query functions #######################################
 
     async def fetch_bound_channels(self):
         """Returns a dict of which service is each channel bound to. Channels can only be bound to a single service.
            Channels not bound to any service will not be in the dict."""
         service_list = await self.http_api.fetch_service_list()
-        #logger.debug(f"Service list: {service_list}")
-        #logger.info(f"Service ID: {self.client_id}")
         channelid2serviceid = {} # Channels can only be bound to a SINGLE service.
         for service in service_list:
             for channel_id in service["channel_ids"]:
@@ -207,18 +305,15 @@ class SDK:
         the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
         self.channels[channel_id] = the_channel
 
-    async def upload_avatar_and_create_character(self, username, name, image_path, description):
+    async def upload_avatar_and_create_character(self, name, image_path, description):
         """
-        Upload an avatar image and create a character.
-        Service function.
+        Upload an avatar image and create a character. Service function.
 
         Parameters:
-          username: str
-            The username of the character.
           name: str
             The name of the character.
           image_path: str
-            The path of the avatar image. This should be the local path of the image.
+            The local path of the avatar image.
           description: str
             The description of the character.
 
@@ -226,31 +321,38 @@ class SDK:
           The created character (Character object).
         """
         avatar = await self.http_api.upload_file(image_path)
-        return await self.http_api.create_character(self.client_id, username, name, avatar, description)
+        return await self.http_api.create_character(self.client_id, name, avatar, description)
 
-    async def create_message(self, channel_id, content, recipients, subtype='text', sender=None):
+    async def create_message(self, channel_id, message_content, recipients, subtype='text', sender=None):
         """
-        Create a MessageDown (for service) or MessageUp (for agent) request and send it to the channel.
+        Create a message_down (for Service) or message_up (for Agent) request and send it to the channel.
 
         Parameters:
           channel_id (str): The id of the channel.
-          content (str): The text of the message such as "Hello everyone on this channel!".
+          message_content (str): The text of the message such as "Hello everyone on this channel!".
           recipients (list): The recipients of the message.
           subtype='text': The subtype of the message.
           sender: The sender of the message. None for Agents.
 
         No return value.
         """
-        kwargs = {'channel_id':channel_id, 'recipients':recipients, 'subtype':subtype, 'message_content':content}
+        kwargs = {'channel_id':channel_id, 'recipients':recipients, 'subtype':subtype, 'message_content':message_content}
         if self.is_agent:
             await self.send_message_up(**kwargs)
         else:
             kwargs['sender'] = sender or 'no_sender'
             await self.send_message_down(**kwargs)
 
+    async def convert_and_send_message(self, message_body):
+        """Converts the message body into a message down or message up object and sends it.
+           Agents send message_up and Services send message_down."""
+        if type(message_body.context) is dict: # TODO: not sure if this code is needed.
+            message_body.context['sender'] = message_body.sender
+        await self.create_message(message_body.channel_id, message_body.content, message_body.recipients, message_body.subtype, message_body.sender)
+
     async def send(self, payload_type, payload_body):
         """
-        Send any kind of payload, including message_down, update, update_userlist, update_channel_info, update_canvas, update_buttons, update_style, and heartbeat.
+        Send any kind of payload, including message_down, update, update_characters, update_channel_info, update_canvas, update_buttons, update_style, and heartbeat.
 
         Parameters:
           payload_type (str): The type of the payload.
@@ -258,22 +360,19 @@ class SDK:
             Strings will be converted into a Payload object.
 
         No return value.
-
-        Example:
-          >>> await self.send(payload_type='message_down', payload_body=message_up)
         """
         if isinstance(payload_body, dict):
             payload_dict = {
                 'type': payload_type,
                 'request_id': str(uuid.uuid4()),
-                'client_id': self.client_id,
+                'character_id': self.client_id,
                 'body': payload_body
             }
         else: # Need to wrap non-dataclasses into a dataclass, in this case Payload, in order to use asdict() on them.
             payload_obj = Payload(
                 type=payload_type,
                 request_id=str(uuid.uuid4()),
-                client_id=self.client_id,
+                user_id=self.client_id,
                 body=payload_body
             )
             try:
@@ -291,11 +390,27 @@ class SDK:
                         _pr('Elemetary type, no problem pickling:', k, v)
                     else:
                         try:
-                            asdict(Payload(type=payload_type, request_id=str(uuid.uuid4()), client_id=self.client_id, body=v))
+                            asdict(Payload(type=payload_type, request_id=str(uuid.uuid4()), user_id=self.client_id, body=v))
                             _pr('No problem pickling:', k, v)
                         except Exception as e:
                             _pr('UNDICTABLE part of __dict__ error:', k, 'Value is:', v, 'type is:', type(v), 'error is:', e)
                 raise error_e
+        if 'body' in payload_dict:
+            if 'recipients' in payload_dict['body']:
+                if type(payload_dict['body']['recipients']) is not str:
+                    if payload_dict['type'] == 'message_up':
+                        is_mdown = False
+                    elif payload_dict['type'] == 'message_down':
+                        is_mdown = True
+                    else:
+                        raise Exception('Payload_dict type is neither message_up or message_down.')
+                    channel_id = payload_dict['body']['channel_id']
+                    payload_dict['body']['recipients'] = await self._update_rec(payload_dict['body']['recipients'], is_mdown, channel_id) # Convert list to group id.
+        #logger.info('SELF>SEND:', payload_dict) # This can be useful but also gets a bit lengthy.
+        if 'type' in payload_dict and payload_dict['type'] == 'message_down':
+            payload_dict['service_id'] = self.client_id
+        if 'type' in payload_dict and (payload_dict['type'] == 'message_up' or payload_dict['type'] == 'message_down'):
+            ws_client.send_tweak(payload_dict)
         await self.ws_client.send(payload_dict)
 
     async def send_button_click(self, channel_id, button_id, button_args):
@@ -309,11 +424,11 @@ class SDK:
 
         No return value.
         """
-        button_click_instance = ButtonCall(
+        button_click_instance = ButtonClick(
             button_id=button_id,
             channel_id=channel_id,
             sender=self.client_id,
-            arguments=[ButtonCallArgument(name=arg[0], value=arg[1]) for arg in button_args],
+            arguments=[ButtonClickArgument(name=arg[0], value=arg[1]) for arg in button_args],
             context={}
         )
         await self.send("button_click", button_click_instance)
@@ -332,45 +447,49 @@ class SDK:
         return channel_id
 
     ################################## Single-line actuators #######################################
+    async def _update_rec(self, recipients, is_m_down, channel_id=None):
+        """Pass in await self._update_rec(recipients) into "recipients".
+           Converts lists into group_id strings, creating a group if need be."""
+        return await self.group_lib.convert_list(self.http_api, recipients, is_m_down, channel_id)
 
     async def refresh(self): """Calls self.http_api.refresh."""; return await self.http_api.refresh()
     async def authenticate(self): """Calls self.http_api.authenticate."""; return await self.http_api.authenticate()
     async def sign_up(self): """Calls self.http_api.sign_up."""; return await self.http_api.sign_up()
     async def sign_out(self): """Calls self.http_api.sign_out."""; return await self.http_api.sign_out()
-    async def update_current_user(self, avatar, description, name, user_id=None): """Calls self.http_api.update_current_user."""; return await self.http_api.update_current_user(avatar, description, name, user_id=user_id)
-    async def update_character(self, user_id, username, avatar, description, name): """Calls self.http_api.update_character using self.client_id."""; return await self.http_api.update_character(self.client_id, user_id, username, avatar, description, name)
+    async def update_current_user(self, avatar, description, name): """Calls self.http_api.update_current_user."""; return await self.http_api.update_current_user(avatar, description, name)
+    async def update_character(self, character_id, avatar, description, name): """Calls self.http_api.update_character using self.client_id."""; return await self.http_api.update_character(self.client_id, character_id, avatar, description, name)
     async def update_channel(self, channel_id, channel_name, channel_desc): """Calls self.http_api.update_channel."""; return await self.http_api.update_channel(channel_id, channel_name, channel_desc)
     async def create_channel(self, channel_name, channel_desc): """Calls self.http_api.TODO"""; return await self.http_api.create_channel(channel_name, channel_desc)
-    async def create_character(self, username, name, avatar, description): """Calls self.http_api.create_character using self.create_character."""; return await self.http_api.create_character(self.client_id, username, name, avatar, description)
+    async def create_character(self, name, avatar, description): """Calls self.http_api.create_character using self.create_character."""; return await self.http_api.create_character(self.client_id, name, avatar, description)
     async def fetch_popular_channels(self): """Calls self.http_api.fetch_popular_channels."""; return await self.http_api.fetch_popular_chanels()
     async def fetch_channel_list(self): """Calls self.http_api.fetch_channel_list."""; return await self.http_api.fetch_channel_list()
-    async def fetch_channel_users(self, channel_id, raise_empty_list_err=True): """Calls self.http_api.fetch_channel_users using self.client_id."""; return await self.http_api.fetch_channel_users(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
-    async def fetch_user_profile(self, user_id): """Calls self.http_api.fetch_user_profile"""; return await self.http_api.fetch_user_profile(user_id)
+    async def fetch_real_characters(self, channel_id, raise_empty_list_err=True): """Calls self.http_api.fetch_real_characters using self.client_id."""; return await self.http_api.fetch_real_characters(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
+    async def fetch_character_profile(self, character_id): """Calls self.http_api.fetch_character_profile"""; return await self.http_api.fetch_character_profile(character_id)
     async def fetch_service_list(self): """Calls self.http_api.fetch_service_list"""; return await self.http_api.fetch_service_list()
-    async def fetch_character_list(self): """Calls self.http_api.fetch_character_list using self.client_id."""; return await self.http_api.fetch_character_list(self.client_id)
+    async def fetch_service_characters(self): """Calls self.http_api.fetch_service_characters using self.client_id."""; return await self.http_api.fetch_service_characters(self.client_id)
     async def upload_file(self, filepath): """Calls self.http_api.upload_file."""; return await self.http_api.upload_file(filepath)
-    async def fetch_history_message(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_history_message."""; return await self.http_api.fetch_history_message(channel_id, limit, before)
+    async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
     async def create_channel_group(self, channel_id, group_name, members): """Calls self.http_api.create_channel_group."""; return await self.http_api.create_channel_group(channel_id, group_name, members)
     async def create_service_group(self, group_id, members): """Calls self.http_api.create_service_group."""; return await self.http_api.create_service_group(group_id, members)
     async def update_channel_group(self, channel_id, group_id, members): """Calls self.http_api.update_channel_group."""; return await self.http_api.update_channel_group(channel_id, group_id, members)
     async def update_temp_channel_group(self, channel_id, members): """Calls self.http_api.update_temp_channel_group."""; return await self.http_api.update_temp_channel_group(channel_id, members)
-    async def fetch_channel_temp_group(self, channel_id): """Calls self.http_api.fetch_channel_temp_group."""; return await self.http_api.fetch_channel_temp_group(channel_id)
-    async def fetch_channel_group_list(self, channel_id): """Calls self.http_api.fetch_target_group."""; return await self.http_api.fetch_channel_group_list(channel_id)
+    async def fetch_channel_temp_group(self, channel_id): """Calls self.http_api.fetch_channel_temp_group."""; return await self.http_api.fetch_channel_temp_group(channel_id, self.client_id)
+    async def fetch_channel_group_list(self, channel_id): """Calls self.http_api.fetch_target_group."""; return await self.http_api.fetch_channel_group_list(channel_id, self.client_id)
     async def fetch_user_from_group(self, user_id, channel_id, group_id): """Calls self.http_api.fetch_user_from_group."""; return await self.http_api.fetch_user_from_group(user_id, channel_id, group_id)
     async def fetch_target_group(self, user_id, channel_id, group_id): """Calls self.http_api.fetch_target_group."""; return await self.http_api.fetch_target_group(user_id, channel_id, group_id)
 
     async def send_agent_login(self): """Calls self.ws_client.agent_login using self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.agent_login(self.http_api.access_token)
     async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
-    async def send_message_up(self, channel_id, recipients, subtype, message_content): """Calls self.ws_client.message_up using self.client_id."""; return await self.ws_client.message_up(self.client_id, channel_id, recipients, subtype, message_content)
-    async def send_message_down(self, channel_id, recipients, subtype, message_content, sender): """Calls self.ws_client.TODO using self.client_id."""; return await self.ws_client.message_down(self.client_id, channel_id, recipients, subtype, message_content, sender)
+    async def send_message_up(self, channel_id, recipients, subtype, message_content): """Calls self.ws_client.message_up using self.client_id."""; return await self.ws_client.message_up(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, False, channel_id), subtype, message_content)
+    async def send_message_down(self, channel_id, recipients, subtype, message_content, sender): """Calls self.ws_client.TODO using self.client_id."""; return await self.ws_client.message_down(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, True), subtype, message_content, sender)
     async def send_update(self, target_client_id, data): """Calls self.ws_client.TODO"""; return await self.ws_client.update(self.client_id, target_client_id, data)
-    async def send_update_user_list(self, channel_id, user_list, recipients): """Calls self.ws_client.update_user_list using self.client_id."""; return await self.ws_client.update_userlist(self.client_id, channel_id, user_list, recipients)
+    async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
     async def send_update_channel_info(self, channel_id, channel_data): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_data)
-    async def send_update_canvas(self, channel_id, content, recipients): """Calls self.ws_client.update_canvas using self.client_id."""; return await self.ws_client.update_canvas(self.client_id, channel_id, content, recipients)
-    async def send_update_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_buttons using self.client_id."""; return await self.ws_client.update_buttons(self.client_id, channel_id, button_data, recipients)
-    async def send_update_rclick_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_rclick_buttons using self.client_id."""; return await self.ws_client.update_rclick_buttons(self.client_id, channel_id, button_data, recipients)
-    async def send_update_style(self, channel_id, style_content, recipients): """Calls self.ws_client.update_style using self.client_id."""; return await self.ws_client.update_style(self.client_id, channel_id, style_content, recipients)
-    async def send_fetch_userlist(self, channel_id): """Calls self.ws_client.fetch_userlist using self.client_id."""; return await self.ws_client.fetch_userlist(self.client_id, channel_id)
+    async def send_update_canvas(self, channel_id, canvas_content, recipients): """Calls self.ws_client.update_canvas using self.client_id."""; return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_content, await self._update_rec(recipients, True))
+    async def send_update_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_buttons using self.client_id."""; return await self.ws_client.update_buttons(self.client_id, channel_id, button_data, await self._update_rec(recipients, True))
+    async def send_update_rclick_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_rclick_buttons using self.client_id."""; return await self.ws_client.update_rclick_buttons(self.client_id, channel_id, button_data, await self._update_rec(recipients, True))
+    async def send_update_style(self, channel_id, style_content, recipients): """Calls self.ws_client.update_style using self.client_id."""; return await self.ws_client.update_style(self.client_id, channel_id, style_content, await self._update_rec(recipients, True))
+    async def send_fetch_characters(self, channel_id): """Calls self.ws_client.fetch_characters using self.client_id."""; return await self.ws_client.fetch_characters(self.client_id, channel_id)
     async def send_fetch_buttons(self, channel_id): """Calls self.ws_client.fetch_buttons using self.client_id."""; return await self.ws_client.fetch_buttons(self.client_id, channel_id)
     async def send_fetch_style(self, channel_id): """Calls self.ws_client.fetch_style using self.client_id."""; return await self.ws_client.fetch_style(self.client_id, channel_id)
     async def send_fetch_canvas(self, channel_id): """Calls self.ws_client.fetch_canvas using self.client_id."""; return await self.ws_client.fetch_canvas(self.client_id, channel_id)
@@ -391,34 +510,92 @@ class SDK:
     @logger.catch
     async def handle_received_payload(self, payload):
         """
-        Decode the received payload, a JSON string, and call the handler based on p['type']. Returns None.
+        Decode the received (websocket) payload, a JSON string, and call the handler based on p['type']. Returns None.
         Example methods called:
           on_message_up(), on_action(), on_button_click(), on_copy_client(), on_unknown_payload()
 
         Example use-case:
           >>> self.ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login, handle=self.handle_received_payload)
         """
+
         payload_data = json.loads(payload)
-        payload_data, _ = utils.dictlegacy2modern(payload_data, None)
-        if payload_data['type'] == 'message_down' and 'recipients' not in payload_data['body']:
-            payload_data['body']['recipients'] = [] # The conversion to a MessageBody needs all keys to be present! But message_down doesn't have "recipients".
+        if 'message' in payload_data:
+            if payload_data['message'].lower().strip() == 'Internal server error'.lower():
+                raise Exception('Received an internal server error from the Websocket.')
+
+        payload_body = payload_data['body']
+        async def _group2ids(g_id):
+            if g_id=='service':
+                logger.warning('I think sent to service means no recipients. Remove this warning when sure.')
+                return []
+            if type(g_id) is not str:
+                raise Exception('Group id not a string.')
+
+            channel_id = payload_body['channel_id']
+            use_sgroup = False
+            use_cgroup = True
+            try:
+                if use_sgroup:
+                    out_sgroup = await self.http_api.character_ids_of_service_group(g_id)
+                else:
+                    out_sgroup = []
+                sgroup_err = None
+            except Exception as e:
+                out_sgroup = []
+                sgroup_err = e
+            try:
+                if use_cgroup:
+                    use_sender_when_possible = True
+                    the_id = self.client_id
+                    if 'sender' in payload_body and use_sender_when_possible:
+                        the_id = payload_body['sender']
+                    out_cgroup = await self.http_api.character_ids_of_channel_group(the_id, channel_id, g_id)
+                else:
+                    out_cgroup = []
+                cgroup_err = None
+            except Exception as e:
+                out_cgroup = []
+                cgroup_err = e
+            out = out_sgroup+out_cgroup
+            logger.info(f'Extract character_ids from group: {g_id} service_group {"error "+str(sgroup_err) if sgroup_err else "no error"}, channel_group {"error "+str(cgroup_err) if cgroup_err else "no error"}. Id list: {out}')
+            if len(out)==0:
+                logger.warning('Neither the channel nor service group queries were able to find any members in the group.')
+            return out
+
+        if 'subtype' in payload_body and payload_body['subtype'] == 'update_characters':
+            if 'content' not in payload_body:
+                raise Exception("Must have content.")
+            payload_body['content']['characters'] = await _group2ids(payload_body['content']['characters'])
+
+        if 'recipients' not in payload_body:
+            #print("NO RECIPIENTS", payload)
+            payload_body['recipients'] = []
+        else:
+            rec_group = payload_body['recipients']
+            payload_body['recipients'] = await _group2ids(rec_group)
+            #print("NEED group2ids:", payload, rec_group, payload_body['recipients'])
+
         if 'type' in payload_data:
+            if 'sender' not in payload_body and payload_body.get('context',{}).get('sender'):
+                payload_body['sender'] = payload_body['context']['sender'] # Need a 'sender' key to make it a MessageBody or ButtonClick dataclass.
             payload = from_dict(data_class=Payload, data=payload_data)
-            if payload.type == "message_down":
+
+            if payload.type == 'message_down':
                 await self.on_message_down(payload.body)
-            elif payload.type == "update":
+            elif payload.type == 'update':
                 await self.on_update(payload.body)
-            elif payload.type == "message_up":
+            elif payload.type == 'message_up':
                 await self.on_message_up(payload.body)
-            elif payload.type == "action":
+            elif payload.type == 'action':
                 await self.on_action(payload.body)
             elif payload.type == 'button_click':
                 await self.on_button_click(payload.body)
             elif payload.type == 'context_rclick':
                 await self.on_context_rclick(payload.body)
-            elif payload.type == "copy_client": # TODO: legacy, at least for service.
+            elif payload.type == 'copy':
                 await self.on_copy_client(payload.body)
-            else:   # TODO?: add types?
+            else:
+                logger.warning(f"Unknown payload received: {payload}; DATA: {payload_data}")
                 await self.on_unknown_payload(payload)
         else:
             logger.error(f"Unknown payload without type: {payload_data}")
@@ -428,11 +605,11 @@ class SDK:
         Handles an action (Action object) from a user. Returns None.
         Calls the corresponding method to handle different subtypes of action.
         Example methods called:
-          on_fetch_user_list(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
+          on_fetch_service_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
         Service function.
         """
-        if action.subtype == "fetch_userlist":
-            await self.on_fetch_user_list(action)
+        if action.subtype=="fetch_characters":
+            await self.on_fetch_service_characters(action)
         elif action.subtype == "fetch_buttons":
             await self.on_fetch_buttons(action)
         elif action.subtype == "fetch_canvas":
@@ -449,17 +626,14 @@ class SDK:
     async def on_update(self, update):
         """Dispatches an update (a dict) to one of various callbacks. Agent function.
            It is recommended to overload the invididual callbacks instead of this function."""
-        if update['subtype'] == "update_userlist":
-            for i in range(len(update['userlist'])):
-                if type(update['userlist'][i]) is not str: # Newer version of the platform will return a list of user_ids and this won't be needed.
-                    update['userlist'][i] = update['userlist'][i]['user_id']
-            await self.on_update_userlist(update)
+        if update['subtype'] == "update_characters":
+            await self.on_update_characters(update)
         elif update['subtype'] == "update_channel_info":
             await self.on_update_channel_info(update)
         elif update['subtype'] == "update_canvas":
             await self.on_update_canvas(update)
         elif update['subtype'] == "update_buttons":
-            update['buttons'] = [Button(**f) for f in update['buttons']]
+            update['content'] = [Button(**f) for f in update['content']]
             await self.on_update_buttons(update)
         elif update['subtype'] == "update_style":
             await self.on_update_style(update)
@@ -481,8 +655,8 @@ class SDK:
         Handles a payload from a user. Service function. Returns None.
         Example MessageBody object:
           moobius.MessageBody(subtype=text, channel_id=<channel id>, content={'text': 'api'}, timestamp=1707254706635,
-                              recipients=[<user id 1>, <user id 2>], sender=<user id>, message_id=<id>,
-                              context={'recipients': ['<user id>', 'c142fb8e-e4ab-48da-9f84-de105769465c'], 'group_id': None, 'sender': <user id>})"""
+                              recipients=[<user id 1>, <user id 2>], sender=<user id>, message_id=<message-id>,
+                              context={'group_id': <group-id>, 'channel_type': 'ccs'})"""
         logger.debug(f"MessageUp received: {message_up}")
 
     async def on_message_down(self, message_down):
@@ -490,29 +664,28 @@ class SDK:
            Agent function. Returns None."""
         logger.debug(f"MessageDown received: {message_down}")
 
-    async def on_update_userlist(self, update):
+    async def on_update_characters(self, update):
         """
-        Handles changes to the userlist. One of the multiple update callbacks. Returns None.
+        Handles changes to the character list. One of the multiple update callbacks. Returns None.
         Agent function.
 
-        Example update dict:
-          {"subtype": "update_userlist",
+        Example update dict (after processing by the default on_update):
+          {"subtype": "update_characters",
            "channel_id": "abc...",
-           "recipients": [recipient0_userid, recipient1_userid, recipient2_userid...],
-           "userlist": [user_id0, user_id1, ...],
-           "context": {}}
+           "recipients": [<char-id0>, <char-id1>, <char-id2>, ...],
+           {"content": "characters": [<char-id0>, <char-id1>, <char-id2>, ...]}
         """
-        logger.debug("on_update_user_list")
+        logger.debug("on_update_character_list")
 
     async def on_update_channel_info(self, update):
         """
         Handles changes to the channel info. One of the multiple update callbacks. Returns None.
         Agent function.
 
-        Example update dict:
+        Example (processed) update dict:
           {"subtype": "channel_info",
-           "channel_id": "abc...", "request_id": "abc...", "client_id": "abc...",
-           "body": <dict of channel data>}
+           "request_id": <id>, "service_id": <client-id>,
+           "body": <dict of channel data, including channel_id>}
         """
         logger.debug("on_update_channel_info")
 
@@ -522,7 +695,7 @@ class SDK:
         Agent function.
 
          Example update dict; note that update['content'] gives the content.
-           {"subtype": "update_canvas", "channel_id": "8c2...", "group_id": "temp", "context": {},
+           {"subtype": "update_canvas", "channel_id": <channel-id>, "group_id": <group-id>, "context": {},
             "content": {"path": "https://...png", "text": "This appears on the Canvas"}}
         """
         logger.debug("on_update_canvas")
@@ -532,8 +705,8 @@ class SDK:
         Handles changes to the buttons. One of the multiple update callbacks. Returns None.
         Agent function.
 
-        Example update dict:
-          {"subtype": "update_buttons", "channel_id": "8c23...",
+        Example (processed) update dict:
+          {"subtype": "update_buttons", "channel_id": <channel-id>,
            "buttons": [Button(...), Button(...), Button(...), ...]}
         """
         logger.debug("on_update_buttons")
@@ -543,20 +716,20 @@ class SDK:
         Handles changes in the style. One of the multiple update callbacks. Returns None.
         Agent function.
 
-        Example update dict:
+        Example (processed) update dict:
           {"subtype": "update_style",
            "channel_id": <channel-id>,
-           "recipients": [user_id0, user_id1, user_id2],
+           "recipients":[<char-id0>, <char-id1>, <char_id2>, ...],
            "content": [{"widget": "canvas", "display": "visible", "expand": "true"}],
            "group_id": "temp",
            "context": {}}
         """
         logger.debug("on_update_style")
 
-    async def on_fetch_user_list(self, action):
-        """Handles the received action of fetching a user_list. One of the multiple Action object callbacks. Returns None.
-           Example Action object: moobius.Action(subtype="fetch_userlist", channel_id=<channel id>, sender=<user id>, context={})."""
-        logger.debug("on_action fetch_userlist")
+    async def on_fetch_service_characters(self, action):
+        """Handles the received action of fetching a character_list. One of the multiple Action object callbacks. Returns None.
+           Example Action object: moobius.Action(subtype="fetch_characters", channel_id=<channel id>, sender=<user id>, context={})."""
+        logger.debug("on_action fetch_characters")
 
     async def on_fetch_buttons(self, action): # TODO: This doesn't seem to have the buttons?
         """Handles the received action of fetching buttons. One of the multiple Action object callbacks. Returns None.
@@ -582,17 +755,17 @@ class SDK:
            Example Action object: moobius.Action(subtype="leave_channel", channel_id=<channel id>, sender=<user id>, context={})."""
         logger.debug("on_action leave_channel")
 
-    async def on_button_click(self, button_click: ButtonCall):
+    async def on_button_click(self, button_click: ButtonClick):
         """Handles a button call from a user. Returns None.
-           Example ButtonCall object: moobius.ButtonCall(button_id=button["button_id"], channel_id=<channel id>, sender=<user id>, arguments=[], context={})"""
+           Example ButtonClick object: moobius.ButtonClick(button_id="the_big_red_button", channel_id=<channel id>, sender=<user id>, arguments=[], context={})"""
         logger.debug(f"Button call received: {button_click}")
 
-    async def on_context_rclick(self, context_click: ButtonCall):
+    async def on_context_rclick(self, context_click: ButtonClick):
         """Handles a context menu right click from a user. Returns None."""
         logger.debug(f"Button right call received: {context_click}")
 
     async def on_copy_client(self, copy):
-        """Handles copying (TODO what?). Returns None.
+        """Handles a "Copy" of a message. Returns None.
            Example Copy object: moobius.Copy(request_id=<id>, origin_type=message_down, status=True, context={'msg': 'Message received'})"""
         if not self.is_agent and not copy.status:
             await self.send_service_login()
@@ -600,7 +773,7 @@ class SDK:
 
     async def on_unknown_payload(self, payload: Payload):
         """Catch-all for handling unknown Payload objects. Returns None."""
-        logger.debug(f"Unknown payload received: {payload}")
+        pass
 
     def __str__(self):
         fname = self.config_path

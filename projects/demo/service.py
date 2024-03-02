@@ -1,10 +1,10 @@
 # service.py
-import json, sys, asyncio
+import json, sys, asyncio, pprint
 import copy
 from datetime import datetime
 
 from loguru import logger
-from moobius import SDK, MoobiusStorage
+from moobius import MoobiusClient, MoobiusStorage, utils
 from moobius.types import Button
 
 avoid_redis_on_windoze = True # Redis requires WSL2 to run on windows since it is Linux-only.
@@ -13,7 +13,15 @@ load_xtra_channels_on_start = True
 
 example_socket_callback_payloads = {} # Print these out when the AI is done.
 
-class DemoService(SDK):
+
+def limit_len(message, n=4096):
+    message = str(message)
+    if len(message)>4096:
+        message = message[0:n]+'...'+str(len(message))+' bytes'
+    return message
+
+
+class DemoService(MoobiusClient):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
 
@@ -67,10 +75,12 @@ class DemoService(SDK):
         the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
         self.channels[channel_id] = the_channel
 
-        real_user_ids = await self.fetch_channel_users(channel_id, raise_empty_list_err=False)
+        real_character_ids = await self.fetch_real_characters(channel_id, raise_empty_list_err=False)
 
-        for character_id in real_user_ids:
-            the_channel.real_characters[character_id] = await self.fetch_user_profile(character_id)
+        for character_id in real_character_ids:
+            if type(character_id) is not str:
+                raise Exception('character_id must be a str.')
+            the_channel.real_characters[character_id] = await self.fetch_character_profile(character_id)
 
             if character_id not in the_channel.buttons:
                 the_channel.buttons[character_id] = self.default_buttons
@@ -89,11 +99,11 @@ class DemoService(SDK):
                 image_path = self.image_paths[self.MICKEY]
 
                 the_channel.virtual_characters[key] = await self.create_character(
-                    self.MICKEY, f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
+                    f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
                 )
 
         the_channel.virtual_characters[self.WAND] = await self.create_character(
-            self.WAND, self.WAND, self.image_paths[self.WAND], f'I am {self.WAND}!'
+            self.WAND, self.image_paths[self.WAND], f'I am {self.WAND}!'
         )
 
         self.image_show_dict = {
@@ -137,7 +147,7 @@ class DemoService(SDK):
         for channel_id in self.channels.keys():
             the_channel = await self.get_channel(channel_id)
             recipients = list(the_channel.real_characters.keys())
-            talker = the_channel.virtual_characters[self.WAND].user_id
+            talker = the_channel.virtual_characters[self.WAND].character_id
             txt = f"Check in every minute! {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             await self.create_message(channel_id, txt, recipients, sender=talker)
 
@@ -155,56 +165,77 @@ class DemoService(SDK):
         example_socket_callback_payloads['on_message_up'] = message_up
         if message_up.subtype == "text":
             txt = message_up.content['text']
+            txt1 = txt.lower().strip()
             channel_id = message_up.channel_id
+            the_channel = await self.get_channel(channel_id)
             sender = message_up.sender
             if type(sender) is not str:
                 raise Exception(f'Sender must be a string, instead it is: {sender}')
+            if sender not in list(the_channel.real_characters.keys()):
+                await self.add_real_character(channel_id, sender, intro="oops looks like (bug) did not add this character on startup.")
             recipients = message_up.recipients
-            the_channel = await self.get_channel(channel_id)
 
             if recipients: # DEMO: text modification
-                if txt.lower() == "moobius":
+                if txt1.lower() == "moobius":
                     await self.create_message(channel_id, "Moobius is Great!", recipients, sender=sender)
-                elif txt.lower() == "api":
+                elif txt1.lower() == "api":
                     lines = []
                     for k,v in example_socket_callback_payloads.items():
                         lines.append(k+': '+str(v))
-                    txt = '\n\n'.join(lines)
-                    await self.create_message(channel_id, 'Socket api call examples recorded:\n'+txt, recipients, sender=sender)
+                    txt2 = '\n\n'.join(lines)
+                    await self.create_message(channel_id, 'Socket api call examples recorded:\n'+txt2, recipients, sender=sender)
                 else:
                     await self.create_message(channel_id, txt, recipients, sender=sender)
-                    #await self.send(payload_type='message_down', payload_body=message_up) # equivalent.
             else: # DEMO: commands to Service(Infinity)
-                if txt.lower() == "hide":
+                if txt1 == "hide":
                     the_channel.buttons[sender] = []
                     await self.send_buttons_from_database(channel_id, sender)
-                elif txt.lower() == "show":
+                elif txt1 == "show":
                     the_channel.buttons[sender] = self.default_buttons
                     await self.send_buttons_from_database(channel_id, sender)
-                elif txt.lower() == "reset":
-
+                elif txt1 == "reset":
                     for sn in range(self.MICKEY_LIMIT):
-                        the_user_id = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].user_id
-                        await self.update_character(user_id=the_user_id, username=f'Mickey {sn} uname', avatar=self.image_paths[self.MICKEY], description='Mickey restet!', name=f'Mickey {sn}')
+                        the_character_id = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].character_id
+                        await self.update_character(character_id=the_character_id, avatar=self.image_paths[self.MICKEY], description='Mickey reset!', name=f'Mickey {sn}')
 
                     the_channel.states[sender]['mickey_num'] = 0
                     the_channel.states.save(sender)
 
-                    await self.calculate_and_update_user_list_from_database(channel_id, sender)
+                    await self.calculate_and_update_character_list_from_database(channel_id, sender)
                     the_channel = await self.get_channel(channel_id) # TODO: why call this twice?
                     the_channel.buttons[sender] = self.default_buttons # Reset buttons etc.
                     await self.send_update_buttons(channel_id, self.default_buttons, [sender])
+                elif txt1.split(' ')[0] == 'laser':
+                    await self.create_message(channel_id, limit_len(f"NOTE: The Laser feature is not a standard SDK feature, it is specific to Demo."), [sender], sender=sender)
+                    if '>' not in txt1:
+                        await self.create_message(channel_id, limit_len(f'Must be formatted "laser name > message, and only sent to a single user".'), [sender], sender=sender)
+                    else:
+                        pair = [t.strip() for t in txt.split('>')]
+                        the_name = ' '.join(pair[0].split(' ')[1:])
+                        the_message = pair[1]
+                        if len(the_message.strip())<2:
+                            await self.create_message(channel_id, limit_len(f'The message was empty, a default message will be used.".'), [sender], sender=sender)
+                            the_message = 'Empty_message!'
+                        real_ids = await self.fetch_real_characters(channel_id, raise_empty_list_err=False)
+                        real_profiles = await self.fetch_character_profile(real_ids)
+                        target_id = None
+                        for rp in real_profiles:
+                            if rp.name.lower().strip() == the_name.lower().strip():
+                                target_id = rp.character_id
+                        if target_id:
+                            await self.create_message(channel_id, limit_len(f'Sending message to name={the_name}, id={target_id}".'), [sender], sender=sender)
+                            await self.create_message(channel_id, limit_len(f'Laser message: "{the_message}".'), [target_id], sender=sender)
+                        else:
+                            await self.create_message(channel_id, limit_len(f'Cannot find character with name={the_name}".'), [sender], sender=sender)
                 else:
-                    pass
-
-        # DEMO: other message types.
+                    txt = txt+' (this message has no recipients, either it was sent to service or there is a bug).'
+                    await self.create_message(channel_id, txt, [sender], sender=sender)
         else:
             await self.create_message(channel_id, str(message_up), recipients, sender=sender) # Not sure if this works or the generic next line is needed?
-            #await self.send(payload_type='message_down', payload_body=message_up)
 
-    async def on_fetch_user_list(self, action):
-        example_socket_callback_payloads['on_fetch_user_list'] = action
-        await self.calculate_and_update_user_list_from_database(action.channel_id, action.sender)
+    async def on_fetch_service_characters(self, action):
+        example_socket_callback_payloads['on_fetch_service_characters'] = action
+        await self.calculate_and_update_character_list_from_database(action.channel_id, action.sender)
 
     async def on_fetch_buttons(self, action):
         example_socket_callback_payloads['on_fetch_buttons'] = action
@@ -229,7 +260,7 @@ class DemoService(SDK):
         state = the_channel.states[sender]['canvas_mode']
         await self.send_update_canvas(channel_id, self.image_show_dict[state], [sender])
 
-        content = [
+        style_content = [
             {
                 "widget": "canvas",
                 "display": "visible",
@@ -237,39 +268,42 @@ class DemoService(SDK):
             }
         ]
 
-        await self.send_update_style(channel_id, content, [sender])
+        await self.send_update_style(channel_id, style_content, [sender])
+
+    async def add_real_character(self, channel_id, character_id, intro="joined the channel!"):
+        character = await self.fetch_character_profile(character_id)
+        name = character.character_context.name
+        the_channel = await self.get_channel(channel_id)
+
+        the_channel.real_characters[character_id] = character
+        the_channel.buttons[character_id] = self.default_buttons
+        the_channel.states[character_id] = self.default_status
+
+        character_ids = list(the_channel.real_characters.keys())
+        await self.send_update_character_list(channel_id, character_ids, character_ids)
+        await self.create_message(channel_id, f'{name} {intro} (id={character_id})', character_ids, sender=character_id)
 
     async def on_join_channel(self, action):
-        """Most join handlers, as this one does, will send_update_user_list with the new character added and send a "user joined!" message."""
+        """Most join handlers, as this one does, will send_update_character_list with the new character added and send a "user joined!" message."""
         example_socket_callback_payloads['on_join_channel'] = action
         sender_id = action.sender
         channel_id = action.channel_id
-        character = await self.fetch_user_profile(sender_id)
-        name = character.user_context.name
-        the_channel = await self.get_channel(channel_id)
-
-        the_channel.real_characters[sender_id] = character
-        the_channel.buttons[sender_id] = self.default_buttons
-        the_channel.states[sender_id] = self.default_status
-
-        character_ids = list(the_channel.real_characters.keys())
-        await self.send_update_user_list(channel_id, character_ids, character_ids)
-        await self.create_message(channel_id, f'{name} joined the channel!', character_ids, sender=sender_id)
+        await self.add_real_character(channel_id, sender_id, intro="joined the channel!")
 
     async def on_leave_channel(self, action):
-        """Most leave handlers, as this one does, will send_update_user_list with the character removed and maybe send a "user left!" message."""
+        """Most leave handlers, as this one does, will send_update_character_list with the character removed and maybe send a "user left!" message."""
         example_socket_callback_payloads['on_leave_channel'] = action
         sender = action.sender
         channel_id = action.channel_id
         character = (await self.get_channel(action.channel_id)).real_characters.pop(sender, None)
         (await self.get_channel(channel_id)).states.pop(sender, None)
         (await self.get_channel(channel_id)).buttons.pop(sender, None)
-        name = character.user_context.name
+        name = character.character_context.name
 
         real_characters = (await self.get_channel(channel_id)).real_characters
         character_ids = list(real_characters.keys())
 
-        await self.send_update_user_list(channel_id, character_ids, character_ids)
+        await self.send_update_character_list(channel_id, character_ids, character_ids)
         await self.create_message(channel_id, f'{name} left the channel!', character_ids, sender=sender)
 
     async def on_copy_client(self, the_copy):
@@ -288,8 +322,8 @@ class DemoService(SDK):
     async def on_update_canvas(self, x):
         example_socket_callback_payloads['on_update_canvas'] = x
 
-    async def on_update_userlist(self, x):
-        example_socket_callback_payloads['on_update_userlist'] = x
+    async def on_update_characters(self, x):
+        example_socket_callback_payloads['on_update_characters'] = x
 
     async def on_button_click(self, button_click):
         """Called when the user presses a button (and selecting an option of a list appears). button_click is a Button object.
@@ -301,7 +335,7 @@ class DemoService(SDK):
         the_channel = await self.get_channel(channel_id)
 
         character = the_channel.real_characters[who_clicked]
-        name = character.user_context.name
+        name = character.character_context.name
         recipients = list(the_channel.real_characters.keys())
 
         redis_txt = 'not-the-Redis' if avoid_redis else 'Redis'
@@ -358,7 +392,7 @@ class DemoService(SDK):
                     tasks.append(self.create_message(extra_channel_id, f"Ping from channel {channel_id} to channel {extra_channel_id}!", [who_clicked], sender=who_clicked))
                 await asyncio.wait(tasks)
             elif value == "Reset Extra Channels".lower():
-                await self.create_message(channel_id, f"Leaving Channel ids: {extra_channel_ids}", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Leaving Channel ids: {extra_channel_ids}. WARNING: Untested. The channels may persist in the GUI.", [who_clicked], sender=who_clicked)
                 tasks = []
                 for channel_id in extra_channel_ids:
                     tasks.append(self.send_leave_channel(channel_id))
@@ -377,20 +411,22 @@ class DemoService(SDK):
                 extra_channel_ids = list(self.xtra_channels.keys())
                 ix = 0
                 for bid in extra_channel_ids:
-                    await self.update_channel(bid, f'<>DemoTmpChannel{ix}<>', 'Pressed the update extra channels button.')
+                    await self.update_channel(bid, f'<>DemoTmpChannel Updated{ix}<>', 'Pressed the update extra channels button.')
                     ix = ix+1
                 await self.create_message(channel_id, f"Updated these channel names (refresh to see changes):\n{extra_channel_ids}", [who_clicked], sender=who_clicked)
             elif value == "Fetch Chat History".lower():
-                history = await self.fetch_history_message(channel_id, limit=6, before="null")
-                await self.create_message(channel_id, f"Recent chat history of this channel:\n{history}", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Fetching chat history, as HTML (raw HTML will be printed).", [who_clicked], sender=who_clicked)
+                history = await self.fetch_message_history(channel_id, limit=6, before="null")
+                await self.create_message(channel_id, limit_len(f"Recent chat history of this channel:\n{history}"), [who_clicked], sender=who_clicked)
             elif value == "Fetch Buttons".lower():
-                print('Asking for Buttons (will have to wait for the WS to get back).')
+                await self.create_message(channel_id, limit_len(f"WARNING: Getting a callback for Fetch Buttons will be delayed may need a refresh to see."), [who_clicked], sender=who_clicked)
                 self.TMP_print_buttons = True
                 await self.send_fetch_buttons(channel_id)
             elif value == "Fancy Right Click".lower():
-                await self.create_message(channel_id, "WARNING: this feature only works on the .link version.", [who_clicked], sender=who_clicked)
-                button_data = {'a':1, 'b':2, 'c':3}
-                await self.send_update_rclick_buttons(channel_id, button_data, [who_clicked])
+                await self.create_message(channel_id, limit_len(f"WARNING: Context menu feature has not yet been tested."), [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, "Wait 5 seconds and then try right clicking a message.", [who_clicked], sender=who_clicked)
+                option_dict = {'1':'Press A', '2':'Press B', '3':'Press C'}
+                await self.send_update_rclick_buttons(channel_id, option_dict, [who_clicked])
             else:
                 raise Exception(f'Strange value for button channel_btn: {value}')
         elif button_id == "user_btn".lower():
@@ -409,50 +445,57 @@ class DemoService(SDK):
                     the_channel.states[who_clicked]['mickey_num'] += 1
                     the_channel.states.save(who_clicked)
 
-                    await self.calculate_and_update_user_list_from_database(channel_id, who_clicked)
+                    await self.calculate_and_update_character_list_from_database(channel_id, who_clicked)
             elif value == 'Mickey Talk'.lower():
                 if the_channel.states[who_clicked]['mickey_num'] == 0:
                     await self.create_message(channel_id, "Please Create Mickey First!", [who_clicked], sender=who_clicked)
                 else:
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
-                    talker = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].user_id
-                    await self.create_message(channel_id, f"Mickey {sn} Here! Mickeys are stored in JSON db.", [who_clicked], sender=talker)
+                    talker = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].character_id
+                    await self.create_message(channel_id, f"Mickey {sn} Here! Mickeys are stored in JSON db. Sent to characters: {[who_clicked]}", [who_clicked], sender=talker)
             elif value == "Update Mickey (not agent) name".lower():
                 if the_channel.states[who_clicked]['mickey_num'] == 0:
                     await self.create_message(channel_id, "Please Create Mickey First!", [who_clicked], sender=who_clicked)
                 else:
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
-                    the_user_id = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].user_id
-                    await self.update_character(user_id=the_user_id, username='Updated Mickey Name', avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
+                    the_character_id = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].character_id
+                    await self.update_character(character_id=the_character_id, avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
                     await self.create_message(channel_id, f"Updated Mickey name and image (refresh to see).", [who_clicked], sender=who_clicked)
             elif value == "List Characters".lower():
-                await self.create_message(channel_id, f"Warning! This feature broken in the .app version.", [who_clicked], sender=who_clicked)
-                char_list = await self.fetch_character_list()
-                await self.create_message(channel_id, f"Character list:\n {char_list}", [who_clicked], sender=who_clicked)
+                char_list = await self.fetch_service_characters()
+
+                await self.create_message(channel_id, limit_len(f"Real+Fake character list:\n {pprint.pformat(char_list)}"), [who_clicked], sender=who_clicked)
+                real_ids = await self.fetch_real_characters(channel_id, raise_empty_list_err=False)
+                await self.create_message(channel_id, f'Real character ids: {real_ids}', [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f'Real character profiles: {await self.fetch_character_profile(real_ids)}', [who_clicked], sender=who_clicked)
             else:
                 raise Exception(f'Strange value for button user_btn: {value}')
-        elif button_id == "group_btn".lower(): # Not usable in the .app, only usable in the .link.
-            await self.create_message(channel_id, f"WARNING: Groups are a .link feature only!", [who_clicked], sender=who_clicked)
-            #def _find_matching_group(the_list, member_id): # May never be needed.
-            #    """Matching group_id to a user or channel id inside the list."""
-            #    for l in the_list:
-            #        if member_id in l.members:
-            #            return l.group_id
-            #    raise Exception("Cannot find matching group_id")
-            if value == "Group Service's Channels".lower():
-                channel_id_list = (await self.fetch_bound_channels())[self.client_id]
-                group_name = 'ChDemoGroup101'
-                await self.create_message(channel_id, f"Creating channel group named {group_name} with these channels: {channel_id_list}", [who_clicked], sender=who_clicked)
-                await self.create_channel_group(channel_id, group_name, channel_id_list)
+        elif button_id == "group_btn".lower():
+            if value == "List Channel Temp Groups".lower():
+                glist = await self.fetch_channel_temp_group(channel_id)
+                await self.create_message(channel_id, limit_len(f"Channel temp group list (likely empty):\n{pprint.pformat(glist)}"), [who_clicked], sender=who_clicked)
             elif value == "List Channel Groups".lower():
-                await self.create_message(channel_id, f"Listing channel groups.", [who_clicked], sender=who_clicked)
                 glist = await self.fetch_channel_group_list(channel_id)
-                await self.create_message(channel_id, f"Channel group list:\n{glist}", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, limit_len(f"Channel group list (likely empty):\n{glist}"), [who_clicked], sender=who_clicked)
+                gdict = await self.http_api.fetch_channel_group_dict(channel_id, self.client_id)
+                await self.create_message(channel_id, limit_len(f"Channel group, dict form (used internally):\n{pprint.pformat(gdict)}"), [who_clicked], sender=who_clicked)
             else:
                 raise Exception(f'Strange value for button group_btn: {value}')
         elif button_id == "command_btn".lower():
-            cmds = '"moobius": Print Moobius is Great msg.\n\n"meow": Have Agent print nya.\n\n"reset": Reset mickeys and refresh buttons.\n\n"API": Print special socket API doc.\n\n"log agent out": Log out agent, will re-auth next session.\n\n"agent info": See printout of agent info.\n\n"rename agent foo": Set agent name to foo. "show": Show buttons. "hide": Hide buttons.'
-            await self.create_message(channel_id, f"Commands (some get sent to all 'all' some to 'service'):\n{cmds}", [who_clicked], sender=who_clicked)
+            cmds = """
+"moobius": Print "Moobius is Great".
+"meow": Have the Agent print nya.
+"API": Print one API command per unique socket API call received.
+"log agent out": Log out agent, will re-auth next session (the agent may log in again immediatly!).
+"agent info": See printout of agent info.
+"rename agent foo": Set agent name to foo (need to refresh).
+"channel_groups": Have the Agent print channel groups. The Agent is auth'ed with a different servic_id than the Service.
+"show" (send to service): Show buttons.
+"hide" (send to service): Hide buttons.
+"reset" (send to service): Reset mickeys and refresh buttons.
+"laser name > message" (send to service): Send a message to a single user only. Messages can be sent to oneself.
+""".strip().replace('\n','\n\n')
+            await self.create_message(channel_id, f"Commands (some must be sent to all 'all' some to 'service'):\n{cmds}", [who_clicked], sender=who_clicked)
         else:
             logger.warning(f"Unknown button_id: {button_id}")
 
@@ -466,11 +509,11 @@ class DemoService(SDK):
     async def on_spell(self, spell):
         """Just send the content of the spell to the message."""
         try:
-            content, times = spell
+            content, times = spell # The spell can be any object. This Service expects (str, int) tuples.
             content = str(content)
             times = int(times)
-        except:
-            content = 'DEFAULT'
+        except Exception as e:
+            content = f'WARNING: spell error {e}'
             times = 1
 
         text = f"WAND: {content * times}"
@@ -478,7 +521,7 @@ class DemoService(SDK):
         for channel_id in self.channels.keys():
             the_channel = await self.get_channel(channel_id)
             recipients = list(the_channel.real_characters.keys())
-            talker = the_channel.virtual_characters[self.WAND].user_id
+            talker = the_channel.virtual_characters[self.WAND].character_id
             await self.create_message(channel_id, text, recipients, sender=talker)
 
     ########################### helper functions #####################################
@@ -488,16 +531,16 @@ class DemoService(SDK):
         button_data_list = (await self.get_channel(channel_id)).buttons.get(character_id, self._default_buttons) # Contents of buttons.json.
         await self.send_update_buttons(channel_id, button_data_list, [character_id])
 
-    async def calculate_and_update_user_list_from_database(self, channel_id, character_id):
-        """Pipes all real users + the correct number of Mickeys to self.send_update_user_list."""
+    async def calculate_and_update_character_list_from_database(self, channel_id, character_id):
+        """Pipes all real users + the correct number of Mickeys to self.send_update_character_list."""
         the_channel = await self.get_channel(channel_id)
         real_characters = the_channel.real_characters
-        user_list = list(real_characters.keys())
+        character_list = list(real_characters.keys())
 
         mickey_num = the_channel.states[character_id]['mickey_num']
 
         for sn in range(mickey_num):
             key = f"{self.MICKEY}_{sn}"
-            user_list.append(the_channel.virtual_characters[key].user_id)
+            character_list.append(the_channel.virtual_characters[key].character_id)
 
-        await self.send_update_user_list(channel_id, user_list, [character_id])
+        await self.send_update_character_list(channel_id, character_list, [character_id])

@@ -1,15 +1,15 @@
 # Defines class NekoAgent(MoobiusAgent).
 
-import json, asyncio
+import json, asyncio, time, pprint
+import service
 
 from dacite import from_dict
 from loguru import logger
 from moobius.types import MessageBody, Character
-from moobius import SDK, MoobiusStorage, Moobius
-import time
+from moobius import MoobiusClient, MoobiusStorage, Moobius
 
 
-class DemoAgent(SDK):
+class DemoAgent(MoobiusClient):
     def __init__(self, log_file="logs/agent.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
         self.log_file = log_file
@@ -21,74 +21,87 @@ class DemoAgent(SDK):
         logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
         logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
 
-        # Log into the default set of channels if not already:
-        with open('./config/service.json', 'r') as f_obj:
-            channels = json.load(f_obj)['channels']
-        logger.info('Agent joining Service default channels (if not already joined). Will not join to any extra channels:', channels)
-        join_tasks = [self.send_join_channel(channel_id) for channel_id in channels]
-        await asyncio.wait(join_tasks)
+        await self.agent_join_service_channels('./config/service.json') # Log into the default set of channels if not already:
 
     async def on_message_down(self, message_down: MessageBody):
         """Listen to messages the user sends and respond to them."""
-        ch_id = message_down.channel_id
+        print('AGENT GOT THIS MESSAGE:', message_down)
+        channel_id = message_down.channel_id
         content = message_down.content
-        if not ch_id in self.channels:
-            self.channels[ch_id] = MoobiusStorage(self.client_id, ch_id, db_config=self.db_config)       
-            await self.send_fetch_userlist(ch_id)
-            await self.send_fetch_buttons(ch_id)
+        if not channel_id in self.channels:
+            self.channels[channel_id] = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
+            #await self.send_fetch_characters(channel_id) # Deprecated function?
+            await self.send_fetch_buttons(channel_id)
 
-        if message_down.context['sender'] == self.client_id:
+        if message_down.sender == self.client_id:
             # avoid infinite loop
             return
         will_log_out = False
         if message_down.subtype == "text":
-            if content['text'] == "nya":
-                content['text'] = "meow"
+            text0 = content['text']
+            text1 = text0.strip().lower()
+            if text1 == "nya":
+                text2 = "meow"
                 button_list = [{"button_id": "keyc", "button_name": "cat talk","button_text": "Meow/Nya", "new_window": False}]
-                print('AGENT BUTTON UPDATE:', ch_id, [message_down.sender])
-                await self.send_update_buttons(ch_id, button_list, [message_down.sender]) # TODO: can buttons be updated by agent?
-            elif content['text'] == "meow":
-                content['text'] = "nya"
-            elif content['text'] == "log agent out":
-                content['text'] = "Agent logging out. Will not be usable until restart."
+                print('AGENT BUTTON UPDATE:', channel_id, [message_down.sender])
+                await self.send_update_buttons(channel_id, button_list, [message_down.sender]) # TODO: can buttons be updated by agent?
+            elif text1 == "meow":
+                text2 = "nya"
+            elif text1 == "log agent out":
+                text2 = "Agent logging out. Will not be usable until restart."
                 will_log_out = True
-            elif content['text'] == "agent info":
+            elif text1 == "agent info":
                 the_agent_id = self.client_id
-                agent_info1 = await self.fetch_user_profile(the_agent_id) # Should be equal to self.agent_info
-                content['text'] = f"Agent profile:\n{agent_info1}"
-            elif content['text'].strip().startswith("rename agent"):
-                new_name = content['text'].strip().replace("rename agent",'').strip()
+                agent_info1 = await self.fetch_character_profile(the_agent_id) # Should be equal to self.agent_info
+                text2 = f"Agent profile:\n{agent_info1}"
+            elif text1.startswith("rename agent"):
+                new_name = text1.replace("rename agent",'').strip()
                 the_agent_id = self.client_id # Will not be needed for update_current_user in the .net version.
                 logger.info('About to update the agent\'s name!')
-                await self.update_current_user(avatar="null", description='Agent got an updated name!', name=new_name, user_id=the_agent_id)
-                content['text'] = "renamed the agent (refresh)!"
-            elif len(content['text']) > 160:
-                content['text'] = f'Long message len={len(content["text"])}.'
-            content['text'] = f"agent repeat: {content['text']}"
+                await self.update_current_user(avatar="null", description='Agent got an updated name!', name=new_name)
+                text2 = "renamed the agent (refresh)!"
+            elif text1 == 'channel groups' or text1 == 'channel_groups':
+                glist_temp = await self.fetch_channel_temp_group(channel_id)
+                glist = await self.fetch_channel_group_list(channel_id)
+                gdict = await self.http_api.fetch_channel_group_dict(channel_id, self.client_id)
+                text2A = service.limit_len(f"Channel group list (this time from the agent):\n{pprint.pformat(glist)}")
+                text2B = service.limit_len(f"Channel group TEMP list (this time from the agent):\n{pprint.pformat(glist_temp)}")
+                text2C = service.limit_len(f"Channel group, dict form from Agent (used internally):\n{pprint.pformat(gdict)}")
+                text2 = '\n\n'.join([text2A,text2B,text2C])
+            elif len(text0) > 160:
+                text2 = f'Long message len={len(text0)}.'
+            else:
+                text2 = f"agent repeat: {text0}"
+            content['text'] = text2
 
         message_down.timestamp = int(time.time() * 1000)
-        recipients = [message_down.sender]
-        message_down.recipients = recipients
-
-        await self.send(payload_type='message_up', payload_body=message_down)
+        message_down.recipients = [message_down.sender]
+        message_down.sender = self.client_id
+        try:
+            uinfo = await self.http_api.fetch_user_info()
+            print('AGENT INFO:', uinfo)
+        except Exception as e:
+            print('Agent info fetch fail:', e)
+        print('AGENT WILL SEND THIS MESSAGE (as message up); note conversion to/from recipient id vector:', message_down)
+        await self.convert_and_send_message(message_down)
         if will_log_out: # After the message is sent.
             await self.sign_out()
 
-    async def on_update_userlist(self, update):
-        for user_id in update['userlist']:
-            if type(user_id) is not str:
-                raise Exception('The userlist update should be a list of user_ids not users.') # Extra assert just to be sure the update is the list of user ids.
+    async def on_update_characters(self, update):
+        for character_id in update['content']['characters']:
+            if type(character_id) is not str or type(update['content']['characters']) is not list:
+                raise Exception('The characters in update should be a list of character ids not dicts.') # Extra assert just to be sure the update is the list of user ids.
             c_id = update['channel_id']
             while c_id not in self.channels:
-                logger.info(f'Agent waiting (for on_start) while update userlist for channel: {c_id}')
+                logger.info(f'Agent waiting (for on_start) while update characters for channel: {c_id}')
                 await asyncio.sleep(2)
 
-            self.channels[c_id].characters[user_id] = await self.fetch_user_profile(user_id)
+            self.channels[c_id].characters[character_id] = await self.fetch_character_profile(character_id)
 
     async def on_update_buttons(self, update):
-        logger.info("agent_update_buttons", update['buttons'])
+        logger.info("agent_update_buttons", update['content'])
         # update buttons [{'button_id': 'key1', 'button_name': 'name1', 'button_text': 'Meet Tubbs or Hermeowne', 'new_window': True, 'arguments': [{'name': 'arg1', 'type': 'enum', 'optional': False, 'values': ['Meet Tubbs', 'Meet Hermeowne'], 'placeholder': 'placeholder'}]}, {'button_id': 'key2', 'button_name': 'name2', 'button_text': 'Meet Ms Fortune', 'new_window': False, 'arguments': None}]
-        self.channels[update['channel_id']].buttons = update['buttons']
+        self.channels[update['channel_id']].buttons = update['content']
 
     async def on_update_canvas(self, update):
         logger.info("agent_on_update_canvas", update)
@@ -104,9 +117,9 @@ class DemoAgent(SDK):
     async def on_spell(self, text):
         """The agent can be tested with spells which call the self.send_... functions."""
         # 7 Actions
-        if text == "send_fetch_userlist":
+        if text == "send_fetch_characters":
             for channel_id in self.channels.keys():
-                await self.send_fetch_userlist(channel_id)
+                await self.send_fetch_characters(channel_id)
         elif text == "send_fetch_buttons":
             for channel_id in self.channels.keys():
                 await self.send_fetch_buttons(channel_id)

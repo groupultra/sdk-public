@@ -54,14 +54,14 @@
     {
         "button_id": "group_btn",
         "button_name": "group choice",
-        "button_text": "Groups (.link only!)",
+        "button_text": "Groups",
         "new_window": true,
         "arguments": [
             {
                 "name": "Select Group Operation",
                 "type": "enum",
                 "optional": false,
-                "values": ["Group Service's Channels", "List Channel Groups"],
+                "values": ["List Channel Temp Groups", "List Channel Groups"],
                 "placeholder": "(choose)"
             }
         ]

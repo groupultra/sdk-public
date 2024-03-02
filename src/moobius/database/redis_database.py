@@ -14,14 +14,12 @@ class RedisDatabase(DatabaseInterface):
         logger.info(f'Redis initialized on {host} port {port}')
         self.redis = redis.Redis(host=host, port=port, db=db, password=password)
 
-    @logger.catch
     def get_value(self, key) -> (bool, any):
         if self.redis.exists(key):
             balue = self.redis.get(key)
             return True, json.loads(balue.decode())
         return False, f'Key {key} does not exist'
 
-    @logger.catch
     def set_value(self, key, value) -> (bool, any):
         balue = json.dumps(value, cls=EnhancedJSONEncoder).encode()
         self.redis.set(key, balue)
@@ -29,14 +27,12 @@ class RedisDatabase(DatabaseInterface):
             self.redis.save()
         return True, key
 
-    @logger.catch
     def delete_key(self, key) -> (bool, any):
         self.redis.delete(key)
         if autosave:
             self.redis.save()
         return True, key
 
-    @logger.catch
     def all_keys(self) -> any:
         out = self.redis.keys()
         return [k.decode() for k in out]

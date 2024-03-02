@@ -1,5 +1,6 @@
-# wand.py
+# Runs services and casts spells (sending commands to services).
 
+from moobius import utils
 import asyncio
 from multiprocessing import Process
 import time
@@ -40,7 +41,7 @@ class MoobiusWand:
           >>> wand = MoobiusWand()
           >>> handle = wand.run(
           >>>     CicadaService,
-          >>>     service_config_path="config/service.json",
+          >>>     config_path="config/service.json",
           >>>     db_config_path="config/db.json",
           >>>     background=True)
         """
@@ -83,7 +84,7 @@ class MoobiusWand:
           >>> wand = MoobiusWand()
           >>> handle = wand.run(
           >>>     CicadaService,
-          >>>     service_config_path="config/service.json",
+          >>>     config_path="config/service.json",
           >>>     db_config_path="config/db.json",
           >>>     background=True)
           >>> wand.spell(handle=handle, obj=MessageDown(msg_type="test", context={"sender": "1", "recipients": ["2"]}))
