@@ -26,7 +26,7 @@ strict_kwargs = False # If True all functions (except __init__) with more than o
 
 
 class ServiceGroupLib():
-    """Converts a list of character_ids into a service group id, creating one if need be.
+    """Converts a list of character_ids into a service or channel group id, creating one if need be.
        The lookup is O(n) so performance issues at extremly large list sizes are a theoretical possibility."""
 
     def __init__(self):
@@ -60,7 +60,6 @@ class ServiceGroupLib():
             if type(character_ids) is str:
                 return character_ids
             else: # Convert list to a single group id in this mode.
-                character_ids = sorted(list(character_ids))
                 massive_str = '_'.join(character_ids)
                 need_new_group = massive_str not in ids2id
                 if need_new_group: # Call /service/group/create
@@ -199,7 +198,7 @@ class MoobiusClient:
                 logger.error('No channels specified in self.config')
                 return
 
-            channelid2serviceid = await self.fetch_bound_channels() # Channels can only be bound to a SINGLE service.
+            channelid2serviceid = await self.fetch_service_id_each_channel() # Channels can only be bound to a SINGLE service.
 
             others = self.config["others"].lower().strip()
             for channel_id in set(self.config["channels"]):
@@ -274,9 +273,9 @@ class MoobiusClient:
         for channel_id in channels:
             if channel_id not in ch1:
                 try:
-                    chars = await self.fetch_real_characters(channel_id, raise_empty_list_err=False)
+                    chars = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False)
                 except Exception as e:
-                    logger.warning(f'fetch_real_characters failed: {e}. Channel will be joined')
+                    logger.warning(f'fetch_real_character_ids failed: {e}. Channel will be joined')
                     chars = []
                 try:
                     if type(chars) is not list or self.client_id not in chars:
@@ -288,15 +287,32 @@ class MoobiusClient:
 
     ################################## Query functions #######################################
 
-    async def fetch_bound_channels(self):
-        """Returns a dict of which service is each channel bound to. Channels can only be bound to a single service.
+    async def fetch_service_id_each_channel(self):
+        """Returns a dict of which service_id is each channel_id bound to. Channels can only be bound to a single service.
            Channels not bound to any service will not be in the dict."""
-        service_list = await self.http_api.fetch_service_list()
+        service_list = await self.http_api.fetch_service_id_list()
         channelid2serviceid = {} # Channels can only be bound to a SINGLE service.
         for service in service_list:
             for channel_id in service["channel_ids"]:
                 channelid2serviceid[channel_id] = service['service_id']
         return channelid2serviceid
+
+    async def fetch_bound_channels(self):
+        """Returns a list of channels this Service is bound to."""
+        ch_id2s_id = await self.fetch_service_id_each_channel()
+        channel_ids = []
+        for channel_id, service_id in ch_id2s_id.items():
+            if service_id == self.client_id:
+                channel_ids.append(channel_id)
+        return channel_ids
+
+    async def fetch_characters(self, channel_id):
+        """Returns a list (or Character objects) with both the real caracters bound to channel_id
+        as well as fake virtual characters bound to, not a channel, but to service self.client_id."""
+        real_character_ids = await self.fetch_real_character_ids(channel_id, False)
+        real_characters = await self.fetch_character_profile(real_character_ids)
+        service_characters = await self.fetch_service_characters()
+        return real_characters + service_characters
 
     ################################## Actuators #######################################
 
@@ -447,7 +463,7 @@ class MoobiusClient:
         await self.http_api.bind_service_to_channel(self.client_id, channel_id)  # may already be binded to the service itself
         return channel_id
 
-    ################################## Single-line actuators #######################################
+    ################################## Single-line functions #######################################
     async def _update_rec(self, recipients, is_m_down, channel_id=None):
         """Pass in await self._update_rec(recipients) into "recipients".
            Converts lists into group_id strings, creating a group if need be."""
@@ -460,18 +476,22 @@ class MoobiusClient:
     async def update_current_user(self, avatar, description, name): """Calls self.http_api.update_current_user."""; return await self.http_api.update_current_user(avatar, description, name)
     async def update_character(self, character_id, avatar, description, name): """Calls self.http_api.update_character using self.client_id."""; return await self.http_api.update_character(self.client_id, character_id, avatar, description, name)
     async def update_channel(self, channel_id, channel_name, channel_desc): """Calls self.http_api.update_channel."""; return await self.http_api.update_channel(channel_id, channel_name, channel_desc)
-    async def create_channel(self, channel_name, channel_desc): """Calls self.http_api.TODO"""; return await self.http_api.create_channel(channel_name, channel_desc)
+    async def create_channel(self, channel_name, channel_desc): """Calls self.http_api.create_channel"""; return await self.http_api.create_channel(channel_name, channel_desc)
+    async def bind_service_to_channel(self, channel_id): """Calls self.http_api.bind_service_to_channel"""; return await self.http_api.bind_service_to_channel(self.client_id, channel_id)
+    async def unbind_service_from_channel(self, channel_id): """Calls self.http_api.unbind_service_from_channel"""; return await self.http_api.unbind_service_from_channel(self.client_id, channel_id)
     async def create_character(self, name, avatar, description): """Calls self.http_api.create_character using self.create_character."""; return await self.http_api.create_character(self.client_id, name, avatar, description)
     async def fetch_popular_channels(self): """Calls self.http_api.fetch_popular_channels."""; return await self.http_api.fetch_popular_chanels()
     async def fetch_channel_list(self): """Calls self.http_api.fetch_channel_list."""; return await self.http_api.fetch_channel_list()
-    async def fetch_real_characters(self, channel_id, raise_empty_list_err=True): """Calls self.http_api.fetch_real_characters using self.client_id."""; return await self.http_api.fetch_real_characters(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
+    async def fetch_real_character_ids(self, channel_id, raise_empty_list_err=True): """Calls self.http_api.fetch_real_character_ids using self.client_id."""; return await self.http_api.fetch_real_character_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
     async def fetch_character_profile(self, character_id): """Calls self.http_api.fetch_character_profile"""; return await self.http_api.fetch_character_profile(character_id)
-    async def fetch_service_list(self): """Calls self.http_api.fetch_service_list"""; return await self.http_api.fetch_service_list()
+    async def fetch_service_id_list(self): """Calls self.http_api.fetch_service_id_list"""; return await self.http_api.fetch_service_id_list()
     async def fetch_service_characters(self): """Calls self.http_api.fetch_service_characters using self.client_id."""; return await self.http_api.fetch_service_characters(self.client_id)
     async def upload_file(self, filepath): """Calls self.http_api.upload_file."""; return await self.http_api.upload_file(filepath)
     async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
     async def create_channel_group(self, channel_id, group_name, members): """Calls self.http_api.create_channel_group."""; return await self.http_api.create_channel_group(channel_id, group_name, members)
     async def create_service_group(self, group_id, members): """Calls self.http_api.create_service_group."""; return await self.http_api.create_service_group(group_id, members)
+    async def character_ids_of_channel_group(self, sender_id, channel_id, group_id): """Calls self.http_api.character_ids_of_channel_group"""; return await self.http_api.character_ids_of_channel_group(sender_id, channel_id, group_id)
+    async def character_ids_of_service_group(self, group_id): """Calls self.http_api.character_ids_of_service_group"""; return await self.http_api.character_ids_of_service_group(group_id)
     async def update_channel_group(self, channel_id, group_id, members): """Calls self.http_api.update_channel_group."""; return await self.http_api.update_channel_group(channel_id, group_id, members)
     async def update_temp_channel_group(self, channel_id, members): """Calls self.http_api.update_temp_channel_group."""; return await self.http_api.update_temp_channel_group(channel_id, members)
     async def fetch_channel_temp_group(self, channel_id): """Calls self.http_api.fetch_channel_temp_group."""; return await self.http_api.fetch_channel_temp_group(channel_id, self.client_id)
@@ -496,7 +516,7 @@ class MoobiusClient:
     async def send_fetch_canvas(self, channel_id): """Calls self.ws_client.fetch_canvas using self.client_id."""; return await self.ws_client.fetch_canvas(self.client_id, channel_id)
     async def send_fetch_channel_info(self, channel_id): """Calls self.ws_client.fetch_channel_info using self.client_id."""; return await self.ws_client.fetch_channel_info(self.client_id, channel_id)
     async def send_join_channel(self, channel_id): """Calls self.ws_client.join_channel using self.client_id."""; return await self.ws_client.join_channel(self.client_id, channel_id)
-    async def send_leave_channel(self, channel_id): """Calls self.ws_client.leave_channel using self.client_id."""; return await self.ws_client.leave_channel(self.client_id, channel_id)
+    async def send_leave_channel(self, channel_id): """Calls self.ws_client.leave_channel using self.client_id. The Agent version of self.unbind_service_from_channel."""; return await self.ws_client.leave_channel(self.client_id, channel_id)
 
     ################################## Callback switchyards #######################################
 
@@ -728,7 +748,7 @@ class MoobiusClient:
     async def on_fetch_service_characters(self, action):
         """Handles the received action of fetching a character_list. One of the multiple Action object callbacks. Returns None.
            Example Action object: moobius.Action(subtype="fetch_characters", channel_id=<channel id>, sender=<user id>, context={})."""
-        logger.debug("on_action fetch_characters")
+        logger.debug("on_action fetch_service_characters")
 
     async def on_fetch_buttons(self, action): # TODO: This doesn't seem to have the buttons?
         """Handles the received action of fetching buttons. One of the multiple Action object callbacks. Returns None.

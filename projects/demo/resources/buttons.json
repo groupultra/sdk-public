@@ -31,7 +31,7 @@
                 "name": "Select Task",
                 "type": "enum",
                 "optional": false,
-                "values": ["New Channel", "Ping Channels", "Reset Extra Channels", "Fetch Channel List", "Update Extra Channels", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
+                "values": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
                 "placeholder": "(choose)"
             }
         ]

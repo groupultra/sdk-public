@@ -149,7 +149,7 @@ Populate the real characters:
 ```
     channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
     self.channels[channel_id] = channel
-    real_characters = await self.fetch_real_characters(channel_id)
+    real_characters = await self.fetch_real_character_ids(channel_id)
 
     for character in real_characters:
         character_id = character.character_id
@@ -334,7 +334,7 @@ async def on_spell(self, spell):
 ## Overriding self.on_button_click(button_click)
 *Button calls* encode button presses, etc and dispatched when a given client-side wigit is used used.
 button_click.button_id gives the id of the wigit.
-button_click.Arguments is a list of arguments, an example argument, which happens when the user selects the "create new Mickey" character option is: "ButtonCallArgument(name='magic_type', value='Mickey')". Arguments encode which choice of a drop-down menu was used.
+button_click.Arguments is a list of arguments, an example argument, which happens when the user selects the "create new Mickey" character option is: "ButtonClickArgument(name='magic_type', value='Mickey')". Arguments encode which choice of a drop-down menu was used.
 
 The resulting function is a siwthyard that handels different buttons:
 ```

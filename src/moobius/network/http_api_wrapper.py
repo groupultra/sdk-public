@@ -160,9 +160,11 @@ class HTTPAPIWrapper:
 
     async def checked_get(self, url, the_request, requests_kwargs=None, good_msg=None, bad_msg="This HTTPs GET request failed", raise_errors=True):
         """Calls self._checked_get_or_post with is_post=False"""
+        url = url.replace('//','/').replace(':/','://') # May not be needed, but looks better in the printouts.
         return await self._checked_get_or_post(url, the_request, False, requests_kwargs=requests_kwargs, good_msg=good_msg, bad_msg=bad_msg, raise_errors=raise_errors)
     async def checked_post(self, url, the_request, requests_kwargs=None, good_msg=None, bad_msg="This HTTPs POST request failed", raise_errors=True):
         """Calls self._checked_get_or_post with is_post=True"""
+        url = url.replace('//','/').replace(':/','://') # May not be needed, but looks better in the printouts.
         return await self._checked_get_or_post(url, the_request, True, requests_kwargs=requests_kwargs, good_msg=good_msg, bad_msg=bad_msg, raise_errors=raise_errors)
 
     ############################ Auth ############################
@@ -228,7 +230,7 @@ class HTTPAPIWrapper:
         characters = [self._xtract_character(d) for d in response_dict['data']]
         return characters if is_list else characters[0]
 
-    async def fetch_real_characters(self, channel_id, service_id, raise_empty_list_err=True):
+    async def fetch_real_character_ids(self, channel_id, service_id, raise_empty_list_err=True):
         """
         Fetches the real user ids of a channel. A service function, will not work as an Agent function.
 
@@ -238,7 +240,7 @@ class HTTPAPIWrapper:
           raise_empty_list_err=True: Raises an Exception if the list is empty.
 
         Returns:
-         A list of [character_id strings.
+         A list of character_id strings.
 
         Raises:
           Exception (empty list) if raise_empty_list_err is True and the list is empty.
@@ -324,7 +326,7 @@ class HTTPAPIWrapper:
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/create", the_request={"description": description}, requests_kwargs={'headers':self.headers}, good_msg="Successfully created service!", bad_msg="Error creating service", raise_errors=True)
         return response_dict.get('data').get('service_id')
 
-    async def fetch_service_list(self):
+    async def fetch_service_id_list(self):
         """Returns a list of service ID strings of the user, or None if doesn't receive a valid response or one without any 'data' (error condition)."""
         response_dict = await self.checked_get(url=self.http_server_uri + "/service/list", the_request=None, requests_kwargs={'headers':self.headers}, good_msg=None, bad_msg='Error getting service list', raise_errors=True)
         return response_dict.get('data')
@@ -522,7 +524,7 @@ class HTTPAPIWrapper:
     ############################# Groups ############################
 
     async def fetch_channel_group_dict(self, channel_id, service_id):
-        """Like fetch_real_characters but returns a dict from group_id to all characters."""
+        """Like fetch_real_character_ids but returns a dict from group_id to all characters."""
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 

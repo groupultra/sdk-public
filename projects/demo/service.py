@@ -59,7 +59,6 @@ class DemoService(MoobiusClient):
         }
 
         self.xtra_channels = {}
-        self.left_channels = []
 
     @property
     def default_status(self):
@@ -75,7 +74,7 @@ class DemoService(MoobiusClient):
         the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
         self.channels[channel_id] = the_channel
 
-        real_character_ids = await self.fetch_real_characters(channel_id, raise_empty_list_err=False)
+        real_character_ids = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False)
 
         for character_id in real_character_ids:
             if type(character_id) is not str:
@@ -133,9 +132,9 @@ class DemoService(MoobiusClient):
 
         self.scheduler.add_job(self.cron_task, 'interval', minutes=1)
 
-        channel2service = await self.fetch_bound_channels()
-        for c_id, s_id in channel2service.items():
-            if s_id == self.client_id and c_id not in self.channels:
+        channel_ids = await self.fetch_bound_channels()
+        for c_id in channel_ids:
+            if c_id not in self.channels:
                 if load_xtra_channels_on_start:
                     logger.info(f'EXTRA channel bound to this service on startup will be added: {c_id}')
                     await self.initialize_channel(c_id)
@@ -144,12 +143,12 @@ class DemoService(MoobiusClient):
 
     async def cron_task(self):
         """Sends a check-in message to each channel."""
-        for channel_id in self.channels.keys():
-            the_channel = await self.get_channel(channel_id)
+        for c_id in self.channels.keys():
+            the_channel = await self.get_channel(c_id)
             recipients = list(the_channel.real_characters.keys())
             talker = the_channel.virtual_characters[self.WAND].character_id
             txt = f"Check in every minute! {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            await self.create_message(channel_id, txt, recipients, sender=talker)
+            await self.create_message(c_id, txt, recipients, sender=talker)
 
     async def on_message_down(self, message_down):
         """This and several other callbacks only exist to record the API calls."""
@@ -216,7 +215,7 @@ class DemoService(MoobiusClient):
                         if len(the_message.strip())<2:
                             await self.create_message(channel_id, limit_len(f'The message was empty, a default message will be used.".'), [sender], sender=sender)
                             the_message = 'Empty_message!'
-                        real_ids = await self.fetch_real_characters(channel_id, raise_empty_list_err=False)
+                        real_ids = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False)
                         real_profiles = await self.fetch_character_profile(real_ids)
                         target_id = None
                         for rp in real_profiles:
@@ -378,7 +377,6 @@ class DemoService(MoobiusClient):
                     the_channel.currency[value0] = 0
                 the_channel.currency[value0] += 2 # Number of weeks.
         elif button_id == "channel_btn".lower():
-            #channel2service = self.fetch_bound_channels() TODO
             extra_channel_ids = list(self.xtra_channels.keys())
             if value == "New Channel".lower():
                 channel_name = '>>Demo TEMP channel'+str(len(extra_channel_ids))
@@ -388,25 +386,44 @@ class DemoService(MoobiusClient):
                 await self.create_message(channel_id, f"New channel created, refresh and it should appear on the left bar: {channel_name} ({new_channel_id})", [who_clicked], sender=who_clicked)
             elif value == "Ping Channels".lower():
                 tasks = [self.create_message(channel_id, f"Pinging Channel ids: {extra_channel_ids} (one ping message should show up in each channel)", [who_clicked], sender=who_clicked)]
-                for extra_channel_id in extra_channel_ids + self.left_channels: # Ideally the left out channels should no longer respond.
+                for extra_channel_id in extra_channel_ids:
                     tasks.append(self.create_message(extra_channel_id, f"Ping from channel {channel_id} to channel {extra_channel_id}!", [who_clicked], sender=who_clicked))
                 await asyncio.wait(tasks)
-            elif value == "Reset Extra Channels".lower():
-                await self.create_message(channel_id, f"Leaving Channel ids: {extra_channel_ids}. WARNING: Untested. The channels may persist in the GUI.", [who_clicked], sender=who_clicked)
-                tasks = []
-                for channel_id in extra_channel_ids:
-                    tasks.append(self.send_leave_channel(channel_id))
-                    if channel_id in self.channels: # Should always be.
-                        del self.channels[channel_id]
-                self.xtra_channels = {}
-                if tasks:
-                    await asyncio.wait(tasks)
-                self.left_channels += extra_channel_ids
+            elif value == "List Bound Channels".lower():
+                channel_ids = await self.fetch_bound_channels()
+                await self.create_message(channel_id, f"All bound channels:\n{channel_ids}.", [who_clicked], sender=who_clicked)
+            elif value == "Leave Extra Channels".lower():
+                await self.create_message(channel_id, f"Fetching the list of bound channels, will leave any channels which are not in the config.", [who_clicked], sender=who_clicked)
+                left_channels = []
+                channel_ids = await self.fetch_bound_channels()
+                for c_id in channel_ids:
+                         if c_id in self.config["channels"]:
+                             continue # Do not leave the core channels.
+                         if c_id in self.channels:
+                             del self.channels[c_id]
+                         left_channels.append(c_id)
+                await self.create_message(channel_id, f"Will try to leave these channels:\n{left_channels}.", [who_clicked], sender=who_clicked)
+                sucessfully_left = []
+                for c_id in left_channels:
+                    success = False
+                    try:
+                        await self.send_leave_channel(c_id) # This is for the Agent, not the Service.
+                        success = True
+                    except Exception as e:
+                        logger.warning(f'Send_leave_channel failed for {c_id}: {e}.')
+                    try:
+                        await self.unbind_service_from_channel(c_id) # This is for the Service.
+                    except Exception as e:
+                        logger.warning(f'Unbind_service_from_channel failed for {c_id}: {e}.')
+                        success = True
+                    if success:
+                        sucessfully_left.append(c_id)
+                await self.create_message(channel_id, f"Has left these channels (refresh to see):\n{sucessfully_left}.", [who_clicked], sender=who_clicked)
             elif value == "Fetch Channel List".lower():
                 x = await self.fetch_channel_list()
-                await self.create_message(channel_id, f"Channel list:\n{str(x)}", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Channel list:\n{x}", [who_clicked], sender=who_clicked)
                 x = await self.fetch_popular_channels()
-                await self.create_message(channel_id, f"Popular channel list:\n{str(x)}", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Popular channel list:\n{x}", [who_clicked], sender=who_clicked)
             elif value == "Update Extra Channels".lower():
                 extra_channel_ids = list(self.xtra_channels.keys())
                 ix = 0
@@ -465,7 +482,7 @@ class DemoService(MoobiusClient):
                 char_list = await self.fetch_service_characters()
 
                 await self.create_message(channel_id, limit_len(f"Real+Fake character list:\n {pprint.pformat(char_list)}"), [who_clicked], sender=who_clicked)
-                real_ids = await self.fetch_real_characters(channel_id, raise_empty_list_err=False)
+                real_ids = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False)
                 await self.create_message(channel_id, f'Real character ids: {real_ids}', [who_clicked], sender=who_clicked)
                 await self.create_message(channel_id, f'Real character profiles: {await self.fetch_character_profile(real_ids)}', [who_clicked], sender=who_clicked)
             else:
@@ -518,11 +535,11 @@ class DemoService(MoobiusClient):
 
         text = f"WAND: {content * times}"
 
-        for channel_id in self.channels.keys():
-            the_channel = await self.get_channel(channel_id)
+        for c_id in self.channels.keys():
+            the_channel = await self.get_channel(c_id)
             recipients = list(the_channel.real_characters.keys())
             talker = the_channel.virtual_characters[self.WAND].character_id
-            await self.create_message(channel_id, text, recipients, sender=talker)
+            await self.create_message(c_id, text, recipients, sender=talker)
 
     ########################### helper functions #####################################
 
