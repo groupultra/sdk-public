@@ -17,7 +17,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageBody, Action, Button, ButtonClick, ButtonClickArgument, Payload
+from moobius.types import MessageBody, Action, Button, ButtonClick, ButtonClickArgument, Payload, MenuClick
 from moobius.database.storage import MoobiusStorage
 from moobius import utils
 from loguru import logger
@@ -597,6 +597,9 @@ class MoobiusClient:
         if 'type' in payload_data:
             if 'sender' not in payload_body and payload_body.get('context',{}).get('sender'):
                 payload_body['sender'] = payload_body['context']['sender'] # Need a 'sender' key to make it a MessageBody or ButtonClick dataclass.
+            if payload_data['type'] == 'menu_click':
+                if 'message_id' not in payload_data['body']: # Need a 'message_id' key to make it a MenuClick.
+                    payload_data['body']['message_id'] = ""
             payload = from_dict(data_class=Payload, data=payload_data)
 
             if payload.type == 'message_down':
@@ -609,8 +612,8 @@ class MoobiusClient:
                 await self.on_action(payload.body)
             elif payload.type == 'button_click':
                 await self.on_button_click(payload.body)
-            elif payload.type == 'context_rclick':
-                await self.on_context_rclick(payload.body)
+            elif payload.type == 'menu_click':
+                await self.on_menu_click(payload.body)
             elif payload.type == 'copy':
                 await self.on_copy_client(payload.body)
             else:
@@ -779,9 +782,10 @@ class MoobiusClient:
            Example ButtonClick object: moobius.ButtonClick(button_id="the_big_red_button", channel_id=<channel id>, sender=<user id>, arguments=[], context={})"""
         logger.debug(f"Button call received: {button_click}")
 
-    async def on_context_rclick(self, context_click: ButtonClick):
-        """Handles a context menu right click from a user. Returns None."""
-        logger.debug(f"Button right call received: {context_click}")
+    async def on_menu_click(self, context_click: MenuClick):
+        """Handles a context menu right click from a user. Returns None. Example MenuClick object:
+        MenuClick(item_id=1, message_id=<id>, message_subtype=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])"""
+        logger.debug(f"Right-click call received: {context_click}")
 
     async def on_copy_client(self, copy):
         """Handles a "Copy" of a message. Returns None.

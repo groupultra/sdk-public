@@ -561,8 +561,13 @@ class HTTPAPIWrapper:
         return from_dict(data_class=Group, data={'group_id': response_dict['data']['group_id'], 'character_ids':characters})
 
     async def character_ids_of_service_group(self, group_id):
-        """Gets a list of character ids belonging to a service group."""
-
+        """
+        Gets a list of character ids belonging to a service group.
+        Note that the 'recipients' in 'on message up' might be None:
+          This function will return an empty list given Falsey inputs or Falsey string literals.
+        """
+        if not group_id or group_id in ['None', 'null', 'none', 'Null', 'false', 'False']:
+            return []
         use_questionmark = True
         if use_questionmark:
             response_dict = await self.checked_get(url=self.http_server_uri + f"/service/group?group_id={group_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_msg="Successfully fetched service group roster!", bad_msg="Error fetching service group roster", raise_errors=True)

@@ -60,6 +60,19 @@ class ButtonClick:
 
 @dataclass
 @add_str_method
+class MenuClick: # Right-click context menu.
+    item_id: str
+    message_id: str
+    message_subtype: str
+    message_content: dict
+    channel_id: str
+    context: dict
+    sender: str
+    recipients: list[str]
+
+
+@dataclass
+@add_str_method
 class Stage:
     stage_id: str
     stage_args: dict
@@ -133,7 +146,7 @@ class Payload:
     type: str
     request_id: Optional[str]
     user_id: Optional[str]
-    body: MessageBody | ButtonClick | Action | Copy | Any
+    body: MessageBody | ButtonClick | Action | Copy | MenuClick | Any
 
 
 @dataclass

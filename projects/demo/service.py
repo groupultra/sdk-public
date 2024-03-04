@@ -440,8 +440,7 @@ class DemoService(MoobiusClient):
                 self.TMP_print_buttons = True
                 await self.send_fetch_buttons(channel_id)
             elif value == "Fancy Right Click".lower():
-                await self.create_message(channel_id, limit_len(f"WARNING: Context menu feature has not yet been tested."), [who_clicked], sender=who_clicked)
-                await self.create_message(channel_id, "Wait 5 seconds and then try right clicking a message.", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, "Wait a few seconds and then try right-clicking a message.", [who_clicked], sender=who_clicked)
                 option_dict = {'1':'Press A', '2':'Press B', '3':'Press C'}
                 await self.send_update_rclick_buttons(channel_id, option_dict, [who_clicked])
             else:
@@ -516,8 +515,16 @@ class DemoService(MoobiusClient):
         else:
             logger.warning(f"Unknown button_id: {button_id}")
 
-    async def on_context_rclick(self, menu_click):
-        raise Exception('TODO: handle this.')
+    async def on_menu_click(self, menu_click):
+        """Right-click the context menu."""
+        #MenuClick(item_id=1, message_id=<id>, message_subtype=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])
+        if type(menu_click) is dict:
+            print('MENU CLICK:', menu_click)
+        item_id = menu_click.item_id
+        message_content = menu_click.message_content
+        option_dict = {'1':'Press A', '2':'Press B', '3':'Press C'} # This dict was passed into the 
+        txt = f'You choose "{option_dict[item_id]}" on message "{message_content["text"]}".'
+        await self.create_message(menu_click.channel_id, txt, [menu_click.sender], sender=menu_click.sender)
 
     async def on_unknown_message(self, message_data):
         example_socket_callback_payloads['on_button_click'] = message_data
