@@ -73,17 +73,17 @@ class MenuClick: # Right-click context menu.
 
 @dataclass
 @add_str_method
-class Stage:
-    stage_id: str
-    stage_args: dict
+class CanvasElement:
+    text: str
+    path: str
 
 
 @dataclass
 @add_str_method
-class View:
+class View: # TODO: What is this for?
     character_ids: list[str]
     button_ids: list[str]
-    stage_id: str
+    canvas_id: str
 
 
 @dataclass

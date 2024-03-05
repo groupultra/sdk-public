@@ -1,4 +1,4 @@
-# ws_client.py
+# Websockets. Send responses and wait for the reply.
 
 import asyncio
 import websockets, dataclasses
@@ -10,6 +10,7 @@ import json
 import time
 
 import moobius.utils as utils
+from moobius.types import CanvasElement
 
 
 def send_tweak(the_message):
@@ -384,14 +385,14 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_canvas(self, service_id, channel_id, canvas_content, recipients, *, dry_run=False):
+    async def update_canvas(self, service_id, channel_id, canvas_elements, recipients, *, dry_run=False):
         """
         Constructs and sends the update message for the canvas.
 
         Parameters:
           service_id (str): The client id. This is actually the service id.
           channel_id (str): The channel id.
-          content (dict): The content of the update.
+          canvas_elements (dict or CanvasElement; or a list therof): The elements to push to the canvas.
           recipients(list): The recipients character_ids who see the update.
           dry_run=False: Don't acually send anything if True.
 
@@ -399,14 +400,15 @@ class WSClient:
           The message as a dict.
 
         Example:
-          >>> canvas_content = {
-          >>>   "path": "4003110a-d480-43da-9a2d-77202deac4a3",
-          >>>   "text": ""
-          >>> }
-          >>> ws_client.update_canvas("service_id", "channel_id", canvas_content, ["user1", "user2"])
+          >>> canvas1 = CanvasElement(path="image/url", text="the_text")
+          >>> canvas2 = CanvasElement(path="image/url2", text="the_text2")
+          >>> ws_client.update_canvas("service_id", "channel_id", [canvas1, canvas2], ["user1", "user2"])
         """
-        if type(canvas_content) is dict:
-            canvas_content = [canvas_content] # Should be a list of items not the item itself.
+        if type(canvas_elements) is dict or type (canvas_elements) is CanvasElement:
+            canvas_elements = [canvas_elements] # Should be a list of items not the item itself.
+        for i in range(len(canvas_elements)):
+            if type(canvas_elements[i]) is CanvasElement:
+                canvas_elements[i] = dataclasses.asdict(canvas_elements[i])
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -415,7 +417,7 @@ class WSClient:
                 "subtype": "update_canvas",
                 "channel_id": channel_id,
                 "recipients": recipients,
-                "content": canvas_content,
+                "content": canvas_elements,
                 "group_id": "temp",
                 "context": {}
             }

@@ -6,10 +6,10 @@ import service
 from dacite import from_dict
 from loguru import logger
 from moobius.types import MessageBody, Character
-from moobius import MoobiusClient, MoobiusStorage, Moobius
+from moobius import Moobius, MoobiusStorage
 
 
-class DemoAgent(MoobiusClient):
+class DemoAgent(Moobius):
     def __init__(self, log_file="logs/agent.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
         self.log_file = log_file

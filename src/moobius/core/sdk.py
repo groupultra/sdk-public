@@ -42,7 +42,7 @@ class ServiceGroupLib():
         Converts a list to single group id unless it is already a group id.
 
         Parameters:
-          http_api: The http_api client in MoobiusClient
+          http_api: The http_api client in Moobius
           character_ids: List of ids.
             If a string, the conversion will return the unmodified string.
           is_message_down: True = message_down (Service sends message), False = message_up (Agent sends message).
@@ -77,7 +77,7 @@ class ServiceGroupLib():
                 return out
 
 
-class MoobiusClient:
+class Moobius:
 
     ############################ Startup functions ########################################
 
@@ -347,7 +347,7 @@ class MoobiusClient:
           channel_id (str): The id of the channel.
           message_content (str or dict): The text of the message such as "Hello everyone on this channel!".
           recipients (list or string): The recipients character_id list or group_id string of the message.
-            This choice of list vs string is the case whenever there is a "recipients" argument in a MoobiusClient method.
+            This choice of list vs string is the case whenever there is a "recipients" argument in a Moobius method.
           subtype='text': The subtype of the message.
           sender: The sender of the message. None for Agents.
 
@@ -601,7 +601,6 @@ class MoobiusClient:
                 if 'message_id' not in payload_data['body']: # Need a 'message_id' key to make it a MenuClick.
                     payload_data['body']['message_id'] = ""
             payload = from_dict(data_class=Payload, data=payload_data)
-
             if payload.type == 'message_down':
                 await self.on_message_down(payload.body)
             elif payload.type == 'update':
@@ -640,6 +639,8 @@ class MoobiusClient:
             await self.on_join_channel(action)
         elif action.subtype == "leave_channel":
             await self.on_leave_channel(action)
+        elif action.subtype == "fetch_context_menu":
+            await self.on_fetch_context_menu(action)
         elif action.subtype == "fetch_channel_info":
             await self.on_fetch_channel_info(action)
         else:
@@ -761,6 +762,10 @@ class MoobiusClient:
     async def on_fetch_canvas(self, action):
         """Handles the received action (Action object) of fetching canvas. One of the multiple Action object callbacks. Returns None."""
         logger.debug("on_action fetch_canvas")
+
+    async def on_fetch_context_menu(self, action):
+        """Handles the received action (Action object) of fetching the right-click context menu. One of the multiple Action object callbacks. Returns None."""
+        logger.debug("on_action fetch_context_menu")
 
     async def on_fetch_channel_info(self, action):
         """Handle the received action of fetching channel info. One of the multiple Action object callbacks. Returns None.

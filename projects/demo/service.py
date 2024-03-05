@@ -4,8 +4,8 @@ import copy
 from datetime import datetime
 
 from loguru import logger
-from moobius import MoobiusClient, MoobiusStorage, utils
-from moobius.types import Button
+from moobius import Moobius, MoobiusStorage
+from moobius.types import Button, CanvasElement
 
 avoid_redis_on_windoze = True # Redis requires WSL2 to run on windows since it is Linux-only.
 avoid_redis = (avoid_redis_on_windoze and (sys.platform.lower() in ['win', 'win32', 'win64', 'windows', 'windoze'])) or avoid_redis_on_windoze == 'also linux'
@@ -21,7 +21,7 @@ def limit_len(message, n=4096):
     return message
 
 
-class DemoService(MoobiusClient):
+class DemoService(Moobius):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
         super().__init__(**kwargs)
 
@@ -106,15 +106,8 @@ class DemoService(MoobiusClient):
         )
 
         self.image_show_dict = {
-            self.LIGHT: {
-                "path": self.image_paths[self.LIGHT],
-                "text": "Let There Be Light!"
-            },
-
-            self.DARK: {
-                "path": self.image_paths[self.DARK],
-                "text": "Let There Be Dark!"
-            }
+            self.LIGHT: CanvasElement(path=self.image_paths[self.LIGHT], text="Let There Be Light!"),
+            self.DARK: [CanvasElement(path=self.image_paths[self.DARK], text="Let There Be Dark!"), CanvasElement(path=self.image_paths[self.DARK], text="Let There Be Dark Again!")]
         }
         return the_channel
 
@@ -440,9 +433,9 @@ class DemoService(MoobiusClient):
                 self.TMP_print_buttons = True
                 await self.send_fetch_buttons(channel_id)
             elif value == "Fancy Right Click".lower():
-                await self.create_message(channel_id, "Wait a few seconds and then try right-clicking a message.", [who_clicked], sender=who_clicked)
                 option_dict = {'1':'Press A', '2':'Press B', '3':'Press C'}
                 await self.send_update_rclick_buttons(channel_id, option_dict, [who_clicked])
+                await self.create_message(channel_id, "Try right-clicking on a message.", [who_clicked], sender=who_clicked)
             else:
                 raise Exception(f'Strange value for button channel_btn: {value}')
         elif button_id == "user_btn".lower():
@@ -517,9 +510,6 @@ class DemoService(MoobiusClient):
 
     async def on_menu_click(self, menu_click):
         """Right-click the context menu."""
-        #MenuClick(item_id=1, message_id=<id>, message_subtype=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])
-        if type(menu_click) is dict:
-            print('MENU CLICK:', menu_click)
         item_id = menu_click.item_id
         message_content = menu_click.message_content
         option_dict = {'1':'Press A', '2':'Press B', '3':'Press C'} # This dict was passed into the 
