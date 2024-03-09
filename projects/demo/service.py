@@ -516,10 +516,6 @@ class DemoService(Moobius):
         txt = f'You choose "{option_dict[item_id]}" on message "{message_content["text"]}".'
         await self.create_message(menu_click.channel_id, txt, [menu_click.sender], sender=menu_click.sender)
 
-    async def on_unknown_message(self, message_data):
-        example_socket_callback_payloads['on_button_click'] = message_data
-        logger.warning(f"Received unknown message: {message_data}")
-
     async def on_spell(self, spell):
         """Just send the content of the spell to the message."""
         try:
