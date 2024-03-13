@@ -1,5 +1,5 @@
 # service.py
-import json, sys, asyncio, pprint
+import json, sys, asyncio, pprint, os
 import copy
 from datetime import datetime
 
@@ -159,7 +159,7 @@ class DemoService(Moobius):
         recipients = message_up.recipients
         sender = message_up.sender
         if message_up.subtype == "text":
-            txt = message_up.content['text']
+            txt = message_up.content.text
             txt1 = txt.lower().strip()
             the_channel = await self.get_channel(channel_id)
             if type(sender) is not str:
@@ -223,7 +223,7 @@ class DemoService(Moobius):
                     txt = txt+' (this message has no recipients, either it was sent to service or there is a bug).'
                     await self.create_message(channel_id, txt, [sender], sender=sender)
         else:
-            await self.convert_and_send_message(message_up) # Not sure if this works or the generic next line is needed?
+            await self.convert_and_send_message(message_up) # This is so that everyone can see the message you sent.
 
     async def on_fetch_service_characters(self, action):
         example_socket_callback_payloads['on_fetch_service_characters'] = action
@@ -335,18 +335,55 @@ class DemoService(Moobius):
         if button_click.arguments:
             value0 = button_click.arguments[0].value
             value = value0.lower()
-        if button_id == "canvas_btn".lower():
-            if the_channel.states[who_clicked]['canvas_mode'] == self.LIGHT: 
-                 the_channel.states[who_clicked]['canvas_mode'] = self.DARK
+        if button_id == "message_btn".lower():
+            if value == 'Swap Canvas'.lower():
+                if the_channel.states[who_clicked]['canvas_mode'] == self.LIGHT: 
+                    the_channel.states[who_clicked]['canvas_mode'] = self.DARK
+                else:
+                    the_channel.states[who_clicked]['canvas_mode'] = self.LIGHT
+
+                the_channel.states.save(who_clicked)
+                state = the_channel.states[who_clicked]['canvas_mode']
+                await self.send_update_canvas(channel_id, self.image_show_dict[state], [who_clicked])
+
+                image_uri = self.image_paths[state]
+                await self.create_message(channel_id, image_uri, [who_clicked], subtype='image', sender=who_clicked)
+            elif value == 'Image as Message'.lower():
+                dyn_mode = False
+                try:
+                    from PIL import Image
+                    import numpy as np
+                    dyn_mode = True
+                except Exception as e:
+                    await self.create_message(channel_id, 'No "pip install PIL" and "pip install numpy"; will use a pre-existing image.', [who_clicked], subtype='text', sender=who_clicked)
+                if dyn_mode:
+                    P = 128
+                    arr = np.zeros([P, P, 4])
+                    N = 16
+                    freq = np.random.random([N, 4])*np.transpose(np.tile(np.arange(N), [4, 1]))
+                    ampli = np.random.random([N, 4])/(1.0+freq**1.5)
+                    phase = np.random.random([N, 4])*6.28
+                    X, Y = np.meshgrid(np.arange(P), np.arange(P))
+                    for rgba in range(4):
+                        for i in range(N):
+                            theta = 6.28*np.random.random()
+                            arr[:,:,rgba] += np.cos((X*np.cos(theta)+Y*np.sin(theta))*freq[i,rgba]+phase[i,rgba])*ampli[i,rgba]
+                    arr = arr-np.min(arr)
+                    arr = arr/np.max(arr)
+                    im = Image.fromarray((arr*255+0.5).astype('uint8'), 'RGBA')
+                    file_path = './resources/autogen_image.png'
+                    im.save(file_path)
+                else:
+                    file_path = './'
+                await self.upload_file_in_message(channel_id, file_path, [who_clicked], sender=who_clicked)
+                if dyn_mode:
+                    os.remove(file_path)
+            elif value == 'Audio as Message'.lower():
+                await self.upload_file_in_message(channel_id, './resources/tiny.mp3', [who_clicked], sender=who_clicked)
+            elif value == 'PDF as Message'.lower():
+                await self.upload_file_in_message(channel_id, './resources/tiny.pdf', [who_clicked], sender=who_clicked)
             else:
-                 the_channel.states[who_clicked]['canvas_mode'] = self.LIGHT
-
-            the_channel.states.save(who_clicked)
-            state = the_channel.states[who_clicked]['canvas_mode']
-            await self.send_update_canvas(channel_id, self.image_show_dict[state], [who_clicked])
-
-            image_uri = self.image_paths[state]
-            await self.create_message(channel_id, image_uri, [who_clicked], subtype='image', sender=who_clicked)
+                raise Exception(f'Strange value for button channel_btn: {value}')
         elif button_id == "money_btn".lower():
             if value == '(Print Savings)'.lower() or value == '(Donate all)'.lower():
                 if value == '(Donate all)'.lower():
@@ -421,11 +458,11 @@ class DemoService(Moobius):
                 extra_channel_ids = list(self.xtra_channels.keys())
                 ix = 0
                 for bid in extra_channel_ids:
-                    await self.update_channel(bid, f'<>DemoTmpChannel Updated{ix}<>', 'Pressed the update extra channels button.')
+                    await self.update_channel(bid, f'<>Updated DemoTmpChannel Updated{ix}<>', 'Pressed the update extra channels button.')
                     ix = ix+1
                 await self.create_message(channel_id, f"Updated these channel names (refresh to see changes):\n{extra_channel_ids}", [who_clicked], sender=who_clicked)
             elif value == "Fetch Chat History".lower():
-                await self.create_message(channel_id, f"Fetching chat history, as HTML (raw HTML will be printed).", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Fetching chat history (Warning: this feature is likely broken).", [who_clicked], sender=who_clicked)
                 history = await self.fetch_message_history(channel_id, limit=6, before="null")
                 await self.create_message(channel_id, limit_len(f"Recent chat history of this channel:\n{history}"), [who_clicked], sender=who_clicked)
             elif value == "Fetch Buttons".lower():
@@ -513,7 +550,7 @@ class DemoService(Moobius):
         item_id = menu_click.item_id
         message_content = menu_click.message_content
         option_dict = {'1':'Press A', '2':'Press B', '3':'Press C'} # This dict was passed into the 
-        txt = f'You choose "{option_dict[item_id]}" on message "{message_content["text"]}".'
+        txt = f'You choose "{option_dict[item_id]}" on message "{message_content.text}".'
         await self.create_message(menu_click.channel_id, txt, [menu_click.sender], sender=menu_click.sender)
 
     async def on_spell(self, spell):

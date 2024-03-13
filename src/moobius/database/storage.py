@@ -88,29 +88,29 @@ class CachedDict(dict):
     def __setitem__(self, key, value):
         """Allows i.e. "my_cached_dict["foo"] = some_dict" to access the underlying database, much like __getitem__.
            Raises an Exception if in strict_mode and the database cannot set the value for whatever reason."""
-        is_success, err_msg = self.database.set_value(key, value)
+        is_success, err_message = self.database.set_value(key, value)
 
         if is_success:
             dict.__setitem__(self, key, value)
         else:
             if self.strict_mode:
-                raise Exception(f'Failed to save key {key} to database. {err_msg}')
+                raise Exception(f'Failed to save key {key} to database. {err_message}')
             else:
-                logger.error(f'Failed to save key {key} to database: {err_msg}. Inconsistency may occur.')
+                logger.error(f'Failed to save key {key} to database: {err_message}. Inconsistency may occur.')
                 dict.__setitem__(self, key, value)    
 
     def __delitem__(self, key):
         """Allows i.e. "del my_cached_dict["foo"]" to access the underlying database, much like __getitem__.
            Raises an Exception if in strict_mode and the database cannot delete the key for whatever reason (or does not have the key)."""
-        is_success, err_msg = self.database.delete_key(key)
+        is_success, err_message = self.database.delete_key(key)
 
         if is_success:
             dict.__delitem__(self, key)
         else:
             if self.strict_mode:
-                raise Exception(f'Failed to delete key {key} from database. {err_msg}')
+                raise Exception(f'Failed to delete key {key} from database. {err_message}')
             else:
-                logger.error(f'Failed to delete key {key} from database: {err_msg}. Inconsistency may occur.')
+                logger.error(f'Failed to delete key {key} from database: {err_message}. Inconsistency may occur.')
                 dict.__delitem__(self,key)
 
     def __str__(self):

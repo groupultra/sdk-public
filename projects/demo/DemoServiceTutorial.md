@@ -200,7 +200,7 @@ There are other, less important odds-and-ends in this function.
 This callback triggers when users send messages "up" to the backend server.
 Here are some important properties of a messageUp object:
 ```
-txt = message_up.content['text']
+txt = message_up.content.text
 channel_id = message_up.channel_id
 sender = message_up.context.sender
 recipients = message_up.context.recipients

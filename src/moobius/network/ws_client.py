@@ -1,16 +1,12 @@
 # Websockets. Send responses and wait for the reply.
 
-import asyncio
+import asyncio, uuid, json, time
 import websockets, dataclasses
-
 from loguru import logger
-
-import uuid
-import json
-import time
 
 import moobius.utils as utils
 from moobius.types import CanvasElement
+from moobius.network import asserts
 
 
 def send_tweak(the_message):
@@ -67,13 +63,14 @@ class WSClient:
 
     async def send(self, message):
         """
-        Sends a string-valued message to the websocket server. Call this and other socket functions after self.authenticate()
+        Sends a dict-valued message (or JSON string) to the websocket server. Call this and other socket functions after self.authenticate()
         If the connection is closed, reconnect and send again.
         If an exception is raised, reconnect and send again.
         Returns None, but if the server responds to the message it will be detected in the self.recieve() loop.
         """
         if type(message) is dict:
             message = self.dumps(message)
+        asserts.socket_assert(json.loads(message))
         try:
             logger.opt(colors=True).info(f"<fg 128,0,240>{message.replace('<', '&lt;').replace('>', '&gt;')}</>")
             await self.websocket.send(message)  # Don't use asyncio.create_task() here, or the message could not be sent in order
@@ -401,7 +398,7 @@ class WSClient:
 
         Example:
           >>> canvas1 = CanvasElement(path="image/url", text="the_text")
-          >>> canvas2 = CanvasElement(path="image/url2", text="the_text2")
+          >>> canvas2 = CanvasElement(text="the_text2")
           >>> ws_client.update_canvas("service_id", "channel_id", [canvas1, canvas2], ["user1", "user2"])
         """
         if type(canvas_elements) is dict or type (canvas_elements) is CanvasElement:
@@ -409,6 +406,9 @@ class WSClient:
         for i in range(len(canvas_elements)):
             if type(canvas_elements[i]) is CanvasElement:
                 canvas_elements[i] = dataclasses.asdict(canvas_elements[i])
+                for k in list(canvas_elements[i].keys()):
+                    if canvas_elements[i][k] is None:
+                        del canvas_elements[i][k]
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -458,16 +458,11 @@ class WSClient:
           channel_id (str): Which channel to broadcast the message in.
           recipients (str): The group id to send to.
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
-          message_content (str or dict): What is inside the message['body']['content'] JSON.
-            Can use a string for the text in a text message.
+          message_content (MessageContent): What is inside the message['body']['content'] JSON.
           dry_run=False: Don't acually send anything if True.
 
         Returns: The message as a dict.
         """
-        if type(message_content) is str:
-            content = {("text" if subtype == "text" else "path"): message_content}  # + " (from service)"
-        else:
-            content = message_content
 
         message = {
             "type": "message_up",
@@ -476,12 +471,15 @@ class WSClient:
             "body": {
                 "subtype": subtype,
                 "channel_id": channel_id,
-                "content": content,
+                "content": message_content if type(message_content) is dict else dataclasses.asdict(message_content), # TODO: function to make vanilla dicts.
                 "recipients": recipients,
                 "timestamp": int(time.time() * 1000),
                 "context": {}
             }
         }
+        for k in list(message['body']['content'].keys()): # Makes the messages cleaner, if nothing else.
+            if message['body']['content'][k] is None:
+                del message['body']['content'][k]
         send_tweak(message)
         if not dry_run:
             await self.send(message)
@@ -497,7 +495,7 @@ class WSClient:
           channel_id (str): Which channel to broadcast the message in.
           recipients (str): The group id to send to.
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
-          message_content (str or dict): What is inside the message['body']['content'] JSON.
+          message_content (MessageContent): What is inside the message['body']['content'] JSON.
           sender (str): The sender ID of the message, which determines who the chat shows the message as sent by.
           dry_run=False: Don't acually send anything if True.
 

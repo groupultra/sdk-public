@@ -87,7 +87,7 @@ class MoobiusWand:
           >>>     config_path="config/service.json",
           >>>     db_config_path="config/db.json",
           >>>     background=True)
-          >>> wand.spell(handle=handle, obj=MessageDown(msg_type="test", context={"sender": "1", "recipients": ["2"]}))
+          >>> wand.spell(handle=handle, obj=MessageDown(message_type="test", context={"sender": "1", "recipients": ["2"]}))
         """
         if handle in self.services:
             try:

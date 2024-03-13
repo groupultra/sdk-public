@@ -38,7 +38,7 @@ class DemoAgent(Moobius):
             return
         will_log_out = False
         if message_down.subtype == "text":
-            text0 = content['text']
+            text0 = content.text
             text1 = text0.strip().lower()
             if text1 == "nya":
                 text2 = "meow"
@@ -72,7 +72,7 @@ class DemoAgent(Moobius):
                 text2 = f'Long message len={len(text0)}.'
             else:
                 text2 = f"agent repeat: {text0}"
-            content['text'] = text2
+            content.text = text2
 
         message_down.timestamp = int(time.time() * 1000)
         message_down.recipients = [message_down.sender]

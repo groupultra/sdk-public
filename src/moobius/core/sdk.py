@@ -5,8 +5,6 @@ import json, os
 from dataclasses import asdict
 from dacite import from_dict
 
-from moobius.types import MessageBody
-
 import asyncio
 import json
 import uuid
@@ -17,7 +15,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageBody, Action, Button, ButtonClick, ButtonClickArgument, Payload, MenuClick
+from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, ButtonClickArgument, Payload, MenuClick
 from moobius.database.storage import MoobiusStorage
 from moobius import utils
 from loguru import logger
@@ -316,6 +314,17 @@ class Moobius:
 
     ################################## Actuators #######################################
 
+    def _convert_message_content(self, subtype, content):
+        """Converts message content, which can be a string (for text messages), to a MessageContent object."""
+        if type(content) is str:
+            if subtype == 'text':
+                content = MessageContent(text=content)
+            else:
+                content = MessageContent(path=content)
+        elif type(content) is dict:
+            content = MessageContent(**content)
+        return content
+
     async def initialize_channel(self, channel_id):
         """Creates a MoobiusStorage object for a channel given by channel_id. Commonly overridden. Returns None."""
         the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
@@ -339,26 +348,56 @@ class Moobius:
         avatar = await self.http_api.upload_file(image_path)
         return await self.http_api.create_character(self.client_id, name, avatar, description)
 
-    async def create_message(self, channel_id, message_content, recipients, subtype='text', sender=None):
+    async def create_message(self, channel_id, message_content, recipients, subtype='text', sender=None, filename=None, size=None):
         """
         Create a message_down (for Service) or message_up (for Agent) request and send it to the channel.
 
         Parameters:
           channel_id (str): The id of the channel.
-          message_content (str or dict): The text of the message such as "Hello everyone on this channel!".
+          message_content (str or MessageContent): The text of the message such as "Hello everyone on this channel!" or file information.
+            String-valued content is best for the text in a text message or a URI for an image file. It will be converted to a dict.
           recipients (list or string): The recipients character_id list or group_id string of the message.
             This choice of list vs string is the case whenever there is a "recipients" argument in a Moobius method.
           subtype='text': The subtype of the message.
-          sender: The sender of the message. None for Agents.
+          sender=None: The sender of the message. None for Agents.
+          filename=None: Optional, name to display files as.
+          size=None: Optional, number of bytes in file.
 
         No return value.
         """
+        message_content = self._convert_message_content(subtype, message_content)
+
         kwargs = {'channel_id':channel_id, 'recipients':recipients, 'subtype':subtype, 'message_content':message_content}
+        if filename:
+            message_content.filename = filename
+        if size:
+            message_content.size = size
         if self.is_agent:
             await self.send_message_up(**kwargs)
         else:
             kwargs['sender'] = sender or 'no_sender'
             await self.send_message_down(**kwargs)
+
+    async def upload_file_in_message(self, channel_id, local_path, recipients, sender=None, file_display_name=None):
+        """
+        Uploads a file and sends the uploaded file as a message.
+        Recognized image or audio extensions will render as the image or sound, other files will have to be downloaded to see.
+
+        Parameters:
+          channel_id: The id of the channel.
+          local_path: The local path to the file.
+          recipients (list or string): The recipients character_id list or group_id string of the message.
+          sender: The sender of the message. None for Agents.
+          file_display_name=None: Optional, will use
+        """
+        file_uri = await self.upload_file(local_path)
+        img_exts = {'.jpe', '.jpg', '.jpeg', '.gif', '.png', '.bmp', '.ico', '.svg', '.svgz', '.tif', '.tiff', '.ai', '.drw', '.pct', '.psp', '.xcf', '.raw', '.webp', '.heic'}
+        audio_exts = {'.wav', '.mp3', '.mp4', '.mp5'} # .mp5 became popular around 2030.
+        ext = '.'+file_uri.lower().split('.')[-1]
+        filename = file_display_name if file_display_name else local_path.replace('\\','/').split('/')[-1]
+        subtype = 'image' if ext in img_exts else ('audio' if ext in audio_exts else 'file')
+        size = os.stat(local_path).st_size
+        await self.create_message(channel_id, file_uri, recipients, subtype=subtype, sender=sender, filename=filename, size=size)
 
     async def convert_and_send_message(self, message_body):
         """Converts the message body into a message down or message up object and sends it.
@@ -501,8 +540,8 @@ class Moobius:
 
     async def send_agent_login(self): """Calls self.ws_client.agent_login using self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.agent_login(self.http_api.access_token)
     async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
-    async def send_message_up(self, channel_id, recipients, subtype, message_content): """Calls self.ws_client.message_up using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_up(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, False, channel_id), subtype, message_content)
-    async def send_message_down(self, channel_id, recipients, subtype, message_content, sender): """Calls self.ws_client.TODO using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_down(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, True), subtype, message_content, sender)
+    async def send_message_up(self, channel_id, recipients, subtype, message_content): """Calls self.ws_client.message_up using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_up(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, False, channel_id), subtype, self._convert_message_content(subtype, message_content))
+    async def send_message_down(self, channel_id, recipients, subtype, message_content, sender): """Calls self.ws_client using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_down(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, True), subtype, self._convert_message_content(subtype, message_content), sender)
     async def send_update(self, target_client_id, data): """Calls self.ws_client.TODO"""; return await self.ws_client.update(self.client_id, target_client_id, data)
     async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
     async def send_update_channel_info(self, channel_id, channel_data): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_data)
@@ -677,7 +716,7 @@ class Moobius:
         """
         Handles a payload from a user. Service function. Returns None.
         Example MessageBody object:
-          moobius.MessageBody(subtype=text, channel_id=<channel id>, content={'text': 'api'}, timestamp=1707254706635,
+          moobius.MessageBody(subtype=text, channel_id=<channel id>, content=MessageContent(...), timestamp=1707254706635,
                               recipients=[<user id 1>, <user id 2>], sender=<user id>, message_id=<message-id>,
                               context={'group_id': <group-id>, 'channel_type': 'ccs'})"""
         logger.debug(f"MessageUp received: {message_up}")
@@ -794,7 +833,7 @@ class Moobius:
 
     async def on_copy_client(self, copy):
         """Handles a "Copy" of a message. Returns None.
-           Example Copy object: moobius.Copy(request_id=<id>, origin_type=message_down, status=True, context={'msg': 'Message received'})"""
+           Example Copy object: moobius.Copy(request_id=<id>, origin_type=message_down, status=True, context={'message': 'Message received'})"""
         if not self.is_agent and not copy.status:
             await self.send_service_login()
         logger.debug("on_copy_client")

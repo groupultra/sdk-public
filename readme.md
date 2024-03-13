@@ -27,13 +27,13 @@ Test Moobius by creating a channel, running a Demo feature-suite servicing, and 
 4. (Optional) create an alt-account and enter those credentials into `agent.json`.
 5. Add the lines `*/config/service.json` and `*/config/agent.json` to your `.gitignore` to keep these secrets safe!
 6. `cd` into the folde and `python main.py`. Make sure it continues to run and does not spew excessive amounts of errors.
-7. In the browser, navigate to the channel you created. Hit refresh a few times until you see a list of buttons ("Swap Stage", "Channels", "Commands", etc). It should take around 30 seconds to fully load.
+7. In the browser, navigate to the channel you created. Hit refresh a few times until you see a list of buttons ("Swap Canvas", "Channels", "Commands", etc). It should take around 30 seconds to fully load.
 8. Test the various buttons to make sure the button options either work (or give a warning message that they are expiremental).
 9. Press "Commands" to see a message with commands to run. Test these commands. Some need to be sent to the "service" instead of the "all" to work. Note that Agent features will only work if the Agent has been setup.
 
 **Expriement!**
 
-Congratulations! Now you have your first Moobius Service. The demo contains `service.py` and `agent.py` which together test most SDK features. Each one overrides the base `MoobiusClient` class. The code is driven by async callbacks which can in turn send commands up to the service to i.e. send particular messages to particular users.
+Congratulations! Now you have your first Moobius Service. The demo contains `service.py` and `agent.py` which together test most SDK features. Each one overrides the base `Moobius` class. The code is driven by async callbacks which can in turn send commands up to the service to i.e. send particular messages to particular users.
 
 ## Glossery / Reference
 
@@ -41,7 +41,7 @@ Congratulations! Now you have your first Moobius Service. The demo contains `ser
 
 2. **Service:** The Service handles most of the interaction with the platform SDK. This includes sending and responding to messages, controlling the look and feel, and uploading assets. Callbacks have the format `on_xyz` and actuators have the format `send_xyz`. JSON is automatically converted to and from *dataclasses* within `types.py`.
 
-3. **Agent:** Like *service*, the agent overrides the `MoobiusClient` class and is constructed with `is_agent` set to True. However, the agent is more limited in it's functionality: it cannot do much besides sending and recieving messages and modifying itself. Most other functions will generate an error. To use an agent under a given account requires knowing the secret credentials. Services call `send_message_down` while users and agents call `send_message_up`.
+3. **Agent:** Like *service*, the agent overrides the `Moobius` class and is constructed with `is_agent` set to True. However, the agent is more limited in it's functionality: it cannot do much besides sending and recieving messages and modifying itself. Most other functions will generate an error. To use an agent under a given account requires knowing the secret credentials. Services call `send_message_down` while users and agents call `send_message_up`.
 
 4. **Databases:** Databases are client-side and represented as `MoobiusStorage` instances. The structure is determined by a configuration file (usually `./config/db.json`). Each element has a `name` that is *directly written instance's attributes*. Each element also contains an `implementation` which determines the database engine; currently "json" and "redis" is supported. The Demo by default will only run "redis" on Linux and Mac.
 
@@ -70,7 +70,7 @@ The code is divided into the core logic, the database, and the network.
 `src/moobius`: The source code itself.
 
 - `core/`: The core logic of the SDK including Services, Agents, and databases.
-   - `sdk.py`: Defines `MoobiusClient` which integrates database and high-level commonly used helper methods. It is the base class of a Service or Agent.
+   - `sdk.py`: Defines `Moobius` which integrates database and high-level commonly used helper methods. It is the base class of a Service or Agent.
    - `storage.py`: Defines `MoobiusStorage` which acts as a container of backed-up dictionaries (`CachedDict` instances)
    - `wand.py`: Defines `MoobiusWand` which handles all the multiprocessing and remote control magic. 
 - `database/`: The infrastructure of `MoobiusStorage`.
@@ -80,7 +80,7 @@ The code is divided into the core logic, the database, and the network.
    - `redis_database.py`: Defines `RedisDatabase` which requires a running Redis server to function.
    - `magical_storage.py`: Defines several classes. `CachedDict` is used like a dictionary but has a database under the hood. `MagicalStorage` is built on `CachedDict` and supports customized on-the-fly `CachedDict` containers.
 - `network/`: Network communication with the Platform.
-   - `http_api_wrapper.py`: Defines `HTTPAPIWrapper` which mirrors the Platform's low-level HTTP API. Used by `MoobiusClient` instances.
-   - `ws_client.py`: Defines `WSClient` which mirrors the Platform's low-level Socket API. Used by `MoobiusClient` instances.
-- `types.py`: Defines the dataclasses: `ButtonArgument` and `Button`, `ButtonClickArgument` and `ButtonClick`, `Stage`, `View`, `Group`, `MessageContext` and `MessageBody`, `Action`, `ChannelInfo`, `Copy` and `Payload` and `CharacterContext` and `Character`. Each class is a very simple data-structure and is easily converted to/from a dict.
+   - `http_api_wrapper.py`: Defines `HTTPAPIWrapper` which mirrors the Platform's low-level HTTP API. Used by `Moobius` instances.
+   - `ws_client.py`: Defines `WSClient` which mirrors the Platform's low-level Socket API. Used by `Moobius` instances.
+- `types.py`: Defines the dataclasses: `ButtonArgument` and `Button`, `ButtonClickArgument` and `ButtonClick`, `Canvas`, `View`, `Group`, `MessageContent` and `MessageBody`, `Action`, `ChannelInfo`, `Copy` and `Payload` and `CharacterContext` and `Character`. Each class is a very simple data-structure and is easily converted to/from a dict.
 - `utils.py`: Defines`EnhancedJSONEncoder` which allows certain classes to be JSON encoded.

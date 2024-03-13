@@ -60,11 +60,21 @@ class ButtonClick:
 
 @dataclass
 @add_str_method
+class MessageContent:
+    text: Optional[str] = None
+    path: Optional[str] = None
+    url: Optional[str] = None
+    size: Optional[str] = None
+    filename: Optional[str] = None
+
+
+@dataclass
+@add_str_method
 class MenuClick: # Right-click context menu.
     item_id: str
     message_id: str
     message_subtype: str
-    message_content: dict
+    message_content: MessageContent
     channel_id: str
     context: dict
     sender: str
@@ -73,9 +83,9 @@ class MenuClick: # Right-click context menu.
 
 @dataclass
 @add_str_method
-class CanvasElement:
-    text: str
-    path: str
+class CanvasElement: # Updates to the Canvas are lists of CanvasElements.
+    text: Optional[str] = None
+    path: Optional[str] = None
 
 
 @dataclass
@@ -95,23 +105,15 @@ class Group:
 
 @dataclass
 @add_str_method
-class MessageContext:
-    sender: str
-    recipients: list[str]  # TODO: remove this field
-    group_id: Optional[str]  # TODO: remove Optional
-
-
-@dataclass
-@add_str_method
 class MessageBody:
     subtype: str
     channel_id: str
-    content: dict
+    content: MessageContent
     timestamp: int
     recipients: list[str] # The API uses a group id which is converted to/from a list.
     sender: str
     message_id: str | None
-    context: dict | None
+    context: dict | None # This has less important data.
 
 
 @dataclass

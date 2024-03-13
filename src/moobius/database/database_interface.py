@@ -37,12 +37,12 @@ class DatabaseInterface(ABC):
 
     @abstractmethod
     def set_value(self, key, value) -> (bool, any):
-        """Returns a tuple of (is_success=True, key) or (is_success=False, err_msg)"""
+        """Returns a tuple of (is_success=True, key) or (is_success=False, err_message)"""
         pass
 
     @abstractmethod
     def delete_key(self, key) -> (bool, any):
-        """Returns a tuple of (is_success=True, key) or (is_success=False, err_msg)"""
+        """Returns a tuple of (is_success=True, key) or (is_success=False, err_message)"""
         pass
 
     @abstractmethod
