@@ -82,5 +82,5 @@ The code is divided into the core logic, the database, and the network.
 - `network/`: Network communication with the Platform.
    - `http_api_wrapper.py`: Defines `HTTPAPIWrapper` which mirrors the Platform's low-level HTTP API. Used by `Moobius` instances.
    - `ws_client.py`: Defines `WSClient` which mirrors the Platform's low-level Socket API. Used by `Moobius` instances.
-- `types.py`: Defines the dataclasses: `ButtonArgument` and `Button`, `ButtonClickArgument` and `ButtonClick`, `Canvas`, `View`, `Group`, `MessageContent` and `MessageBody`, `Action`, `ChannelInfo`, `Copy` and `Payload` and `CharacterContext` and `Character`. Each class is a very simple data-structure and is easily converted to/from a dict.
+- `types.py`: Defines the dataclasses: `ButtonArgument` and `Button`, `ButtonClickArgument` and `ButtonClick`, `Canvas`, `View`, `Group`, `MessageContent` and `MessageBody`, `Action`, `ChannelInfo`, `Copy` and `Payload` and `Character` and `UpdateElement` and `ChannelInfo`. Each class is a very simple data-structure and is easily converted to/from a dict.
 - `utils.py`: Defines`EnhancedJSONEncoder` which allows certain classes to be JSON encoded.

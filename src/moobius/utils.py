@@ -31,7 +31,7 @@ def summarize_html(html_str):
 
 
 def make_fn_async(f):
-    """This version is more flexible. It converts any async function to a sync function."""
+    """Converts functions to async functions."""
     _ind = [False]
     _result = [None]
     async def run_f(*args, **kwargs):

@@ -5,7 +5,7 @@ import websockets, dataclasses
 from loguru import logger
 
 import moobius.utils as utils
-from moobius.types import CanvasElement
+from moobius.types import CanvasElement, ChannelInfo
 from moobius.network import asserts
 
 
@@ -143,9 +143,9 @@ class WSClient:
         Of course it is an service function not an agent function.
 
         Parameters:
-          service_id: str
-            The service id.
-          access_token: str
+          service_id (str): The client_id of a Moobius service object, which is the ID of the running service.
+            Used in almost every function.
+          access_token (str):
             TODO: This is the access token from http_api_wrapper; for clean code decouple access_token here!
           dry_run=False: Don't acually send anything (must functions offer a dry-run option)
 
@@ -224,10 +224,10 @@ class WSClient:
         Constructs and sends the update message for user list.
 
         Parameters:
-          service_id (str): The client id. This is actually the service id.
+          service_id (str): As always.
           channel_id (str): The channel id.
           character_list (list): The list of character_id strings to be updated.
-          recipients (list): Who sees the update. Also a list of IDs.
+          recipients (str): The group_id.
           dry_run=False: if True don't acually send the message (messages are sent in thier JSON-strin format).
 
         Returns:
@@ -253,7 +253,7 @@ class WSClient:
         Constructs and sends the update message for buttons list.
 
         Parameters:
-          service_id (str): The client id. This is actually the service id.
+          service_id (str): As always.
           channel_id (str): The channel id.
           buttons (list of Buttons): The buttons list to be updated.
           recipients (list): The recipients to see the update.
@@ -287,9 +287,20 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_rclick_buttons(self, service_id, channel_id, item_dict, recipients, *, dry_run=False):
-        """Updates the right click context menu."""
-        basic_content = [{'item_name':v, 'item_id':k, 'support_subtype':["text","file"]} for k, v in item_dict.items()]
+    async def update_rclick_buttons(self, service_id, channel_id, kv_dict, recipients, *, dry_run=False):
+        """
+        Updates the right click context menu.
+
+        Parameters:
+          service_id (str): As always.
+          channel_id (str): The channel id.
+          kv_dict (dict str:str): The dict from an id of your choice to the menu display value.
+            The keys, which are ids, are used to identify which button was pressed.
+
+        Returns:
+          The message as a dict.
+        """
+        basic_content = [{'item_name':v, 'item_id':k, 'support_subtype':["text","file"]} for k, v in kv_dict.items()]
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -311,9 +322,9 @@ class WSClient:
         Constructs and sends the update message for style update.
 
         Parameters:
-          service_id (str): The client id. This is actually the service id.
+          service_id (str): As always.
           channel_id (str): The channel id.
-          style_content (list of dicts): The style content to be updated.
+          style_content (list of dicts): The style content to be updated. TODO: List of Style classes.
           recipients (list): The recipients to see the update.
           dry_run=False: Don't acually send anything if True.
 
@@ -355,14 +366,14 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_channel_info(self, service_id, channel_id, channel_data, *, dry_run=False):
+    async def update_channel_info(self, service_id, channel_id, channel_info, *, dry_run=False):
         """
         Constructs and sends the update message for channel info.
 
         Parameters:
-          service_id (str): The client id. This is actually the service id.
+          service_id (str): As always.
           channel_id (str): The channel id.
-          channel_data (dict): The data of the update.
+          channel_info (ChannelInfo or dict): The data of the update.
           dry_run=False: Don't acually send anything if True.
 
         Returns: The message as a dict.
@@ -370,13 +381,17 @@ class WSClient:
         Example:
           >>> ws_client.update_channel_info("service_id", "channel_id", {"name": "new_channel_name"})
         """
+        if type(channel_info) is ChannelInfo:
+            channel_info = dataclasses.asdict(channel_info)
+        channel_info['context'] = {'channel_description': channel_info['channel_description'],
+                                   'channel_type': channel_info['channel_type']}
         message = {
             "type": "update",
             "subtype": "channel_info",
             "channel_id": channel_id,
             "request_id": str(uuid.uuid4()),
             "service_id": service_id,
-            "body": channel_data
+            "body": channel_info
         }
         if not dry_run:
             await self.send(message)
@@ -387,7 +402,7 @@ class WSClient:
         Constructs and sends the update message for the canvas.
 
         Parameters:
-          service_id (str): The client id. This is actually the service id.
+          service_id (str): As always.
           channel_id (str): The channel id.
           canvas_elements (dict or CanvasElement; or a list therof): The elements to push to the canvas.
           recipients(list): The recipients character_ids who see the update.
@@ -431,7 +446,7 @@ class WSClient:
         Constructs the update message. (I think) more of a Service than Agent function.
 
         Parameters:
-          service_id (str): The client id. This is actually the service id.
+          service_id (str): As always.
           target_client_id (str): The target client id (TODO: not currently used)
           data (dict): The content of the update.
           dry_run=False: Don't acually send anything if True.

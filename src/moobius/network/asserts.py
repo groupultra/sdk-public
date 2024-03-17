@@ -1,5 +1,6 @@
 # Ensures that the Socket and the HTTPAPI are acceptable for the Platform. No one wants Internal Server Error.
 import json
+from loguru import logger
 
 check_asserts = True # Can be turned to False in order to avoid assertion errors.
 allow_temp_modifications = True # TODO: There is some extra stuff sent to the socket. It probably can be safely removed.
@@ -220,8 +221,10 @@ def _action_body_assert(b, base_message, path):
     """Various actions"""
     subty = b['subtype']
     template = {'subtype':'the_subtype', 'channel_id':'1234...', 'context':{}}
-    if not subty.startswith('fetch_'):
-        raise Exception(f'TODO action body assert this subtype: {subty}')
+    if subty.startswith('fetch_') or subty=='leave_channel':
+        pass
+    else:
+        logger.warning(f'Unknown action subtype for assert, assert may not be valid: {subty}')
     return structure_assert(template, b, base_message, path)
 
 

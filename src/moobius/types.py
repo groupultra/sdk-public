@@ -33,8 +33,8 @@ class ButtonArgument:
 
 @dataclass
 @add_str_method
-class Button:
-    button_id: str
+class Button: # Used for encoding Buttons, both for sending out updates and for recieving the on_update_buttons callback.
+    button_id: str # Button_ids are choosen by the CCS app. This is *different* from other _id fields.
     button_name: str
     button_text: str
     new_window: bool
@@ -50,22 +50,21 @@ class ButtonClickArgument:
 
 @dataclass
 @add_str_method
-class ButtonClick:
+class ButtonClick: # When the user clicks on a button or a menu opened by a button.
     button_id: str
     channel_id: str
     sender: str
     arguments: list[ButtonClickArgument]
-    context: dict
+    context: dict # Rarely used by CCS apps.
 
 
 @dataclass
 @add_str_method
 class MessageContent:
-    text: Optional[str] = None
-    path: Optional[str] = None
-    url: Optional[str] = None
-    size: Optional[str] = None
-    filename: Optional[str] = None
+    text: Optional[str] = None # Used for text messages.
+    path: Optional[str] = None # Used for every kind of non-text message.
+    size: Optional[str] = None # Used for downloadable files only.
+    filename: Optional[str] = None # Used for downloadable files only (the display filename).
 
 
 @dataclass
@@ -76,9 +75,9 @@ class MenuClick: # Right-click context menu.
     message_subtype: str
     message_content: MessageContent
     channel_id: str
-    context: dict
     sender: str
     recipients: list[str]
+    context: dict # Rarely used by CCS apps.
 
 
 @dataclass
@@ -113,7 +112,7 @@ class MessageBody:
     recipients: list[str] # The API uses a group id which is converted to/from a list.
     sender: str
     message_id: str | None
-    context: dict | None # This has less important data.
+    context: dict | None # Rarely used by CCS apps.
 
 
 @dataclass
@@ -153,15 +152,59 @@ class Payload:
 
 @dataclass
 @add_str_method
-class CharacterContext:
+class Character:
+    character_id: str
     name: str
-    description: str
     avatar: str
+    description: str
+    character_context: dict # Rarely used by CCS apps.
 
 
 @dataclass
 @add_str_method
-class Character:
-    character_id: str | None
-    name: str | None
-    character_context: CharacterContext
+class ChannelInfo:
+    channel_id: str
+    channel_name: str
+    channel_description: str
+    channel_type: str # dcs, ccs, etc.
+
+
+@dataclass
+@add_str_method
+class StyleElement: # As of 2024_3_15 this is a work-in-progress on the Platform. When the Platform is updated this dataclass will be updated.
+    widget: str # Typically "canvas"
+    display: str # "invisible", "visible"
+    expand: str # "false", "true" (strings not bools! other options such as "force_true" may be added).
+
+
+@dataclass
+@add_str_method
+class UpdateElement: # Used for on_update_xyz callbacks. Not used for send_update functions.
+    character: Character | None # These fields will be None if they are not applicable to the type of update.
+    button: Button | None # Onle one of these is non-None at any given time.
+    channel_info: ChannelInfo | None
+    canvas: CanvasElement | None
+    style: StyleElement | None
+
+
+@dataclass
+@add_str_method
+class Update: # Used for on_update_xyz callbacks. Not used for send_update functions.
+    subtype:str # 'update_characters' 'update_channel_info' 'update_canvas' 'update_buttons' 'update_style'
+    channel_id:str
+    content: list[UpdateElement]
+    context:dict # Rarely used by CCS apps.
+    recipients:list[str] # A group id is converted into a list if character ids.
+    group_id: Optional[str]=None
+
+
+@dataclass
+@add_str_method
+class UserInfo:
+    avatar:str
+    description:str
+    name:str
+    email:str
+    email_verified:str #"false" or "true"
+    user_id:str
+    system_context:Optional[dict]=None # Rarely used by CCS apps.

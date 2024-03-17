@@ -15,7 +15,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, ButtonClickArgument, Payload, MenuClick
+from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, ButtonArgument, ButtonClickArgument, Payload, MenuClick, Update, UpdateElement, Character, ChannelInfo, CanvasElement, StyleElement
 from moobius.database.storage import MoobiusStorage
 from moobius import utils
 from loguru import logger
@@ -163,8 +163,8 @@ class Moobius:
             async def _get_agent_info():
                 if not self.is_agent:
                     raise Exception('Not an agent.')
-                self.agent_info = await self.http_api.fetch_user_info()
-                self.client_id = self.agent_info['user_id']
+                agent_info = await self.http_api.fetch_user_info()
+                self.client_id = agent_info.user_id
             await _get_agent_info()
             await self.send_agent_login()
         else:
@@ -544,10 +544,10 @@ class Moobius:
     async def send_message_down(self, channel_id, recipients, subtype, message_content, sender): """Calls self.ws_client using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_down(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, True), subtype, self._convert_message_content(subtype, message_content), sender)
     async def send_update(self, target_client_id, data): """Calls self.ws_client.TODO"""; return await self.ws_client.update(self.client_id, target_client_id, data)
     async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
-    async def send_update_channel_info(self, channel_id, channel_data): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_data)
-    async def send_update_canvas(self, channel_id, canvas_content, recipients): """Calls self.ws_client.update_canvas using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_content, await self._update_rec(recipients, True))
-    async def send_update_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(self.client_id, channel_id, button_data, await self._update_rec(recipients, True))
-    async def send_update_rclick_buttons(self, channel_id, button_data, recipients): """Calls self.ws_client.update_rclick_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_rclick_buttons(self.client_id, channel_id, button_data, await self._update_rec(recipients, True))
+    async def send_update_channel_info(self, channel_id, channel_info): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_info)
+    async def send_update_canvas(self, channel_id, canvas_elements, recipients): """Calls self.ws_client.update_canvas using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_elements, await self._update_rec(recipients, True))
+    async def send_update_buttons(self, channel_id, buttons, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(self.client_id, channel_id, buttons, await self._update_rec(recipients, True))
+    async def send_update_rclick_buttons(self, channel_id, kv_dict, recipients): """Calls self.ws_client.update_rclick_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_rclick_buttons(self.client_id, channel_id, kv_dict, await self._update_rec(recipients, True))
     async def send_update_style(self, channel_id, style_content, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(self.client_id, channel_id, style_content, await self._update_rec(recipients, True))
     async def send_fetch_characters(self, channel_id): """Calls self.ws_client.fetch_characters using self.client_id."""; return await self.ws_client.fetch_characters(self.client_id, channel_id)
     async def send_fetch_buttons(self, channel_id): """Calls self.ws_client.fetch_buttons using self.client_id."""; return await self.ws_client.fetch_buttons(self.client_id, channel_id)
@@ -643,7 +643,46 @@ class Moobius:
             if payload.type == 'message_down':
                 await self.on_message_down(payload.body)
             elif payload.type == 'update':
-                await self.on_update(payload.body)
+                # First convert the content into an UpdateElement:
+                subty = payload.body['subtype']
+                content0 = payload.body['content'] # This dict needs to be converted into a list of UpdateElement's
+                empty_elem_dict = {'character':None, 'button':None, 'channel_info':None, 'canvas':None, 'style':None}
+                def _make_elem(d):
+                    return UpdateElement(**{**empty_elem_dict, **d})
+                content = []
+                if subty == 'update_characters':
+                    content = [_make_elem({'character':Character({**c, **c['character_context']})}) for c in content0['characters']]
+                elif subty == 'update_channel_info':
+                    content = [_make_elem({'channel_info':ChannelInfo(content0)})]
+                elif subty == 'update_canvas':
+                    content = [_make_elem({'canvas':CanvasElement(ce)}) for ce in content0]
+                elif subty == 'update_buttons':
+                    buttons = []
+                    for b in content0:
+                        if b.get('arguments'): # For some reason this wasn't bieng converted to a ButtonArgument data.
+                            b['arguments'] = [ButtonArgument(**a) for a in b['arguments']]
+                        buttons.append(Button(**b))
+                    content = [_make_elem({'button':Button(**b)}) for b in content0]
+                elif subty == 'update_style':
+                    content = [_make_elem({'style':StyleElement(**b)}) for b in content0]
+                else:
+                    content = [] # Unknown.
+
+                # Then make an update and call the update switchyard:
+                recipients = []
+                if 'recipients' in payload.body and payload.body['recipients'] not in ['service', 'null', '', None, False]:
+                    r_group = payload.body['recipients']
+                    if type(r_group) in [list, tuple]:
+                        recipients = r_group
+                    else:
+                        try:
+                            recipients = await self.character_ids_of_service_group(r_group) # Convert to list.
+                            if not recipients:
+                                recipients = f'WARNING: empty list for group_id {r_group}'
+                        except Exception as e:
+                            recipients = [f"ERROR getting character_ids for group_id: {r_group}"]
+                update = Update(**{**payload.body, **{'content':content, 'recipients':recipients}})
+                await self.on_update(update)
             elif payload.type == 'message_up':
                 await self.on_message_up(payload.body)
             elif payload.type == 'action':
@@ -686,21 +725,20 @@ class Moobius:
             logger.error(f"Unknown action subtype: {action.subtype}")
 
     async def on_update(self, update):
-        """Dispatches an update (a dict) to one of various callbacks. Agent function.
+        """Dispatches an Update instance to one of various callbacks. Agent function.
            It is recommended to overload the invididual callbacks instead of this function."""
-        if update['subtype'] == "update_characters":
+        if update.subtype == "update_characters":
             await self.on_update_characters(update)
-        elif update['subtype'] == "update_channel_info":
+        elif update.subtype == "update_channel_info":
             await self.on_update_channel_info(update)
-        elif update['subtype'] == "update_canvas":
+        elif update.subtype == "update_canvas":
             await self.on_update_canvas(update)
-        elif update['subtype'] == "update_buttons":
-            update['content'] = [Button(**f) for f in update['content']]
+        elif update.subtype == "update_buttons":
             await self.on_update_buttons(update)
-        elif update['subtype'] == "update_style":
+        elif update.subtype == "update_style":
             await self.on_update_style(update)
         else:
-            logger.error(f"Unknown update subtype: {update['subtype']}")
+            logger.error(f"Unknown update subtype: {update.subtype}")
 
     ################################## Individual callbacks #######################################
 
@@ -729,62 +767,35 @@ class Moobius:
     async def on_update_characters(self, update):
         """
         Handles changes to the character list. One of the multiple update callbacks. Returns None.
-        Agent function.
-
-        Example update dict (after processing by the default on_update):
-          {"subtype": "update_characters",
-           "channel_id": "abc...",
-           "recipients": [<char-id0>, <char-id1>, <char-id2>, ...],
-           {"content": "characters": [<char-id0>, <char-id1>, <char-id2>, ...]}
+        Agent function. Update is an Update instance.
         """
         logger.debug("on_update_character_list")
 
     async def on_update_channel_info(self, update):
         """
         Handles changes to the channel info. One of the multiple update callbacks. Returns None.
-        Agent function.
-
-        Example (processed) update dict:
-          {"subtype": "channel_info",
-           "request_id": <id>, "service_id": <client-id>,
-           "body": <dict of channel data, including channel_id>}
+        Agent function. Update is an Update instance.
         """
         logger.debug("on_update_channel_info")
 
     async def on_update_canvas(self, update):
         """
         Handles changes to the canvas. One of the multiple update callbacks. Returns None.
-        Agent function.
-
-         Example update dict; note that update['content'] gives the content.
-           {"subtype": "update_canvas", "channel_id": <channel-id>, "group_id": <group-id>, "context": {},
-            "content": {"path": "https://...png", "text": "This appears on the Canvas"}}
+        Agent function. Update is an Update instance.
         """
         logger.debug("on_update_canvas")
 
     async def on_update_buttons(self, update):
         """
         Handles changes to the buttons. One of the multiple update callbacks. Returns None.
-        Agent function.
-
-        Example (processed) update dict:
-          {"subtype": "update_buttons", "channel_id": <channel-id>,
-           "buttons": [Button(...), Button(...), Button(...), ...]}
+        Agent function. Update is an Update instance.
         """
         logger.debug("on_update_buttons")
 
     async def on_update_style(self, update):
         """
         Handles changes in the style. One of the multiple update callbacks. Returns None.
-        Agent function.
-
-        Example (processed) update dict:
-          {"subtype": "update_style",
-           "channel_id": <channel-id>,
-           "recipients":[<char-id0>, <char-id1>, <char_id2>, ...],
-           "content": [{"widget": "canvas", "display": "visible", "expand": "true"}],
-           "group_id": "temp",
-           "context": {}}
+        Agent function. Update is an Update instance.
         """
         logger.debug("on_update_style")
 

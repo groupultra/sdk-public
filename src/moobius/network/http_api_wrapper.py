@@ -1,20 +1,13 @@
-# http_api_wrapper.py
+# aiohttp-based wrapper of the Platform's HTTP.
 import json, os
+import aiohttp
 from loguru import logger
 from dacite import from_dict
 from moobius import utils
-from moobius.types import Character, Group
+from moobius.types import Character, Group, UserInfo
 from moobius.network import asserts
 # TODO: refresh
-# TODO: return code
-
-use_async_http = True
-URL2example = {} # Shows the most recent value of each GET and POST returned dict.
-if use_async_http:
-    import aiohttp
-else:
-    import requests
-
+_URL2example_response = {} # Debug tool that allows inspecting example responses.
 
 async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_errors=True):
     """Get or post, will use requests.get/post or aiohttp.session.get/post depending on which one has been choosen.
@@ -31,38 +24,28 @@ async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_erro
 
     Raises:
       Exception if Json fails and raise_json is True. Not all non-error returns are JSON thus the "blob" option."""
-    if use_async_http:
-        async with aiohttp.ClientSession() as session:
-            async with (session.post if is_post else session.get)(url, **requests_kwargs) as resp:
-                try:
-                    response_dict = await resp.json()
-                except aiohttp.client_exceptions.ContentTypeError:
-                    response_txt = await resp.text()
-                    if raise_json_decode_errors:
-                        if len(response_txt)<384:
-                            raise Exception(f'JSON cannot decode: {response_txt}')
-                        elif '<div' in response_txt or 'div>' in response_txt: # HTML when it should be JSON.
-                            summary_txt = utils.summarize_html(response_txt)
-                            raise Exception(f'JSON cannot decode long HTML stuff, here is a summary: {summary_txt}')
-                        else:
-                            raise Exception(f'JSON cannot decode long string: {response_txt[0:384]}...')
+    async with aiohttp.ClientSession() as session:
+        async with (session.post if is_post else session.get)(url, **requests_kwargs) as resp:
+            try:
+                response_dict = await resp.json()
+                return response_dict
+            except aiohttp.client_exceptions.ContentTypeError:
+                response_txt = await resp.text()
+                if raise_json_decode_errors:
+                    if not response_txt.strip():
+                        raise Exception(f'Empty string.')
+                    if len(response_txt)<384:
+                        raise Exception(f'JSON cannot decode: {response_txt}')
+                    elif '<div' in response_txt or 'div>' in response_txt: # HTML when it should be JSON.
+                        summary_txt = utils.summarize_html(response_txt)
+                        raise Exception(f'JSON cannot decode long HTML stuff, here is a summary: {summary_txt}')
                     else:
-                        status_code = resp.status
-                        if status_code is None:
-                            raise Exception('Status code should be an int (after awaiting) but is None.')
-                        return {'blob': str(response_txt), 'code':status_code}
-    else:
-        response_object = (requests.post if is_post else requests.get)(url, **requests_kwargs)
-        if str(response_object).strip() == '<Response [204]>':
-            return {'code':204} # Not an error condition, just a message indicating an empty response.
-        try:
-            response_dict = response_object.json()
-        except Exception as e:
-            if raise_json_decode_errors:
-                raise Exception(f'Cannot JSON this string: {repr(response_object)}\nError message: {e}')
-            else:
-                return {'blob': str(response_object.text()), 'code':response_object.status_code}
-    return response_dict
+                        raise Exception(f'JSON cannot decode long string: {response_txt[0:384]}...')
+                else:
+                    status_code = resp.status
+                    if status_code is None:
+                        raise Exception('Status code should be an int (after awaiting) but is None.')
+                    return {'blob': str(response_txt), 'code':status_code}
 
 
 class BadResponseException(Exception):
@@ -127,7 +110,7 @@ class HTTPAPIWrapper:
             requests_kwargs = {}
         if the_request is not None:
             requests_kwargs['json'] = the_request
-        kwarg_str = [] # Debug.
+        kwarg_str = [] # Logging.
         for k in sorted(list(requests_kwargs.keys())):
             v = str(requests_kwargs[k])
             if 'token' in k.lower():
@@ -136,7 +119,12 @@ class HTTPAPIWrapper:
                 v = "*******"
             if x:= requests_kwargs.get('headers',{}).get('Authorization',{}):
                 v = v.replace(x, "<Auth token>")
-            kwarg_str.append(k+'='+str(v))
+            if type(v) is bytes:
+                v = f'<binary blob {len(v)} bytes>'
+            sv = str(v)
+            if len(sv)>256+16:
+                sv = sv[0:256]+f'...<len(sv) chars total>'
+            kwarg_str.append(k+'='+sv)
         kwarg_str = ' '.join(kwarg_str)
         req_info_str = f"{'POST' if is_post else 'GET'} URL={url} {kwarg_str.replace('<', '&lt;').replace('>', '&gt;')}"
         logger.opt(colors=True).info(f"<fg 160,0,240>{req_info_str}</>")
@@ -153,10 +141,10 @@ class HTTPAPIWrapper:
             if raise_errors:
                 raise BadResponseException(err_message)
         show_first_example = False # Turn off if too wordy.
-        if (url not in URL2example) and show_first_example:
+        if (url not in _URL2example_response) and show_first_example:
             pretty_printed = json.dumps(response_dict, sort_keys=True, indent=2)
             logger.opt(colors=True).info(f"<fg 120,96,240>FIRST EXAMPLE OF: {req_info_str}\nRESULT:\n{pretty_printed.replace('<', '&lt;').replace('>', '&gt;')}</>") # Uncomment this line to see the callbacks of each GET and POST statement.
-        URL2example[url] = response_dict # Debug.
+        _URL2example_response[url] = response_dict # Debug.
         return response_dict
 
     async def checked_get(self, url, the_request, requests_kwargs=None, good_message=None, bad_message="This HTTPs GET request failed", raise_errors=True):
@@ -219,6 +207,8 @@ class HTTPAPIWrapper:
         c_data['character_id'] = resp_data['character_id']
         c_data['name'] = resp_data['character_context']['name']
         c_data['character_context'] = resp_data['character_context']
+        c_data['avatar'] = resp_data['character_context']['avatar']
+        c_data['description'] = resp_data['character_context']['description']
         return from_dict(data_class=Character, data=c_data)
 
     async def fetch_character_profile(self, character_id):
@@ -306,9 +296,11 @@ class HTTPAPIWrapper:
         return [self._xtract_character(d) for d in charlist]
 
     async def fetch_user_info(self):
-        """Used by the agent to get the agent info as a dict."""
+        """Used by the Agent to get their info as a UserInfo object."""
         response_dict = await self.checked_get(url=self.http_server_uri + f"/user/info", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched user info", bad_message="Error getting user info", raise_errors=True)
-        return response_dict.get('data')
+        idict = response_dict.get('data')
+        return UserInfo(avatar=idict['context']['avatar'], description=idict['context']['description'], name=idict['context']['name'],
+                        email=idict['email'], email_verified=idict['email_verified'], user_id=idict['user_id'], system_context=idict['system_context'])
 
     async def update_current_user(self, avatar, description, name):
         """Updates the user info. Will only be an Agent function in the .net version.
@@ -507,27 +499,10 @@ class HTTPAPIWrapper:
             full_url = upload_url + upload_fields.get("key")
             logger.opt(colors=True).info(f"<fg 160,0,240>{('file upload: '+upload_url+' '+str(files)).replace('<', '&lt;').replace('>', '&gt;')}</>")
 
-            use_vanilla_requests = True # The aiohttp cannot handle the kword "files" even though it handles other keywords just fine. This is a common bug in aiohttp.
-              # (TypeError: ClientSession._request() got an unexpected keyword argument 'files')
-            vanilla_async_wrap = True # If use_vanilla_requests is True, this determines whether to wrap it an an async function.
-            if use_vanilla_requests:
-                import requests
-                def _f():
-                    return requests.post(upload_url, data=upload_fields, files=files)
-                if vanilla_async_wrap:
-                    response = await utils.make_fn_async(_f)()
-                else:
-                    response = _f()
-                if response.status_code == 204:
-                    return full_url
-                else:
-                    raise Exception(f'Upload file error: {upload_url}; {full_url}.')
-            else:
-                base_message = f" file upload_url: {upload_url}, upload_fields: {upload_fields}, file_path: {file_path}"
-                bad_messages = "Error uploading" + base_message
-                good_message = "Sucessfully uploaded" + base_message
-                response = await self._checked_get_or_post(upload_url, the_request=None, is_post=True, requests_kwargs={'data':upload_fields, 'files':files}, good_message=good_message, bad_message=bad_messages, raise_errors=True)
-                return full_url
+            #SECOND answer on: https://stackoverflow.com/questions/57553738/how-to-aiohttp-request-post-files-list-python-requests-module
+            upload_fields['file'] = f.read()
+            _ = await self._checked_get_or_post(upload_url, the_request=None, is_post=True, requests_kwargs={'data':upload_fields}, good_message=f'Successfully uploaded {file_path} to {full_url}', bad_message=f'failed to upload {file_path}', raise_errors=False)
+            return full_url
 
     async def upload_file(self, file_path):
         """Upload the file at local path file_path to the Moobius server. Automatically gets the upload URL and upload fields.
