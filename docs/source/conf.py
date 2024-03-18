@@ -1,13 +1,18 @@
 # Configuration file for the Sphinx documentation builder.
 
+html_theme = 'sphinx_rtd_theme'
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../src/')) #https://sphinx-rtd-tutorial.readthedocs.io/en/latest/sphinx-config.html?highlight=autodoc#autodoc-configuration
+
 # -- Project information
 
-project = 'Lumache'
-copyright = '2021, Graziella'
-author = 'Graziella'
+project = 'Moobius'
+copyright = '2021, GroupUltra Ltd'
+author = 'Kevin Kostlan'
 
-release = '0.1'
-version = '0.1.0'
+release = '1.0'
+version = '1.0.x'
 
 # -- General configuration
 
