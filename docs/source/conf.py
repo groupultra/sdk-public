@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath('../../src/')) #https://sphinx-rtd-tutorial.r
 # -- Project information
 
 project = 'Moobius'
-copyright = '2021, GroupUltra Ltd'
+copyright = '2024, GroupUltra Ltd'
 author = 'Kevin Kostlan'
 
 release = '1.0'
