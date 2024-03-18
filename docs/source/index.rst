@@ -20,7 +20,8 @@ Contents
 .. toctree::
   :maxdepth: 2
   :caption: Contents:
-
+  moobius
+  modules
 
 Indices and tables
 ==================
