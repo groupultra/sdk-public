@@ -1,0 +1,7 @@
+FunctionDoc(summarize_html, docstring=Converts HTML to an easier-for-a-human format by..., args=['html_str'], kwargs=None, async=False, defaults=[NoDefault()])
+FunctionDoc(make_fn_async, docstring=Converts functions to async functions., args=['f'], kwargs=None, async=False, defaults=[NoDefault()])
+FunctionDoc(EnhancedJSONEncoder.default, docstring=None, args=['self', 'o'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
+FunctionDoc(EnhancedJSONEncoder.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+FunctionDoc(EnhancedJSONEncoder.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+FunctionDoc(make_fn_async.run_f, docstring=None, args=[], kwargs=kwargs, async=True, defaults=[])
+FunctionDoc(make_fn_async.run_f.f1, docstring=None, args=[], kwargs=None, async=False, defaults=[])

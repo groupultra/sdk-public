@@ -1,3 +1,4 @@
+
 Welcome to the Moobius SDK
 ===================================
 
@@ -21,8 +22,20 @@ Contents
   :maxdepth: 2
   :caption: Contents of docs:
 
-  moobius
-  modules
+  src_setup.rst
+  src_moobius_types.rst
+  src_moobius_utils.rst
+  src_moobius_core_dtrack.rst
+  src_moobius_core_sdk.rst
+  src_moobius_core_wand.rst
+  src_moobius_database_database_interface.rst
+  src_moobius_database_json_database.rst
+  src_moobius_database_null_database.rst
+  src_moobius_database_redis_database.rst
+  src_moobius_database_storage.rst
+  src_moobius_network_asserts.rst
+  src_moobius_network_http_api_wrapper.rst
+  src_moobius_network_ws_client.rst
 
 Indices and tables
 ==================

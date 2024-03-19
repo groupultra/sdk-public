@@ -1,0 +1,7 @@
+FunctionDoc(NullDatabase.__init__, docstring=None, args=['self', 'domain'], kwargs=kwargs, async=False, defaults=[NoDefault(), "''"])
+FunctionDoc(NullDatabase.get_value, docstring=None, args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
+FunctionDoc(NullDatabase.set_value, docstring=None, args=['self', 'key', 'value'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
+FunctionDoc(NullDatabase.delete_key, docstring=None, args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
+FunctionDoc(NullDatabase.all_keys, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+FunctionDoc(NullDatabase.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+FunctionDoc(NullDatabase.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])

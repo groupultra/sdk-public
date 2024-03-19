@@ -1,0 +1,7 @@
+FunctionDoc(RedisDatabase.__init__, docstring=None, args=['self', 'domain', 'host', 'port', 'db', 'password'], kwargs=kwargs, async=False, defaults=[NoDefault(), "''", "'localhost'", '6379', '0', "''"])
+FunctionDoc(RedisDatabase.get_value, docstring=None, args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
+FunctionDoc(RedisDatabase.set_value, docstring=None, args=['self', 'key', 'value'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
+FunctionDoc(RedisDatabase.delete_key, docstring=None, args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
+FunctionDoc(RedisDatabase.all_keys, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+FunctionDoc(RedisDatabase.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+FunctionDoc(RedisDatabase.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])

@@ -1,6 +1,5 @@
 # Configuration file for the Sphinx documentation builder.
 
-html_theme = 'sphinx_rtd_theme'
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../src/')) #https://sphinx-rtd-tutorial.readthedocs.io/en/latest/sphinx-config.html?highlight=autodoc#autodoc-configuration
