@@ -1,8 +1,24 @@
-FunctionDoc(MoobiusWand.__init__, docstring=Initialize an "empty" MoobiusWand object., args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(MoobiusWand.run_job, docstring=None, args=['service'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(MoobiusWand.run, docstring=Starts a service or agent.\n\nParameters:\n  cls (C..., args=['self', 'cls', 'background'], kwargs=kwargs, async=False, defaults=[NoDefault(), NoDefault(), 'False'])
-FunctionDoc(MoobiusWand.stop, docstring=Stops all processes using the_process.kill()\nAls..., args=['self', 'signum', 'frame'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(MoobiusWand.spell, docstring=Send a message to a service.\n\nParameters:\n  hand..., args=['self', 'handle', 'obj'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(MoobiusWand.aspell, docstring=Async version of spell(), uses q.coro_put(obj) i..., args=['self', 'handle', 'obj'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(MoobiusWand.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(MoobiusWand.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+MoobiusWand.__init__
+===================================
+Is a good module!
+MoobiusWand.run_job
+===================================
+Is a good module!
+MoobiusWand.run
+===================================
+Is a good module!
+MoobiusWand.stop
+===================================
+Is a good module!
+MoobiusWand.spell
+===================================
+Is a good module!
+MoobiusWand.aspell
+===================================
+Is a good module!
+MoobiusWand.__str__
+===================================
+Is a good module!
+MoobiusWand.__repr__
+===================================
+Is a good module!

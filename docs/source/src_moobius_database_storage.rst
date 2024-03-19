@@ -1,7 +1,21 @@
-FunctionDoc(RedisDatabase.__init__, docstring=None, args=['self', 'domain', 'host', 'port', 'db', 'password'], kwargs=kwargs, async=False, defaults=[NoDefault(), "''", "'localhost'", '6379', '0', "''"])
-FunctionDoc(RedisDatabase.get_value, docstring=None, args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(RedisDatabase.set_value, docstring=None, args=['self', 'key', 'value'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(RedisDatabase.delete_key, docstring=None, args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(RedisDatabase.all_keys, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(RedisDatabase.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(RedisDatabase.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+RedisDatabase.__init__
+===================================
+Is a good module!
+RedisDatabase.get_value
+===================================
+Is a good module!
+RedisDatabase.set_value
+===================================
+Is a good module!
+RedisDatabase.delete_key
+===================================
+Is a good module!
+RedisDatabase.all_keys
+===================================
+Is a good module!
+RedisDatabase.__str__
+===================================
+Is a good module!
+RedisDatabase.__repr__
+===================================
+Is a good module!

@@ -1,8 +1,24 @@
-FunctionDoc(JSONDatabase.__init__, docstring=Initialize a JSONDatabase object.\n\nParameters:\n ..., args=['self', 'domain', 'root_dir'], kwargs=kwargs, async=False, defaults=[NoDefault(), "''", "''"])
-FunctionDoc(JSONDatabase.get_value, docstring=Gets the value (which is a dict) of a string-val..., args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(JSONDatabase.set_value, docstring=Set the value (a dict) of a key (a string). Retu..., args=['self', 'key', 'value'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(JSONDatabase.delete_key, docstring=Delete a (string-valued) key. Returns (is_succes..., args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(JSONDatabase.all_keys, docstring=Gets all keys in the database. Returns an iterab..., args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(JSONDatabase.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(JSONDatabase.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(JSONDatabase.all_keys.key_iterator, docstring=None, args=[], kwargs=None, async=False, defaults=[])
+JSONDatabase.__init__
+===================================
+Is a good module!
+JSONDatabase.get_value
+===================================
+Is a good module!
+JSONDatabase.set_value
+===================================
+Is a good module!
+JSONDatabase.delete_key
+===================================
+Is a good module!
+JSONDatabase.all_keys
+===================================
+Is a good module!
+JSONDatabase.__str__
+===================================
+Is a good module!
+JSONDatabase.__repr__
+===================================
+Is a good module!
+JSONDatabase.all_keys.key_iterator
+===================================
+Is a good module!

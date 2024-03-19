@@ -1,13 +1,39 @@
-FunctionDoc(types_assert, docstring=Asserts that every one of kwargs is type ty, giv..., args=['ty'], kwargs=kwargs, async=False, defaults=[NoDefault()])
-FunctionDoc(structure_assert, docstring=Asserts whether "green" follows the data-structu..., args=['gold', 'green', 'base_message', 'path'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), 'None'])
-FunctionDoc(optional_dict_template, docstring=Creates a template function will not error on mi..., args=['min_keys', 'dtemplate'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(temp_modify, docstring=Sometimes the request has extra stuff. This func..., args=['socket_request'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(_style_check, docstring=One element in a style vector. This is the most ..., args=['style_element', 'base_message', 'path'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(_socket_update_body_assert, docstring=Many requests are updates with a body., args=['b', 'base_message', 'path'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(_socket_message_body_assert1, docstring=Both text and image messages are supported., args=['b', 'base_message', 'path', 'is_up'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(_button_click_body_assert, docstring=Some buttons have options. Some don't., args=['b', 'base_message', 'path'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(_context_menuclick_body_assert, docstring=Right click context menu click, args=['b', 'base_message', 'path'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(_action_body_assert, docstring=Various actions, args=['b', 'base_message', 'path'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(socket_assert, docstring=Asserts that a socket call is correct, using the..., args=['x'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(optional_dict_template.t_fn, docstring=None, args=['d', 'base_message', 'path'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(_socket_update_body_assert._each_button, docstring=None, args=['x', 'base_message', 'the_path'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
+types_assert
+===================================
+Is a good module!
+structure_assert
+===================================
+Is a good module!
+optional_dict_template
+===================================
+Is a good module!
+temp_modify
+===================================
+Is a good module!
+_style_check
+===================================
+Is a good module!
+_socket_update_body_assert
+===================================
+Is a good module!
+_socket_message_body_assert1
+===================================
+Is a good module!
+_button_click_body_assert
+===================================
+Is a good module!
+_context_menuclick_body_assert
+===================================
+Is a good module!
+_action_body_assert
+===================================
+Is a good module!
+socket_assert
+===================================
+Is a good module!
+optional_dict_template.t_fn
+===================================
+Is a good module!
+_socket_update_body_assert._each_button
+===================================
+Is a good module!

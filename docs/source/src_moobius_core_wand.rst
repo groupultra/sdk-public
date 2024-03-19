@@ -1,95 +1,285 @@
-FunctionDoc(ServiceGroupLib.__init__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(ServiceGroupLib.convert_list, docstring=Converts a list to single group id unless it is ..., args=['self', 'http_api', 'character_ids', 'is_message_down', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), 'None'])
-FunctionDoc(Moobius.__init__, docstring=Initialize a service or agent object.\n\nParameter..., args=['self', 'config_path', 'db_config_path', 'is_agent'], kwargs=kwargs, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), 'False'])
-FunctionDoc(Moobius.start, docstring=Start the Service/Agent. start() fns are called ..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.agent_join_service_channels, docstring=Joins service channels given by service config f..., args=['self', 'service_config_fname'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.fetch_service_id_each_channel, docstring=Returns a dict of which service_id is each chann..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.fetch_bound_channels, docstring=Returns a list of channels this Service is bound to., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.fetch_characters, docstring=Returns a list (or Character objects) with both ..., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius._convert_message_content, docstring=Converts message content, which can be a string ..., args=['self', 'subtype', 'content'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.initialize_channel, docstring=Creates a MoobiusStorage object for a channel gi..., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.upload_avatar_and_create_character, docstring=Upload an avatar image and create a character. S..., args=['self', 'name', 'image_path', 'description'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.create_message, docstring=Create a message_down (for Service) or message_u..., args=['self', 'channel_id', 'message_content', 'recipients', 'subtype', 'sender', 'filename', 'size'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), "'text'", 'None', 'None', 'None'])
-FunctionDoc(Moobius.upload_file_in_message, docstring=Uploads a file and sends the uploaded file as a ..., args=['self', 'channel_id', 'local_path', 'recipients', 'sender', 'file_display_name'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), 'None', 'None'])
-FunctionDoc(Moobius.convert_and_send_message, docstring=Converts the message body into a message down or..., args=['self', 'message_body'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send, docstring=Send any kind of payload, including message_down..., args=['self', 'payload_type', 'payload_body'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_button_click, docstring=Use to send a request to ask for a button call.\n..., args=['self', 'channel_id', 'button_id', 'button_args'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_heartbeat, docstring=Sends a heartbeat to the server. Return None, args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.create_and_bind_channel, docstring=Create a channel with the provided name and desc..., args=['self', 'channel_name', 'channel_desc'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius._update_rec, docstring=Pass in await self._update_rec(recipients) into ..., args=['self', 'recipients', 'is_m_down', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), 'None'])
-FunctionDoc(Moobius.refresh, docstring=Calls self.http_api.refresh., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.authenticate, docstring=Calls self.http_api.authenticate., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.sign_up, docstring=Calls self.http_api.sign_up., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.sign_out, docstring=Calls self.http_api.sign_out., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.update_current_user, docstring=Calls self.http_api.update_current_user., args=['self', 'avatar', 'description', 'name'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.update_character, docstring=Calls self.http_api.update_character using self...., args=['self', 'character_id', 'avatar', 'description', 'name'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.update_channel, docstring=Calls self.http_api.update_channel., args=['self', 'channel_id', 'channel_name', 'channel_desc'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.create_channel, docstring=Calls self.http_api.create_channel, args=['self', 'channel_name', 'channel_desc'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.bind_service_to_channel, docstring=Calls self.http_api.bind_service_to_channel, args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.unbind_service_from_channel, docstring=Calls self.http_api.unbind_service_from_channel, args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.create_character, docstring=Calls self.http_api.create_character using self...., args=['self', 'name', 'avatar', 'description'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.fetch_popular_channels, docstring=Calls self.http_api.fetch_popular_channels., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.fetch_channel_list, docstring=Calls self.http_api.fetch_channel_list., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.fetch_real_character_ids, docstring=Calls self.http_api.fetch_real_character_ids usi..., args=['self', 'channel_id', 'raise_empty_list_err'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), 'True'])
-FunctionDoc(Moobius.fetch_character_profile, docstring=Calls self.http_api.fetch_character_profile, args=['self', 'character_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.fetch_service_id_list, docstring=Calls self.http_api.fetch_service_id_list, args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.fetch_service_characters, docstring=Calls self.http_api.fetch_service_characters usi..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.upload_file, docstring=Calls self.http_api.upload_file., args=['self', 'filepath'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.fetch_message_history, docstring=Calls self.http_api.fetch_message_history., args=['self', 'channel_id', 'limit', 'before'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), '1024', "'null'"])
-FunctionDoc(Moobius.create_channel_group, docstring=Calls self.http_api.create_channel_group., args=['self', 'channel_id', 'group_name', 'members'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.create_service_group, docstring=Calls self.http_api.create_service_group., args=['self', 'group_id', 'members'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.character_ids_of_channel_group, docstring=Calls self.http_api.character_ids_of_channel_group, args=['self', 'sender_id', 'channel_id', 'group_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.character_ids_of_service_group, docstring=Calls self.http_api.character_ids_of_service_group, args=['self', 'group_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.update_channel_group, docstring=Calls self.http_api.update_channel_group., args=['self', 'channel_id', 'group_id', 'members'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.update_temp_channel_group, docstring=Calls self.http_api.update_temp_channel_group., args=['self', 'channel_id', 'members'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.fetch_channel_temp_group, docstring=Calls self.http_api.fetch_channel_temp_group., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.fetch_channel_group_list, docstring=Calls self.http_api.fetch_target_group., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.fetch_user_from_group, docstring=Calls self.http_api.fetch_user_from_group., args=['self', 'user_id', 'channel_id', 'group_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.fetch_target_group, docstring=Calls self.http_api.fetch_target_group., args=['self', 'user_id', 'channel_id', 'group_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_agent_login, docstring=Calls self.ws_client.agent_login using self.http..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.send_service_login, docstring=Calls self.ws_client.service_login using self.cl..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.send_message_up, docstring=Calls self.ws_client.message_up using self.clien..., args=['self', 'channel_id', 'recipients', 'subtype', 'message_content'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_message_down, docstring=Calls self.ws_client using self.client_id. Conve..., args=['self', 'channel_id', 'recipients', 'subtype', 'message_content', 'sender'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_update, docstring=Calls self.ws_client.TODO, args=['self', 'target_client_id', 'data'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_update_character_list, docstring=Calls self.ws_client.update_character_list using..., args=['self', 'channel_id', 'character_list', 'recipients'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_update_channel_info, docstring=Calls self.ws_client.update_channel_info using s..., args=['self', 'channel_id', 'channel_info'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_update_canvas, docstring=Calls self.ws_client.update_canvas using self.cl..., args=['self', 'channel_id', 'canvas_elements', 'recipients'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_update_buttons, docstring=Calls self.ws_client.update_buttons using self.c..., args=['self', 'channel_id', 'buttons', 'recipients'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_update_rclick_buttons, docstring=Calls self.ws_client.update_rclick_buttons using..., args=['self', 'channel_id', 'kv_dict', 'recipients'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_update_style, docstring=Calls self.ws_client.update_style using self.cli..., args=['self', 'channel_id', 'style_content', 'recipients'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_fetch_characters, docstring=Calls self.ws_client.fetch_characters using self..., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_fetch_buttons, docstring=Calls self.ws_client.fetch_buttons using self.cl..., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_fetch_style, docstring=Calls self.ws_client.fetch_style using self.client_id., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_fetch_canvas, docstring=Calls self.ws_client.fetch_canvas using self.cli..., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_fetch_channel_info, docstring=Calls self.ws_client.fetch_channel_info using se..., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_join_channel, docstring=Calls self.ws_client.join_channel using self.cli..., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.send_leave_channel, docstring=Calls self.ws_client.leave_channel using self.cl..., args=['self', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.listen_loop, docstring=Listens to the wand (in an infinite loop so) tha..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.handle_received_payload, docstring=Decode the received (websocket) payload, a JSON ..., args=['self', 'payload'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_action, docstring=Handles an action (Action object) from a user. R..., args=['self', 'action'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_update, docstring=Dispatches an Update instance to one of various ..., args=['self', 'update'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_spell, docstring=Called when a spell is received, which can be an..., args=['self', 'obj'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_start, docstring=Called when the service is initialized. Returns None, args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.on_message_up, docstring=Handles a payload from a user. Service function...., args=['self', 'message_up'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_message_down, docstring=Callback when a message is recieved (a MessageBo..., args=['self', 'message_down'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_update_characters, docstring=Handles changes to the character list. One of th..., args=['self', 'update'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_update_channel_info, docstring=Handles changes to the channel info. One of the ..., args=['self', 'update'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_update_canvas, docstring=Handles changes to the canvas. One of the multip..., args=['self', 'update'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_update_buttons, docstring=Handles changes to the buttons. One of the multi..., args=['self', 'update'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_update_style, docstring=Handles changes in the style. One of the multipl..., args=['self', 'update'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_fetch_service_characters, docstring=Handles the received action of fetching a charac..., args=['self', 'action'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_fetch_buttons, docstring=Handles the received action of fetching buttons...., args=['self', 'action'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_fetch_canvas, docstring=Handles the received action (Action object) of f..., args=['self', 'action'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_fetch_context_menu, docstring=Handles the received action (Action object) of f..., args=['self', 'action'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_fetch_channel_info, docstring=Handle the received action of fetching channel i..., args=['self', 'action'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_join_channel, docstring=Handles the received action of joining a channel..., args=['self', 'action'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_leave_channel, docstring=Handles the received action of leaving a channel..., args=['self', 'action'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_button_click, docstring=Handles a button call from a user. Returns None...., args=['self', 'button_click'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_menu_click, docstring=Handles a context menu right click from a user. ..., args=['self', 'context_click'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_copy_client, docstring=Handles a "Copy" of a message. Returns None.\nExa..., args=['self', 'copy'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.on_unknown_payload, docstring=Catch-all for handling unknown Payload objects. ..., args=['self', 'payload'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(Moobius.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(Moobius.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(Moobius.handle_received_payload._group2ids, docstring=None, args=['g_id'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(Moobius.start._get_agent_info, docstring=None, args=[], kwargs=None, async=True, defaults=[])
-FunctionDoc(Moobius.handle_received_payload._make_elem, docstring=None, args=['d'], kwargs=None, async=False, defaults=[NoDefault()])
+ServiceGroupLib.__init__
+===================================
+Is a good module!
+ServiceGroupLib.convert_list
+===================================
+Is a good module!
+Moobius.__init__
+===================================
+Is a good module!
+Moobius.start
+===================================
+Is a good module!
+Moobius.agent_join_service_channels
+===================================
+Is a good module!
+Moobius.fetch_service_id_each_channel
+===================================
+Is a good module!
+Moobius.fetch_bound_channels
+===================================
+Is a good module!
+Moobius.fetch_characters
+===================================
+Is a good module!
+Moobius._convert_message_content
+===================================
+Is a good module!
+Moobius.initialize_channel
+===================================
+Is a good module!
+Moobius.upload_avatar_and_create_character
+===================================
+Is a good module!
+Moobius.create_message
+===================================
+Is a good module!
+Moobius.upload_file_in_message
+===================================
+Is a good module!
+Moobius.convert_and_send_message
+===================================
+Is a good module!
+Moobius.send
+===================================
+Is a good module!
+Moobius.send_button_click
+===================================
+Is a good module!
+Moobius.send_heartbeat
+===================================
+Is a good module!
+Moobius.create_and_bind_channel
+===================================
+Is a good module!
+Moobius._update_rec
+===================================
+Is a good module!
+Moobius.refresh
+===================================
+Is a good module!
+Moobius.authenticate
+===================================
+Is a good module!
+Moobius.sign_up
+===================================
+Is a good module!
+Moobius.sign_out
+===================================
+Is a good module!
+Moobius.update_current_user
+===================================
+Is a good module!
+Moobius.update_character
+===================================
+Is a good module!
+Moobius.update_channel
+===================================
+Is a good module!
+Moobius.create_channel
+===================================
+Is a good module!
+Moobius.bind_service_to_channel
+===================================
+Is a good module!
+Moobius.unbind_service_from_channel
+===================================
+Is a good module!
+Moobius.create_character
+===================================
+Is a good module!
+Moobius.fetch_popular_channels
+===================================
+Is a good module!
+Moobius.fetch_channel_list
+===================================
+Is a good module!
+Moobius.fetch_real_character_ids
+===================================
+Is a good module!
+Moobius.fetch_character_profile
+===================================
+Is a good module!
+Moobius.fetch_service_id_list
+===================================
+Is a good module!
+Moobius.fetch_service_characters
+===================================
+Is a good module!
+Moobius.upload_file
+===================================
+Is a good module!
+Moobius.fetch_message_history
+===================================
+Is a good module!
+Moobius.create_channel_group
+===================================
+Is a good module!
+Moobius.create_service_group
+===================================
+Is a good module!
+Moobius.character_ids_of_channel_group
+===================================
+Is a good module!
+Moobius.character_ids_of_service_group
+===================================
+Is a good module!
+Moobius.update_channel_group
+===================================
+Is a good module!
+Moobius.update_temp_channel_group
+===================================
+Is a good module!
+Moobius.fetch_channel_temp_group
+===================================
+Is a good module!
+Moobius.fetch_channel_group_list
+===================================
+Is a good module!
+Moobius.fetch_user_from_group
+===================================
+Is a good module!
+Moobius.fetch_target_group
+===================================
+Is a good module!
+Moobius.send_agent_login
+===================================
+Is a good module!
+Moobius.send_service_login
+===================================
+Is a good module!
+Moobius.send_message_up
+===================================
+Is a good module!
+Moobius.send_message_down
+===================================
+Is a good module!
+Moobius.send_update
+===================================
+Is a good module!
+Moobius.send_update_character_list
+===================================
+Is a good module!
+Moobius.send_update_channel_info
+===================================
+Is a good module!
+Moobius.send_update_canvas
+===================================
+Is a good module!
+Moobius.send_update_buttons
+===================================
+Is a good module!
+Moobius.send_update_rclick_buttons
+===================================
+Is a good module!
+Moobius.send_update_style
+===================================
+Is a good module!
+Moobius.send_fetch_characters
+===================================
+Is a good module!
+Moobius.send_fetch_buttons
+===================================
+Is a good module!
+Moobius.send_fetch_style
+===================================
+Is a good module!
+Moobius.send_fetch_canvas
+===================================
+Is a good module!
+Moobius.send_fetch_channel_info
+===================================
+Is a good module!
+Moobius.send_join_channel
+===================================
+Is a good module!
+Moobius.send_leave_channel
+===================================
+Is a good module!
+Moobius.listen_loop
+===================================
+Is a good module!
+Moobius.handle_received_payload
+===================================
+Is a good module!
+Moobius.on_action
+===================================
+Is a good module!
+Moobius.on_update
+===================================
+Is a good module!
+Moobius.on_spell
+===================================
+Is a good module!
+Moobius.on_start
+===================================
+Is a good module!
+Moobius.on_message_up
+===================================
+Is a good module!
+Moobius.on_message_down
+===================================
+Is a good module!
+Moobius.on_update_characters
+===================================
+Is a good module!
+Moobius.on_update_channel_info
+===================================
+Is a good module!
+Moobius.on_update_canvas
+===================================
+Is a good module!
+Moobius.on_update_buttons
+===================================
+Is a good module!
+Moobius.on_update_style
+===================================
+Is a good module!
+Moobius.on_fetch_service_characters
+===================================
+Is a good module!
+Moobius.on_fetch_buttons
+===================================
+Is a good module!
+Moobius.on_fetch_canvas
+===================================
+Is a good module!
+Moobius.on_fetch_context_menu
+===================================
+Is a good module!
+Moobius.on_fetch_channel_info
+===================================
+Is a good module!
+Moobius.on_join_channel
+===================================
+Is a good module!
+Moobius.on_leave_channel
+===================================
+Is a good module!
+Moobius.on_button_click
+===================================
+Is a good module!
+Moobius.on_menu_click
+===================================
+Is a good module!
+Moobius.on_copy_client
+===================================
+Is a good module!
+Moobius.on_unknown_payload
+===================================
+Is a good module!
+Moobius.__str__
+===================================
+Is a good module!
+Moobius.__repr__
+===================================
+Is a good module!
+Moobius.handle_received_payload._group2ids
+===================================
+Is a good module!
+Moobius.start._get_agent_info
+===================================
+Is a good module!
+Moobius.handle_received_payload._make_elem
+===================================
+Is a good module!

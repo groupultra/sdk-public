@@ -1,2 +1,6 @@
-FunctionDoc(add_str_method, docstring=Decorator function to make __str__ return the fo..., args=['cls'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(add_str_method.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+add_str_method
+===================================
+Is a good module!
+add_str_method.__str__
+===================================
+Is a good module!

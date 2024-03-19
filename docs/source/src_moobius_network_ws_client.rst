@@ -1,44 +1,132 @@
-FunctionDoc(get_or_post, docstring=Get or post, will use requests.get/post or aioht..., args=['url', 'is_post', 'requests_kwargs', 'raise_json_decode_errors'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), 'None', 'True'])
-FunctionDoc(HTTPAPIWrapper.__init__, docstring=Initialize the HTTP API wrapper.\n\nParameters:\n  ..., args=['self', 'http_server_uri', 'email', 'password'], kwargs=None, async=False, defaults=[NoDefault(), "''", "''", "''"])
-FunctionDoc(HTTPAPIWrapper._checked_get_or_post, docstring=Runs a GET or POST request returning the result ..., args=['self', 'url', 'the_request', 'is_post', 'requests_kwargs', 'good_message', 'bad_message', 'raise_errors'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), 'None', 'None', "'This HTTPs request failed'", 'True'])
-FunctionDoc(HTTPAPIWrapper.checked_get, docstring=Calls self._checked_get_or_post with is_post=False, args=['self', 'url', 'the_request', 'requests_kwargs', 'good_message', 'bad_message', 'raise_errors'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), 'None', 'None', "'This HTTPs GET request failed'", 'True'])
-FunctionDoc(HTTPAPIWrapper.checked_post, docstring=Calls self._checked_get_or_post with is_post=True, args=['self', 'url', 'the_request', 'requests_kwargs', 'good_message', 'bad_message', 'raise_errors'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), 'None', 'None', "'This HTTPs POST request failed'", 'True'])
-FunctionDoc(HTTPAPIWrapper.headers, docstring=Returns the authentication headers. Used for all..., args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.authenticate, docstring=Authenticates the user. Needs to be called befor..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.sign_up, docstring=Signs up. Returns (the access token, the refresh..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.sign_out, docstring=Signs out using the access token obtained from s..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.refresh, docstring=Refreshes the access token, returning it., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper._xtract_character, docstring=None, args=['self', 'resp_data'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_character_profile, docstring=Returns a Character object (or list) given a str..., args=['self', 'character_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_real_character_ids, docstring=Fetches the real user ids of a channel. A servic..., args=['self', 'channel_id', 'service_id', 'raise_empty_list_err'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), 'True'])
-FunctionDoc(HTTPAPIWrapper.fetch_service_characters, docstring=Get the user list (a list of Character objects),..., args=['self', 'service_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_user_info, docstring=Used by the Agent to get their info as a UserInf..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.update_current_user, docstring=Updates the user info. Will only be an Agent fun..., args=['self', 'avatar', 'description', 'name'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.create_service, docstring=Creates a service with the given description str..., args=['self', 'description'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_service_id_list, docstring=Returns a list of service ID strings of the user..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.create_character, docstring=Creates a character with given name, avatar, and..., args=['self', 'service_id', 'name', 'avatar', 'description'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.update_character, docstring=Updates the user info for a FAKE user, for real ..., args=['self', 'service_id', 'character_id', 'avatar', 'description', 'name'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.create_channel, docstring=Creates a channel given a string-valued channel ..., args=['self', 'channel_name', 'channel_desc'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.bind_service_to_channel, docstring=Binds a service to a channel given the service a..., args=['self', 'service_id', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.unbind_service_from_channel, docstring=Unbinds a service to a channel given the service..., args=['self', 'service_id', 'channel_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.update_channel, docstring=Updates the name and desc of a channel.\n\nParamet..., args=['self', 'channel_id', 'channel_name', 'channel_desc'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_popular_chanels, docstring=Fetches the popular channels, returning a list o..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_channel_list, docstring=Fetches all? channels, returning a list of chann..., args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_message_history, docstring=Returns the message chat history.\n\nParameters:\n ..., args=['self', 'channel_id', 'limit', 'before'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), '64', "'null'"])
-FunctionDoc(HTTPAPIWrapper.this_user_channels, docstring=What channels this user is joined to?, args=['self'], kwargs=None, async=True, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper._upload_extension, docstring=Get the upload URL and upload fields for uploadi..., args=['self', 'extension'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper._do_upload_file, docstring=Upload a file to the given upload URL with the g..., args=['self', 'upload_url', 'upload_fields', 'file_path'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.upload_file, docstring=Upload the file at local path file_path to the M..., args=['self', 'file_path'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_channel_group_dict, docstring=Like fetch_real_character_ids but returns a dict..., args=['self', 'channel_id', 'service_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_channel_group_list, docstring=Like fetch_channel_group_dict but returns the ra..., args=['self', 'channel_id', 'service_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.create_channel_group, docstring=Creates a channel group.\n\nParameters:\n  channel_..., args=['self', 'channel_id', 'group_name', 'characters'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.character_ids_of_service_group, docstring=Gets a list of character ids belonging to a serv..., args=['self', 'group_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.character_ids_of_channel_group, docstring=Gets a list of character ids belonging to a chan..., args=['self', 'sender_id', 'channel_id', 'group_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.create_service_group, docstring=Create a group containing characters id list, re..., args=['self', 'characters'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.update_channel_group, docstring=Updates a channel group.\n\nParameters:\n  channel_..., args=['self', 'channel_id', 'group_id', 'members'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.update_temp_channel_group, docstring=Updates a channel TEMP group.\n\nParameters:\n  cha..., args=['self', 'channel_id', 'members'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_channel_temp_group, docstring=Like fetch_channel_group_list but for Temp groups., args=['self', 'channel_id', 'service_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_user_from_group, docstring=Fetch the user profile of a user from a group.\n\n..., args=['self', 'user_id', 'channel_id', 'group_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.fetch_target_group, docstring=Fetches info about the group.\n\n  Parameters:\n   ..., args=['self', 'user_id', 'channel_id', 'group_id'], kwargs=None, async=True, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(HTTPAPIWrapper.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(HTTPAPIWrapper.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+get_or_post
+===================================
+Is a good module!
+HTTPAPIWrapper.__init__
+===================================
+Is a good module!
+HTTPAPIWrapper._checked_get_or_post
+===================================
+Is a good module!
+HTTPAPIWrapper.checked_get
+===================================
+Is a good module!
+HTTPAPIWrapper.checked_post
+===================================
+Is a good module!
+HTTPAPIWrapper.headers
+===================================
+Is a good module!
+HTTPAPIWrapper.authenticate
+===================================
+Is a good module!
+HTTPAPIWrapper.sign_up
+===================================
+Is a good module!
+HTTPAPIWrapper.sign_out
+===================================
+Is a good module!
+HTTPAPIWrapper.refresh
+===================================
+Is a good module!
+HTTPAPIWrapper._xtract_character
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_character_profile
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_real_character_ids
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_service_characters
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_user_info
+===================================
+Is a good module!
+HTTPAPIWrapper.update_current_user
+===================================
+Is a good module!
+HTTPAPIWrapper.create_service
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_service_id_list
+===================================
+Is a good module!
+HTTPAPIWrapper.create_character
+===================================
+Is a good module!
+HTTPAPIWrapper.update_character
+===================================
+Is a good module!
+HTTPAPIWrapper.create_channel
+===================================
+Is a good module!
+HTTPAPIWrapper.bind_service_to_channel
+===================================
+Is a good module!
+HTTPAPIWrapper.unbind_service_from_channel
+===================================
+Is a good module!
+HTTPAPIWrapper.update_channel
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_popular_chanels
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_channel_list
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_message_history
+===================================
+Is a good module!
+HTTPAPIWrapper.this_user_channels
+===================================
+Is a good module!
+HTTPAPIWrapper._upload_extension
+===================================
+Is a good module!
+HTTPAPIWrapper._do_upload_file
+===================================
+Is a good module!
+HTTPAPIWrapper.upload_file
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_channel_group_dict
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_channel_group_list
+===================================
+Is a good module!
+HTTPAPIWrapper.create_channel_group
+===================================
+Is a good module!
+HTTPAPIWrapper.character_ids_of_service_group
+===================================
+Is a good module!
+HTTPAPIWrapper.character_ids_of_channel_group
+===================================
+Is a good module!
+HTTPAPIWrapper.create_service_group
+===================================
+Is a good module!
+HTTPAPIWrapper.update_channel_group
+===================================
+Is a good module!
+HTTPAPIWrapper.update_temp_channel_group
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_channel_temp_group
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_user_from_group
+===================================
+Is a good module!
+HTTPAPIWrapper.fetch_target_group
+===================================
+Is a good module!
+HTTPAPIWrapper.__str__
+===================================
+Is a good module!
+HTTPAPIWrapper.__repr__
+===================================
+Is a good module!

@@ -1,7 +1,21 @@
-FunctionDoc(DatabaseInterface.__init__, docstring=The concrete methods should expect a `domain` pa..., args=['self', 'domain'], kwargs=kwargs, async=False, defaults=[NoDefault(), "''"])
-FunctionDoc(DatabaseInterface.get_value, docstring=Returns a tuple of (is_success, value), args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(DatabaseInterface.set_value, docstring=Returns a tuple of (is_success=True, key) or (is..., args=['self', 'key', 'value'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(DatabaseInterface.delete_key, docstring=Returns a tuple of (is_success=True, key) or (is..., args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(DatabaseInterface.all_keys, docstring=Returns an iterable of all keys, the details of ..., args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(DatabaseInterface.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(DatabaseInterface.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+DatabaseInterface.__init__
+===================================
+Is a good module!
+DatabaseInterface.get_value
+===================================
+Is a good module!
+DatabaseInterface.set_value
+===================================
+Is a good module!
+DatabaseInterface.delete_key
+===================================
+Is a good module!
+DatabaseInterface.all_keys
+===================================
+Is a good module!
+DatabaseInterface.__str__
+===================================
+Is a good module!
+DatabaseInterface.__repr__
+===================================
+Is a good module!

@@ -1,43 +1,129 @@
-FunctionDoc(check_if_logio_i_fied, docstring=Returns weather @dtrack.logios are enabled by ch..., args=[], kwargs=None, async=False, defaults=[])
-FunctionDoc(errorfree_str, docstring=Returns an attempted repr(x), catching and str()..., args=['x'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(_convert_http_response, docstring=Returns the response-as-str or an error code., args=['response'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(add_logfile, docstring=Adds a log file given a disk_file string and "le..., args=['disk_file'], kwargs=kwargs, async=False, defaults=[NoDefault()])
-FunctionDoc(_log_core, docstring=Logs a function given its inputs and outputs, re..., args=['func', 'args', 'kwargs', 'out', 'is_async'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(logio, docstring=Log i/o decorator that takes in a function and r..., args=['func'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(log_info_color, docstring=None, args=[], kwargs=None, async=False, defaults=[])
-FunctionDoc(log_debug, docstring=Drop-in replacement for loguru.debug(), args=[], kwargs=None, async=False, defaults=[])
-FunctionDoc(log_info, docstring=Drop-in replacement for loguru.info(), args=[], kwargs=None, async=False, defaults=[])
-FunctionDoc(log_warning, docstring=Drop-in replacement for loguru.warning(), args=[], kwargs=None, async=False, defaults=[])
-FunctionDoc(log_error, docstring=Drop-in replacement for loguru.error(), args=[], kwargs=None, async=False, defaults=[])
-FunctionDoc(log_get_call, docstring=Logs a get call given a url, reponse, and any kw..., args=['url', 'response'], kwargs=kwargs, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(log_post_call, docstring=log_get_call but POST instead of GET., args=['url', 'response'], kwargs=kwargs, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(recent_calls, docstring=Returns up to n recent Fcall objects in chronolg..., args=['n'], kwargs=None, async=False, defaults=['8'])
-FunctionDoc(_decorator_update, docstring=Applies f(decorator lines, def_line) => decorato..., args=['txt', 'f'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(set_to_dtrack_or_loguru, docstring=Sets the source code *txt* to use dtrack's logge..., args=['txt', 'is_to_dtrack'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(checked_modification, docstring=Modifies ALL files to use or not use dtrack.\nWhe..., args=['to_dtrack'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(delete_all_logs, docstring=Deletes all logs across all projects, both logur..., args=[], kwargs=None, async=False, defaults=[])
-FunctionDoc(delete_all_databases, docstring=Deletes all logs across all projects, both logur..., args=[], kwargs=None, async=False, defaults=[])
-FunctionDoc(Fcall.__init__, docstring=None, args=['self', 'is_async', 'sym_qual', 'argnames', 'args', 'kwargs', 'f_output'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(Fcall.get_report, docstring=Returns a pretty-printed string representation., args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(Fcall.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(Fcall.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(LogStore.__init__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(LogStore.add_fcall, docstring=Adds a single function call to the storage. Thre..., args=['self', 'is_async', 'sym_qual', 'argnames', 'args', 'kwargs', 'f_output'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(LogStore.filter_txt, docstring=Removes a specific "spam-test" in Moobius demo., args=['self', 'log_txt'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(LogStore.clear_logs, docstring=Empties the entire storage., args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(LogStore.add_log_entry, docstring=Adds and (optionally) prints a log that is not r..., args=['self', 'x'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(LogStore.add_error, docstring=Adds a special high-alert log message. Does not ..., args=['self', 'x'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(LogStore.file_save_loop, docstring=Save logs to disk, clearning them from this file., args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(LogStore.add_GET_call, docstring=Stores a get call given a url, response, and the..., args=['self', 'url', 'response'], kwargs=kwargs, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(LogStore.add_POST_call, docstring=Same as add_GET_call but for POST., args=['self', 'url', 'response'], kwargs=kwargs, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(LogStore.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(LogStore.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(_decorator_update._is_def_line, docstring=None, args=['the_line'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(_decorator_update._is_class_line, docstring=None, args=['the_line'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(_decorator_update._is_decorator_line, docstring=None, args=['the_line'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(_decorator_update._is_emptyish_line, docstring=None, args=['the_line'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(set_to_dtrack_or_loguru._decf, docstring=None, args=['decorators', 'def_line'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(checked_modification.show_difference, docstring=None, args=['str1', 'str2', 'diff_message'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(LogStore.file_save_loop._get_log_txt, docstring=None, args=['self', 'highlev_only'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(logio.logio_wrapped_function, docstring=None, args=[], kwargs=kwargs, async=True, defaults=[])
-FunctionDoc(logio.logio_wrapped_function, docstring=None, args=[], kwargs=kwargs, async=False, defaults=[])
+check_if_logio_i_fied
+===================================
+Is a good module!
+errorfree_str
+===================================
+Is a good module!
+_convert_http_response
+===================================
+Is a good module!
+add_logfile
+===================================
+Is a good module!
+_log_core
+===================================
+Is a good module!
+logio
+===================================
+Is a good module!
+log_info_color
+===================================
+Is a good module!
+log_debug
+===================================
+Is a good module!
+log_info
+===================================
+Is a good module!
+log_warning
+===================================
+Is a good module!
+log_error
+===================================
+Is a good module!
+log_get_call
+===================================
+Is a good module!
+log_post_call
+===================================
+Is a good module!
+recent_calls
+===================================
+Is a good module!
+_decorator_update
+===================================
+Is a good module!
+set_to_dtrack_or_loguru
+===================================
+Is a good module!
+checked_modification
+===================================
+Is a good module!
+delete_all_logs
+===================================
+Is a good module!
+delete_all_databases
+===================================
+Is a good module!
+Fcall.__init__
+===================================
+Is a good module!
+Fcall.get_report
+===================================
+Is a good module!
+Fcall.__str__
+===================================
+Is a good module!
+Fcall.__repr__
+===================================
+Is a good module!
+LogStore.__init__
+===================================
+Is a good module!
+LogStore.add_fcall
+===================================
+Is a good module!
+LogStore.filter_txt
+===================================
+Is a good module!
+LogStore.clear_logs
+===================================
+Is a good module!
+LogStore.add_log_entry
+===================================
+Is a good module!
+LogStore.add_error
+===================================
+Is a good module!
+LogStore.file_save_loop
+===================================
+Is a good module!
+LogStore.add_GET_call
+===================================
+Is a good module!
+LogStore.add_POST_call
+===================================
+Is a good module!
+LogStore.__str__
+===================================
+Is a good module!
+LogStore.__repr__
+===================================
+Is a good module!
+_decorator_update._is_def_line
+===================================
+Is a good module!
+_decorator_update._is_class_line
+===================================
+Is a good module!
+_decorator_update._is_decorator_line
+===================================
+Is a good module!
+_decorator_update._is_emptyish_line
+===================================
+Is a good module!
+set_to_dtrack_or_loguru._decf
+===================================
+Is a good module!
+checked_modification.show_difference
+===================================
+Is a good module!
+LogStore.file_save_loop._get_log_txt
+===================================
+Is a good module!
+logio.logio_wrapped_function
+===================================
+Is a good module!
+logio.logio_wrapped_function
+===================================
+Is a good module!

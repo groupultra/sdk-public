@@ -1,15 +1,45 @@
-FunctionDoc(get_engine, docstring=Only import the database engine that is needed. ..., args=['implementation'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(get_engine._hit, docstring=None, args=['matches'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(CachedDict.__init__, docstring=Initialize a CachedDict object.\n\nParameters:\n  d..., args=['self', 'database', 'strict_mode'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), 'False'])
-FunctionDoc(CachedDict.load, docstring=Load all keys from the database to the cache. Re..., args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(CachedDict.save, docstring=Save a key to the database. given a string-value..., args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(CachedDict.__getitem__, docstring=Override the __getitem__, __setitem__, and __del..., args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(CachedDict.__setitem__, docstring=Allows i.e. "my_cached_dict["foo"] = some_dict" ..., args=['self', 'key', 'value'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault()])
-FunctionDoc(CachedDict.__delitem__, docstring=Allows i.e. "del my_cached_dict["foo"]" to acces..., args=['self', 'key'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault()])
-FunctionDoc(CachedDict.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(CachedDict.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(MoobiusStorage.__init__, docstring=Initialize a MoobiusStorage object.\n\nParameters:..., args=['self', 'service_id', 'channel_id', 'db_config'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), '()'])
-FunctionDoc(MoobiusStorage.put, docstring=Sets self.attr_name to database (a DatabaseInter..., args=['self', 'attr_name', 'database', 'load', 'clear'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), 'True', 'False'])
-FunctionDoc(MoobiusStorage.add_container, docstring=Add a database using the config dict.\n\nParameter..., args=['self', 'implementation', 'settings', 'name', 'load', 'clear'], kwargs=None, async=False, defaults=[NoDefault(), NoDefault(), NoDefault(), NoDefault(), 'True', 'False'])
-FunctionDoc(MoobiusStorage.__str__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
-FunctionDoc(MoobiusStorage.__repr__, docstring=None, args=['self'], kwargs=None, async=False, defaults=[NoDefault()])
+get_engine
+===================================
+Is a good module!
+get_engine._hit
+===================================
+Is a good module!
+CachedDict.__init__
+===================================
+Is a good module!
+CachedDict.load
+===================================
+Is a good module!
+CachedDict.save
+===================================
+Is a good module!
+CachedDict.__getitem__
+===================================
+Is a good module!
+CachedDict.__setitem__
+===================================
+Is a good module!
+CachedDict.__delitem__
+===================================
+Is a good module!
+CachedDict.__str__
+===================================
+Is a good module!
+CachedDict.__repr__
+===================================
+Is a good module!
+MoobiusStorage.__init__
+===================================
+Is a good module!
+MoobiusStorage.put
+===================================
+Is a good module!
+MoobiusStorage.add_container
+===================================
+Is a good module!
+MoobiusStorage.__str__
+===================================
+Is a good module!
+MoobiusStorage.__repr__
+===================================
+Is a good module!
