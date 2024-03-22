@@ -1,47 +1,75 @@
-## src_moobius_database_database_interface
+.. _src_moobius_database_json_database:
+
+src.moobius.database.json_database
 ===================================
 
-## Module-level functions
+Module-level functions
+==================
 
-## Class DatabaseInterface
-Various database backends need to inherit this interface.
-Currently available as of Jan 2024: JSONDatabase, NullDatabase, and RedisDatabase.
-Each demo's on_start() function passes calls MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
-Instead of hardcoding self.db_config each demo it stores it as a JSON list, each element of the form:
-    {"implementation": "json", "name": "buttons", "load": true, "clear": false,
-     "settings": {"root_dir": "json_db"}}
-     Where different elements in the list have different "name" values.
-To use a config file, pass db_config_path="my/db_config/file.json" into wand.run()
-  Wand will pass this kwarg to the MoobiusService object bieng ran.
-  The service will load the JSON into self.db_config
-Then, in the on_start() function each demo will call MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
-  TODO: This is clumsy and on_start is repetative between demos, refactor this part and maybe others into service functions?
-  For each element in db_config the MoobiusStorage will call self.add_container(**config) and use the implementation kwarg as a switchyard.
-## Class methods
-DatabaseInterface.__init__
-DatabaseInterface.__init__(self, domain, \*kwargs)
-The concrete methods should expect a `domain` parameter as a `str`.
-It is used to separate different domains in the same database.
-Like different tables in the same database.
-Or different folders in the same file system.
-The keys inside different domains may overlap, but they are different entries.
-For example, two channels may have entries with the same button id.
-domains are '.' separated strings, like '<channel_id>.<character_id>'
-===================================DatabaseInterface.get_value
-DatabaseInterface.get_value(self, key)
-Returns a tuple of (is_success, value)
-===================================DatabaseInterface.set_value
-DatabaseInterface.set_value(self, key, value)
-Returns a tuple of (is_success=True, key) or (is_success=False, err_message)
-===================================DatabaseInterface.delete_key
-DatabaseInterface.delete_key(self, key)
-Returns a tuple of (is_success=True, key) or (is_success=False, err_message)
-===================================DatabaseInterface.all_keys
-DatabaseInterface.all_keys(self)
-Returns an iterable of all keys, the details of which depend on the implementation.
-===================================DatabaseInterface.__str__
-DatabaseInterface.__str__(self)
+
+
+==================
+
+
+Class JSONDatabase
+==================
+
+JSONDatabase simply stores information as JSON strings in a list of files.
+
+JSONDatabase.__init__
+----------------------
+JSONDatabase.__init__(self, domain, root_dir, \*kwargs)
+Initialize a JSONDatabase object.
+
+Parameters:
+  domain: str
+    The name of the database directory. Will be automatically added in the add_container() function in MoobiusStorage.
+  root_dir: str
+    The root directory of the all the database files.
+
+No return value.
+
+Example:
+  Note: This should not be called directly. Users should config the database in the config file, and call MoobiusStorage to initialize the database.
+  >>> database = JSONDatabase(domain='service_1.channel_1', root_dir='data')
+
+JSONDatabase.get_value
+----------------------
+JSONDatabase.get_value(self, key)
+Gets the value (which is a dict) of a string-valued key. Returns (is_success, the_value).
+Note: This function should not be called directly.
+
+Raises:
+  TypeError: If the type of the value is unknown, so we can't construct the object.
+
+JSONDatabase.set_value
+----------------------
+JSONDatabase.set_value(self, key, value)
+Set the value (a dict) of a key (a string). Returns (is_success, the_key).
+Note: This function should not be called directly.
+
+JSONDatabase.delete_key
+----------------------
+JSONDatabase.delete_key(self, key)
+Delete a (string-valued) key. Returns (is_success, key)
+Note: This function should not be called directly.
+
+JSONDatabase.all_keys
+----------------------
+JSONDatabase.all_keys(self)
+Gets all keys in the database. Returns an iterable which internally uses yield().
+
+JSONDatabase.__str__
+----------------------
+JSONDatabase.__str__(self)
 <No doc string>
-===================================DatabaseInterface.__repr__
-DatabaseInterface.__repr__(self)
+
+JSONDatabase.__repr__
+----------------------
+JSONDatabase.__repr__(self)
+<No doc string>
+
+JSONDatabase.all_keys.key_iterator
+----------------------
+JSONDatabase.all_keys.key_iterator()
 <No doc string>

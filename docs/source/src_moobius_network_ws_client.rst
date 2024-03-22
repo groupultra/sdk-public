@@ -1,331 +1,340 @@
-## src_moobius_network_http_api_wrapper
+.. _src_moobius_network_ws_client:
+
+src.moobius.network.ws_client
 ===================================
 
-## Module-level functions
-get_or_post
-get_or_post(url, is_post, requests_kwargs, raise_json_decode_errors)
-Get or post, will use requests.get/post or aiohttp.session.get/post depending on which one has been choosen.
+Module-level functions
+==================
+
+send_tweak
+----------------------
+send_tweak(the_message)
+<No doc string>
+
+==================
+
+
+Class WSClient
+==================
+
+WSClient is a websocket client that automatically reconnects when the connection is closed.
+It contains the standard socket functions such as on_connect(), send(), receive().
+Custom on_connect() and handle() functions are also supported.
+Finally, there is a wide variety of Moobius-specific functions that send payloads recognized by the platform.
+Users should call all websocket APIs through this class just as they should call all HTTP APIs through HTTPAPIWrapper.
+
+WSClient.__init__
+----------------------
+WSClient.__init__(self, ws_server_uri, on_connect, handle)
+Initialize a WSClient object.
 
 Parameters:
-  url (str): https://...
-  is_post (bool): False for GET, True for POST.
-  requests_kwargs=None: These are fed into the requests/session get/post function.
-  raise_json_decode_errors=True
-
-Returns: A dict which is json.loads() of the return.
-  dict['code'] has the code, 10000 is good and 204 indicates no return but without error which is also fine.
-  dict['blob'] is the response text in cases where the JSON fail and raise_json is False.
-
-Raises:
-  Exception if Json fails and raise_json is True. Not all non-error returns are JSON thus the "blob" option.
-## Class BadResponseException
-For when the network is not doing what it should.
-## Class methods
-
-
-===================================
-## Module-level functions
-get_or_post
-get_or_post(url, is_post, requests_kwargs, raise_json_decode_errors)
-Get or post, will use requests.get/post or aiohttp.session.get/post depending on which one has been choosen.
-
-Parameters:
-  url (str): https://...
-  is_post (bool): False for GET, True for POST.
-  requests_kwargs=None: These are fed into the requests/session get/post function.
-  raise_json_decode_errors=True
-
-Returns: A dict which is json.loads() of the return.
-  dict['code'] has the code, 10000 is good and 204 indicates no return but without error which is also fine.
-  dict['blob'] is the response text in cases where the JSON fail and raise_json is False.
-
-Raises:
-  Exception if Json fails and raise_json is True. Not all non-error returns are JSON thus the "blob" option.
-## Class HTTPAPIWrapper
-Helper class for interacting with the Moobius HTTP API.
-All methods except for authenticate() and refresh() require authentication headers. 
-When calling these methods, make sure to call authenticate() first and add headers=self.headers to the method call.
-
-This Wrapper's methods are categorized as follows:
-  Auth: Authentication and sign in/out.
-  User: Dealing with real users.
-  Service: Apps use this API to be a service.
-  Channel: Dealing with threads/channels/chat-rooms etc.
-  File: Upload files (automatically fetches the URL needed).
-  Group: Combine users, services, or channels into groups which can be addressed by a single group_id.
-## Class methods
-HTTPAPIWrapper.__init__
-HTTPAPIWrapper.__init__(self, http_server_uri, email, password)
-Initialize the HTTP API wrapper.
-
-Parameters:
-  http_server_uri (str): The URI of the Moobius HTTP server.
-  email (str): The email of the user.
-  password (str): The password of the user.
+  ws_server_uri: str
+    The URI of the websocket server.
+  on_connect: function
+    The function to be called when the websocket is connected.
+  handle: function
+    The function to be called when a message is received.
 
 No return value.
 
 Example:
-  >>> http_api_wrapper = HTTPAPIWrapper("http://localhost:8080", "test@test", "test")
-===================================HTTPAPIWrapper._checked_get_or_post
-HTTPAPIWrapper._checked_get_or_post(self, url, the_request, is_post, requests_kwargs, good_message, bad_message, raise_errors)
-Runs a GET or POST request returning the result as a JSON with optional logging and error raising.
+  >>> ws_client = WSClient("ws://localhost:8765", on_connect=on_connect, handle=handle)
+  >>> await self.authenticate()
+  >>> await self.ws_client.connect()
+
+WSClient.connect
+----------------------
+WSClient.connect(self)
+Connects to the websocket server. Call after self.authenticate(). Returns None.
+
+WSClient.send
+----------------------
+WSClient.send(self, message)
+Sends a dict-valued message (or JSON string) to the websocket server. Call this and other socket functions after self.authenticate()
+If the connection is closed, reconnect and send again.
+If an exception is raised, reconnect and send again.
+Returns None, but if the server responds to the message it will be detected in the self.recieve() loop.
+
+WSClient.receive
+----------------------
+WSClient.receive(self)
+Waits in a loop for messages from the websocket server or from the wand queue. Never returns.
+If the connection is closed, reconnect and keep going.
+If an exception is raised, reconnect and keep going.
+
+WSClient.safe_handle
+----------------------
+WSClient.safe_handle(self, message)
+Handles a string-valued message from the websocket server. Returns None.
+The handle() function is defined by the user.
+If an exception is raised, reconnect and handle again.
+
+WSClient.heartbeat
+----------------------
+WSClient.heartbeat(self)
+Sends a heartbeat unless dry_run is True. Returns the message dict.
+
+WSClient.dumps
+----------------------
+WSClient.dumps(data)
+A slightly better json.dumps. Takes in data and returns a JSON string.
+
+WSClient.service_login
+----------------------
+WSClient.service_login(self, service_id, access_token)
+Constructs and sends a message that logs the service in. Need to be sent before any other messages.
+Of course it is an service function not an agent function.
 
 Parameters:
-  url (str): The https://... url.
-  the_request (dict): The "json" kwarg is set to this. Can be None in which no "json" will be set.
-  is_post: True for post, False for get.
-  requests_kwargs=None: Dict of extra arguments to send to requests/aiohttp. None is equivalent to {}
-  good_message=None: The string-valued message to logger.debug. None means do not log.
-  bad_message="...": The string-valued to prepend to logger.error if the response isnt code 10000.
-  raise_errors=True: Raise a BadResponseException if the request returns an error.
+  service_id (str): The client_id of a Moobius service object, which is the ID of the running service.
+    Used in almost every function.
+  access_token (str):
+    TODO: This is the access token from http_api_wrapper; for clean code decouple access_token here!
+  dry_run=False: Don't acually send anything (must functions offer a dry-run option)
 
 Returns:
-  The https response as a dict, using requests/aiohttp.post(...).json() to parse it.
+  The message as a dict.
 
-Raises:
-  BadResponseException if raise_errors=True and the response is an error response.
-===================================HTTPAPIWrapper.checked_get
-HTTPAPIWrapper.checked_get(self, url, the_request, requests_kwargs, good_message, bad_message, raise_errors)
-Calls self._checked_get_or_post with is_post=False
-===================================HTTPAPIWrapper.checked_post
-HTTPAPIWrapper.checked_post(self, url, the_request, requests_kwargs, good_message, bad_message, raise_errors)
-Calls self._checked_get_or_post with is_post=True
-===================================HTTPAPIWrapper.headers
-HTTPAPIWrapper.headers(self)
-Returns the authentication headers. Used for all API calls except for authenticate() and refresh().
-headers["Auth-Origin"] is the authentication service, such as "cognito".
-headers["Authorization"] is the access token, etc that proves authentication.
-===================================HTTPAPIWrapper.authenticate
-HTTPAPIWrapper.authenticate(self)
-Authenticates the user. Needs to be called before any other API calls.
-Returns (the access token, the refresh token). Exception if doesn't receive a valid response.
-Like most GET and POST functions it will raise any errors thrown by the http API.
-===================================HTTPAPIWrapper.sign_up
-HTTPAPIWrapper.sign_up(self)
-Signs up. Returns (the access token, the refresh token).
-Exception if doesn't receive a valid response.
-===================================HTTPAPIWrapper.sign_out
-HTTPAPIWrapper.sign_out(self)
-Signs out using the access token obtained from signing in. Returns None.
-===================================HTTPAPIWrapper.refresh
-HTTPAPIWrapper.refresh(self)
-Refreshes the access token, returning it.
-===================================HTTPAPIWrapper._xtract_character
-HTTPAPIWrapper._xtract_character(self, resp_data)
+WSClient.agent_login
+----------------------
+WSClient.agent_login(self, access_token)
+Constructs the agent_login message. Of course it is an agent function not a service function.
+Every 2h AWS will force-disconnect, so it is a good idea to send agent_login on connect.
+
+Parameters:
+  access_token: Used in the user_login message that is sent.
+    TODO: This is the access token from http_api_wrapper; for clean code decouple access_token here!
+  dry_run=False: Don't acually send anything if True.
+
+Returns: The message as a dict.
+
+WSClient.leave_channel
+----------------------
+WSClient.leave_channel(self, user_id, channel_id)
+Makes the character with user_id leave the channel with channel_id, unless dry_run is True. Returns the message dict.
+
+WSClient.join_channel
+----------------------
+WSClient.join_channel(self, user_id, channel_id)
+Makes the character with user_id join the channel with channel_id, unless dry_run is True. Returns the message dict.
+
+WSClient.update_character_list
+----------------------
+WSClient.update_character_list(self, service_id, channel_id, character_list, recipients)
+Constructs and sends the update message for user list.
+
+Parameters:
+  service_id (str): As always.
+  channel_id (str): The channel id.
+  character_list (list): The list of character_id strings to be updated.
+  recipients (str): The group_id.
+  dry_run=False: if True don't acually send the message (messages are sent in thier JSON-strin format).
+
+Returns:
+  The message as a dict.
+
+WSClient.update_buttons
+----------------------
+WSClient.update_buttons(self, service_id, channel_id, buttons, recipients)
+Constructs and sends the update message for buttons list.
+
+Parameters:
+  service_id (str): As always.
+  channel_id (str): The channel id.
+  buttons (list of Buttons): The buttons list to be updated.
+  recipients (list): The recipients to see the update.
+  dry_run=False: Don't acually send anything if True.
+
+Returns:
+  The message as a dict.
+
+Example:
+  >>> continue_button =
+  >>>   {"button_name": "Continue Playing", "button_id": "play",
+  >>>    "button_text": "Continue Playing", "new_window": False,
+  >>>    "arguments": []}
+  >>> ws_client.update_buttons("service_id", "channel_id", [continue_button], ["user1", "user2"])
+
+WSClient.update_rclick_buttons
+----------------------
+WSClient.update_rclick_buttons(self, service_id, channel_id, kv_dict, recipients)
+Updates the right click context menu.
+
+Parameters:
+  service_id (str): As always.
+  channel_id (str): The channel id.
+  kv_dict (dict str:str): The dict from an id of your choice to the menu display value.
+    The keys, which are ids, are used to identify which button was pressed.
+
+Returns:
+  The message as a dict.
+
+WSClient.update_style
+----------------------
+WSClient.update_style(self, service_id, channel_id, style_content, recipients)
+Constructs and sends the update message for style update.
+
+Parameters:
+  service_id (str): As always.
+  channel_id (str): The channel id.
+  style_content (list of dicts): The style content to be updated. TODO: List of Style classes.
+  recipients (list): The recipients to see the update.
+  dry_run=False: Don't acually send anything if True.
+
+Returns:
+  The message as a dict.
+
+Example:
+    >>> style_content = [
+    >>>   {
+    >>>     "widget": "channel",
+    >>>     "display": "invisible",
+    >>>   },
+    >>>   {
+    >>>     "widget": "button",
+    >>>     "display": "highlight",
+    >>>     "button_hook": {
+    >>>       "button_id": "button_id",
+    >>>       "button_text": "done",
+    >>>       "arguments": []
+    >>>       },
+    >>>     "text": "<h1>Start from here.</h1><p>This is a Button, which most channels have</p>"
+    >>>   }]
+    >>> ws_client.update_style("service_id", "channel_id", style_content, ["user1", "user2"])
+
+WSClient.update_channel_info
+----------------------
+WSClient.update_channel_info(self, service_id, channel_id, channel_info)
+Constructs and sends the update message for channel info.
+
+Parameters:
+  service_id (str): As always.
+  channel_id (str): The channel id.
+  channel_info (ChannelInfo or dict): The data of the update.
+  dry_run=False: Don't acually send anything if True.
+
+Returns: The message as a dict.
+
+Example:
+  >>> ws_client.update_channel_info("service_id", "channel_id", {"name": "new_channel_name"})
+
+WSClient.update_canvas
+----------------------
+WSClient.update_canvas(self, service_id, channel_id, canvas_elements, recipients)
+Constructs and sends the update message for the canvas.
+
+Parameters:
+  service_id (str): As always.
+  channel_id (str): The channel id.
+  canvas_elements (dict or CanvasElement; or a list therof): The elements to push to the canvas.
+  recipients(list): The recipients character_ids who see the update.
+  dry_run=False: Don't acually send anything if True.
+
+Returns:
+  The message as a dict.
+
+Example:
+  >>> canvas1 = CanvasElement(path="image/url", text="the_text")
+  >>> canvas2 = CanvasElement(text="the_text2")
+  >>> ws_client.update_canvas("service_id", "channel_id", [canvas1, canvas2], ["user1", "user2"])
+
+WSClient.update
+----------------------
+WSClient.update(self, service_id, target_client_id, data)
+Constructs the update message. (I think) more of a Service than Agent function.
+
+Parameters:
+  service_id (str): As always.
+  target_client_id (str): The target client id (TODO: not currently used)
+  data (dict): The content of the update.
+  dry_run=False: Don't acually send anything if True.
+
+Returns: The message as a dict.
+
+WSClient.message_up
+----------------------
+WSClient.message_up(self, user_id, service_id, channel_id, recipients, subtype, message_content)
+Constructs and sends a message_up message. The same parameters as self.message_down, except that no sender is needed.
+
+Parameters:
+  user_id (str): An agent id generally.
+  channel_id (str): Which channel to broadcast the message in.
+  recipients (str): The group id to send to.
+  subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
+  message_content (MessageContent): What is inside the message['body']['content'] JSON.
+  dry_run=False: Don't acually send anything if True.
+
+Returns: The message as a dict.
+
+WSClient.message_down
+----------------------
+WSClient.message_down(self, user_id, service_id, channel_id, recipients, subtype, message_content, sender)
+Constructs and sends the message_down message.
+Currently, only text message is supported, so the subtype is always "text".
+
+Parameters:
+  user_id (str): An agent id generally.
+  channel_id (str): Which channel to broadcast the message in.
+  recipients (str): The group id to send to.
+  subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
+  message_content (MessageContent): What is inside the message['body']['content'] JSON.
+  sender (str): The sender ID of the message, which determines who the chat shows the message as sent by.
+  dry_run=False: Don't acually send anything if True.
+
+Returns:
+  The message as a dict.
+
+WSClient.fetch_characters
+----------------------
+WSClient.fetch_characters(self, user_id, channel_id)
+Constructs and sends the fetch_service_characters message.
+If everything works the server will send back a message with the information later.
+
+Parameters (these are common to most fetch messages):
+  user_id (str): Used in the "action" message that is sent.
+  channel_id (str): Used in the body of said message.
+  dry_run=False: Don't acually send anything if True.
+
+Returns:
+  The message as a dict.
+
+WSClient.fetch_buttons
+----------------------
+WSClient.fetch_buttons(self, user_id, channel_id)
+Same usage as fetch_characters but for the buttons. Returns the message dict.
+
+WSClient.fetch_style
+----------------------
+WSClient.fetch_style(self, user_id, channel_id)
+Same usage as fetch_characters but for the style. Returns the message dict.
+
+WSClient.fetch_canvas
+----------------------
+WSClient.fetch_canvas(self, user_id, channel_id)
+Same usage as fetch_characters but for the canvas. Returns the message dict.
+
+WSClient.fetch_channel_info
+----------------------
+WSClient.fetch_channel_info(self, user_id, channel_id)
+Same usage as fetch_characters but for the channel_info. Returns the message dict.
+
+WSClient.__str__
+----------------------
+WSClient.__str__(self)
 <No doc string>
-===================================HTTPAPIWrapper.fetch_character_profile
-HTTPAPIWrapper.fetch_character_profile(self, character_id)
-Returns a Character object (or list) given a string-valued (or list-valued) character_id.
-===================================HTTPAPIWrapper.fetch_real_character_ids
-HTTPAPIWrapper.fetch_real_character_ids(self, channel_id, service_id, raise_empty_list_err)
-Fetches the real user ids of a channel. A service function, will not work as an Agent function.
 
-Parameters:
-  channel_id (str): The channel ID.
-  service_id (str): The service/client/agent ID.
-  raise_empty_list_err=True: Raises an Exception if the list is empty.
-
-Returns:
- A list of character_id strings.
-
-Raises:
-  Exception (empty list) if raise_empty_list_err is True and the list is empty.
-===================================HTTPAPIWrapper.fetch_service_characters
-HTTPAPIWrapper.fetch_service_characters(self, service_id)
-Get the user list (a list of Character objects), of a service given the string-valued service_id.
-===================================HTTPAPIWrapper.fetch_user_info
-HTTPAPIWrapper.fetch_user_info(self)
-Used by the Agent to get their info as a UserInfo object.
-===================================HTTPAPIWrapper.update_current_user
-HTTPAPIWrapper.update_current_user(self, avatar, description, name)
-Updates the user info. Will only be an Agent function in the .net version.
-
-Parameters:
-  avatar: Link to image.
-  description: Of the user.
-  name: The name that shows in chat.
-
-No return value.
-===================================HTTPAPIWrapper.create_service
-HTTPAPIWrapper.create_service(self, description)
-Creates a service with the given description string and returns the string-valued service_id.
-===================================HTTPAPIWrapper.fetch_service_id_list
-HTTPAPIWrapper.fetch_service_id_list(self)
-Returns a list of service ID strings of the user, or None if doesn't receive a valid response or one without any 'data' (error condition).
-===================================HTTPAPIWrapper.create_character
-HTTPAPIWrapper.create_character(self, service_id, name, avatar, description)
-Creates a character with given name, avatar, and description.
-The created user will be bound to the given service.
-
-Parameters:
-  service_id (str): The service_id/client_id.
-  name (str): The name of the user.
-  avatar (str): The image URL of the user's picture/
-  description (str): The description of the user.
-
-Returns: A Character object representing the created user, None if doesn't receive a valid response (error condition). TODO: Should these error conditions jsut raise Exceptions instead?
-===================================HTTPAPIWrapper.update_character
-HTTPAPIWrapper.update_character(self, service_id, character_id, avatar, description, name)
-Updates the user info for a FAKE user, for real users use update_current_user.
-
-Parameters:
-  service_id (str): Which service holds the user.
-  character_id (str): Of the user.
-  avatar (str): Link to user's image.
-  description (str): Description of user.
-  name (str): The name that shows in chat.
-
-Returns:
- Data about the user as a dict.
-===================================HTTPAPIWrapper.create_channel
-HTTPAPIWrapper.create_channel(self, channel_name, channel_desc)
-Creates a channel given a string-valued channel name and description. Returns the channel_id.
-Example ID: "13e44ea3-b559-45af-9106-6aa92501d4ed".
-===================================HTTPAPIWrapper.bind_service_to_channel
-HTTPAPIWrapper.bind_service_to_channel(self, service_id, channel_id)
-Binds a service to a channel given the service and channel IDs. Returns whether sucessful.
-===================================HTTPAPIWrapper.unbind_service_from_channel
-HTTPAPIWrapper.unbind_service_from_channel(self, service_id, channel_id)
-Unbinds a service to a channel given the service and channel IDs. Returns None.
-===================================HTTPAPIWrapper.update_channel
-HTTPAPIWrapper.update_channel(self, channel_id, channel_name, channel_desc)
-Updates the name and desc of a channel.
-
-Parameters:
-  channel_id (str): Which channel to update.
-  channel_name (str): The new channel name.
-  channel_desc (str): The new channel description.
-
-No return value.
-===================================HTTPAPIWrapper.fetch_popular_chanels
-HTTPAPIWrapper.fetch_popular_chanels(self)
-Fetches the popular channels, returning a list of channel_id strings.
-===================================HTTPAPIWrapper.fetch_channel_list
-HTTPAPIWrapper.fetch_channel_list(self)
-Fetches all? channels, returning a list of channel_id strings.
-===================================HTTPAPIWrapper.fetch_message_history
-HTTPAPIWrapper.fetch_message_history(self, channel_id, limit, before)
-Returns the message chat history.
-
-Parameters:
-  channel_id (str): Channel with the messages inside of it.
-  limit=64: Max number of messages to return (messages further back in time, if any, will not be returned).
-  before="null": Only return messages older than this.
-
-Should return a list of dicts, but has not been tested.
-===================================HTTPAPIWrapper.this_user_channels
-HTTPAPIWrapper.this_user_channels(self)
-What channels this user is joined to?
-===================================HTTPAPIWrapper._upload_extension
-HTTPAPIWrapper._upload_extension(self, extension)
-Get the upload URL and upload fields for uploading a file with the given string-valued extension.
-Returns (upload_url or None, upload_fields).
-===================================HTTPAPIWrapper._do_upload_file
-HTTPAPIWrapper._do_upload_file(self, upload_url, upload_fields, file_path)
-Upload a file to the given upload URL with the given upload fields.
-
-Parameters:
-  upload_url (str): obtained with _upload_extension.
-  upload_fields (dict): obtained with _upload_extension.
-  file_path (str): The path of the file.
-
-Returns:
-  The full URL string of the uploaded file. None if doesn't receive a valid response (error condition).
-
-Raises:
-  Exception: If the file upload fails, this function will raise an exception about the error.
-===================================HTTPAPIWrapper.upload_file
-HTTPAPIWrapper.upload_file(self, file_path)
-Upload the file at local path file_path to the Moobius server. Automatically gets the upload URL and upload fields.
-Returns the full upload URL. Raises Exception if the upload fails.
-===================================HTTPAPIWrapper.fetch_channel_group_dict
-HTTPAPIWrapper.fetch_channel_group_dict(self, channel_id, service_id)
-Like fetch_real_character_ids but returns a dict from group_id to all characters.
-===================================HTTPAPIWrapper.fetch_channel_group_list
-HTTPAPIWrapper.fetch_channel_group_list(self, channel_id, service_id)
-Like fetch_channel_group_dict but returns the raw data.
-===================================HTTPAPIWrapper.create_channel_group
-HTTPAPIWrapper.create_channel_group(self, channel_id, group_name, characters)
-Creates a channel group.
-
-Parameters:
-  channel_id (str): The id of the group leader?
-  group_name (str): What to call it.
-  characters (list): A list of channel_id strings that will be inside the group.
-
-Returns:
-  The group id string.
-===================================HTTPAPIWrapper.character_ids_of_service_group
-HTTPAPIWrapper.character_ids_of_service_group(self, group_id)
-Gets a list of character ids belonging to a service group.
-Note that the 'recipients' in 'on message up' might be None:
-  This function will return an empty list given Falsey inputs or Falsey string literals.
-===================================HTTPAPIWrapper.character_ids_of_channel_group
-HTTPAPIWrapper.character_ids_of_channel_group(self, sender_id, channel_id, group_id)
-Gets a list of character ids belonging to a channel group that is returned by a message.
-
-Parameters:
-  sender_id: The message's sender.
-  channel_id: The message specified that it was sent in this channel.
-  group_id: The messages recipients.
-===================================HTTPAPIWrapper.create_service_group
-HTTPAPIWrapper.create_service_group(self, characters)
-Create a group containing characters id list, returning a Group object.
-Sending messages down for the new .net API requires giving myGroup.group_id instead of a list of character_ids.
-
-Parameters:
-  group_name (str): What to call it.
-  characters (list): A list of character_id strings that will be inside the group.
-
-Returns:
-  A Group object.
-===================================HTTPAPIWrapper.update_channel_group
-HTTPAPIWrapper.update_channel_group(self, channel_id, group_id, members)
-Updates a channel group.
-
-Parameters:
-  channel_id (str): The id of the group leader?
-  group_name (str): What to call it.
-  members (list): A list of channel_id strings that will be inside the group.
-
-No return value.
-===================================HTTPAPIWrapper.update_temp_channel_group
-HTTPAPIWrapper.update_temp_channel_group(self, channel_id, members)
-Updates a channel TEMP group.
-
-Parameters:
-  channel_id (str): The id of the group leader?
-  members (list): A list of channel_id strings that will be inside the group.
-
-No return value.
-===================================HTTPAPIWrapper.fetch_channel_temp_group
-HTTPAPIWrapper.fetch_channel_temp_group(self, channel_id, service_id)
-Like fetch_channel_group_list but for Temp groups.
-===================================HTTPAPIWrapper.fetch_user_from_group
-HTTPAPIWrapper.fetch_user_from_group(self, user_id, channel_id, group_id)
-Fetch the user profile of a user from a group.
-
-Parameters:
-    user_id (str): The user ID.
-    channel_id (str): The channel ID. (TODO: of what?)
-    group_id (str): The group ID.
-
-Returns:
-    The user profile Character object.
-===================================HTTPAPIWrapper.fetch_target_group
-HTTPAPIWrapper.fetch_target_group(self, user_id, channel_id, group_id)
-Fetches info about the group.
-
-  Parameters:
-    user_id (str), channel_id (str): why needed?
-    group_id (str): Which group to fetch.
-
-  Returns:
-    The data-dict data.
-===================================HTTPAPIWrapper.__str__
-HTTPAPIWrapper.__str__(self)
+WSClient.__repr__
+----------------------
+WSClient.__repr__(self)
 <No doc string>
-===================================HTTPAPIWrapper.__repr__
-HTTPAPIWrapper.__repr__(self)
+
+WSClient.__init__._on_connect
+----------------------
+WSClient.__init__._on_connect(self)
+<No doc string>
+
+WSClient.__init__._default_handle
+----------------------
+WSClient.__init__._default_handle(self, message)
 <No doc string>

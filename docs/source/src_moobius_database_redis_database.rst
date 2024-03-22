@@ -1,29 +1,52 @@
-## src_moobius_database_null_database
+.. _src_moobius_database_redis_database:
+
+src.moobius.database.redis_database
 ===================================
 
-## Module-level functions
+Module-level functions
+==================
 
-## Class NullDatabase
-The NullDatabase is like /dev/null. Gets returns (True, None) and sets/deletes return (True, "").
-## Class methods
-NullDatabase.__init__
-NullDatabase.__init__(self, domain, \*kwargs)
+
+
+==================
+
+
+Class RedisDatabase
+==================
+
+The redis database make use of a redis.Redis(...) server (Redis servers are set to localhost:6379 by default).
+
+RedisDatabase.__init__
+----------------------
+RedisDatabase.__init__(self, domain, host, port, db, password, \*kwargs)
 <No doc string>
-===================================NullDatabase.get_value
-NullDatabase.get_value(self, key)
+
+RedisDatabase.get_value
+----------------------
+RedisDatabase.get_value(self, key)
 <No doc string>
-===================================NullDatabase.set_value
-NullDatabase.set_value(self, key, value)
+
+RedisDatabase.set_value
+----------------------
+RedisDatabase.set_value(self, key, value)
 <No doc string>
-===================================NullDatabase.delete_key
-NullDatabase.delete_key(self, key)
+
+RedisDatabase.delete_key
+----------------------
+RedisDatabase.delete_key(self, key)
 <No doc string>
-===================================NullDatabase.all_keys
-NullDatabase.all_keys(self)
+
+RedisDatabase.all_keys
+----------------------
+RedisDatabase.all_keys(self)
 <No doc string>
-===================================NullDatabase.__str__
-NullDatabase.__str__(self)
+
+RedisDatabase.__str__
+----------------------
+RedisDatabase.__str__(self)
 <No doc string>
-===================================NullDatabase.__repr__
-NullDatabase.__repr__(self)
+
+RedisDatabase.__repr__
+----------------------
+RedisDatabase.__repr__(self)
 <No doc string>

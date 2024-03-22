@@ -1,116 +1,102 @@
-## src_moobius_database_storage
+.. _src_moobius_network_asserts:
+
+src.moobius.network.asserts
 ===================================
 
-## Module-level functions
-get_engine
-get_engine(implementation)
-Only import the database engine that is needed. Returns a Class object given a string.
-===================================get_engine._hit
-get_engine._hit(matches)
-<No doc string>
-## Class CachedDict
-CachedDict is a custom dictionary-like class that inherits from the built-in dict class.
-The MagicalStorage class manages the creation of CachedDict instances with different attribute names, allowing users to cache and retrieve data in a structured way, with optional database interaction.
-## Class methods
-CachedDict.__init__
-CachedDict.__init__(self, database, strict_mode)
-Initialize a CachedDict object.
+Module-level functions
+==================
+
+types_assert
+----------------------
+types_assert(ty, \*kwargs)
+Asserts that every one of kwargs is type ty, giving an error message if there is a mismatch.
+types_assert(str, foo=foo, bar=bar)
+
+structure_assert
+----------------------
+structure_assert(gold, green, base_message, path)
+Asserts whether "green" follows the data-structure in "gold".
 
 Parameters:
-  database (DatabaseInterface): The database to be used, currently supports JSONDatabase and RedisDatabase.
-  strict_mode=False: Whether to use strict mode.
-    In strict mode, set value will raise exception if database save fails, but the value will still be set in the dict.
+  gold: The datastructure to match. This is a nested datastructure with the following elements.
+    Lists: These can be any length in the green data structure, including zero.
+    Tuples: These impose a fixed length with the gold and green corresponding 1:1.
+    Dicts: These must have the exact same keys gold vs green (like tuples not like lists).
+    Bools: Must be True or False, not None.
+    Ints: Must be ints in the green.
+    Floats: Must be numbers in the green (ints or floats).
+      Note: The Platform expects many number literals to be strings.
+    Strings: Must be strings in the green. They do not have to match.
+    Functions: Used for more complex cases.
+      calls f(green, base_message, path). f can in turn call structure_assert or other functions.
+  green: The datastructure (before conversion to a JSON string) that must fit the gold datastructure.
+  base_message: Give some useful information as to the error message!
+  path=None: The path within the datastructure. None will be [].
 
-No return value.
+Returns: True if the assert passes.
+Raises: PlatformAssertException if the assert fails, using the base_message.
 
-Example:
-  Note: This should not be called directly. Users should call MoobiusStorage to initialize the database.
-  >>> cached_dict = CachedDict(database=database, strict_mode=True)
-===================================CachedDict.load
-CachedDict.load(self)
-Load all keys from the database to the cache. Returns None.
-===================================CachedDict.save
-CachedDict.save(self, key)
-Save a key to the database. given a string-valued key. Returns None.
-For JSONDatabase, this will create a new json file named after the key.
-===================================CachedDict.__getitem__
-CachedDict.__getitem__(self, key)
-Override the __getitem__, __setitem__, and __delitem__ methods of the CachedDict class to support database interaction.
-These methods are called when accessing elements using index notation and square brackets.
-Raises a KeyError if strict_mode is True and the key is not found.
-===================================CachedDict.__setitem__
-CachedDict.__setitem__(self, key, value)
-Allows i.e. "my_cached_dict["foo"] = some_dict" to access the underlying database, much like __getitem__.
-Raises an Exception if in strict_mode and the database cannot set the value for whatever reason.
-===================================CachedDict.__delitem__
-CachedDict.__delitem__(self, key)
-Allows i.e. "del my_cached_dict["foo"]" to access the underlying database, much like __getitem__.
-Raises an Exception if in strict_mode and the database cannot delete the key for whatever reason (or does not have the key).
-===================================CachedDict.__str__
-CachedDict.__str__(self)
+optional_dict_template
+----------------------
+optional_dict_template(min_keys, dtemplate)
+Creates a template function will not error on missing keys unless missing keys are in min_keys.
+
+temp_modify
+----------------------
+temp_modify(socket_request)
+Sometimes the request has extra stuff. This function removes it so it works.
+But TODO remove extra stuff and test.
+
+_style_check
+----------------------
+_style_check(style_element, base_message, path)
+One element in a style vector. This is the most flexible.
+
+_socket_update_body_assert
+----------------------
+_socket_update_body_assert(b, base_message, path)
+Many requests are updates with a body.
+
+_socket_message_body_assert1
+----------------------
+_socket_message_body_assert1(b, base_message, path, is_up)
+Both text and image messages are supported.
+
+_button_click_body_assert
+----------------------
+_button_click_body_assert(b, base_message, path)
+Some buttons have options. Some don't.
+
+_context_menuclick_body_assert
+----------------------
+_context_menuclick_body_assert(b, base_message, path)
+Right click context menu click
+
+_action_body_assert
+----------------------
+_action_body_assert(b, base_message, path)
+Various actions
+
+socket_assert
+----------------------
+socket_assert(x)
+Asserts that a socket call is correct, using the type and subtype to determine the socket.
+Note: There is no HTTPs assert fn, instead the arguments to the function are asserted.
+
+optional_dict_template.t_fn
+----------------------
+optional_dict_template.t_fn(d, base_message, path)
 <No doc string>
-===================================CachedDict.__repr__
-CachedDict.__repr__(self)
+
+_socket_update_body_assert._each_button
+----------------------
+_socket_update_body_assert._each_button(x, base_message, the_path)
 <No doc string>
 
-===================================
-## Module-level functions
-get_engine
-get_engine(implementation)
-Only import the database engine that is needed. Returns a Class object given a string.
-===================================get_engine._hit
-get_engine._hit(matches)
-<No doc string>
-## Class MoobiusStorage
-MoobiusStorage combines multiple databases into a single interface.
+==================
 
-The config file to specify this database should be a list of dicts. The dict parameters are:
-  implementation (str): The type of the database.
-  load (bool): Whether to load the database when initializing the database.
-  clear (bool): Whether to clear the database when initializing the database.
-  name (str): The name of the json database.
-  settings (dict): Misc settings such as Redis port, etc.
-  root_dir (str): The root directory of the all the json files.
-## Class methods
-MoobiusStorage.__init__
-MoobiusStorage.__init__(self, service_id, channel_id, db_config)
-Initialize a MoobiusStorage object.
 
-Parameters:
-  service_id (str): The id of the service.
-  channel_id (str): The id of the channel.
-  db_config(list): The config of the databases, should be a list of config dicts.
-    Each dict's 'implemetation' selects the engine. (TODO? use the field 'engine' instead of 'implementation'?)
+Class PlatformAssertException
+==================
 
-No return value.
-
-Example:
-  >>> storage = MoobiusStorage(service_id='1', channel_id='1', db_config=[{'implementation': 'json', 'load': True, 'clear': False, 'name': 'character', 'settings': {'root_dir': 'data'}}])
-  >>> storage.get('character').set_value('1', {'name': 'Alice'})
-===================================MoobiusStorage.put
-MoobiusStorage.put(self, attr_name, database, load, clear)
-Sets self.attr_name to database (a DatabaseInterface object) for later retrieval.
-load (default True) to load the dict, clear (default False) to clear the dict and skip loading it.
-===================================MoobiusStorage.add_container
-MoobiusStorage.add_container(self, implementation, settings, name, load, clear)
-Add a database using the config dict.
-
-Parameters:
-  implementation (str): The engine of the database.
-  settings (dict): Contains "root_dir" of the json files, for example
-  name (str): The attribute that will be added to self for later use.
-  load=True: Whether to load the database when initializing the database.
-  clear=False: Whether to clear the database when initializing the database.
-
-No return value.
-
-Example:
-  Note: This is a hidden function, you don't need to call it directly.
-  >>> storage = MoobiusStorage(service_id='1', channel_id='1')
-  >>> storage.add_container(implementation='json', settings={'root_dir': 'data'}, name='character', load=True, clear=False)
-===================================MoobiusStorage.__str__
-MoobiusStorage.__str__(self)
-<No doc string>
-===================================MoobiusStorage.__repr__
-MoobiusStorage.__repr__(self)
-<No doc string>
+(No doc string)

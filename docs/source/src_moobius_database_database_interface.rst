@@ -1,66 +1,70 @@
-## src_moobius_core_wand
+.. _src_moobius_database_database_interface:
+
+src.moobius.database.database_interface
 ===================================
 
-## Module-level functions
+Module-level functions
+==================
 
-## Class MoobiusWand
-MoobiusWand is a class that starts and manages services.
-It can also be used to send messages to a service using the spell() function or the async aspell() function.
-To use this class, you need to specify the service config in the config file.
-## Class methods
-MoobiusWand.__init__
-MoobiusWand.__init__(self)
-Initialize an "empty" MoobiusWand object.
-===================================MoobiusWand.run_job
-MoobiusWand.run_job(service)
+
+
+==================
+
+
+Class DatabaseInterface
+==================
+
+Various database backends need to inherit this interface.
+Currently available as of Jan 2024: JSONDatabase, NullDatabase, and RedisDatabase.
+Each demo's on_start() function passes calls MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
+Instead of hardcoding self.db_config each demo it stores it as a JSON list, each element of the form:
+    {"implementation": "json", "name": "buttons", "load": true, "clear": false,
+     "settings": {"root_dir": "json_db"}}
+     Where different elements in the list have different "name" values.
+To use a config file, pass db_config_path="my/db_config/file.json" into wand.run()
+  Wand will pass this kwarg to the MoobiusService object bieng ran.
+  The service will load the JSON into self.db_config
+Then, in the on_start() function each demo will call MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
+  TODO: This is clumsy and on_start is repetative between demos, refactor this part and maybe others into service functions?
+  For each element in db_config the MoobiusStorage will call self.add_container(**config) and use the implementation kwarg as a switchyard.
+
+DatabaseInterface.__init__
+----------------------
+DatabaseInterface.__init__(self, domain, \*kwargs)
+The concrete methods should expect a `domain` parameter as a `str`.
+It is used to separate different domains in the same database.
+Like different tables in the same database.
+Or different folders in the same file system.
+The keys inside different domains may overlap, but they are different entries.
+For example, two channels may have entries with the same button id.
+domains are '.' separated strings, like '<channel_id>.<character_id>'
+
+DatabaseInterface.get_value
+----------------------
+DatabaseInterface.get_value(self, key)
+Returns a tuple of (is_success, value)
+
+DatabaseInterface.set_value
+----------------------
+DatabaseInterface.set_value(self, key, value)
+Returns a tuple of (is_success=True, key) or (is_success=False, err_message)
+
+DatabaseInterface.delete_key
+----------------------
+DatabaseInterface.delete_key(self, key)
+Returns a tuple of (is_success=True, key) or (is_success=False, err_message)
+
+DatabaseInterface.all_keys
+----------------------
+DatabaseInterface.all_keys(self)
+Returns an iterable of all keys, the details of which depend on the implementation.
+
+DatabaseInterface.__str__
+----------------------
+DatabaseInterface.__str__(self)
 <No doc string>
-===================================MoobiusWand.run
-MoobiusWand.run(self, cls, background, \*kwargs)
-Starts a service or agent.
 
-Parameters:
-  cls (Class object). A subclass of the SDK class but NOT an instance.
-  background=False: If True run on another Process instead of creating an infinite loop.
-  **kwargs: These are passed to the constructor of cls.
-
-No return value.
-
-Example:
-  >>> wand = MoobiusWand()
-  >>> handle = wand.run(
-  >>>     CicadaService,
-  >>>     config_path="config/service.json",
-  >>>     db_config_path="config/db.json",
-  >>>     background=True)
-===================================MoobiusWand.stop
-MoobiusWand.stop(self, signum, frame)
-Stops all processes using the_process.kill()
-Also stops asyncio's event loop.
-TODO: Unused arguments sgnum and frame. Maybe renamining this to stop_all()?
-===================================MoobiusWand.spell
-MoobiusWand.spell(self, handle, obj)
-Send a message to a service.
-
-Parameters:
-  handle (int): The handle of the service created by the run() function.
-  obj (anything picklable): The message to be sent.
-
-No return value
-
-Example:
-  >>> wand = MoobiusWand()
-  >>> handle = wand.run(
-  >>>     CicadaService,
-  >>>     config_path="config/service.json",
-  >>>     db_config_path="config/db.json",
-  >>>     background=True)
-  >>> wand.spell(handle=handle, obj=MessageDown(message_type="test", context={"sender": "1", "recipients": ["2"]}))
-===================================MoobiusWand.aspell
-MoobiusWand.aspell(self, handle, obj)
-Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = self.services[handle].queue.
-===================================MoobiusWand.__str__
-MoobiusWand.__str__(self)
-<No doc string>
-===================================MoobiusWand.__repr__
-MoobiusWand.__repr__(self)
+DatabaseInterface.__repr__
+----------------------
+DatabaseInterface.__repr__(self)
 <No doc string>
