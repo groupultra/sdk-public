@@ -85,7 +85,7 @@ class JSONDatabase(DatabaseInterface):
 
         with open(filename, 'w') as f:
             data = {key: value, '_type': type(value).__name__}
-            json.dump(data, f, indent=4, cls=EnhancedJSONEncoder)
+            json.dump(data, f, indent=4, cls=EnhancedJSONEncoder, ensure_ascii=False)
             return True, key
 
     def delete_key(self, key):

@@ -1,6 +1,7 @@
 # Ensures that the Socket and the HTTPAPI are acceptable for the Platform. No one wants Internal Server Error.
 import json
 from loguru import logger
+from moobius import types
 
 check_asserts = True # Can be turned to False in order to avoid assertion errors.
 allow_temp_modifications = True # TODO: There is some extra stuff sent to the socket. It probably can be safely removed.
@@ -186,9 +187,9 @@ def _socket_message_body_assert1(b, base_message, path, is_up):
     if not is_up:
         template['sender'] = '1234...'
 
-    if subty in ['text', 'image', 'audio', 'file']:
+    if subty in [types.TEXT, types.IMAGE, types.AUDIO, types.FILE]:
         content = b['content'].copy()
-        if not content.get('path') and subty != 'text':
+        if not content.get('path') and subty != types.TEXT:
             raise PlatformAssertException(f'File-bearing message body has no/None path; {base_message}.')
         for k in ['text', 'path', 'filename', 'size']:
             if k in content:
@@ -214,7 +215,7 @@ def _button_click_body_assert(b, base_message, path):
     return structure_assert(template, b, base_message, path)
 def _context_menuclick_body_assert(b, base_message, path):
     """Right click context menu click"""
-    template = {'item_id':'item1', 'channel_id':'1234...', 'message_id':'1234...', 'message_subtype':'text',
+    template = {'item_id':'item1', 'channel_id':'1234...', 'message_id':'1234...', 'message_subtype':'text/file/etc',
                 'message_content':optional_dict_template([], {'text':'text!', 'image':'url'}), 'context':{}}
     return structure_assert(template, b, base_message, path)
 def _action_body_assert(b, base_message, path):
@@ -238,33 +239,33 @@ def socket_assert(x):
     x = temp_modify(x)
     template = {'type':'the_request_type', 'request_id':'1234...'}
     service_or_agent = 'service_id' # Can be user_id.
-    if x['type'] == 'update':
+    if x['type'] == types.UPDATE:
         template['body'] = _socket_update_body_assert
-    elif x['type'] == 'service_login' or x['type'] == 'user_login':
+    elif x['type'] == types.SERVICE_LOGIN or x['type'] == types.USER_LOGIN:
         template['access_token'] = 'xyzxyz-long-string'; template['auth_origin'] = 'cognito'
-        if x['type'] == 'user_login':
+        if x['type'] == types.USER_LOGIN:
             service_or_agent = None
-    elif x['type'] == 'heartbeat':
+    elif x['type'] == types.HEARTBEAT:
         template['body'] = {}
         service_or_agent = None
-    elif x['type'] == 'roger':
+    elif x['type'] == types.ROGER:
         template['body'] = {'message_id':'1234...', 'context':{}}
         service_or_agent = None
-    elif x['type'] == 'copy':
+    elif x['type'] == types.COPY:
         template['body'] = {'request_id':'1234...', 'origin_type':'the_type', 'status':True, 'context':{}}
         service_or_agent = None
-    elif x['type'] == 'message_down':
+    elif x['type'] == types.MESSAGE_DOWN:
         template['body'] = lambda b, bm, p: _socket_message_body_assert1(b, bm, p, False)
-    elif x['type'] == 'message_up':
+    elif x['type'] == types.MESSAGE_UP:
         service_or_agent = 'user_id'
         template['body'] = lambda b, bm, p: _socket_message_body_assert1(b, bm, p, True)
-    elif x['type'] == 'button_click':
+    elif x['type'] == types.BUTTON_CLICK:
         service_or_agent = 'user_id'
         template['body'] = _button_click_body_assert
-    elif x['type'] == 'menu_click':
+    elif x['type'] == types.MENU_CLICK:
         service_or_agent = 'user_id'
         template['body'] = _context_menuclick_body_assert
-    elif x['type'] == 'action':
+    elif x['type'] == types.ACTION:
         service_or_agent = 'user_id'
         template['body'] = _action_body_assert
     else:
@@ -278,5 +279,5 @@ def socket_assert(x):
     try:
         return structure_assert(template, x, base_message)
     except Exception as e:
-        txt = json.dumps(x, indent=2)
+        txt = json.dumps(x, indent=2, ensure_ascii=False)
         raise PlatformAssertException(str(e)+'\nCaused by this request below:\n'+txt)

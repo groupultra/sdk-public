@@ -17,7 +17,7 @@ if __name__ == "__main__":
         from moobius.utils import EnhancedJSONEncoder
         msg = types.MessageBody(subtype="A subtype", channel_id="e4-123", content={'a':1,'b':2}, timestamp=123,
                                 recipients=['id_1', 'id_2'], sender='Sender_id 1234', message_id='<random id>', context={})
-        msgj = json.dumps(msg, cls=EnhancedJSONEncoder)
+        msgj = json.dumps(msg, cls=EnhancedJSONEncoder, ensure_ascii=False)
         msg1 = json.loads(msgj)
         print('Object:', msg)
         print('Object dict:', dataclasses.asdict(msg))
@@ -53,9 +53,9 @@ if __name__ == "__main__":
 
     do_simple_spells = True
     if do_simple_spells:
-        for i in range(8):
+        for i in range(3):
             time.sleep(8)
-            wand.spell(handle, [f'Simple spell {i} of 8 ', i]) # The Service expects spells to be (string, times) spells.
+            wand.spell(handle, [f'Simple spell {i} of 3 ', i]) # The Service expects spells to be (string, times) spells.
 
     ################# Testing code below: `python main.py test` to run these tests ###############
 

@@ -5,11 +5,14 @@ from datetime import datetime
 
 from loguru import logger
 from moobius import Moobius, MoobiusStorage
-from moobius.types import Button, CanvasElement
+from moobius.database.storage import CachedDict
+import moobius.types as types
+from moobius.types import Button, CanvasElement, StyleElement, ContextMenuElement
 
 avoid_redis_on_windoze = True # Redis requires WSL2 to run on windows since it is Linux-only.
 avoid_redis = (avoid_redis_on_windoze and (sys.platform.lower() in ['win', 'win32', 'win64', 'windows', 'windoze'])) or avoid_redis_on_windoze == 'also linux'
-load_xtra_channels_on_start = True
+load_xtra_channels_on_start = False # There can be way too many sometimes!
+show_us_all = True # When one user presses a button, do all users see the effect?
 
 example_socket_callback_payloads = {} # Print these out when the AI is done.
 
@@ -38,6 +41,12 @@ class DemoService(Moobius):
             self._default_buttons = [Button(**b) for b in json.load(f)]
         self.image_show_dict = {}
 
+        _menu = lambda name, the_id, tys: ContextMenuElement(item_name=name, item_id=the_id, support_subtype=tys)
+        menus = [_menu('Text 1', '1', [types.TEXT]), _menu('Text 2', '2', [types.TEXT]), _menu('Text 3', '3', [types.TEXT]),
+                 _menu('Image 1', 'R', [types.IMAGE]), _menu('Text 2', 'G', [types.IMAGE]), _menu('Text 3', 'B', [types.IMAGE]),
+                 _menu('Audio 1', 'doe', [types.AUDIO]), _menu('Audio 2', 're', [types.AUDIO]), _menu('Audio 3', 'mi', [types.AUDIO]),
+                 _menu('File 1', 'Loads', [types.FILE]), _menu('File 2', 'Loading', [types.FILE]), _menu('File 3', 'Loaded', [types.FILE])]
+        self.context_menu_list = menus
         self.LIGHT = "light"
         self.DARK = "dark"
         self.MICKEY = "Mickey"
@@ -45,6 +54,7 @@ class DemoService(Moobius):
         self.MICKEY_LIMIT = 5
 
         self.image_paths = {}
+        self.database_debugs = {}
 
         self._default_status = {
             'canvas_mode': self.LIGHT,
@@ -68,18 +78,40 @@ class DemoService(Moobius):
     def default_buttons(self):
         return copy.deepcopy(self._default_buttons)
 
+    def populate_debug_storage(self, channel_id):
+        """Debug to make sure that CachedDict is working correctly."""
+        # Debug feature to test MoobiusStorage objects:
+        debug_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
+        self.database_debugs[channel_id] = {'cached_dict_keys_no_load_test':{}, 'cached_dict_keys_YES_load_test':{},
+                                            'cached_dict_keys_ALLPOP_test':{}}
+        for k, v in debug_channel.__dict__.items():
+            if type(v) is CachedDict:
+                self.database_debugs[channel_id]['cached_dict_keys_no_load_test'][k] = dict(zip(v.keys(), v.values()))
+
+        debug_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
+        for k, v in debug_channel.__dict__.items():
+            if type(v) is CachedDict:
+                v.load()
+                self.database_debugs[channel_id]['cached_dict_keys_YES_load_test'][k] = dict(zip(v.keys(), v.values()))
+
+                for k1 in list(v.keys()):
+                    v.pop(k1)
+                self.database_debugs[channel_id]['cached_dict_keys_ALLPOP_test'][k] = dict(zip(v.keys(), v.values()))
+
     async def initialize_channel(self, channel_id):
         """Initalizes the channel (given by channel_id) with the images and real and virtual characters.
            All of this is stored in a MoobiusStorage object."""
+        self.populate_debug_storage(channel_id)
+
         the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
         self.channels[channel_id] = the_channel
 
         real_character_ids = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False)
 
-        for character_id in real_character_ids:
+        for character_id, character_profile in zip(real_character_ids, await self.fetch_character_profile(real_character_ids)):
             if type(character_id) is not str:
                 raise Exception('character_id must be a str.')
-            the_channel.real_characters[character_id] = await self.fetch_character_profile(character_id)
+            the_channel.real_characters[character_id] = character_profile
 
             if character_id not in the_channel.buttons:
                 the_channel.buttons[character_id] = self.default_buttons
@@ -154,11 +186,16 @@ class DemoService(Moobius):
     async def on_message_up(self, message_up):
         """Runs various commands, such as resetting when the user types in "reset".
            (Agent-related commands are found in the agent.py instead of here)."""
-        example_socket_callback_payloads['on_message_up'] = message_up
+        from moobius.types import MessageBody
+        if type(message_up) is not MessageBody: # DEBUG TODO.
+            print(message_up)
+            raise Exception('message_up not message body see above.')
         channel_id = message_up.channel_id
         recipients = message_up.recipients
         sender = message_up.sender
-        if message_up.subtype == "text":
+        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if show_us_all else [sender]
+
+        if message_up.subtype == types.TEXT:
             txt = message_up.content.text
             txt1 = txt.lower().strip()
             the_channel = await self.get_channel(channel_id)
@@ -180,33 +217,43 @@ class DemoService(Moobius):
                     await self.create_message(channel_id, txt, recipients, sender=sender)
             else: # DEMO: commands to Service(Infinity)
                 if txt1 == "hide":
-                    the_channel.buttons[sender] = []
+                    for usr in to_whom:
+                        if usr in the_channel.buttons:
+                            the_channel.buttons[sender] = []
                     await self.send_buttons_from_database(channel_id, sender)
+                    await self.send_update_style(channel_id, [StyleElement(widget="canvas", display="invisible", expand="false")], to_whom)
                 elif txt1 == "show":
-                    the_channel.buttons[sender] = self.default_buttons
+                    for usr in to_whom:
+                        if usr in the_channel.buttons:
+                            the_channel.buttons[sender] = self.default_buttons
                     await self.send_buttons_from_database(channel_id, sender)
+                    await self.send_update_style(channel_id, [StyleElement(widget="canvas", display="visible", expand="true")], to_whom)
                 elif txt1 == "reset":
                     for sn in range(self.MICKEY_LIMIT):
                         the_character_id = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].character_id
                         await self.update_character(character_id=the_character_id, avatar=self.image_paths[self.MICKEY], description='Mickey reset!', name=f'Mickey {sn}')
 
-                    the_channel.states[sender]['mickey_num'] = 0
-                    the_channel.states.save(sender)
+                    for usr in to_whom:
+                        if usr in the_channel.states:
+                            the_channel.states[usr]['mickey_num'] = 0
+                            the_channel.states.save(usr)
 
                     await self.calculate_and_update_character_list_from_database(channel_id, sender)
                     the_channel = await self.get_channel(channel_id) # TODO: why call this twice?
-                    the_channel.buttons[sender] = self.default_buttons # Reset buttons etc.
-                    await self.send_update_buttons(channel_id, self.default_buttons, [sender])
+                    for usr in to_whom:
+                        if usr in the_channel.buttons:
+                            the_channel.buttons[sender] = self.default_buttons # Reset buttons etc.
+                    await self.send_update_buttons(channel_id, self.default_buttons, to_whom)
                 elif txt1.split(' ')[0] == 'laser':
-                    await self.create_message(channel_id, limit_len(f"NOTE: The Laser feature is not a standard SDK feature, it is specific to Demo."), [sender], sender=sender)
+                    await self.create_message(channel_id, limit_len(f"NOTE: The Laser feature is not a standard SDK feature, it is specific to Demo."), to_whom, sender=sender)
                     if '>' not in txt1:
-                        await self.create_message(channel_id, limit_len(f'Must be formatted "laser name > message, and only sent to a single user".'), [sender], sender=sender)
+                        await self.create_message(channel_id, limit_len(f'Must be formatted "laser name > message, and only sent to a single user".'), to_whom, sender=sender)
                     else:
                         pair = [t.strip() for t in txt.split('>')]
                         the_name = ' '.join(pair[0].split(' ')[1:])
                         the_message = pair[1]
                         if len(the_message.strip())<2:
-                            await self.create_message(channel_id, limit_len(f'The message was empty, a default message will be used.".'), [sender], sender=sender)
+                            await self.create_message(channel_id, limit_len(f'The message was empty, a default message will be used.".'), to_whom, sender=sender)
                             the_message = 'Empty_message!'
                         real_ids = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False)
                         real_profiles = await self.fetch_character_profile(real_ids)
@@ -215,15 +262,16 @@ class DemoService(Moobius):
                             if rp.name.lower().strip() == the_name.lower().strip():
                                 target_id = rp.character_id
                         if target_id:
-                            await self.create_message(channel_id, limit_len(f'Sending message to name={the_name}, id={target_id}".'), [sender], sender=sender)
+                            await self.create_message(channel_id, limit_len(f'Sending message to name={the_name}, id={target_id}".'), to_whom, sender=sender)
                             await self.create_message(channel_id, limit_len(f'Laser message: "{the_message}".'), [target_id], sender=sender)
                         else:
-                            await self.create_message(channel_id, limit_len(f'Cannot find character with name={the_name}".'), [sender], sender=sender)
+                            await self.create_message(channel_id, limit_len(f'Cannot find character with name={the_name}".'), to_whom, sender=sender)
                 else:
                     txt = txt+' (this message has no recipients, either it was sent to service or there is a bug).'
-                    await self.create_message(channel_id, txt, [sender], sender=sender)
+                    await self.create_message(channel_id, txt, to_whom, sender=sender)
         else:
             await self.convert_and_send_message(message_up) # This is so that everyone can see the message you sent.
+        example_socket_callback_payloads['on_message_up'] = message_up
 
     async def on_fetch_service_characters(self, action):
         example_socket_callback_payloads['on_fetch_service_characters'] = action
@@ -231,11 +279,12 @@ class DemoService(Moobius):
 
     async def on_fetch_buttons(self, action):
         example_socket_callback_payloads['on_fetch_buttons'] = action
+        to_whom = await self.fetch_real_character_ids(action.channel_id, raise_empty_list_err=False) if show_us_all else [sender]
         if hasattr(self, 'TMP_print_buttons') and getattr(self, 'TMP_print_buttons'): # Set to True to indicate an extra call to print the buttons.
             self.TMP_print_buttons = False
             channel_id = action.channel_id
             sender = action.sender
-            await self.create_message(channel_id, f"Fetch button action\n: {action}.", [sender], sender=sender)
+            await self.create_message(channel_id, f"Fetch button action\n: {action}.", to_whom, sender=sender)
         else:
             await self.send_buttons_from_database(action.channel_id, action.sender)
 
@@ -248,23 +297,15 @@ class DemoService(Moobius):
         channel_id = action.channel_id
         sender = action.sender
         the_channel = await self.get_channel(channel_id)
+        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if show_us_all else [sender]
 
         state = the_channel.states[sender]['canvas_mode']
-        await self.send_update_canvas(channel_id, self.image_show_dict[state], [sender])
-
-        style_content = [
-            {
-                "widget": "canvas",
-                "display": "visible",
-                "expand": "true"
-            }
-        ]
-
-        await self.send_update_style(channel_id, style_content, [sender])
+        await self.send_update_canvas(channel_id, self.image_show_dict[state], to_whom)
+        await self.send_update_style(channel_id, [StyleElement(widget="canvas", display="visible", expand="true")], to_whom)
 
     async def add_real_character(self, channel_id, character_id, intro="joined the channel!"):
         character = await self.fetch_character_profile(character_id)
-        name = character.character_context.name
+        name = character.name
         the_channel = await self.get_channel(channel_id)
 
         the_channel.real_characters[character_id] = character
@@ -290,7 +331,7 @@ class DemoService(Moobius):
         character = (await self.get_channel(action.channel_id)).real_characters.pop(sender, None)
         (await self.get_channel(channel_id)).states.pop(sender, None)
         (await self.get_channel(channel_id)).buttons.pop(sender, None)
-        name = character.character_context.name
+        name = character.name
 
         real_characters = (await self.get_channel(channel_id)).real_characters
         character_ids = list(real_characters.keys())
@@ -318,7 +359,7 @@ class DemoService(Moobius):
         example_socket_callback_payloads['on_update_characters'] = x
 
     async def on_button_click(self, button_click):
-        """Called when the user presses a button (and selecting an option of a list appears). button_click is a Button object.
+        """Called when the user presses a button (and selecting an option of a list appears). button_click is a ButtonClick object.
            This is a major switchyard which handles most of the different buttons in the demo."""
         example_socket_callback_payloads['on_button_click'] = button_click
         channel_id = button_click.channel_id
@@ -326,9 +367,9 @@ class DemoService(Moobius):
         who_clicked = button_click.sender
         the_channel = await self.get_channel(channel_id)
 
-        character = the_channel.real_characters[who_clicked]
-        name = character.character_context.name
-        recipients = list(the_channel.real_characters.keys())
+        #character = the_channel.real_characters[who_clicked]
+        #name = character.name
+        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if show_us_all else [who_clicked]
 
         redis_txt = 'not-the-Redis' if avoid_redis else 'Redis'
         value = None
@@ -344,10 +385,10 @@ class DemoService(Moobius):
 
                 the_channel.states.save(who_clicked)
                 state = the_channel.states[who_clicked]['canvas_mode']
-                await self.send_update_canvas(channel_id, self.image_show_dict[state], [who_clicked])
+                await self.send_update_canvas(channel_id, self.image_show_dict[state], to_whom)
 
                 image_uri = self.image_paths[state]
-                await self.create_message(channel_id, image_uri, [who_clicked], subtype='image', sender=who_clicked)
+                await self.create_message(channel_id, image_uri, to_whom, subtype=types.IMAGE, sender=who_clicked)
             elif value == 'Image as Message'.lower():
                 dyn_mode = False
                 try:
@@ -355,7 +396,7 @@ class DemoService(Moobius):
                     import numpy as np
                     dyn_mode = True
                 except Exception as e:
-                    await self.create_message(channel_id, 'No "pip install PIL" and "pip install numpy"; will use a pre-existing image.', [who_clicked], subtype='text', sender=who_clicked)
+                    await self.create_message(channel_id, 'No "pip install PIL" and "pip install numpy"; will use a pre-existing image.', to_whom, subtype=types.TEXT, sender=who_clicked)
                 if dyn_mode:
                     P = 128
                     arr = np.zeros([P, P, 4])
@@ -375,13 +416,35 @@ class DemoService(Moobius):
                     im.save(file_path)
                 else:
                     file_path = './'
-                await self.upload_file_in_message(channel_id, file_path, [who_clicked], sender=who_clicked)
+                await self.upload_file_in_message(channel_id, file_path, to_whom, sender=who_clicked)
                 if dyn_mode:
                     os.remove(file_path)
             elif value == 'Audio as Message'.lower():
-                await self.upload_file_in_message(channel_id, './resources/tiny.mp3', [who_clicked], sender=who_clicked)
+                await self.upload_file_in_message(channel_id, './resources/tiny.mp3', to_whom, sender=who_clicked)
             elif value == 'PDF as Message'.lower():
-                await self.upload_file_in_message(channel_id, './resources/tiny.pdf', [who_clicked], sender=who_clicked)
+                await self.upload_file_in_message(channel_id, './resources/tiny.pdf', to_whom, sender=who_clicked)
+            elif value == 'Test Socket Asserts'.lower():
+                # Tests JSON datastructures which are almost correct. Can assert catch the error? TODO: add more.
+                bad_subtype = 'not a valid subtype'
+                bad_message_body = {'channel_id':channel_id, 'recipients':to_whom, 'subtype':bad_subtype, 'message_content':{'text':'ok'}}
+                bad_message = {'type':types.MESSAGE_DOWN,'request_id':'some_id', 'service_id':self.client_id, 'body': bad_message_body}
+                try:
+                    await self.ws_client.send(bad_message)
+                    await self.create_message(channel_id, 'No assert error raised for bad subtype message.', to_whom, subtype=types.TEXT, sender=who_clicked)
+                except Exception as e:
+                    await self.create_message(channel_id, f'Assert error raised for bad message subtype:\n{e}', to_whom, subtype=types.TEXT, sender=who_clicked)
+                #await self.ws_client.send(bad_message) # uncomment to raise an Exception in the terminal.
+            elif value == "Fetch Chat History".lower():
+                await self.create_message(channel_id, f"Fetching chat history (Warning: this feature is likely broken).", to_whom, sender=who_clicked)
+                history = await self.fetch_message_history(channel_id, limit=6, before="null")
+                await self.create_message(channel_id, limit_len(f"Recent chat history of this channel:\n{history}"), to_whom, sender=who_clicked)
+            elif value == "Fetch Buttons".lower():
+                await self.create_message(channel_id, limit_len(f"WARNING: Getting a callback for Fetch Buttons will be delayed may need a refresh to see."), to_whom, sender=who_clicked)
+                self.TMP_print_buttons = True
+                await self.send_fetch_buttons(channel_id)
+            elif value == "Fancy Right Click".lower():
+                await self.send_update_context_menu(channel_id, self.context_menu_list, to_whom)
+                await self.create_message(channel_id, "Try right-clicking on a message.", to_whom, sender=who_clicked)
             else:
                 raise Exception(f'Strange value for button channel_btn: {value}')
         elif button_id == "money_btn".lower():
@@ -391,17 +454,17 @@ class DemoService(Moobius):
                     for k in the_channel.currency.keys():
                         tot += the_channel.currency[k]
                         the_channel.currency[k] = 0
-                    await self.create_message(channel_id, f"{tot} weeks of savings donated to mysterious unknown charities.", [who_clicked], sender=who_clicked)
+                    await self.create_message(channel_id, f"{tot} weeks of savings donated to mysterious unknown charities.", to_whom, sender=who_clicked)
                 desc = []
                 unicode_map = {'naira':'₦', 'dollar':'$', 'peso':'₱', 'yuan':'¥', 'euro': '€', 'kina':'K', 'penguin':'🐧'}
                 for k in the_channel.currency.keys():
                     desc.append(f'{unicode_map[k.lower()]}={the_channel.currency[k]}')
                 desc = '['+', '.join(desc)+']'
-                await self.create_message(channel_id, f"{redis_txt} query; number of weeks of living expenses saved in each currency:\n {desc}", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"{redis_txt} query; number of weeks of living expenses saved in each currency:\n {desc}", to_whom, sender=who_clicked)
             else:
                 msg_map = {'naira':'Nigerian', 'dollar':'American', 'peso':'Chilean', 'yuan':'Chinese', 'euro': 'West European', 'kina':'Papua New Guinean', 'penguin':'Antarctican'}
 
-                await self.create_message(channel_id, f"You earn two weeks salary of {msg_map[value]}. Your bank account will be stored in {redis_txt}!", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"You earn two weeks salary of {msg_map[value]}. Your bank account will be stored in {redis_txt}!", to_whom, sender=who_clicked)
 
                 if value0 not in the_channel.currency:
                     the_channel.currency[value0] = 0
@@ -413,17 +476,17 @@ class DemoService(Moobius):
                 new_channel_id = await self.create_and_bind_channel(channel_name, 'Channel created by the GUI.')
                 await self.initialize_channel(new_channel_id) # Prevents KeyErrors.
                 self.xtra_channels[new_channel_id] = 'A channel'
-                await self.create_message(channel_id, f"New channel created, refresh and it should appear on the left bar: {channel_name} ({new_channel_id})", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"New channel created, refresh and it should appear on the left bar: {channel_name} ({new_channel_id})", to_whom, sender=who_clicked)
             elif value == "Ping Channels".lower():
-                tasks = [self.create_message(channel_id, f"Pinging Channel ids: {extra_channel_ids} (one ping message should show up in each channel)", [who_clicked], sender=who_clicked)]
+                tasks = [self.create_message(channel_id, f"Pinging Channel ids: {extra_channel_ids} (one ping message should show up in each channel)", to_whom, sender=who_clicked)]
                 for extra_channel_id in extra_channel_ids:
-                    tasks.append(self.create_message(extra_channel_id, f"Ping from channel {channel_id} to channel {extra_channel_id}!", [who_clicked], sender=who_clicked))
+                    tasks.append(self.create_message(extra_channel_id, f"Ping from channel {channel_id} to channel {extra_channel_id}!", to_whom, sender=who_clicked))
                 await asyncio.wait(tasks)
             elif value == "List Bound Channels".lower():
                 channel_ids = await self.fetch_bound_channels()
-                await self.create_message(channel_id, f"All bound channels:\n{channel_ids}.", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"All bound channels:\n{channel_ids}.", to_whom, sender=who_clicked)
             elif value == "Leave Extra Channels".lower():
-                await self.create_message(channel_id, f"Fetching the list of bound channels, will leave any channels which are not in the config.", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Fetching the list of bound channels, will leave any channels which are not in the config.", to_whom, sender=who_clicked)
                 left_channels = []
                 channel_ids = await self.fetch_bound_channels()
                 for c_id in channel_ids:
@@ -432,7 +495,7 @@ class DemoService(Moobius):
                          if c_id in self.channels:
                              del self.channels[c_id]
                          left_channels.append(c_id)
-                await self.create_message(channel_id, f"Will try to leave these channels:\n{left_channels}.", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Will try to leave these channels:\n{left_channels}.", to_whom, sender=who_clicked)
                 sucessfully_left = []
                 for c_id in left_channels:
                     success = False
@@ -448,31 +511,34 @@ class DemoService(Moobius):
                         success = True
                     if success:
                         sucessfully_left.append(c_id)
-                await self.create_message(channel_id, f"Has left these channels (refresh to see):\n{sucessfully_left}.", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Has left these channels (refresh to see):\n{sucessfully_left}.", to_whom, sender=who_clicked)
             elif value == "Fetch Channel List".lower():
                 x = await self.fetch_channel_list()
-                await self.create_message(channel_id, f"Channel list:\n{x}", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Channel list:\n{x}", to_whom, sender=who_clicked)
                 x = await self.fetch_popular_channels()
-                await self.create_message(channel_id, f"Popular channel list:\n{x}", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Popular channel list:\n{x}", to_whom, sender=who_clicked)
             elif value == "Update Extra Channels".lower():
                 extra_channel_ids = list(self.xtra_channels.keys())
                 ix = 0
                 for bid in extra_channel_ids:
                     await self.update_channel(bid, f'<>Updated DemoTmpChannel Updated{ix}<>', 'Pressed the update extra channels button.')
                     ix = ix+1
-                await self.create_message(channel_id, f"Updated these channel names (refresh to see changes):\n{extra_channel_ids}", [who_clicked], sender=who_clicked)
-            elif value == "Fetch Chat History".lower():
-                await self.create_message(channel_id, f"Fetching chat history (Warning: this feature is likely broken).", [who_clicked], sender=who_clicked)
-                history = await self.fetch_message_history(channel_id, limit=6, before="null")
-                await self.create_message(channel_id, limit_len(f"Recent chat history of this channel:\n{history}"), [who_clicked], sender=who_clicked)
-            elif value == "Fetch Buttons".lower():
-                await self.create_message(channel_id, limit_len(f"WARNING: Getting a callback for Fetch Buttons will be delayed may need a refresh to see."), [who_clicked], sender=who_clicked)
-                self.TMP_print_buttons = True
-                await self.send_fetch_buttons(channel_id)
-            elif value == "Fancy Right Click".lower():
-                option_dict = {'1':'Press A', '2':'Press B', '3':'Press C'}
-                await self.send_update_rclick_buttons(channel_id, option_dict, [who_clicked])
-                await self.create_message(channel_id, "Try right-clicking on a message.", [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f"Updated these channel names (refresh to see changes):\n{extra_channel_ids}", to_whom, sender=who_clicked)
+            elif value == "Test Database".lower():
+                tmp_path = './debuggy stuff.txt'
+                with open(tmp_path, 'w', encoding='utf-8') as f:
+                    f.write(str(self.database_debugs)) # It's a big data dump! So it must be sent as an attachment.
+                await self.upload_file_in_message(channel_id, tmp_path, to_whom, sender=who_clicked)
+                os.remove(tmp_path)
+            elif value == "Wipe Database".lower():
+                n_keys_popped = 0
+                for channel_store in self.channels.values():
+                    for k, v in channel_store.__dict__.items():
+                        if type(v) is CachedDict:
+                            for k1 in list(v.keys()):
+                                n_keys_popped += 1
+                                v.pop(k1)
+                await self.create_message(channel_id, f"WARNING: This may make erros unless the database is completly deleted. Cleared all databases, total popped keys {n_keys_popped}; channels {list(self.channels.values())} , the folders should be empty.", to_whom, sender=who_clicked)
             else:
                 raise Exception(f'Strange value for button channel_btn: {value}')
         elif button_id == "user_btn".lower():
@@ -486,7 +552,7 @@ class DemoService(Moobius):
             #    agent_config = json.load(f_obj)
             if value == 'Make Mickey'.lower():
                 if the_channel.states[who_clicked]['mickey_num'] >= self.MICKEY_LIMIT:
-                    await self.create_message(channel_id, "You have reached the limit of Mickey!", [who_clicked], sender=who_clicked)
+                    await self.create_message(channel_id, "You have reached the limit of Mickey!", to_whom, sender=who_clicked)
                 else:
                     the_channel.states[who_clicked]['mickey_num'] += 1
                     the_channel.states.save(who_clicked)
@@ -494,37 +560,37 @@ class DemoService(Moobius):
                     await self.calculate_and_update_character_list_from_database(channel_id, who_clicked)
             elif value == 'Mickey Talk'.lower():
                 if the_channel.states[who_clicked]['mickey_num'] == 0:
-                    await self.create_message(channel_id, "Please Create Mickey First!", [who_clicked], sender=who_clicked)
+                    await self.create_message(channel_id, "Please Create Mickey First!", to_whom, sender=who_clicked)
                 else:
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
                     talker = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].character_id
-                    await self.create_message(channel_id, f"Mickey {sn} Here! Mickeys are stored in JSON db. Sent to characters: {[who_clicked]}", [who_clicked], sender=talker)
+                    await self.create_message(channel_id, f"Mickey {sn} Here! Mickeys are stored in JSON db.", to_whom, sender=talker)
             elif value == "Update Mickey (not agent) name".lower():
                 if the_channel.states[who_clicked]['mickey_num'] == 0:
-                    await self.create_message(channel_id, "Please Create Mickey First!", [who_clicked], sender=who_clicked)
+                    await self.create_message(channel_id, "Please Create Mickey First!", to_whom, sender=who_clicked)
                 else:
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
                     the_character_id = the_channel.virtual_characters[f"{self.MICKEY}_{sn}"].character_id
                     await self.update_character(character_id=the_character_id, avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
-                    await self.create_message(channel_id, f"Updated Mickey name and image (refresh to see).", [who_clicked], sender=who_clicked)
+                    await self.create_message(channel_id, f"Updated Mickey name and image (refresh to see).", to_whom, sender=who_clicked)
             elif value == "List Characters".lower():
                 char_list = await self.fetch_service_characters()
 
-                await self.create_message(channel_id, limit_len(f"Real+Fake character list:\n {pprint.pformat(char_list)}"), [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, limit_len(f"Real+Fake character list:\n {pprint.pformat(char_list)}"), to_whom, sender=who_clicked)
                 real_ids = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False)
-                await self.create_message(channel_id, f'Real character ids: {real_ids}', [who_clicked], sender=who_clicked)
-                await self.create_message(channel_id, f'Real character profiles: {await self.fetch_character_profile(real_ids)}', [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, f'Real character ids: {real_ids}', to_whom, sender=who_clicked)
+                await self.create_message(channel_id, f'Real character profiles: {await self.fetch_character_profile(real_ids)}', to_whom, sender=who_clicked)
             else:
                 raise Exception(f'Strange value for button user_btn: {value}')
         elif button_id == "group_btn".lower():
             if value == "List Channel Temp Groups".lower():
                 glist = await self.fetch_channel_temp_group(channel_id)
-                await self.create_message(channel_id, limit_len(f"Channel temp group list (likely empty):\n{pprint.pformat(glist)}"), [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, limit_len(f"Channel temp group list (likely empty):\n{pprint.pformat(glist)}"), to_whom, sender=who_clicked)
             elif value == "List Channel Groups".lower():
                 glist = await self.fetch_channel_group_list(channel_id)
-                await self.create_message(channel_id, limit_len(f"Channel group list (likely empty):\n{glist}"), [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, limit_len(f"Channel group list (likely empty):\n{glist}"), to_whom, sender=who_clicked)
                 gdict = await self.http_api.fetch_channel_group_dict(channel_id, self.client_id)
-                await self.create_message(channel_id, limit_len(f"Channel group, dict form (used internally):\n{pprint.pformat(gdict)}"), [who_clicked], sender=who_clicked)
+                await self.create_message(channel_id, limit_len(f"Channel group, dict form (used internally):\n{pprint.pformat(gdict)}"), to_whom, sender=who_clicked)
             else:
                 raise Exception(f'Strange value for button group_btn: {value}')
         elif button_id == "command_btn".lower():
@@ -536,21 +602,23 @@ class DemoService(Moobius):
 "agent info": See printout of agent info.
 "rename agent foo": Set agent name to foo (need to refresh).
 "channel_groups": Have the Agent print channel groups. The Agent is auth'ed with a different servic_id than the Service.
-"show" (send to service): Show buttons.
-"hide" (send to service): Hide buttons.
+"show_updates": Have the Agent print the most recent update of each kind of update it recieved.
+"user_info": Have the Agent print thier own user info.
+"show" (send to service): Show buttons and canvas.
+"hide" (send to service): Hide buttons and canvas.
 "reset" (send to service): Reset mickeys and refresh buttons.
 "laser name > message" (send to service): Send a message to a single user only. Messages can be sent to oneself.
 """.strip().replace('\n','\n\n')
-            await self.create_message(channel_id, f"Commands (some must be sent to all 'all' some to 'service'):\n{cmds}", [who_clicked], sender=who_clicked)
+            await self.create_message(channel_id, f"Commands (some must be sent to all 'all' some to 'service'):\n{cmds}", to_whom, sender=who_clicked)
         else:
             logger.warning(f"Unknown button_id: {button_id}")
 
-    async def on_menu_click(self, menu_click):
+    async def on_context_menu_click(self, menu_click):
         """Right-click the context menu."""
         item_id = menu_click.item_id
         message_content = menu_click.message_content
-        option_dict = {'1':'Press A', '2':'Press B', '3':'Press C'} # This dict was passed into the 
-        txt = f'You choose "{option_dict[item_id]}" on message "{message_content.text}".'
+        context_menu_dict = dict(zip([m.item_id for m in self.context_menu_list], self.context_menu_list))
+        txt = f'You choose "{context_menu_dict[item_id].item_name}" on message "{message_content}".'
         await self.create_message(menu_click.channel_id, txt, [menu_click.sender], sender=menu_click.sender)
 
     async def on_spell(self, spell):
@@ -575,8 +643,8 @@ class DemoService(Moobius):
 
     async def send_buttons_from_database(self, channel_id, character_id):
         """Pipes the buttons (loaded from the JSON) to self.send_update_buttons."""
-        button_data_list = (await self.get_channel(channel_id)).buttons.get(character_id, self._default_buttons) # Contents of buttons.json.
-        await self.send_update_buttons(channel_id, button_data_list, [character_id])
+        button_list = (await self.get_channel(channel_id)).buttons.get(character_id, self._default_buttons) # Contents of buttons.json.
+        await self.send_update_buttons(channel_id, button_list, [character_id])
 
     async def calculate_and_update_character_list_from_database(self, channel_id, character_id):
         """Pipes all real users + the correct number of Mickeys to self.send_update_character_list."""

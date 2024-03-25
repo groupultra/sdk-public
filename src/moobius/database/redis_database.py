@@ -21,7 +21,7 @@ class RedisDatabase(DatabaseInterface):
         return False, f'Key {key} does not exist'
 
     def set_value(self, key, value) -> (bool, any):
-        balue = json.dumps(value, cls=EnhancedJSONEncoder).encode()
+        balue = json.dumps(value, cls=EnhancedJSONEncoder, ensure_ascii=False).encode()
         self.redis.set(key, balue)
         if autosave:
             self.redis.save()

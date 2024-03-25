@@ -5,16 +5,17 @@ import websockets, dataclasses
 from loguru import logger
 
 import moobius.utils as utils
+import moobius.types as types
 from moobius.types import CanvasElement, ChannelInfo
 from moobius.network import asserts
 
 
 def send_tweak(the_message):
-    if the_message['type'] == 'message_up' or the_message['type'] == 'message_down':
+    if the_message['type'] == types.MESSAGE_UP or the_message['type'] == types.MESSAGE_DOWN:
         b = the_message['body']
         if 'context' in b:
             b['context'] = {}
-    if the_message['type'] == 'message_down':
+    if the_message['type'] == types.MESSAGE_DOWN:
         if 'service_id' not in the_message:
             raise Exception('Message_down must have service_id.')
     return the_message
@@ -133,7 +134,7 @@ class WSClient:
     @staticmethod
     def dumps(data):
         """A slightly better json.dumps. Takes in data and returns a JSON string."""
-        return json.dumps(data, cls=utils.EnhancedJSONEncoder)
+        return json.dumps(data, cls=utils.EnhancedJSONEncoder, ensure_ascii=False)
 
     ########################## Authentication and join/leave #########################
 
@@ -287,20 +288,18 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_rclick_buttons(self, service_id, channel_id, kv_dict, recipients, *, dry_run=False):
+    async def update_context_menu(self, service_id, channel_id, menu_items, recipients, *, dry_run=False):
         """
         Updates the right click context menu.
 
         Parameters:
           service_id (str): As always.
           channel_id (str): The channel id.
-          kv_dict (dict str:str): The dict from an id of your choice to the menu display value.
-            The keys, which are ids, are used to identify which button was pressed.
+          menu_items (list): List of ContextMenuElement dataclasses.
 
         Returns:
           The message as a dict.
         """
-        basic_content = [{'item_name':v, 'item_id':k, 'support_subtype':["text","file"]} for k, v in kv_dict.items()]
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -309,7 +308,7 @@ class WSClient:
                 "subtype": "update_context_menu",
                 "channel_id": channel_id,
                 "recipients": recipients,
-                "content": basic_content,
+                "content": [dataclasses.asdict(item) for item in menu_items],
                 "context": {}
             }
         }
@@ -518,7 +517,7 @@ class WSClient:
           The message as a dict.
         """
         message = await self.message_up(user_id, service_id, channel_id, recipients, subtype, message_content, dry_run=True)
-        message['type'] = "message_down"
+        message['type'] = types.MESSAGE_DOWN
         message['body']['sender'] = sender
         del message['user_id'] # Only used for message_up.
         send_tweak(message)

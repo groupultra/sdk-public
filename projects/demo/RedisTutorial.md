@@ -69,7 +69,7 @@ def get_value(self, key) -> (bool, any):
     return False, f'Key {key} does not exist'
 
 def set_value(self, key, value) -> (bool, any):
-    balue = json.dumps(value).encode()
+    balue = json.dumps(value, ensure_ascii=False).encode()
     self.redis.set(key, balue)
     if autosave:
         self.redis.save()

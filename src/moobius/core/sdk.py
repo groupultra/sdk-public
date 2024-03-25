@@ -15,11 +15,12 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, ButtonArgument, ButtonClickArgument, Payload, MenuClick, Update, UpdateElement, Character, ChannelInfo, CanvasElement, StyleElement
+from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, ButtonArgument, ButtonClickArgument, Payload, MenuClick, Update, UpdateElement, Character, ChannelInfo, CanvasElement, StyleElement, ContextMenuElement
 from moobius.database.storage import MoobiusStorage
-from moobius import utils
+from moobius import utils, types
 from loguru import logger
 
+utils.maybe_make_template_files({})
 strict_kwargs = False # If True all functions (except __init__) with more than one non-self arg will require kwargs. If False a default ordering will be used.
 
 
@@ -41,8 +42,7 @@ class ServiceGroupLib():
 
         Parameters:
           http_api: The http_api client in Moobius
-          character_ids: List of ids.
-            If a string, the conversion will return the unmodified string.
+          character_ids: List of ids. If a string, treated as a one element list.
           is_message_down: True = message_down (Service sends message), False = message_up (Agent sends message).
           channel_id=None: If None and the conversion still needs to happen it will raise an Exception.
 
@@ -56,7 +56,10 @@ class ServiceGroupLib():
             id2ids = self.id2ids_mup
         async with self.alock: # Make sure the old list is stored before the new list is created.
             if type(character_ids) is str:
-                return character_ids
+                character_ids = [character_ids]
+            character_ids = list(character_ids)
+            if len(character_ids) == 0:
+                logger.warning('Empty character id list.')
             else: # Convert list to a single group id in this mode.
                 massive_str = '_'.join(character_ids)
                 need_new_group = massive_str not in ids2id
@@ -189,7 +192,7 @@ class Moobius:
                 if s_id != old_config.get('service_id'):
                     old_config['service_id'] = s_id
                     with open(self.config_path, "w") as f:
-                        json.dump(old_config, f, indent=4)
+                        json.dump(old_config, f, indent=4, ensure_ascii=False)
                         logger.info(f"Config file 'service_id' updated to {s_id}: {self.config_path}")
 
             if len(self.config["channels"]) == 0:
@@ -204,12 +207,12 @@ class Moobius:
                 if bound_to == self.client_id:
                     logger.info(f"Channel {channel_id} already bound to {self.client_id}, no need to bind it.")
                 elif bound_to: # Conflict resolution.
-                    if others=='ignore': # Do not intefere with channels bound to other users.
+                    if others == types.IGNORE: # Do not intefere with channels bound to other users.
                         logger.info(f"Channel {channel_id} bound to service {bound_to} and will not be re-bound.")
-                    elif others=='unbind': # Be spiteful: Unbind channels bound to other users but don't use them.
+                    elif others == types.UNBIND: # Be spiteful: Unbind channels bound to other users but don't use them.
                         logger.info(f"Unbinding channel {channel_id} from service {bound_to} but this service will not use this channel.")
                         await self.http_api.unbind_service_from_channel(bound_to, channel_id)
-                    elif others=='include': # Steal channels from other services. Hopefully they won't mind.
+                    elif others == types.INCLUDE: # Steal channels from other services. Hopefully they won't mind.
                         logger.info(f"Unbinding channel {channel_id} from service {bound_to} so it can be used by this service instead.")
                         await self.http_api.unbind_service_from_channel(bound_to, channel_id)
                         bind_info = await self.http_api.bind_service_to_channel(self.client_id, channel_id) # may already be binded to the service itself
@@ -317,11 +320,13 @@ class Moobius:
     def _convert_message_content(self, subtype, content):
         """Converts message content, which can be a string (for text messages), to a MessageContent object."""
         if type(content) is str:
-            if subtype == 'text':
+            if subtype == types.TEXT:
                 content = MessageContent(text=content)
             else:
                 content = MessageContent(path=content)
         elif type(content) is dict:
+            if 'size' in content:
+                content = content.copy(); content['size'] = int(content['size'])
             content = MessageContent(**content)
         return content
 
@@ -348,9 +353,9 @@ class Moobius:
         avatar = await self.http_api.upload_file(image_path)
         return await self.http_api.create_character(self.client_id, name, avatar, description)
 
-    async def create_message(self, channel_id, message_content, recipients, subtype='text', sender=None, filename=None, size=None):
+    async def create_message(self, channel_id, message_content, recipients, subtype=types.TEXT, sender=None, filename=None, size=None):
         """
-        Create a message_down (for Service) or message_up (for Agent) request and send it to the channel.
+        Create a message_down (for Service) or message_up (for Agent) request and sends it to the channel.
 
         Parameters:
           channel_id (str): The id of the channel.
@@ -358,7 +363,7 @@ class Moobius:
             String-valued content is best for the text in a text message or a URI for an image file. It will be converted to a dict.
           recipients (list or string): The recipients character_id list or group_id string of the message.
             This choice of list vs string is the case whenever there is a "recipients" argument in a Moobius method.
-          subtype='text': The subtype of the message.
+          subtype=types.TEXT: The subtype of the message.
           sender=None: The sender of the message. None for Agents.
           filename=None: Optional, name to display files as.
           size=None: Optional, number of bytes in file.
@@ -371,7 +376,7 @@ class Moobius:
         if filename:
             message_content.filename = filename
         if size:
-            message_content.size = size
+            message_content.size = int(size)
         if self.is_agent:
             await self.send_message_up(**kwargs)
         else:
@@ -391,11 +396,9 @@ class Moobius:
           file_display_name=None: Optional, will use
         """
         file_uri = await self.upload_file(local_path)
-        img_exts = {'.jpe', '.jpg', '.jpeg', '.gif', '.png', '.bmp', '.ico', '.svg', '.svgz', '.tif', '.tiff', '.ai', '.drw', '.pct', '.psp', '.xcf', '.raw', '.webp', '.heic'}
-        audio_exts = {'.wav', '.mp3', '.mp4', '.mp5'} # .mp5 became popular around 2030.
         ext = '.'+file_uri.lower().split('.')[-1]
         filename = file_display_name if file_display_name else local_path.replace('\\','/').split('/')[-1]
-        subtype = 'image' if ext in img_exts else ('audio' if ext in audio_exts else 'file')
+        subtype = types.IMAGE if ext in types.IMAGE_EXTS else (types.AUDIO if ext in types.AUDIO_EXTS else types.FILE)
         size = os.stat(local_path).st_size
         await self.create_message(channel_id, file_uri, recipients, subtype=subtype, sender=sender, filename=filename, size=size)
 
@@ -454,18 +457,18 @@ class Moobius:
         if 'body' in payload_dict:
             if 'recipients' in payload_dict['body']:
                 if type(payload_dict['body']['recipients']) is not str:
-                    if payload_dict['type'] == 'message_up':
+                    if payload_dict['type'] == types.MESSAGE_UP:
                         is_mdown = False
-                    elif payload_dict['type'] == 'message_down':
+                    elif payload_dict['type'] == types.MESSAGE_DOWN:
                         is_mdown = True
                     else:
                         raise Exception('Payload_dict type is neither message_up or message_down.')
                     channel_id = payload_dict['body']['channel_id']
                     payload_dict['body']['recipients'] = await self._update_rec(payload_dict['body']['recipients'], is_mdown, channel_id) # Convert list to group id.
         #logger.info('SELF>SEND:', payload_dict) # This can be useful but also gets a bit lengthy.
-        if 'type' in payload_dict and payload_dict['type'] == 'message_down':
+        if 'type' in payload_dict and payload_dict['type'] == types.MESSAGE_DOWN:
             payload_dict['service_id'] = self.client_id
-        if 'type' in payload_dict and (payload_dict['type'] == 'message_up' or payload_dict['type'] == 'message_down'):
+        if 'type' in payload_dict and (payload_dict['type'] == types.MESSAGE_UP or payload_dict['type'] == types.MESSAGE_DOWN):
             ws_client.send_tweak(payload_dict)
         await self.ws_client.send(payload_dict)
 
@@ -547,7 +550,7 @@ class Moobius:
     async def send_update_channel_info(self, channel_id, channel_info): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_info)
     async def send_update_canvas(self, channel_id, canvas_elements, recipients): """Calls self.ws_client.update_canvas using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_elements, await self._update_rec(recipients, True))
     async def send_update_buttons(self, channel_id, buttons, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(self.client_id, channel_id, buttons, await self._update_rec(recipients, True))
-    async def send_update_rclick_buttons(self, channel_id, kv_dict, recipients): """Calls self.ws_client.update_rclick_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_rclick_buttons(self.client_id, channel_id, kv_dict, await self._update_rec(recipients, True))
+    async def send_update_context_menu(self, channel_id, menu_elements, recipients): """Calls self.ws_client.update_context_menu using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_context_menu(self.client_id, channel_id, menu_elements, await self._update_rec(recipients, True))
     async def send_update_style(self, channel_id, style_content, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(self.client_id, channel_id, style_content, await self._update_rec(recipients, True))
     async def send_fetch_characters(self, channel_id): """Calls self.ws_client.fetch_characters using self.client_id."""; return await self.ws_client.fetch_characters(self.client_id, channel_id)
     async def send_fetch_buttons(self, channel_id): """Calls self.ws_client.fetch_buttons using self.client_id."""; return await self.ws_client.fetch_buttons(self.client_id, channel_id)
@@ -621,13 +624,12 @@ class Moobius:
                 logger.warning('Neither the channel nor service group queries were able to find any members in the group.')
             return out
 
-        if 'subtype' in payload_body and payload_body['subtype'] == 'update_characters':
+        if 'subtype' in payload_body and payload_body['subtype'] == types.UPDATE_CHARACTERS:
             if 'content' not in payload_body:
                 raise Exception("Must have content.")
             payload_body['content']['characters'] = await _group2ids(payload_body['content']['characters'])
 
         if 'recipients' not in payload_body:
-            #print("NO RECIPIENTS", payload)
             payload_body['recipients'] = []
         else:
             rec_group = payload_body['recipients']
@@ -636,36 +638,39 @@ class Moobius:
         if 'type' in payload_data:
             if 'sender' not in payload_body and payload_body.get('context',{}).get('sender'):
                 payload_body['sender'] = payload_body['context']['sender'] # Need a 'sender' key to make it a MessageBody or ButtonClick dataclass.
-            if payload_data['type'] == 'menu_click':
+            if payload_data['type'] == types.MENU_CLICK:
                 if 'message_id' not in payload_data['body']: # Need a 'message_id' key to make it a MenuClick.
                     payload_data['body']['message_id'] = ""
-            payload = from_dict(data_class=Payload, data=payload_data)
-            if payload.type == 'message_down':
+            payload = from_dict(data_class=Payload, data=payload_data) # Brittle type inference.
+            if payload.type == types.MESSAGE_DOWN:
                 await self.on_message_down(payload.body)
-            elif payload.type == 'update':
+            elif payload.type == types.UPDATE:
                 # First convert the content into an UpdateElement:
                 subty = payload.body['subtype']
                 content0 = payload.body['content'] # This dict needs to be converted into a list of UpdateElement's
-                empty_elem_dict = {'character':None, 'button':None, 'channel_info':None, 'canvas':None, 'style':None}
+                empty_elem_dict = {'character':None, 'button':None, 'channel_info':None, 'canvas_element':None, 'style_element':None, 'context_menu_element':None}
                 def _make_elem(d):
                     return UpdateElement(**{**empty_elem_dict, **d})
                 content = []
-                if subty == 'update_characters':
+                if subty == types.UPDATE_CHARACTERS:
                     content = [_make_elem({'character':Character({**c, **c['character_context']})}) for c in content0['characters']]
-                elif subty == 'update_channel_info':
+                elif subty == types.UPDATE_CHANNEL_INFO:
                     content = [_make_elem({'channel_info':ChannelInfo(content0)})]
-                elif subty == 'update_canvas':
-                    content = [_make_elem({'canvas':CanvasElement(ce)}) for ce in content0]
-                elif subty == 'update_buttons':
+                elif subty == types.UPDATE_CANVAS:
+                    content = [_make_elem({'canvas_element':CanvasElement(**ce)}) for ce in content0]
+                elif subty == types.UPDATE_CONTEXT_MENU:
+                    content = [_make_elem({'context_menu_element':ContextMenuElement(**ce)}) for ce in content0]
+                elif subty == types.UPDATE_BUTTONS:
                     buttons = []
                     for b in content0:
                         if b.get('arguments'): # For some reason this wasn't bieng converted to a ButtonArgument data.
                             b['arguments'] = [ButtonArgument(**a) for a in b['arguments']]
                         buttons.append(Button(**b))
                     content = [_make_elem({'button':Button(**b)}) for b in content0]
-                elif subty == 'update_style':
-                    content = [_make_elem({'style':StyleElement(**b)}) for b in content0]
+                elif subty == types.UPDATE_STYLE:
+                    content = [_make_elem({'style_element':StyleElement(**b)}) for b in content0]
                 else:
+                    logger.error(f'Unknown recieved update subtype, cannot encode: {subty}')
                     content = [] # Unknown.
 
                 # Then make an update and call the update switchyard:
@@ -683,15 +688,15 @@ class Moobius:
                             recipients = [f"ERROR getting character_ids for group_id: {r_group}"]
                 update = Update(**{**payload.body, **{'content':content, 'recipients':recipients}})
                 await self.on_update(update)
-            elif payload.type == 'message_up':
+            elif payload.type == types.MESSAGE_UP:
                 await self.on_message_up(payload.body)
-            elif payload.type == 'action':
+            elif payload.type == types.ACTION:
                 await self.on_action(payload.body)
-            elif payload.type == 'button_click':
+            elif payload.type == types.BUTTON_CLICK:
                 await self.on_button_click(payload.body)
-            elif payload.type == 'menu_click':
-                await self.on_menu_click(payload.body)
-            elif payload.type == 'copy':
+            elif payload.type == types.MENU_CLICK:
+                await self.on_context_menu_click(payload.body)
+            elif payload.type == types.COPY:
                 await self.on_copy_client(payload.body)
             else:
                 logger.warning(f"Unknown payload received: {payload}; DATA: {payload_data}")
@@ -707,19 +712,19 @@ class Moobius:
           on_fetch_service_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
         Service function.
         """
-        if action.subtype=="fetch_characters":
+        if action.subtype == types.FETCH_CHARACTERS:
             await self.on_fetch_service_characters(action)
-        elif action.subtype == "fetch_buttons":
+        elif action.subtype == types.FETCH_BUTTONS:
             await self.on_fetch_buttons(action)
-        elif action.subtype == "fetch_canvas":
+        elif action.subtype == types.FETCH_CANVAS:
             await self.on_fetch_canvas(action)
-        elif action.subtype == "join_channel":
+        elif action.subtype == types.JOIN_CHANNEL:
             await self.on_join_channel(action)
-        elif action.subtype == "leave_channel":
+        elif action.subtype == types.LEAVE_CHANNEL:
             await self.on_leave_channel(action)
-        elif action.subtype == "fetch_context_menu":
+        elif action.subtype == types.FETCH_CONTEXT_MENU:
             await self.on_fetch_context_menu(action)
-        elif action.subtype == "fetch_channel_info":
+        elif action.subtype == types.FETCH_CHANNEL_INFO:
             await self.on_fetch_channel_info(action)
         else:
             logger.error(f"Unknown action subtype: {action.subtype}")
@@ -727,16 +732,18 @@ class Moobius:
     async def on_update(self, update):
         """Dispatches an Update instance to one of various callbacks. Agent function.
            It is recommended to overload the invididual callbacks instead of this function."""
-        if update.subtype == "update_characters":
+        if update.subtype == types.UPDATE_CHARACTERS:
             await self.on_update_characters(update)
-        elif update.subtype == "update_channel_info":
+        elif update.subtype == types.UPDATE_CHANNEL_INFO:
             await self.on_update_channel_info(update)
-        elif update.subtype == "update_canvas":
+        elif update.subtype == types.UPDATE_CANVAS:
             await self.on_update_canvas(update)
-        elif update.subtype == "update_buttons":
+        elif update.subtype == types.UPDATE_BUTTONS:
             await self.on_update_buttons(update)
-        elif update.subtype == "update_style":
+        elif update.subtype == types.UPDATE_STYLE:
             await self.on_update_style(update)
+        elif update.subtype == types.UPDATE_CONTEXT_MENU:
+            await self.on_update_context_menu(update)
         else:
             logger.error(f"Unknown update subtype: {update.subtype}")
 
@@ -756,7 +763,8 @@ class Moobius:
         Example MessageBody object:
           moobius.MessageBody(subtype=text, channel_id=<channel id>, content=MessageContent(...), timestamp=1707254706635,
                               recipients=[<user id 1>, <user id 2>], sender=<user id>, message_id=<message-id>,
-                              context={'group_id': <group-id>, 'channel_type': 'ccs'})"""
+                              context={'group_id': <group-id>, 'channel_type': 'ccs'})
+        """
         logger.debug(f"MessageUp received: {message_up}")
 
     async def on_message_down(self, message_down):
@@ -765,39 +773,34 @@ class Moobius:
         logger.debug(f"MessageDown received: {message_down}")
 
     async def on_update_characters(self, update):
-        """
-        Handles changes to the character list. One of the multiple update callbacks. Returns None.
-        Agent function. Update is an Update instance.
-        """
+        """Handles changes to the character list. One of the multiple update callbacks. Returns None.
+           Agent function. Update is an Update instance."""
         logger.debug("on_update_character_list")
 
     async def on_update_channel_info(self, update):
-        """
-        Handles changes to the channel info. One of the multiple update callbacks. Returns None.
-        Agent function. Update is an Update instance.
-        """
+        """Handles changes to the channel info. One of the multiple update callbacks. Returns None.
+           Agent function. Update is an Update instance."""
         logger.debug("on_update_channel_info")
 
     async def on_update_canvas(self, update):
-        """
-        Handles changes to the canvas. One of the multiple update callbacks. Returns None.
-        Agent function. Update is an Update instance.
-        """
+        """Handles changes to the canvas. One of the multiple update callbacks. Returns None.
+           Agent function. Update is an Update instance."""
         logger.debug("on_update_canvas")
 
     async def on_update_buttons(self, update):
-        """
-        Handles changes to the buttons. One of the multiple update callbacks. Returns None.
-        Agent function. Update is an Update instance.
-        """
+        """Handles changes to the buttons. One of the multiple update callbacks. Returns None.
+           Agent function. Update is an Update instance."""
         logger.debug("on_update_buttons")
 
     async def on_update_style(self, update):
-        """
-        Handles changes in the style. One of the multiple update callbacks. Returns None.
-        Agent function. Update is an Update instance.
-        """
+        """Handles changes to the style (look and feel). One of the multiple update callbacks. Returns None.
+           Agent function. Update is an Update instance."""
         logger.debug("on_update_style")
+
+    async def on_update_context_menu(self, update):
+        """Handles changes to the context menu. One of the multiple update callbacks. Returns None.
+           Agent function. Update is an Update instance."""
+        logger.debug("update_context_menu")
 
     async def on_fetch_service_characters(self, action):
         """Handles the received action of fetching a character_list. One of the multiple Action object callbacks. Returns None.
@@ -837,7 +840,7 @@ class Moobius:
            Example ButtonClick object: moobius.ButtonClick(button_id="the_big_red_button", channel_id=<channel id>, sender=<user id>, arguments=[], context={})"""
         logger.debug(f"Button call received: {button_click}")
 
-    async def on_menu_click(self, context_click: MenuClick):
+    async def on_context_menu_click(self, context_click: MenuClick):
         """Handles a context menu right click from a user. Returns None. Example MenuClick object:
         MenuClick(item_id=1, message_id=<id>, message_subtype=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])"""
         logger.debug(f"Right-click call received: {context_click}")

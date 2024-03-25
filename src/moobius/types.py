@@ -4,6 +4,40 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Optional, Any
 
+FETCH_CHARACTERS = "fetch_characters"
+FETCH_BUTTONS = "fetch_buttons"
+FETCH_CANVAS = "fetch_canvas"
+JOIN_CHANNEL = "join_channel"
+LEAVE_CHANNEL = "leave_channel"
+FETCH_CONTEXT_MENU = "fetch_context_menu"
+FETCH_CHANNEL_INFO = "fetch_channel_info"
+UPDATE = "update"
+UPDATE_CHARACTERS = "update_characters"
+UPDATE_CHANNEL_INFO = "update_channel_info"
+UPDATE_CANVAS = "update_canvas"
+UPDATE_BUTTONS = "update_buttons"
+UPDATE_STYLE = "update_style"
+UPDATE_CONTEXT_MENU = "update_context_menu"
+USER_LOGIN = "user_login"
+SERVICE_LOGIN = "service_login"
+HEARTBEAT = "heartbeat"
+ROGER = "roger"
+COPY = "copy"
+IGNORE = "ignore"
+UNBIND = "unbind"
+INCLUDE = "include"
+BUTTON_CLICK = "button_click"
+MENU_CLICK = "menu_click"
+MESSAGE_UP = "message_up"
+MESSAGE_DOWN = "message_down"
+ACTION = "action"
+TEXT = "text"
+IMAGE = "image"
+AUDIO = "audio"
+FILE = "file"
+IMAGE_EXTS = {'.jpe', '.jpg', '.jpeg', '.gif', '.png', '.bmp', '.ico', '.svg', '.svgz', '.tif', '.tiff', '.ai', '.drw', '.pct', '.psp', '.xcf', '.raw', '.webp', '.heic'}
+AUDIO_EXTS = {'.wav', '.mp3', '.mp4', '.mp5'} # .mp5 became popular around 2030.
+
 
 def add_str_method(cls):
   """Decorator function to make __str__ return the following format:
@@ -34,9 +68,9 @@ class ButtonArgument:
 @dataclass
 @add_str_method
 class Button: # Used for encoding Buttons, both for sending out updates and for recieving the on_update_buttons callback.
-    button_id: str # Button_ids are choosen by the CCS app. This is *different* from other _id fields.
+    button_id: str # An id choosen by the CCS app to identify which button was pressed.
     button_name: str
-    button_text: str
+    button_text: str # This text appears in the browser.
     new_window: bool
     arguments: Optional[list[ButtonArgument]]=None
 
@@ -60,10 +94,18 @@ class ButtonClick: # When the user clicks on a button or a menu opened by a butt
 
 @dataclass
 @add_str_method
+class ContextMenuElement: # A single item in a context menu. This will likely be expanded upon with more features.
+    item_name: str # How it appears.
+    item_id: str # An id choosen by the CCS app to identify which choice was selected.
+    support_subtype: list[str] # What message types will open the context menu. ["text","file", etc].
+
+
+@dataclass
+@add_str_method
 class MessageContent:
     text: Optional[str] = None # Used for text messages.
     path: Optional[str] = None # Used for every kind of non-text message.
-    size: Optional[str] = None # Used for downloadable files only.
+    size: Optional[int] = None # Used for downloadable files only.
     filename: Optional[str] = None # Used for downloadable files only (the display filename).
 
 
@@ -72,7 +114,7 @@ class MessageContent:
 class MenuClick: # Right-click context menu.
     item_id: str
     message_id: str
-    message_subtype: str
+    message_subtype: str # 'text', 'image', 'audio', or 'file'
     message_content: MessageContent
     channel_id: str
     sender: str
@@ -181,10 +223,11 @@ class StyleElement: # As of 2024_3_15 this is a work-in-progress on the Platform
 @add_str_method
 class UpdateElement: # Used for on_update_xyz callbacks. Not used for send_update functions.
     character: Character | None # These fields will be None if they are not applicable to the type of update.
-    button: Button | None # Onle one of these is non-None at any given time.
+    button: Button | None # Only one of these is non-None at any given time.
     channel_info: ChannelInfo | None
-    canvas: CanvasElement | None
-    style: StyleElement | None
+    context_menu_element: ContextMenuElement | None
+    canvas_element: CanvasElement | None
+    style_element: StyleElement | None
 
 
 @dataclass

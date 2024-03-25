@@ -6,7 +6,7 @@ from multiprocessing import Process
 import time
 from loguru import logger
 import signal
-import os
+import sys
 
 class MoobiusWand:
     """
@@ -45,6 +45,8 @@ class MoobiusWand:
           >>>     db_config_path="config/db.json",
           >>>     background=True)
         """
+        utils.maybe_make_template_files(kwargs)
+
         service = cls(**kwargs)
 
         if background:

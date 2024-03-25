@@ -142,7 +142,7 @@ class HTTPAPIWrapper:
                 raise BadResponseException(err_message)
         show_first_example = False # Turn off if too wordy.
         if (url not in _URL2example_response) and show_first_example:
-            pretty_printed = json.dumps(response_dict, sort_keys=True, indent=2)
+            pretty_printed = json.dumps(response_dict, sort_keys=True, indent=2, ensure_ascii=False)
             logger.opt(colors=True).info(f"<fg 120,96,240>FIRST EXAMPLE OF: {req_info_str}\nRESULT:\n{pretty_printed.replace('<', '&lt;').replace('>', '&gt;')}</>") # Uncomment this line to see the callbacks of each GET and POST statement.
         _URL2example_response[url] = response_dict # Debug.
         return response_dict

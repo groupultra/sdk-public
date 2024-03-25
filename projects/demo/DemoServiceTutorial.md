@@ -202,8 +202,8 @@ Here are some important properties of a messageUp object:
 ```
 txt = message_up.content.text
 channel_id = message_up.channel_id
-sender = message_up.context.sender
-recipients = message_up.context.recipients
+sender = message_up.sender
+recipients = message_up.recipients
 ```
 
 Lets replace messages of "moobius" sent to ALL with "Moobius is Great!":
@@ -239,8 +239,8 @@ Then keeping up to date when fetching the buttons and user list is easy. The **A
 
 ```
 async def send_buttons_from_database(self, channel_id, character_id): # Doesn't overloading any method.
-    button_data_list = self.channels[channel_id].buttons.get(character_id, self._default_buttons)
-    await self.send_update_buttons(channel_id, button_data_list, [character_id])
+    button_list = self.channels[channel_id].buttons.get(character_id, self._default_buttons)
+    await self.send_update_buttons(channel_id, button_list, [character_id])
 
 async def on_fetch_service_characters(self, action):
     await self.calculate_and_update_character_list_from_database(action.channel_id, action.sender)
@@ -261,14 +261,7 @@ async def on_fetch_canvas(self, action):
     state = channel.states[sender]['canvas_mode']
     await self.send_update_canvas(channel_id, self.image_show_dict[state], [sender])
 
-    message_content = [
-        {
-            "widget": "canvas",
-            "display": "visible",
-            "expand": "true"
-        }
-    ]
-    await self.send_update_style(channel_id, message_content, [sender])
+    await self.send_update_style(channel_id, [StyleElement(widget="canvas", display="visible", expand="true")], [sender])
 ```
 
 ## Overriding self.on_join_channel(action) and self.on_leave_channel(action)
@@ -280,7 +273,7 @@ async def on_join_channel(self, action):
     sender = action.sender
     channel_id = action.channel_id
     character = await self.fetch_character_profile(sender)
-    name = character.character_context.name
+    name = character.name
     channel = self.channels[channel_id]
 
     channel.real_characters[sender] = character
@@ -299,7 +292,7 @@ async def on_leave_channel(self, action):
     character = self.channels[action.channel_id].real_characters.pop(sender, None)
     self.channels[channel_id].states.pop(sender, None)
     self.channels[channel_id].buttons.pop(sender, None)
-    name = character.character_context.name
+    name = character.name
 
     real_characters = self.channels[channel_id].real_characters
     character_list = list(real_characters.keys())
@@ -345,7 +338,7 @@ async def on_button_click(self, button_click):
     channel = self.channels[channel_id]
 
     character = channel.real_characters[sender]
-    name = character.character_context.name
+    name = character.name
     recipients = list(channel.real_characters.keys())
 
     if button_id == "key1":
