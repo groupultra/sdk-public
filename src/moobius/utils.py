@@ -58,9 +58,9 @@ def maybe_make_template_files(args):
     A sample config.py:
       Only created if "config_path" is in args (or system args) AND the file does not exist.
       This requires user information:
-         email: If no system arg "email my@email.com" or "username my@email.com" is specified, prompts for one with input().
-         password: If no system arg "password my_sec**t_pword", prompts for one.
-         channels: If no system arg "channels abc... def..." to specify one or more channels, prompts for one or more.
+        email: If no system arg "email my@email.com" or "username my@email.com" is specified, prompts for one with input().
+        password: If no system arg "password my_sec**t_pword", prompts for one.
+        channels: If no system arg "channels abc... def..." to specify one or more channels, prompts for one or more.
       Note: when the user inputs an empty input() than a nonfunctional default is used, which can be filled in later.
 
     Unittests to run in a python prompt in an empty folder:

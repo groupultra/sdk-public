@@ -186,7 +186,9 @@ def _socket_message_body_assert1(b, base_message, path, is_up):
                 'timestamp':12334567, 'context':{}}
     if not is_up:
         template['sender'] = '1234...'
-
+    if 'recipients' in base_message and base_message['recipients'] is None: # Accept None type.
+        base_message = base_message.copy()
+        base_message['recipients'] = 'noooone'
     if subty in [types.TEXT, types.IMAGE, types.AUDIO, types.FILE]:
         content = b['content'].copy()
         if not content.get('path') and subty != types.TEXT:

@@ -35,6 +35,7 @@ TEXT = "text"
 IMAGE = "image"
 AUDIO = "audio"
 FILE = "file"
+SERVICE = "service"
 IMAGE_EXTS = {'.jpe', '.jpg', '.jpeg', '.gif', '.png', '.bmp', '.ico', '.svg', '.svgz', '.tif', '.tiff', '.ai', '.drw', '.pct', '.psp', '.xcf', '.raw', '.webp', '.heic'}
 AUDIO_EXTS = {'.wav', '.mp3', '.mp4', '.mp5'} # .mp5 became popular around 2030.
 

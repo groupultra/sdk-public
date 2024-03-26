@@ -59,7 +59,8 @@ class ServiceGroupLib():
                 character_ids = [character_ids]
             character_ids = list(character_ids)
             if len(character_ids) == 0:
-                logger.warning('Empty character id list.')
+                logger.warning('Empty character id list, no message will be sent.')
+                return None
             else: # Convert list to a single group id in this mode.
                 massive_str = '_'.join(character_ids)
                 need_new_group = massive_str not in ids2id
@@ -353,65 +354,88 @@ class Moobius:
         avatar = await self.http_api.upload_file(image_path)
         return await self.http_api.create_character(self.client_id, name, avatar, description)
 
-    async def create_message(self, channel_id, message_content, recipients, subtype=types.TEXT, sender=None, filename=None, size=None):
+    def limit_len(self, txt, n):
+        if len(txt)>n:
+            txt = txt[0:n]+'...'+str(len(txt))+' chars'
+        return txt
+
+    async def send_message(self, the_message, channel_id=None, sender=None, recipients=None, len_limit=None, **kwargs):
         """
-        Create a message_down (for Service) or message_up (for Agent) request and sends it to the channel.
+        Sends a message. Commonly used by both Services and Agents.
 
         Parameters:
-          channel_id (str): The id of the channel.
-          message_content (str or MessageContent): The text of the message such as "Hello everyone on this channel!" or file information.
-            String-valued content is best for the text in a text message or a URI for an image file. It will be converted to a dict.
-          recipients (list or string): The recipients character_id list or group_id string of the message.
-            This choice of list vs string is the case whenever there is a "recipients" argument in a Moobius method.
-          subtype=types.TEXT: The subtype of the message.
-          sender=None: The sender of the message. None for Agents.
-          filename=None: Optional, name to display files as.
-          size=None: Optional, number of bytes in file.
-
-        No return value.
+          the_message:
+            If a string, the message will be a text message.
+            If a MessageBody or dict, the message sent will depend on it's fields/attributes as well as the overrides specified.
+          channel_id=None: The channel ids, if None the_message must be a MessageBody with the channel_id.
+            Overrides the_message if not None
+          sender=None: The character/user who's avatar appears to "speak" this message.
+            Overrides the_message if not None
+          recipients=None: List of character_ids.
+            Overrides the_message if not None.
+          len_limit=None: Limit the length of large text messages.
+          **kwargs: Other, rarer overrides.
         """
-        message_content = self._convert_message_content(subtype, message_content)
 
-        kwargs = {'channel_id':channel_id, 'recipients':recipients, 'subtype':subtype, 'message_content':message_content}
-        if filename:
-            message_content.filename = filename
-        if size:
-            message_content.size = int(size)
+        if type(the_message) is MessageBody:
+            the_message = asdict(the_message)
+        elif type(the_message) is str:
+            the_message = {'subtype':types.TEXT, 'content':MessageContent(text=the_message)}
+
+        if 'recipients' not in the_message and not recipients:
+            logger.error('None "recipients" (None as in not an empty list) but "recipients" not specified by the_message. This message will do nothing.')
+
+        if 'content' not in the_message:
+            raise Exception('Dic/MessageBody message with no "content" specified.')
+        if type(the_message['content']) is dict:
+            the_message['content'] = MessageContent(**the_message['content'])
+        for xtra in ['timestamp', 'context', 'message_id']:
+            if xtra in the_message:
+                del the_message[xtra]
+        if channel_id:
+            the_message['channel_id'] = channel_id
+        if sender:
+            the_message['sender'] = sender
+        if recipients:
+            the_message['recipients'] = recipients
+        if the_message.get('recipients') or the_message.get('recipients')==[]:
+            the_message['recipients'] = await self._update_rec(the_message['recipients'], not self.is_agent, the_message.get('channel_id'))
+        if not self.is_agent:
+            the_message['sender'] = the_message['sender'] or 'no_sender'
+        if len_limit and the_message['content'].text:
+            the_message['content'].text = self.limit_len(the_message['content'].text, len_limit)
+        the_message = {**the_message, **kwargs}
+
         if self.is_agent:
-            await self.send_message_up(**kwargs)
+            if 'sender' in the_message:
+                del the_message['sender'] # Message up messages have no sender, for some reason.
+            return await self.ws_client.message_up(self.client_id, self.client_id, **the_message)
         else:
-            kwargs['sender'] = sender or 'no_sender'
-            await self.send_message_down(**kwargs)
+            return await self.ws_client.message_down(self.client_id, self.client_id,  **the_message)
 
-    async def upload_file_in_message(self, channel_id, local_path, recipients, sender=None, file_display_name=None):
+    async def upload_file_as_message(self, channel_id, local_path, recipients, sender=None, file_display_name=None):
         """
-        Uploads a file and sends the uploaded file as a message.
-        Recognized image or audio extensions will render as the image or sound, other files will have to be downloaded to see.
+        Uploads a file to a bucket and then sends the uploaded file as a message.
+        Recognized image or audio extensions will show the image or soundclip. Other files will be downloadable.
 
         Parameters:
           channel_id: The id of the channel.
           local_path: The local path to the file.
           recipients (list or string): The recipients character_id list or group_id string of the message.
           sender: The sender of the message. None for Agents.
-          file_display_name=None: Optional, will use
+          file_display_name=None: Optional, will use the local filename (excliding the folder) if None.
         """
         file_uri = await self.upload_file(local_path)
         ext = '.'+file_uri.lower().split('.')[-1]
         filename = file_display_name if file_display_name else local_path.replace('\\','/').split('/')[-1]
         subtype = types.IMAGE if ext in types.IMAGE_EXTS else (types.AUDIO if ext in types.AUDIO_EXTS else types.FILE)
         size = os.stat(local_path).st_size
-        await self.create_message(channel_id, file_uri, recipients, subtype=subtype, sender=sender, filename=filename, size=size)
-
-    async def convert_and_send_message(self, message_body):
-        """Converts the message body into a message down or message up object and sends it.
-           Agents send message_up and Services send message_down."""
-        if type(message_body.context) is dict: # TODO: not sure if this code is needed.
-            message_body.context['sender'] = message_body.sender
-        await self.create_message(message_body.channel_id, message_body.content, message_body.recipients, message_body.subtype, message_body.sender)
+        await self.send_message({'content': {'filename':filename, 'size':size, 'path':file_uri}}, channel_id, sender, recipients, subtype=subtype)
 
     async def send(self, payload_type, payload_body):
         """
         Send any kind of payload, including message_down, update, update_characters, update_channel_info, update_canvas, update_buttons, update_style, and heartbeat.
+        Rarely used except internally, but provides the most flexibility for those special occasions.
 
         Parameters:
           payload_type (str): The type of the payload.
@@ -543,8 +567,6 @@ class Moobius:
 
     async def send_agent_login(self): """Calls self.ws_client.agent_login using self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.agent_login(self.http_api.access_token)
     async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
-    async def send_message_up(self, channel_id, recipients, subtype, message_content): """Calls self.ws_client.message_up using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_up(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, False, channel_id), subtype, self._convert_message_content(subtype, message_content))
-    async def send_message_down(self, channel_id, recipients, subtype, message_content, sender): """Calls self.ws_client using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.message_down(self.client_id, self.client_id, channel_id, await self._update_rec(recipients, True), subtype, self._convert_message_content(subtype, message_content), sender)
     async def send_update(self, target_client_id, data): """Calls self.ws_client.TODO"""; return await self.ws_client.update(self.client_id, target_client_id, data)
     async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
     async def send_update_channel_info(self, channel_id, channel_info): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_info)
@@ -588,7 +610,7 @@ class Moobius:
 
         payload_body = payload_data['body']
         async def _group2ids(g_id):
-            if g_id=='service':
+            if g_id==types.SERVICE:
                 return []
             if type(g_id) is not str:
                 raise Exception('Group id not a string.')
@@ -675,7 +697,7 @@ class Moobius:
 
                 # Then make an update and call the update switchyard:
                 recipients = []
-                if 'recipients' in payload.body and payload.body['recipients'] not in ['service', 'null', '', None, False]:
+                if 'recipients' in payload.body and payload.body['recipients'] not in [types.SERVICE, 'null', '', None, False]:
                     r_group = payload.body['recipients']
                     if type(r_group) in [list, tuple]:
                         recipients = r_group

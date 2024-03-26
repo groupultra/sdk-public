@@ -228,12 +228,14 @@ class WSClient:
           service_id (str): As always.
           channel_id (str): The channel id.
           character_list (list): The list of character_id strings to be updated.
-          recipients (str): The group_id.
+          recipients (str): The group id to send to.
           dry_run=False: if True don't acually send the message (messages are sent in thier JSON-strin format).
 
         Returns:
           The message as a dict.
         """
+        if not recipients:
+            return None
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -257,7 +259,7 @@ class WSClient:
           service_id (str): As always.
           channel_id (str): The channel id.
           buttons (list of Buttons): The buttons list to be updated.
-          recipients (list): The recipients to see the update.
+          recipients (str): The group id to send to.
           dry_run=False: Don't acually send anything if True.
 
         Returns:
@@ -270,6 +272,8 @@ class WSClient:
           >>>    "arguments": []}
           >>> ws_client.update_buttons("service_id", "channel_id", [continue_button], ["user1", "user2"])
         """
+        if not recipients:
+            return None
         button_dicts = [b if type(b) is dict else dataclasses.asdict(b) for b in buttons]
         message = {
             "type": "update",
@@ -300,6 +304,8 @@ class WSClient:
         Returns:
           The message as a dict.
         """
+        if not recipients:
+            return None
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -324,7 +330,7 @@ class WSClient:
           service_id (str): As always.
           channel_id (str): The channel id.
           style_content (list of dicts): The style content to be updated. TODO: List of Style classes.
-          recipients (list): The recipients to see the update.
+          recipients (str): The group id to send to.
           dry_run=False: Don't acually send anything if True.
 
         Returns:
@@ -348,6 +354,8 @@ class WSClient:
             >>>   }]
             >>> ws_client.update_style("service_id", "channel_id", style_content, ["user1", "user2"])
         """
+        if not recipients:
+            return None
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -415,6 +423,8 @@ class WSClient:
           >>> canvas2 = CanvasElement(text="the_text2")
           >>> ws_client.update_canvas("service_id", "channel_id", [canvas1, canvas2], ["user1", "user2"])
         """
+        if not recipients:
+            return None
         if type(canvas_elements) is dict or type (canvas_elements) is CanvasElement:
             canvas_elements = [canvas_elements] # Should be a list of items not the item itself.
         for i in range(len(canvas_elements)):
@@ -463,7 +473,7 @@ class WSClient:
         return message
 
     ########################## Sending messages ###################################
-    async def message_up(self, user_id, service_id, channel_id, recipients, subtype, message_content, *, dry_run=False):
+    async def message_up(self, user_id, service_id, channel_id, recipients, subtype, content, *, dry_run=False):
         """
         Constructs and sends a message_up message. The same parameters as self.message_down, except that no sender is needed.
 
@@ -472,12 +482,13 @@ class WSClient:
           channel_id (str): Which channel to broadcast the message in.
           recipients (str): The group id to send to.
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
-          message_content (MessageContent): What is inside the message['body']['content'] JSON.
+          content (MessageContent or dict): What is inside the message['body']['content'] JSON.
           dry_run=False: Don't acually send anything if True.
 
         Returns: The message as a dict.
         """
-
+        if not recipients:
+            return None
         message = {
             "type": "message_up",
             "request_id": str(uuid.uuid4()),
@@ -485,7 +496,7 @@ class WSClient:
             "body": {
                 "subtype": subtype,
                 "channel_id": channel_id,
-                "content": message_content if type(message_content) is dict else dataclasses.asdict(message_content), # TODO: function to make vanilla dicts.
+                "content": content if type(content) is dict else dataclasses.asdict(content), # TODO: function to make vanilla dicts.
                 "recipients": recipients,
                 "timestamp": int(time.time() * 1000),
                 "context": {}
@@ -499,7 +510,7 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def message_down(self, user_id, service_id, channel_id, recipients, subtype, message_content, sender, *, dry_run=False):
+    async def message_down(self, user_id, service_id, channel_id, recipients, subtype, content, sender, *, dry_run=False):
         """
         Constructs and sends the message_down message.
         Currently, only text message is supported, so the subtype is always "text".
@@ -509,14 +520,16 @@ class WSClient:
           channel_id (str): Which channel to broadcast the message in.
           recipients (str): The group id to send to.
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
-          message_content (MessageContent): What is inside the message['body']['content'] JSON.
+          content (MessageContent or dict): What is inside the message['body']['content'] JSON.
           sender (str): The sender ID of the message, which determines who the chat shows the message as sent by.
           dry_run=False: Don't acually send anything if True.
 
         Returns:
           The message as a dict.
         """
-        message = await self.message_up(user_id, service_id, channel_id, recipients, subtype, message_content, dry_run=True)
+        if not recipients:
+            return None
+        message = await self.message_up(user_id, service_id, channel_id, recipients, subtype, content, dry_run=True)
         message['type'] = types.MESSAGE_DOWN
         message['body']['sender'] = sender
         del message['user_id'] # Only used for message_up.
