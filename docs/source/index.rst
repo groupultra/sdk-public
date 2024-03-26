@@ -18,24 +18,22 @@ how to :ref:`installation` the project.
 Modules
 ==================
 
-* :ref:`src.setup <src_setup>`
-* :ref:`src.moobius.types <src_moobius_types>`
-* :ref:`src.moobius.utils <src_moobius_utils>`
-* :ref:`src.moobius.core.dtrack <src_moobius_core_dtrack>`
-* :ref:`src.moobius.core.sdk <src_moobius_core_sdk>`
-* :ref:`src.moobius.core.wand <src_moobius_core_wand>`
-* :ref:`src.moobius.database.database.interface <src_moobius_database_database_interface>`
-* :ref:`src.moobius.database.json.database <src_moobius_database_json_database>`
-* :ref:`src.moobius.database.null.database <src_moobius_database_null_database>`
-* :ref:`src.moobius.database.redis.database <src_moobius_database_redis_database>`
-* :ref:`src.moobius.database.storage <src_moobius_database_storage>`
-* :ref:`src.moobius.network.asserts <src_moobius_network_asserts>`
-* :ref:`src.moobius.network.http.api.wrapper <src_moobius_network_http_api_wrapper>`
-* :ref:`src.moobius.network.ws.client <src_moobius_network_ws_client>`
+* :ref:`moobius.types <moobius_types>`
+* :ref:`moobius.utils <moobius_utils>`
+* :ref:`moobius.core.dtrack <moobius_core_dtrack>`
+* :ref:`moobius.core.sdk <moobius_core_sdk>`
+* :ref:`moobius.core.wand <moobius_core_wand>`
+* :ref:`moobius.database.database.interface <moobius_database_database_interface>`
+* :ref:`moobius.database.json.database <moobius_database_json_database>`
+* :ref:`moobius.database.null.database <moobius_database_null_database>`
+* :ref:`moobius.database.redis.database <moobius_database_redis_database>`
+* :ref:`moobius.database.storage <moobius_database_storage>`
+* :ref:`moobius.network.asserts <moobius_network_asserts>`
+* :ref:`moobius.network.http.api.wrapper <moobius_network_http_api_wrapper>`
+* :ref:`moobius.network.ws.client <moobius_network_ws_client>`
 
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
+* :ref:`Function Index <function_index>`
 * :ref:`search`
