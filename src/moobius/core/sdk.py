@@ -431,7 +431,7 @@ class Moobius:
             the_message['channel_id'] = channel_id
         if sender:
             the_message['sender'] = sender
-        if 'recipients' not in the_message:
+        if recipients or 'recipients' not in the_message:
             the_message['recipients'] = recipients
         if the_message.get('recipients'):
             the_message['recipients'] = await self._update_rec(the_message['recipients'], not self.is_agent, the_message.get('channel_id'))
