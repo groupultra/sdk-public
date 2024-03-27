@@ -135,7 +135,7 @@ async def cron_task(self):
         recipients = list(channel.real_characters.keys())
         talker = channel.virtual_characters[self.WAND].character_id
         txt = f"Check in every minute! {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        await self.create_message(channel_id, txt, recipients, sender=talker)
+        await self.send_message(txt, channel_id, recipients, sender=talker)
 ```
 
 On startup MoobiusService populates self.channels() with a list of channel_id values. It searches over all the channels and selects those for which service_id == self.client_id.
@@ -211,9 +211,9 @@ Lets replace messages of "moobius" sent to ALL with "Moobius is Great!":
 if recipients:
     # DEMO: text modification
     if txt.lower() == "moobius":
-        await self.create_message(channel_id, "Moobius is Great!", recipients, sender=sender)
+        await self.send_message("Moobius is Great!", channel_id, sender, recipients)
     else:
-        await self.convert_and_send_message(message_up)
+        await self.send_message(message_up)
 ```
 
 ## Overriding self.on_fetch_service_characters(action) and self.on_fetch_buttons(action)
@@ -284,7 +284,7 @@ async def on_join_channel(self, action):
     character_ids = list(channel.real_characters.keys()) # In this example character_list is the same as character_ids; every user gets to see the update.
 
     await self.send_update_character_list(channel_id, character_list, character_ids)
-    await self.create_message(channel_id, f'{name} joined the channel!', character_ids, sender=sender)
+    await self.send_message(f'{name} joined the channel!', channel_id, sender, character_ids)
 
 async def on_leave_channel(self, action):
     sender = action.sender
@@ -299,7 +299,7 @@ async def on_leave_channel(self, action):
     character_ids = list(real_characters.keys())
 
     await self.send_update_character_list(channel_id, character_list, character_ids)
-    await self.create_message(channel_id, f'{name} left the channel!', character_ids, sender=sender)
+    await self.send_message(f'{name} left the channel!', channel_id, sender, character_ids)
 ```
 
 ## Overriding **self.on_spell(spell)**
@@ -321,7 +321,7 @@ async def on_spell(self, spell):
         channel = self.channels[channel_id]
         recipients = list(channel.real_characters.keys())
         talker = channel.virtual_characters[self.WAND].character_id
-        await self.create_message(channel_id, text, recipients, sender=talker)
+        await self.send_message(text, channel_id, sender, recipients)
 ```
 
 ## Overriding self.on_button_click(button_click)
@@ -343,39 +343,14 @@ async def on_button_click(self, button_click):
 
     if button_id == "key1":
         value = button_click.arguments[0].value
-
-        if value == 'Mickey':
-            if channel.states[sender]['mickey_num'] >= self.MICKEY_LIMIT:
-                await self.create_message(channel_id, "You have reached the limit of Mickey!", [sender], sender=sender)
-            else:
-                channel.states[sender]['mickey_num'] += 1
-                channel.states.save(sender)
-
-                await self.calculate_and_update_character_list_from_database(channel_id, sender)
-        elif value == 'Talk':
-            if channel.states[sender]['mickey_num'] == 0:
-                await self.create_message(channel_id, "Please Create Mickey First!", [sender], sender=sender)
-            else:
-                sn = channel.states[sender]['mickey_num'] - 1
-                talker = channel.virtual_characters[f"{self.MICKEY}_{sn}"].character_id
-                await self.create_message(channel_id, f"Mickey {sn} Here!", [sender], sender=talker)
-        else:
-            dtrack.log_warning(f"Unknown value: {value}")
+        # Various actions.
 
     elif button_id == "key2":
-        if channel.states[sender]['canvas_mode'] == self.LIGHT: 
-                channel.states[sender]['canvas_mode'] = self.DARK
-        else:
-                channel.states[sender]['canvas_mode'] = self.LIGHT
-
-        channel.states.save(sender)
-        state = channel.states[sender]['canvas_mode']
-        await self.send_update_canvas(channel_id, self.image_show_dict[state], [sender])
-
-        image_uri = channel.image_paths[state]
-        await self.create_message(channel_id, image_uri, [sender], subtype='image', sender=sender)
+        # various actions.
+    elif button_id = "key3":
+        # ... multible other button_ids ...
     else:
-        dtrack.log_warning(f"Unknown button_id: {button_id}")
+        logger.error(f"Unknown button_id: {button_id}")
 ```
 
 ## Callback Service Methods with a default behavior:

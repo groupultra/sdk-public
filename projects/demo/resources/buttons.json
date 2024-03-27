@@ -9,7 +9,7 @@
                 "name": "Select Task",
                 "type": "enum",
                 "optional": false,
-                "values": ["Swap Canvas", "Image as Message", "Audio as Message", "PDF as Message", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
+                "values": ["TextMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
                 "placeholder": "(choose)"
             }
         ]
@@ -24,7 +24,7 @@
                 "name": "Select Task",
                 "type": "enum",
                 "optional": false,
-                "values": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Test Database", "Wipe Database"],
+                "values": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Test Database", "Wipe DatabaseA", "Wipe DatabaseB"],
                 "placeholder": "(choose)"
             }
         ]

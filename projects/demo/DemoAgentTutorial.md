@@ -43,10 +43,7 @@ message = {
 ```
 The SDK provides seperate agent self.send_agent_login() and self.send_service_login()
 
-2. Some SDK actuator functions are specific to use as an agent (and conversly, service-specific functions will not be used):
-`message_up` and `message_down` are reversed, so `on_message_down` instead of `on_message_up` and `send_message_up` instead of `send_message_down`.
-Some functions are restricted, for example "send_update_buttons" doesn't seem to work.
-
+2. Some SDK actuator functions are specific to use as an agent (and conversly, service-specific functions will not be used). For example agents cannot "send_update_buttons".
 
 3. The set of callbacks that are generally used is quite different. `on_update` functions such as `on_update_canvas` are dispatched when the service updates the canvas, for example.
 

@@ -1,6 +1,6 @@
 # SDK interface, agent or service. Automatically wraps the two platform APIs (HTTP and Socket)
 
-import json, os
+import json, os, pathlib
 
 from dataclasses import asdict
 from dacite import from_dict
@@ -59,7 +59,6 @@ class ServiceGroupLib():
                 character_ids = [character_ids]
             character_ids = list(character_ids)
             if len(character_ids) == 0:
-                logger.warning('Empty character id list, no message will be sent.')
                 return None
             else: # Convert list to a single group id in this mode.
                 massive_str = '_'.join(character_ids)
@@ -359,34 +358,70 @@ class Moobius:
             txt = txt[0:n]+'...'+str(len(txt))+' chars'
         return txt
 
-    async def send_message(self, the_message, channel_id=None, sender=None, recipients=None, len_limit=None, **kwargs):
+    async def send_message(self, the_message, channel_id=None, sender=None, recipients=None, subtype=None, len_limit=None, file_display_name=None):
         """
         Sends a message. Commonly used by both Services and Agents.
 
         Parameters:
           the_message:
-            If a string, the message will be a text message.
+            If a string, the message will be a text message unless subtype is set.
+              If not a text message, the string must either be a local filepath or an http(s) filepath.
             If a MessageBody or dict, the message sent will depend on it's fields/attributes as well as the overrides specified.
+            If a pathlib.Path, will be a file/audio/image message by default.
           channel_id=None: The channel ids, if None the_message must be a MessageBody with the channel_id.
             Overrides the_message if not None
           sender=None: The character/user who's avatar appears to "speak" this message.
             Overrides the_message if not None
           recipients=None: List of character_ids.
             Overrides the_message if not None.
+          subtype=None: Can be set to types.TEXT, types.IMAGE, types.AUDIO, or types.FILE
+            If None, the subtype will be inferred.
           len_limit=None: Limit the length of large text messages.
-          **kwargs: Other, rarer overrides.
+          file_display_name: The name shown for downloadable files can be set to a value different than the filename.
+            Sets the subtype to "types.FILE" if subtype is not specified.
         """
+
+        async def _get_file_message_content(filepath, file_display_name=None, subtype=None):
+            """If a local file path, uploads the file to the bucket and gets the message content and the subtype.
+            If an http(s) file path, does NOT upload. Instead, returns the path."""
+            if type(filepath) is not str:
+                filepath = filepath.as_posix() # For pathlib.paths.
+            if (filepath.lower().startswith('http:') or filepath.lower().startswith('https:')):
+                file_uri = filepath
+                size = None
+            else:
+                file_uri = await self.upload_file(filepath)
+                size = os.stat(filepath).st_size
+            ext = '.'+file_uri.lower().split('.')[-1]
+            filename = file_display_name if file_display_name else filepath.replace('\\','/').split('/')[-1]
+            if not subtype:
+                subtype = types.IMAGE if ext in types.IMAGE_EXTS else (types.AUDIO if ext in types.AUDIO_EXTS else types.FILE)
+            return MessageContent(filename=filename, size=size, path=file_uri), subtype
+
+        if file_display_name:
+            if not subtype:
+                subtype = types.FILE
+            if subtype != types.FILE:
+                logger.warning(f'file_display_name is set, but the subtype is set to {subtype} not types.FILE')
 
         if type(the_message) is MessageBody:
             the_message = asdict(the_message)
         elif type(the_message) is str:
-            the_message = {'subtype':types.TEXT, 'content':MessageContent(text=the_message)}
+            if not subtype or subtype == types.TEXT:
+                the_message = {'subtype':types.TEXT, 'content':MessageContent(text=the_message)}
+            else:
+                the_message = the_message.strip()
+                mcontent, subtype = await _get_file_message_content(the_message, file_display_name=file_display_name, subtype=subtype)
+                the_message = {'subtype':subtype, 'content':mcontent}
+        elif type(the_message) in [pathlib.Path, pathlib.PosixPath, pathlib.PurePath, pathlib.PurePosixPath, pathlib.PureWindowsPath, pathlib.WindowsPath]:
+            mcontent, subtype = await _get_file_message_content(the_message, file_display_name=file_display_name, subtype=subtype)
+            the_message = {'subtype':subtype, 'content':mcontent}
 
-        if 'recipients' not in the_message and not recipients:
-            logger.error('None "recipients" (None as in not an empty list) but "recipients" not specified by the_message. This message will do nothing.')
+        if 'recipients' not in the_message and recipients is None:
+            logger.error('None "recipients" (None as in not an empty list) but "recipients" not specified by the_message. This may indicate that recipients was unfilled.')
 
         if 'content' not in the_message:
-            raise Exception('Dic/MessageBody message with no "content" specified.')
+            raise Exception('Dict/MessageBody message with no "content" specified.')
         if type(the_message['content']) is dict:
             the_message['content'] = MessageContent(**the_message['content'])
         for xtra in ['timestamp', 'context', 'message_id']:
@@ -396,15 +431,17 @@ class Moobius:
             the_message['channel_id'] = channel_id
         if sender:
             the_message['sender'] = sender
-        if recipients:
+        if 'recipients' not in the_message:
             the_message['recipients'] = recipients
-        if the_message.get('recipients') or the_message.get('recipients')==[]:
+        if the_message.get('recipients'):
             the_message['recipients'] = await self._update_rec(the_message['recipients'], not self.is_agent, the_message.get('channel_id'))
+        else:
+            logger.warning('Empty or None recipients, no message will be sent.')
+
         if not self.is_agent:
             the_message['sender'] = the_message['sender'] or 'no_sender'
         if len_limit and the_message['content'].text:
             the_message['content'].text = self.limit_len(the_message['content'].text, len_limit)
-        the_message = {**the_message, **kwargs}
 
         if self.is_agent:
             if 'sender' in the_message:
@@ -412,25 +449,6 @@ class Moobius:
             return await self.ws_client.message_up(self.client_id, self.client_id, **the_message)
         else:
             return await self.ws_client.message_down(self.client_id, self.client_id,  **the_message)
-
-    async def upload_file_as_message(self, channel_id, local_path, recipients, sender=None, file_display_name=None):
-        """
-        Uploads a file to a bucket and then sends the uploaded file as a message.
-        Recognized image or audio extensions will show the image or soundclip. Other files will be downloadable.
-
-        Parameters:
-          channel_id: The id of the channel.
-          local_path: The local path to the file.
-          recipients (list or string): The recipients character_id list or group_id string of the message.
-          sender: The sender of the message. None for Agents.
-          file_display_name=None: Optional, will use the local filename (excliding the folder) if None.
-        """
-        file_uri = await self.upload_file(local_path)
-        ext = '.'+file_uri.lower().split('.')[-1]
-        filename = file_display_name if file_display_name else local_path.replace('\\','/').split('/')[-1]
-        subtype = types.IMAGE if ext in types.IMAGE_EXTS else (types.AUDIO if ext in types.AUDIO_EXTS else types.FILE)
-        size = os.stat(local_path).st_size
-        await self.send_message({'content': {'filename':filename, 'size':size, 'path':file_uri}}, channel_id, sender, recipients, subtype=subtype)
 
     async def send(self, payload_type, payload_body):
         """

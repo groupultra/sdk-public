@@ -113,11 +113,16 @@ class CachedDict(dict):
                 logger.error(f'Failed to delete key {key} from database: {err_message}. Inconsistency may occur.')
                 dict.__delitem__(self,key)
 
-    def pop(self, key):
+    def pop(self, key, default="__unspecified__"):
         """Pop = get followed by __delitem__."""
-        out = self.__getitem__(key)
-        self.__delitem__(key)
-        return out
+        if default == "__unspecified__" and not dict.__contains__(self, key):
+            raise KeyError(f'Key {key} not in dict.')
+        if dict.__contains__(self, key):
+            out = self.__getitem__(key)
+            self.__delitem__(key)
+            return out
+        else:
+            return default
 
     def __str__(self):
         kys = list(self.keys())

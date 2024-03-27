@@ -63,9 +63,9 @@ class DemoAgent(Moobius):
                 glist_temp = await self.fetch_channel_temp_group(channel_id)
                 glist = await self.fetch_channel_group_list(channel_id)
                 gdict = await self.http_api.fetch_channel_group_dict(channel_id, self.client_id)
-                text2A = service.limit_len(f"Channel group list (this time from the agent):\n{pprint.pformat(glist)}")
-                text2B = service.limit_len(f"Channel group TEMP list (this time from the agent):\n{pprint.pformat(glist_temp)}")
-                text2C = service.limit_len(f"Channel group, dict form from Agent (used internally):\n{pprint.pformat(gdict)}")
+                text2A = self.limit_len(f"Channel group list (this time from the agent):\n{pprint.pformat(glist)}", 4096)
+                text2B = self.limit_len(f"Channel group TEMP list (this time from the agent):\n{pprint.pformat(glist_temp)}", 4096)
+                text2C = self.limit_len(f"Channel group, dict form from Agent (used internally):\n{pprint.pformat(gdict)}", 4096)
                 text2 = '\n\n'.join([text2A,text2B,text2C])
             elif text1 == 'show_updates':
                 update_lines = []
@@ -93,7 +93,7 @@ class DemoAgent(Moobius):
         message_down.sender = self.client_id
 
         print('AGENT got a message. WILL SEND THIS MESSAGE (as message up); note conversion to/from recipient id vector:', message_down)
-        await self.convert_and_send_message(message_down)
+        await self.send_message(message_down)
         if will_log_out: # Log out after the message is sent.
             await self.sign_out()
 
@@ -173,4 +173,4 @@ class DemoAgent(Moobius):
         elif text == "nya_all":
             for channel_id in self.channels.keys():
                 recipients = list(self.channels[channel_id].characters.keys())
-                await self.create_message(channel_id, "nya nya nya", recipients)
+                await self.send_message("nya nya nya", channel_id, recipients)
