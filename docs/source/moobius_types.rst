@@ -3,14 +3,13 @@
 moobius.types
 ===================================
 
-
 Module-level functions
 ===================
 
 .. _moobius.types.add_str_method:
 add_str_method
 -----------------------------------
-**add_str_method(cls)**
+add_str_method(cls)
 
 Decorator function to make __str__ return the following format:
 "Foo(bar=1, baz='two', etc)"; only the non-default fields are included.
@@ -18,195 +17,155 @@ Decorator function to make __str__ return the following format:
 .. _moobius.types.add_str_method.__str__:
 add_str_method.__str__
 -----------------------------------
-**add_str_method.__str__(self)**
+add_str_method.__str__(self)
 
 <No doc string>
 
-
 ===================
-
 
 Class ButtonArgument
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class Button
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class ButtonClickArgument
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class ButtonClick
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class ContextMenuElement
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class MessageContent
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class MenuClick
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class CanvasElement
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class View
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class Group
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class MessageBody
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class Action
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class ChannelInfo
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class Copy
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class Payload
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class Character
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class ChannelInfo
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class StyleElement
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class UpdateElement
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class Update
 ===================
 
-(No doc string)
-
-
+<no class docstring>
 
 
 
 Class UserInfo
 ===================
 
-(No doc string)
+<no class docstring>
+
+

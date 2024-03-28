@@ -1,4 +1,3 @@
-
 .. _function_index:
 
 Exhaustive list of all methods and module-level functions
@@ -68,9 +67,8 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.core.sdk.Moobius._convert_message_content <moobius.core.sdk.Moobius._convert_message_content>` (self, subtype, content)
 * :ref:`moobius.core.sdk.Moobius.initialize_channel <moobius.core.sdk.Moobius.initialize_channel>` (self, channel_id)
 * :ref:`moobius.core.sdk.Moobius.upload_avatar_and_create_character <moobius.core.sdk.Moobius.upload_avatar_and_create_character>` (self, name, image_path, description)
-* :ref:`moobius.core.sdk.Moobius.create_message <moobius.core.sdk.Moobius.create_message>` (self, channel_id, message_content, recipients, subtype, sender, filename, size)
-* :ref:`moobius.core.sdk.Moobius.upload_file_in_message <moobius.core.sdk.Moobius.upload_file_in_message>` (self, channel_id, local_path, recipients, sender, file_display_name)
-* :ref:`moobius.core.sdk.Moobius.convert_and_send_message <moobius.core.sdk.Moobius.convert_and_send_message>` (self, message_body)
+* :ref:`moobius.core.sdk.Moobius.limit_len <moobius.core.sdk.Moobius.limit_len>` (self, txt, n)
+* :ref:`moobius.core.sdk.Moobius.send_message <moobius.core.sdk.Moobius.send_message>` (self, the_message, channel_id, sender, recipients, subtype, len_limit, file_display_name)
 * :ref:`moobius.core.sdk.Moobius.send <moobius.core.sdk.Moobius.send>` (self, payload_type, payload_body)
 * :ref:`moobius.core.sdk.Moobius.send_button_click <moobius.core.sdk.Moobius.send_button_click>` (self, channel_id, button_id, button_args)
 * :ref:`moobius.core.sdk.Moobius.send_heartbeat <moobius.core.sdk.Moobius.send_heartbeat>` (self)
@@ -107,8 +105,6 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.core.sdk.Moobius.fetch_target_group <moobius.core.sdk.Moobius.fetch_target_group>` (self, user_id, channel_id, group_id)
 * :ref:`moobius.core.sdk.Moobius.send_agent_login <moobius.core.sdk.Moobius.send_agent_login>` (self)
 * :ref:`moobius.core.sdk.Moobius.send_service_login <moobius.core.sdk.Moobius.send_service_login>` (self)
-* :ref:`moobius.core.sdk.Moobius.send_message_up <moobius.core.sdk.Moobius.send_message_up>` (self, channel_id, recipients, subtype, message_content)
-* :ref:`moobius.core.sdk.Moobius.send_message_down <moobius.core.sdk.Moobius.send_message_down>` (self, channel_id, recipients, subtype, message_content, sender)
 * :ref:`moobius.core.sdk.Moobius.send_update <moobius.core.sdk.Moobius.send_update>` (self, target_client_id, data)
 * :ref:`moobius.core.sdk.Moobius.send_update_character_list <moobius.core.sdk.Moobius.send_update_character_list>` (self, channel_id, character_list, recipients)
 * :ref:`moobius.core.sdk.Moobius.send_update_channel_info <moobius.core.sdk.Moobius.send_update_channel_info>` (self, channel_id, channel_info)
@@ -150,6 +146,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.core.sdk.Moobius.on_unknown_payload <moobius.core.sdk.Moobius.on_unknown_payload>` (self, payload)
 * :ref:`moobius.core.sdk.Moobius.__str__ <moobius.core.sdk.Moobius.__str__>` (self)
 * :ref:`moobius.core.sdk.Moobius.__repr__ <moobius.core.sdk.Moobius.__repr__>` (self)
+* :ref:`moobius.core.sdk.Moobius.send_message._get_file_message_content <moobius.core.sdk.Moobius.send_message._get_file_message_content>` (filepath, file_display_name, subtype)
 * :ref:`moobius.core.sdk.Moobius.handle_received_payload._group2ids <moobius.core.sdk.Moobius.handle_received_payload._group2ids>` (g_id)
 * :ref:`moobius.core.sdk.Moobius.start._get_agent_info <moobius.core.sdk.Moobius.start._get_agent_info>` ()
 * :ref:`moobius.core.sdk.Moobius.handle_received_payload._make_elem <moobius.core.sdk.Moobius.handle_received_payload._make_elem>` (d)
@@ -198,7 +195,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.database.storage.CachedDict.__getitem__ <moobius.database.storage.CachedDict.__getitem__>` (self, key)
 * :ref:`moobius.database.storage.CachedDict.__setitem__ <moobius.database.storage.CachedDict.__setitem__>` (self, key, value)
 * :ref:`moobius.database.storage.CachedDict.__delitem__ <moobius.database.storage.CachedDict.__delitem__>` (self, key)
-* :ref:`moobius.database.storage.CachedDict.pop <moobius.database.storage.CachedDict.pop>` (self, key)
+* :ref:`moobius.database.storage.CachedDict.pop <moobius.database.storage.CachedDict.pop>` (self, key, default)
 * :ref:`moobius.database.storage.CachedDict.__str__ <moobius.database.storage.CachedDict.__str__>` (self)
 * :ref:`moobius.database.storage.CachedDict.__repr__ <moobius.database.storage.CachedDict.__repr__>` (self)
 * :ref:`moobius.database.storage.MoobiusStorage.__init__ <moobius.database.storage.MoobiusStorage.__init__>` (self, service_id, channel_id, db_config)
@@ -282,8 +279,8 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.network.ws_client.WSClient.update_channel_info <moobius.network.ws_client.WSClient.update_channel_info>` (self, service_id, channel_id, channel_info)
 * :ref:`moobius.network.ws_client.WSClient.update_canvas <moobius.network.ws_client.WSClient.update_canvas>` (self, service_id, channel_id, canvas_elements, recipients)
 * :ref:`moobius.network.ws_client.WSClient.update <moobius.network.ws_client.WSClient.update>` (self, service_id, target_client_id, data)
-* :ref:`moobius.network.ws_client.WSClient.message_up <moobius.network.ws_client.WSClient.message_up>` (self, user_id, service_id, channel_id, recipients, subtype, message_content)
-* :ref:`moobius.network.ws_client.WSClient.message_down <moobius.network.ws_client.WSClient.message_down>` (self, user_id, service_id, channel_id, recipients, subtype, message_content, sender)
+* :ref:`moobius.network.ws_client.WSClient.message_up <moobius.network.ws_client.WSClient.message_up>` (self, user_id, service_id, channel_id, recipients, subtype, content)
+* :ref:`moobius.network.ws_client.WSClient.message_down <moobius.network.ws_client.WSClient.message_down>` (self, user_id, service_id, channel_id, recipients, subtype, content, sender)
 * :ref:`moobius.network.ws_client.WSClient.fetch_characters <moobius.network.ws_client.WSClient.fetch_characters>` (self, user_id, channel_id)
 * :ref:`moobius.network.ws_client.WSClient.fetch_buttons <moobius.network.ws_client.WSClient.fetch_buttons>` (self, user_id, channel_id)
 * :ref:`moobius.network.ws_client.WSClient.fetch_style <moobius.network.ws_client.WSClient.fetch_style>` (self, user_id, channel_id)
@@ -293,4 +290,3 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.network.ws_client.WSClient.__repr__ <moobius.network.ws_client.WSClient.__repr__>` (self)
 * :ref:`moobius.network.ws_client.WSClient.__init__._on_connect <moobius.network.ws_client.WSClient.__init__._on_connect>` (self)
 * :ref:`moobius.network.ws_client.WSClient.__init__._default_handle <moobius.network.ws_client.WSClient.__init__._default_handle>` (self, message)
-

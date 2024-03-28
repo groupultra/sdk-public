@@ -3,10 +3,12 @@
 moobius.core.wand
 ===================================
 
-
-
+Module-level functions
 ===================
 
+(No module-level functions)
+
+===================
 
 Class MoobiusWand
 ===================
@@ -18,21 +20,21 @@ To use this class, you need to specify the service config in the config file.
 .. _moobius.core.wand.MoobiusWand.__init__:
 MoobiusWand.__init__
 -----------------------------------
-**MoobiusWand.__init__(self)**
+MoobiusWand.__init__(self)
 
 Initialize an "empty" MoobiusWand object.
 
 .. _moobius.core.wand.MoobiusWand.run_job:
 MoobiusWand.run_job
 -----------------------------------
-**MoobiusWand.run_job(service)**
+MoobiusWand.run_job(service)
 
 <No doc string>
 
 .. _moobius.core.wand.MoobiusWand.run:
 MoobiusWand.run
 -----------------------------------
-**MoobiusWand.run(self, cls, background, \*kwargs)**
+MoobiusWand.run(self, cls, background, \*kwargs)
 
 Starts a service or agent.
 
@@ -54,7 +56,7 @@ Example:
 .. _moobius.core.wand.MoobiusWand.stop:
 MoobiusWand.stop
 -----------------------------------
-**MoobiusWand.stop(self, signum, frame)**
+MoobiusWand.stop(self, signum, frame)
 
 Stops all processes using the_process.kill()
 Also stops asyncio's event loop.
@@ -63,7 +65,7 @@ TODO: Unused arguments sgnum and frame. Maybe renamining this to stop_all()?
 .. _moobius.core.wand.MoobiusWand.spell:
 MoobiusWand.spell
 -----------------------------------
-**MoobiusWand.spell(self, handle, obj)**
+MoobiusWand.spell(self, handle, obj)
 
 Send a message to a service.
 
@@ -85,20 +87,20 @@ Example:
 .. _moobius.core.wand.MoobiusWand.aspell:
 MoobiusWand.aspell
 -----------------------------------
-**MoobiusWand.aspell(self, handle, obj)**
+MoobiusWand.aspell(self, handle, obj)
 
 Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = self.services[handle].queue.
 
 .. _moobius.core.wand.MoobiusWand.__str__:
 MoobiusWand.__str__
 -----------------------------------
-**MoobiusWand.__str__(self)**
+MoobiusWand.__str__(self)
 
 <No doc string>
 
 .. _moobius.core.wand.MoobiusWand.__repr__:
 MoobiusWand.__repr__
 -----------------------------------
-**MoobiusWand.__repr__(self)**
+MoobiusWand.__repr__(self)
 
 <No doc string>

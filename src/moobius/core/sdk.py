@@ -427,28 +427,28 @@ class Moobius:
         for xtra in ['timestamp', 'context', 'message_id']:
             if xtra in the_message:
                 del the_message[xtra]
-        if channel_id:
+        if channel_id is not None:
             the_message['channel_id'] = channel_id
-        if sender:
+        if sender is not None:
             the_message['sender'] = sender
-        if recipients or 'recipients' not in the_message:
+        if recipients is not None:
             the_message['recipients'] = recipients
+
         if the_message.get('recipients'):
             the_message['recipients'] = await self._update_rec(the_message['recipients'], not self.is_agent, the_message.get('channel_id'))
+            if not self.is_agent:
+                the_message['sender'] = the_message['sender'] or 'no_sender'
+            if len_limit and the_message['content'].text:
+                the_message['content'].text = self.limit_len(the_message['content'].text, len_limit)
+
+            if self.is_agent:
+                if 'sender' in the_message:
+                    del the_message['sender'] # Message up messages have no sender, for some reason.
+                return await self.ws_client.message_up(self.client_id, self.client_id, **the_message)
+            else:
+                return await self.ws_client.message_down(self.client_id, self.client_id,  **the_message)
         else:
             logger.warning('Empty or None recipients, no message will be sent.')
-
-        if not self.is_agent:
-            the_message['sender'] = the_message['sender'] or 'no_sender'
-        if len_limit and the_message['content'].text:
-            the_message['content'].text = self.limit_len(the_message['content'].text, len_limit)
-
-        if self.is_agent:
-            if 'sender' in the_message:
-                del the_message['sender'] # Message up messages have no sender, for some reason.
-            return await self.ws_client.message_up(self.client_id, self.client_id, **the_message)
-        else:
-            return await self.ws_client.message_down(self.client_id, self.client_id,  **the_message)
 
     async def send(self, payload_type, payload_body):
         """

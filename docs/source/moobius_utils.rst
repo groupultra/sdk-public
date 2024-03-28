@@ -3,28 +3,27 @@
 moobius.utils
 ===================================
 
-
 Module-level functions
 ===================
 
 .. _moobius.utils.summarize_html:
 summarize_html
 -----------------------------------
-**summarize_html(html_str)**
+summarize_html(html_str)
 
 Converts HTML to an easier-for-a-human format by cutting out some of the more common tags. Far from perfect.
 
 .. _moobius.utils.make_fn_async:
 make_fn_async
 -----------------------------------
-**make_fn_async(f)**
+make_fn_async(f)
 
 Converts functions to async functions.
 
 .. _moobius.utils.maybe_make_template_files:
 maybe_make_template_files
 -----------------------------------
-**maybe_make_template_files(args)**
+maybe_make_template_files(args)
 
 Makes template files if there is a need to do so, based on args and sys.argv.
 Called by "import moobius" with no args and by wand.run() before initializing the Moobius class.
@@ -53,20 +52,18 @@ Unittests to run in a python prompt in an empty folder:
 .. _moobius.utils.make_fn_async.run_f:
 make_fn_async.run_f
 -----------------------------------
-**make_fn_async.run_f(\*kwargs)**
+make_fn_async.run_f(\*kwargs)
 
 <No doc string>
 
 .. _moobius.utils.make_fn_async.run_f.f1:
 make_fn_async.run_f.f1
 -----------------------------------
-**make_fn_async.run_f.f1()**
+make_fn_async.run_f.f1()
 
 <No doc string>
 
-
 ===================
-
 
 Class EnhancedJSONEncoder
 ===================
@@ -76,20 +73,20 @@ Json Encoder but with automatic conversion of dataclasses to dict.
 .. _moobius.utils.EnhancedJSONEncoder.default:
 EnhancedJSONEncoder.default
 -----------------------------------
-**EnhancedJSONEncoder.default(self, o)**
+EnhancedJSONEncoder.default(self, o)
 
 <No doc string>
 
 .. _moobius.utils.EnhancedJSONEncoder.__str__:
 EnhancedJSONEncoder.__str__
 -----------------------------------
-**EnhancedJSONEncoder.__str__(self)**
+EnhancedJSONEncoder.__str__(self)
 
 <No doc string>
 
 .. _moobius.utils.EnhancedJSONEncoder.__repr__:
 EnhancedJSONEncoder.__repr__
 -----------------------------------
-**EnhancedJSONEncoder.__repr__(self)**
+EnhancedJSONEncoder.__repr__(self)
 
 <No doc string>

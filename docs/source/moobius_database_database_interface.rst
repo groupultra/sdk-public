@@ -3,10 +3,12 @@
 moobius.database.database_interface
 ===================================
 
-
-
+Module-level functions
 ===================
 
+(No module-level functions)
+
+===================
 
 Class DatabaseInterface
 ===================
@@ -28,7 +30,7 @@ Then, in the on_start() function each demo will call MoobiusStorage(self.client_
 .. _moobius.database.database_interface.DatabaseInterface.__init__:
 DatabaseInterface.__init__
 -----------------------------------
-**DatabaseInterface.__init__(self, domain, \*kwargs)**
+DatabaseInterface.__init__(self, domain, \*kwargs)
 
 The concrete methods should expect a `domain` parameter as a `str`.
 It is used to separate different domains in the same database.
@@ -41,41 +43,41 @@ domains are '.' separated strings, like '<channel_id>.<character_id>'
 .. _moobius.database.database_interface.DatabaseInterface.get_value:
 DatabaseInterface.get_value
 -----------------------------------
-**DatabaseInterface.get_value(self, key)**
+DatabaseInterface.get_value(self, key)
 
 Returns a tuple of (is_success, value)
 
 .. _moobius.database.database_interface.DatabaseInterface.set_value:
 DatabaseInterface.set_value
 -----------------------------------
-**DatabaseInterface.set_value(self, key, value)**
+DatabaseInterface.set_value(self, key, value)
 
 Returns a tuple of (is_success=True, key) or (is_success=False, err_message)
 
 .. _moobius.database.database_interface.DatabaseInterface.delete_key:
 DatabaseInterface.delete_key
 -----------------------------------
-**DatabaseInterface.delete_key(self, key)**
+DatabaseInterface.delete_key(self, key)
 
 Returns a tuple of (is_success=True, key) or (is_success=False, err_message)
 
 .. _moobius.database.database_interface.DatabaseInterface.all_keys:
 DatabaseInterface.all_keys
 -----------------------------------
-**DatabaseInterface.all_keys(self)**
+DatabaseInterface.all_keys(self)
 
 Returns an iterable of all keys, the details of which depend on the implementation.
 
 .. _moobius.database.database_interface.DatabaseInterface.__str__:
 DatabaseInterface.__str__
 -----------------------------------
-**DatabaseInterface.__str__(self)**
+DatabaseInterface.__str__(self)
 
 <No doc string>
 
 .. _moobius.database.database_interface.DatabaseInterface.__repr__:
 DatabaseInterface.__repr__
 -----------------------------------
-**DatabaseInterface.__repr__(self)**
+DatabaseInterface.__repr__(self)
 
 <No doc string>
