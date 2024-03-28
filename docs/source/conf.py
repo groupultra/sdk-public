@@ -10,8 +10,8 @@ project = 'Moobius'
 copyright = '2024, GroupUltra Ltd'
 author = 'Kevin Kostlan'
 
-release = '1.0'
-version = '1.0.x'
+release = '1.1'
+version = '1.1.x'
 
 # -- General configuration
 
@@ -21,6 +21,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
+    'sphinx_rtd_theme'
 ]
 
 intersphinx_mapping = {
