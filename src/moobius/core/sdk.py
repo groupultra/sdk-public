@@ -374,7 +374,7 @@ class Moobius:
             Overrides the_message if not None
           recipients=None: List of character_ids.
             Overrides the_message if not None.
-          subtype=None: Can be set to types.TEXT, types.IMAGE, types.AUDIO, or types.FILE
+          subtype=None: Can be set to types.TEXT, types.IMAGE, types.AUDIO, types.FILE, or types.CARD
             If None, the subtype will be inferred.
           len_limit=None: Limit the length of large text messages.
           file_display_name: The name shown for downloadable files can be set to a value different than the filename.
@@ -416,7 +416,11 @@ class Moobius:
         elif type(the_message) in [pathlib.Path, pathlib.PosixPath, pathlib.PurePath, pathlib.PurePosixPath, pathlib.PureWindowsPath, pathlib.WindowsPath]:
             mcontent, subtype = await _get_file_message_content(the_message, file_display_name=file_display_name, subtype=subtype)
             the_message = {'subtype':subtype, 'content':mcontent}
-
+        elif type(the_message) is dict:
+            if 'link' in the_message and 'button' in the_message and 'text' in the_message:
+                if not subtype:
+                    subtype = types.CARD
+                the_message = {'subtype':subtype, 'content': the_message} # Convert contents of a card into an actual card.
         if 'recipients' not in the_message and recipients is None:
             logger.error('None "recipients" (None as in not an empty list) but "recipients" not specified by the_message. This may indicate that recipients was unfilled.')
 

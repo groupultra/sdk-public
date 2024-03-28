@@ -206,6 +206,12 @@ def _socket_message_body_assert1(b, base_message, path, is_up):
                 del content[k]
         b = b.copy()
         del b['content']
+    elif subty == types.CARD:
+        content = b['content'].copy()
+        for k in ['link', 'button', 'text']: # 'title' may also be necessary.
+            if k not in b['content']:
+                raise PlatformAssertException(f'Card message is missing {k}.')
+        return True
     else:
         raise PlatformAssertException(f'Unrecognized subtype for a message body: {subty}; {base_message}.')
     return structure_assert(template, b, base_message, path)

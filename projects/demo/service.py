@@ -409,6 +409,10 @@ class DemoService(Moobius):
                 import random
                 some_text = ((str(random.random())+'   ')[0:3])*int(random.random()*12+3)
                 await self.send_message(some_text, channel_id, who_clicked, to_whom)
+            elif value == 'CardMessage'.lower():
+                card_message = {'link':'https://neocities.org/', 'title':'Where have all the websites gone?', 'button':'Here!',
+                                'text':'Domain names? Urls? wwwdotcoms?'}
+                await self.send_message(card_message, channel_id, who_clicked, to_whom, subtype=types.CARD)
             elif value == 'ImagePath'.lower():
                 file_path, rm_fn = _make_image(0.0)
                 path_obj = pathlib.Path(file_path) # Conversion to a Path makes the Moobius class recognize it as an image.

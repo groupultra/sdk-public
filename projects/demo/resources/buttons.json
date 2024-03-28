@@ -9,7 +9,7 @@
                 "name": "Select Task",
                 "type": "enum",
                 "optional": false,
-                "values": ["TextMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
+                "values": ["TextMessage", "CardMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
                 "placeholder": "(choose)"
             }
         ]

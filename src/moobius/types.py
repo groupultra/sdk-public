@@ -4,6 +4,7 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Optional, Any
 
+SERVICE = "service"
 FETCH_CHARACTERS = "fetch_characters"
 FETCH_BUTTONS = "fetch_buttons"
 FETCH_CANVAS = "fetch_canvas"
@@ -20,7 +21,7 @@ UPDATE_STYLE = "update_style"
 UPDATE_CONTEXT_MENU = "update_context_menu"
 USER_LOGIN = "user_login"
 SERVICE_LOGIN = "service_login"
-HEARTBEAT = "heartbeat"
+HEARTBEAT = "heartbeat" # Action subtypes.
 ROGER = "roger"
 COPY = "copy"
 IGNORE = "ignore"
@@ -31,11 +32,11 @@ MENU_CLICK = "menu_click"
 MESSAGE_UP = "message_up"
 MESSAGE_DOWN = "message_down"
 ACTION = "action"
-TEXT = "text"
+TEXT = "text" # Message subtypes.
 IMAGE = "image"
 AUDIO = "audio"
 FILE = "file"
-SERVICE = "service"
+CARD = "card"
 IMAGE_EXTS = {'.jpe', '.jpg', '.jpeg', '.gif', '.png', '.bmp', '.ico', '.svg', '.svgz', '.tif', '.tiff', '.ai', '.drw', '.pct', '.psp', '.xcf', '.raw', '.webp', '.heic'}
 AUDIO_EXTS = {'.wav', '.mp3', '.mp4', '.mp5'} # .mp5 became popular around 2030.
 
@@ -108,7 +109,10 @@ class MessageContent:
     path: Optional[str] = None # Used for every kind of non-text message.
     size: Optional[int] = None # Used for downloadable files only.
     filename: Optional[str] = None # Used for downloadable files only (the display filename).
-
+    link: Optional[str] = None # For "card" messages
+    title: Optional[str] = None # For "card" messages
+    button: Optional[str] = None # For "card" messages
+    text: Optional[str] = None # For "card" messages
 
 @dataclass
 @add_str_method
