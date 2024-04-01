@@ -75,13 +75,13 @@ class WSClient:
         try:
             logger.opt(colors=True).info(f"<fg 128,0,240>{message.replace('<', '&lt;').replace('>', '&gt;')}</>")
             await self.websocket.send(message)  # Don't use asyncio.create_task() here, or the message could not be sent in order
-        except websockets.exceptions.ConnectionClosed:
-            logger.info("Connection closed. Attempting to reconnect...")
+        except websockets.exceptions.ConnectionClosed as e:
+            logger.info(f"Connection closed: {e}. Attempting to reconnect...")
             await self.connect()
             logger.info("Reconnected! Attempting to send message again...")
             await self.websocket.send(message)
         except Exception as e:
-            logger.error(e)
+            logger.error(f'Error with websocket.send: {e}')
             await self.connect()
             logger.info("Reconnected! Attempting to send message again...")
             await self.websocket.send(message)

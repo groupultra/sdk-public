@@ -9,21 +9,21 @@ from moobius.database.storage import CachedDict
 import moobius.types as types
 from moobius.types import Button, CanvasElement, StyleElement, ContextMenuElement
 
-avoid_redis_on_windoze = True # Redis requires WSL2 to run on windows since it is Linux-only.
-avoid_redis = (avoid_redis_on_windoze and (sys.platform.lower() in ['win', 'win32', 'win64', 'windows', 'windoze'])) or avoid_redis_on_windoze == 'also linux'
-load_xtra_channels_on_start = False # There can be way too many sometimes!
-show_us_all = True # When one user presses a button, do all users see the effect?
-
 example_socket_callback_payloads = {} # Print these out when the AI is done.
-
 
 class DemoService(Moobius):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
+
         super().__init__(**kwargs)
 
-        for c in self.db_config: # Windoze!
+        with open('./config/client.json') as f: # Demo-specific config.
+            self.client_config = json.load(f)
+            is_windows = (sys.platform.lower() in ['win', 'win32', 'win64', 'windows', 'windoze'])
+            self.client_config['avoid_redis'] = (self.client_config['avoid_redis_on_windows'] if is_windows else self.client_config['avoid_redis_on_linux'])
+
+        for c in self.db_config:
             if 'redis' in c['implementation'].lower():
-                if avoid_redis:
+                if self.client_config['avoid_redis']:
                     logger.warning('WARNING: No Redis this demo b/c avoid_redis is True, using JSON instead for: '+ str(c))
                     c['implementation'] = 'json'
 
@@ -153,7 +153,7 @@ class DemoService(Moobius):
         channel_ids = await self.fetch_bound_channels()
         for c_id in channel_ids:
             if c_id not in self.channels:
-                if load_xtra_channels_on_start:
+                if self.client_config['load_xtra_channels_on_start']:
                     logger.info(f'EXTRA channel bound to this service on startup will be added: {c_id}')
                     await self.initialize_channel(c_id)
                 else:
@@ -186,7 +186,7 @@ class DemoService(Moobius):
         channel_id = message_up.channel_id
         recipients = message_up.recipients
         sender = message_up.sender
-        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if show_us_all else [sender]
+        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
 
         if message_up.subtype == types.TEXT:
             txt = message_up.content.text
@@ -272,7 +272,7 @@ class DemoService(Moobius):
 
     async def on_fetch_buttons(self, action):
         example_socket_callback_payloads['on_fetch_buttons'] = action
-        to_whom = await self.fetch_real_character_ids(action.channel_id, raise_empty_list_err=False) if show_us_all else [sender]
+        to_whom = await self.fetch_real_character_ids(action.channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
         if hasattr(self, 'TMP_print_buttons') and getattr(self, 'TMP_print_buttons'): # Set to True to indicate an extra call to print the buttons.
             self.TMP_print_buttons = False
             channel_id = action.channel_id
@@ -290,7 +290,7 @@ class DemoService(Moobius):
         channel_id = action.channel_id
         sender = action.sender
         the_channel = await self.get_channel(channel_id)
-        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if show_us_all else [sender]
+        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
 
         state = the_channel.states[sender]['canvas_mode']
         await self.send_update_canvas(channel_id, self.image_show_dict[state], to_whom)
@@ -360,11 +360,9 @@ class DemoService(Moobius):
         who_clicked = button_click.sender
         the_channel = await self.get_channel(channel_id)
 
-        #character = the_channel.real_characters[who_clicked]
-        #name = character.name
-        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if show_us_all else [who_clicked]
+        to_whom = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [who_clicked]
 
-        redis_txt = 'not-the-Redis' if avoid_redis else 'Redis'
+        redis_txt = 'not-the-Redis' if self.client_config['avoid_redis'] else 'Redis'
         value = None
         if button_click.arguments:
             value0 = button_click.arguments[0].value
@@ -500,7 +498,7 @@ class DemoService(Moobius):
             extra_channel_ids = list(self.xtra_channels.keys())
             if value == "New Channel".lower():
                 channel_name = '>>Demo TEMP channel'+str(len(extra_channel_ids))
-                new_channel_id = await self.create_and_bind_channel(channel_name, 'Channel created by the GUI.')
+                new_channel_id = await self.create_channel(channel_name, 'Channel created by the GUI.')
                 await self.initialize_channel(new_channel_id) # Prevents KeyErrors.
                 self.xtra_channels[new_channel_id] = 'A channel'
                 await self.send_message(f"New channel created, refresh and it should appear on the left bar: {channel_name} ({new_channel_id})", channel_id, who_clicked, to_whom)

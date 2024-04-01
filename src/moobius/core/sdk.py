@@ -544,11 +544,13 @@ class Moobius:
         if not self.is_agent: # 95% sure this extra line is just there because no one wanted to remove it.
             await self.ws_client.heartbeat()
 
-    async def create_and_bind_channel(self, channel_name, channel_desc):
+    async def create_channel(self, channel_name, channel_desc, bind=True):
         """Create a channel with the provided name and description and binds self.client_id (the service_id) to it.
-           (I think) a Service function. Returns the channel id."""
+           By default bind is True, which means the service connects itself to the channel.
+           A Service function. Returns the channel id."""
         channel_id = await self.http_api.create_channel(channel_name, channel_desc)
-        await self.http_api.bind_service_to_channel(self.client_id, channel_id)  # may already be binded to the service itself
+        if bind:
+            await self.http_api.bind_service_to_channel(self.client_id, channel_id)  # may already be binded to the service itself
         return channel_id
 
     ################################## Single-line functions #######################################
@@ -564,7 +566,6 @@ class Moobius:
     async def update_current_user(self, avatar, description, name): """Calls self.http_api.update_current_user."""; return await self.http_api.update_current_user(avatar, description, name)
     async def update_character(self, character_id, avatar, description, name): """Calls self.http_api.update_character using self.client_id."""; return await self.http_api.update_character(self.client_id, character_id, avatar, description, name)
     async def update_channel(self, channel_id, channel_name, channel_desc): """Calls self.http_api.update_channel."""; return await self.http_api.update_channel(channel_id, channel_name, channel_desc)
-    async def create_channel(self, channel_name, channel_desc): """Calls self.http_api.create_channel"""; return await self.http_api.create_channel(channel_name, channel_desc)
     async def bind_service_to_channel(self, channel_id): """Calls self.http_api.bind_service_to_channel"""; return await self.http_api.bind_service_to_channel(self.client_id, channel_id)
     async def unbind_service_from_channel(self, channel_id): """Calls self.http_api.unbind_service_from_channel"""; return await self.http_api.unbind_service_from_channel(self.client_id, channel_id)
     async def create_character(self, name, avatar, description): """Calls self.http_api.create_character using self.create_character."""; return await self.http_api.create_character(self.client_id, name, avatar, description)
