@@ -56,6 +56,7 @@ class WSClient:
         async def _default_handle(self, message): logger.debug(f"{message}")
         self.on_connect = on_connect or _on_connect
         self.handle = handle or _default_handle
+        self.is_reconnecting = False # Block sending messages until this becomes True.
 
     async def connect(self):
         """Connects to the websocket server. Call after self.authenticate(). Returns None."""
@@ -74,16 +75,20 @@ class WSClient:
         asserts.socket_assert(json.loads(message))
         try:
             logger.opt(colors=True).info(f"<fg 128,0,240>{message.replace('<', '&lt;').replace('>', '&gt;')}</>")
+            while self.is_reconnecting: # Cannot use an async.lock() for this b/c doing so would make self.send() block itself.
+                await asyncio.sleep(0.01)
             await self.websocket.send(message)  # Don't use asyncio.create_task() here, or the message could not be sent in order
         except websockets.exceptions.ConnectionClosed as e:
+            self.is_reconnecting = True
             logger.info(f"Connection closed: {e}. Attempting to reconnect...")
             await self.connect()
             logger.info("Reconnected! Attempting to send message again...")
+            self.is_reconnecting = False
             await self.websocket.send(message)
         except Exception as e:
             logger.error(f'Error with websocket.send: {e}')
             await self.connect()
-            logger.info("Reconnected! Attempting to send message again...")
+            logger.info("Reconnected! Attempting to send message again, which is a long shot for non ConnectionClosed Exceptions...")
             await self.websocket.send(message)
 
     async def receive(self):

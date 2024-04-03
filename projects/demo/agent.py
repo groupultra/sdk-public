@@ -16,7 +16,6 @@ class DemoAgent(Moobius):
         logger.info("I speak 中国人, English, and many other languages because I know Unicode!")
         self.log_file = log_file
         self.error_log_file = error_log_file
-        self.most_recent_updates = {} # Store the most recent updates to characters, canvas, etc. These can be queryed by sending a message to the agent.
 
     async def on_start(self):
         """Called after successful connection to Platform websocket and Agent login success."""
@@ -42,14 +41,8 @@ class DemoAgent(Moobius):
             text1 = text0.strip().lower()
             if text1 == "nya":
                 text2 = "meow"
-                button_list = [{"button_id": "keyc", "button_name": "cat talk","button_text": "Meow/Nya", "new_window": False}]
-                print('AGENT BUTTON UPDATE:', channel_id, [message_down.sender])
-                await self.send_update_buttons(channel_id, button_list, [message_down.sender]) # TODO: can buttons be updated by agent?
             elif text1 == "meow":
                 text2 = "nya"
-            elif text1 == "log agent out":
-                text2 = "Agent logging out. Will not be usable until restart."
-                will_log_out = True
             elif text1 == "agent info":
                 the_agent_id = self.client_id
                 agent_info1 = await self.fetch_character_profile(the_agent_id) # Should be equal to self.agent_info
@@ -60,29 +53,6 @@ class DemoAgent(Moobius):
                 logger.info('About to update the agent\'s name!')
                 await self.update_current_user(avatar="null", description='Agent got an updated name!', name=new_name)
                 text2 = "renamed the agent (refresh)!"
-            elif text1 == 'channel groups' or text1 == 'channel_groups':
-                glist_temp = await self.fetch_channel_temp_group(channel_id)
-                glist = await self.fetch_channel_group_list(channel_id)
-                gdict = await self.http_api.fetch_channel_group_dict(channel_id, self.client_id)
-                text2A = self.limit_len(f"Channel group list (this time from the agent):\n{pprint.pformat(glist)}", 4096)
-                text2B = self.limit_len(f"Channel group TEMP list (this time from the agent):\n{pprint.pformat(glist_temp)}", 4096)
-                text2C = self.limit_len(f"Channel group, dict form from Agent (used internally):\n{pprint.pformat(gdict)}", 4096)
-                text2 = '\n\n'.join([text2A,text2B,text2C])
-            elif text1 == 'show_updates':
-                update_lines = []
-                for k, v in self.most_recent_updates.items():
-                    update_lines.append(k+': '+str(v))
-                show_JSON = False
-                if show_JSON:
-                    text2 = 'STR:\n'+'\n\n'.join(update_lines)+'\nJSON:\n'+json.dumps(self.most_recent_updates, indent=2, cls=utils.EnhancedJSONEncoder, ensure_ascii=False)
-                else:
-                    text2 = '\n\n'.join(update_lines)
-            elif text1 == 'user_info':
-                try:
-                    uinfo = await self.http_api.fetch_user_info()
-                    text2 = str(uinfo)
-                except Exception as e:
-                    f'Agent info fetch fail: {e}'
             elif len(text0) > 160:
                 text2 = f'Long message len={len(text0)}.'
             else:
@@ -101,7 +71,6 @@ class DemoAgent(Moobius):
     #################### There are 5 on_update callbacks (not counting the generic on_update switchyard) ####################
 
     async def on_update_characters(self, update):
-        self.most_recent_updates['on_update_characters'] = update # Store this every update.
         character_ids = [e.character.character_id for e in update.content]
         for character_id, character_profile in zip(character_ids, await self.fetch_character_profile(character_ids)):
             if not character_id:
@@ -116,62 +85,30 @@ class DemoAgent(Moobius):
             self.channels[c_id].characters[character_id] = character_profile
 
     async def on_update_buttons(self, update):
-        self.most_recent_updates['on_update_buttons'] = update
         self.channels[update.channel_id].buttons = [c.button for c in update.content]
 
     async def on_update_canvas(self, update):
-        self.most_recent_updates['on_update_canvas'] = update
+        pass
 
     async def on_update_channel_info(self, update):
-        self.most_recent_updates['on_update_channel_info'] = update
+        pass
 
     async def on_update_canvas(self, update):
-        self.most_recent_updates['on_update_canvas'] = update
+        pass
 
     async def on_fetch_channel_info(self, update):
-        self.most_recent_updates['on_fetch_channel_info'] = update
+        pass
 
     async def on_update_context_menu(self, update):
-        self.most_recent_updates['on_update_context_menu'] = update
+        pass
 
     ###########################################################################################################
 
     async def on_spell(self, text):
-        """The agent can also be tested with spells which call the self.send_... functions."""
+        """Spells can be sent from the Wand from other processes."""
         if type(text) is not str:
             logger.warning('Agent spell got non-string text')
-        if text == "send_fetch_characters":
-            for channel_id in self.channels.keys():
-                await self.send_fetch_characters(channel_id)
-        elif text == "send_fetch_buttons":
-            for channel_id in self.channels.keys():
-                await self.send_fetch_buttons(channel_id)
-        elif text == "send_fetch_style":
-             for channel_id in self.channels.keys():
-                 await self.send_fetch_style(channel_id)
-        elif text == "send_fetch_canvas":
-            for channel_id in self.channels.keys():
-                await self.send_fetch_canvas(channel_id)
-        elif text == "send_join_channel":
-            for channel_id in self.channels.keys():
-                await self.send_join_channel(channel_id)
-        elif text == "send_leave_channel":
-            for channel_id in self.channels.keys():
-                await self.send_leave_channel(channel_id)
-        elif text == "send_fetch_channel_info":
-            for channel_id in self.channels.keys():
-                await self.send_fetch_channel_info(channel_id)
-        elif text == "send_button_click_key1":
-            for channel_id in self.channels.keys():
-                for button in self.channels[channel_id].buttons:
-                    if button['button_id'] == "key1":
-                        await self.send_button_click(channel_id, "key1", [('arg1', "Meet Tubbs")])
-        elif text == "send_button_click_key2":
-            for channel_id in self.channels.keys():
-                for button in self.channels[channel_id].buttons:
-                    if button['button_id'] == "key2":
-                        await self.send_button_click(channel_id, "key2", [])
-        elif text == "nya_all":
+        if text == "nya_all":
             for channel_id in self.channels.keys():
                 recipients = list(self.channels[channel_id].characters.keys())
                 await self.send_message("nya nya nya", channel_id, recipients)

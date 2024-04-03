@@ -125,11 +125,11 @@ On launch the base class calls **self.start()**. This function authenticates, co
 
 ## Overriding service.on_start() and creating a MoobiusStorage class
 
-The goal of **on_start()** is primarily to query and modify the client configuration. self.cron_task is scheduled here instead of at self.__init__ so that it will not run before self.start() has finished:
+The goal of **on_start()** is primarily to query and modify the client configuration. self.rate_task is scheduled here instead of at self.__init__ so that it will not run before self.start() has finished:
 ```
-self.scheduler.add_job(self.cron_task, 'interval', minutes=1)
+self.scheduler.add_job(self.rate_task, 'interval', minutes=1)
 
-async def cron_task(self):
+async def rate_task(self):
     for channel_id in self.channels:
         channel = self.channels[channel_id]
         recipients = list(channel.real_characters.keys())

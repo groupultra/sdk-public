@@ -9,22 +9,7 @@
                 "name": "Select Task",
                 "type": "enum",
                 "optional": false,
-                "values": ["Text", "Image", "Audio", "File", "Card", "Swap Canvas", "Fancy Right Click"],
-                "placeholder": "(choose)"
-            }
-        ]
-    },
-    {
-        "button_id": "channel_btn",
-        "button_name": "channely choice",
-        "button_text": "Channel!",
-        "new_window": true,
-        "arguments": [
-            {
-                "name": "Select Task",
-                "type": "enum",
-                "optional": false,
-                "values": ["New Channel", "Ping Channels", "List Bound Channels", "List All Channels", "Update Extra Channels"],
+                "values": ["Text", "Image"],
                 "placeholder": "(choose)"
             }
         ]
@@ -39,7 +24,7 @@
                 "name": "Select task",
                 "type": "enum",
                 "optional": false,
-                "values": ["Make Mickey", "Mickey Talk", "Update Mickey (not agent) name", "List Characters"],
+                "values": ["Make Mickey", "Mickey Talk"],
                 "placeholder": "(choose)"
             }
         ]

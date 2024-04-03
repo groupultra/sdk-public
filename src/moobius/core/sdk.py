@@ -140,6 +140,7 @@ class Moobius:
         self.refresh_interval = 6 * 60 * 60             # 24h expire, 6h refresh
         self.authenticate_interval = 7 * 24 * 60 * 60   # 30d expire, 7d refresh
         self.heartbeat_interval = 30                    # 30s heartbeat
+        self.checkin_interval = 90
 
         self.scheduler = None
 
@@ -249,6 +250,8 @@ class Moobius:
         await self.on_start()
         logger.debug("on_start() finished.")
 
+        self.scheduler.add_job(self.checkin, 'interval', seconds=self.checkin_interval) # This check-in must be after on_start()
+
         await asyncio.gather(self.ws_client.receive(), self.listen_loop())
 
     async def agent_join_service_channels(self, service_config_fname):
@@ -334,6 +337,16 @@ class Moobius:
         """Creates a MoobiusStorage object for a channel given by channel_id. Commonly overridden. Returns None."""
         the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
         self.channels[channel_id] = the_channel
+
+    async def checkin(self):
+        """Called as a rate task, used to resync users, etc. Only called after on_start()"""
+        for channel_id in self.channels.keys():
+            await self.checkin_channel(channel_id)
+
+    async def checkin_channel(self, channel_id):
+        """This is called on startup and on reconnect"""
+        if channel_id == list(self.channels.keys())[0]:
+            logger.warning('checkin_channel not overriden, occasional desyncs are possible.')
 
     async def upload_avatar_and_create_character(self, name, image_path, description):
         """
