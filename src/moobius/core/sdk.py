@@ -141,8 +141,13 @@ class Moobius:
         self.authenticate_interval = 7 * 24 * 60 * 60   # 30d expire, 7d refresh
         self.heartbeat_interval = 30                    # 30s heartbeat
         self.checkin_interval = 90
+        self.log_retention = kwargs.get('log_retention', {'rotation':"1 day", 'retention':"7 days"})
 
         self.scheduler = None
+
+        self.log_file = kwargs.get('log_file')
+        self.error_log_file = kwargs.get('error_log_file')
+        self.init_all_channels = kwargs.get('initialize_all_bound_channels')
 
     async def start(self):
         """
@@ -244,8 +249,23 @@ class Moobius:
         self.scheduler.add_job(self.authenticate, 'interval', seconds=self.authenticate_interval)
         self.scheduler.add_job(self.send_heartbeat, 'interval', seconds=self.heartbeat_interval)
 
+        if self.log_file:
+            logger.add(self.log_file, level="DEBUG", **self.log_retention)
+        if self.error_log_file:
+            logger.add(self.error_log_file, level="ERROR", **self.log_retention)
+
         self.scheduler.start()
         logger.debug("Scheduler started.")
+
+        if not self.is_agent:
+            channel_ids = await self.fetch_bound_channels()
+            for c_id in channel_ids:
+                if c_id not in self.channels:
+                    if self.init_all_channels:
+                        logger.info(f'Extra channel bound to this service on startup will be initialized  (self.init_all_channels is True): {c_id}')
+                        await self.initialize_channel(c_id) # This channel was not initialized in the main "initialize channels" for loop because it is not in self.channels.
+                    else:
+                        logger.info(f'Extra channel bound to this service on startup will NOT be initialized (self.init_all_channels is False): {c_id}')
 
         await self.on_start()
         logger.debug("on_start() finished.")
