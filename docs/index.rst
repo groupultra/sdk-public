@@ -17,19 +17,7 @@ how to :ref:`installation` the project.
 Modules
 ==================
 
-* :ref:`moobius.types <moobius_types>`
-* :ref:`moobius.utils <moobius_utils>`
-* :ref:`moobius.core.dtrack <moobius_core_dtrack>`
-* :ref:`moobius.core.sdk <moobius_core_sdk>`
-* :ref:`moobius.core.wand <moobius_core_wand>`
-* :ref:`moobius.database.database.interface <moobius_database_database_interface>`
-* :ref:`moobius.database.json.database <moobius_database_json_database>`
-* :ref:`moobius.database.null.database <moobius_database_null_database>`
-* :ref:`moobius.database.redis.database <moobius_database_redis_database>`
-* :ref:`moobius.database.storage <moobius_database_storage>`
-* :ref:`moobius.network.asserts <moobius_network_asserts>`
-* :ref:`moobius.network.http.api.wrapper <moobius_network_http_api_wrapper>`
-* :ref:`moobius.network.ws.client <moobius_network_ws_client>`
+{LINES}
 
 Indices and tables
 ==================

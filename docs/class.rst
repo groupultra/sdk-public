@@ -1,0 +1,6 @@
+Class {CNAME}
+===================
+
+{CDOC}
+
+{CMETHODS}

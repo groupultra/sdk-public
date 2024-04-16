@@ -19,8 +19,6 @@ class DemoAgent(Moobius):
 
     async def on_start(self):
         """Called after successful connection to Platform websocket and Agent login success."""
-        logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
-        logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
 
         await self.agent_join_service_channels('./config/service.json') # Log into the default set of channels if not already
 

@@ -299,8 +299,9 @@ class HTTPAPIWrapper:
         """Used by the Agent to get their info as a UserInfo object."""
         response_dict = await self.checked_get(url=self.http_server_uri + f"/user/info", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched user info", bad_message="Error getting user info", raise_errors=True)
         idict = response_dict.get('data')
+        email_verified = idict.get('email_verified') # Sometimes this is unfilled.
         return UserInfo(avatar=idict['context']['avatar'], description=idict['context']['description'], name=idict['context']['name'],
-                        email=idict['email'], email_verified=idict['email_verified'], user_id=idict['user_id'], system_context=idict['system_context'])
+                        email=idict['email'], email_verified=email_verified, user_id=idict['user_id'], system_context=idict['system_context'])
 
     async def update_current_user(self, avatar, description, name):
         """Updates the user info. Will only be an Agent function in the .net version.
@@ -414,7 +415,7 @@ class HTTPAPIWrapper:
         jsonr = {"channel_id": channel_id, "channel_name": channel_name, "context":{"channel_description":channel_desc}}
         await self.checked_post(url=self.http_server_uri + "/channel/update", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully updated channel {channel_id}", bad_message=f"Error updating channel {channel_id}", raise_errors=True)
 
-    async def fetch_popular_chanels(self):
+    async def fetch_popular_channels(self):
         """Fetches the popular channels, returning a list of channel_id strings."""
         response_dict = await self.checked_get(url=self.http_server_uri + "/channel/popular", the_request=None, requests_kwargs={'headers':self.headers}, good_message=f"Successfully fetched popular channels", bad_message=f"Error fetching popular channels", raise_errors=True)
         out = []

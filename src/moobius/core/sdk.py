@@ -105,7 +105,7 @@ class Moobius:
             logger.info('Be careful to keep the secrets in your service config safe!')
             the_config = config_path
         elif type(config_path) is str:
-            with open(config_path, "r") as f:
+            with open(config_path, "r", encoding='utf-8') as f:
                 the_config = json.load(f)
         else:
             raise Exception('config_path not understood')
@@ -114,7 +114,7 @@ class Moobius:
         if type(db_config_path) is dict:
             self.db_config = db_config_path
         elif type(db_config_path) is str and db_config_path != "":
-            with open(db_config_path, "r") as f:
+            with open(db_config_path, "r", encoding='utf-8') as f:
                 self.db_config = json.load(f)
         else:
             raise Exception('db_config_path not understood')
@@ -192,12 +192,12 @@ class Moobius:
                 raise Exception("Error creating a new service and getting its id.")
 
             if type(self.config_path) is str: # Save the newly created service if any.
-                with open(self.config_path, "r") as f:
+                with open(self.config_path, "r", encoding='utf-8') as f:
                     old_config = json.load(f)
                 s_id = self.config['service_id']
                 if s_id != old_config.get('service_id'):
                     old_config['service_id'] = s_id
-                    with open(self.config_path, "w") as f:
+                    with open(self.config_path, "w", encoding='utf-8') as f:
                         json.dump(old_config, f, indent=4, ensure_ascii=False)
                         logger.info(f"Config file 'service_id' updated to {s_id}: {self.config_path}")
 
@@ -281,7 +281,7 @@ class Moobius:
         if type(service_config_fname) is dict:
             s_config = service_config_fname
         else:
-            with open(service_config_fname, 'r') as f_obj:
+            with open(service_config_fname, 'r', encoding='utf-8') as f_obj:
                 s_config = json.load(f_obj)
             channels = s_config.get('channels', [])
         if len(channels)==0:
@@ -602,7 +602,7 @@ class Moobius:
     async def bind_service_to_channel(self, channel_id): """Calls self.http_api.bind_service_to_channel"""; return await self.http_api.bind_service_to_channel(self.client_id, channel_id)
     async def unbind_service_from_channel(self, channel_id): """Calls self.http_api.unbind_service_from_channel"""; return await self.http_api.unbind_service_from_channel(self.client_id, channel_id)
     async def create_character(self, name, avatar, description): """Calls self.http_api.create_character using self.create_character."""; return await self.http_api.create_character(self.client_id, name, avatar, description)
-    async def fetch_popular_channels(self): """Calls self.http_api.fetch_popular_channels."""; return await self.http_api.fetch_popular_chanels()
+    async def fetch_popular_channels(self): """Calls self.http_api.fetch_popular_channels."""; return await self.http_api.fetch_popular_channels()
     async def fetch_channel_list(self): """Calls self.http_api.fetch_channel_list."""; return await self.http_api.fetch_channel_list()
     async def fetch_real_character_ids(self, channel_id, raise_empty_list_err=True): """Calls self.http_api.fetch_real_character_ids using self.client_id."""; return await self.http_api.fetch_real_character_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
     async def fetch_character_profile(self, character_id): """Calls self.http_api.fetch_character_profile"""; return await self.http_api.fetch_character_profile(character_id)
@@ -623,7 +623,7 @@ class Moobius:
 
     async def send_agent_login(self): """Calls self.ws_client.agent_login using self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.agent_login(self.http_api.access_token)
     async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
-    async def send_update(self, target_client_id, data): """Calls self.ws_client.TODO"""; return await self.ws_client.update(self.client_id, target_client_id, data)
+    async def send_update(self, target_client_id, data): """Calls self.ws_client.update"""; return await self.ws_client.update(self.client_id, target_client_id, data)
     async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
     async def send_update_channel_info(self, channel_id, channel_info): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_info)
     async def send_update_canvas(self, channel_id, canvas_elements, recipients): """Calls self.ws_client.update_canvas using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_elements, await self._update_rec(recipients, True))

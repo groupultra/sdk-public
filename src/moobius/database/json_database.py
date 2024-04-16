@@ -57,7 +57,7 @@ class JSONDatabase(DatabaseInterface):
 
         if not os.path.exists(filename):
             return False, f'No json file found for {key}.'
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
             if data['_type'] == 'NoneType':
@@ -83,7 +83,7 @@ class JSONDatabase(DatabaseInterface):
            Note: This function should not be called directly."""
         filename = os.path.join(self.path, key + '.json')
 
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             data = {key: value, '_type': type(value).__name__}
             json.dump(data, f, indent=4, cls=EnhancedJSONEncoder, ensure_ascii=False)
             return True, key

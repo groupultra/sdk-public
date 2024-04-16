@@ -14,7 +14,7 @@ example_socket_callback_payloads = {} # Print these out when the AI is done.
 class TemplateService(Moobius):
     def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
 
-        super().__init__(**kwargs)
+        super().__init__(log_file=log_file, error_log_file=error_log_file, **kwargs)
 
         with open('./config/client.json') as f: # Demo-specific config.
             self.client_config = json.load(f)
@@ -106,17 +106,7 @@ class TemplateService(Moobius):
     async def on_start(self):
         """Called after successful connection to websocket server and service login success.
            Searches for extra channels bound to this service."""
-        logger.add(self.log_file, rotation="1 day", retention="7 days", level="DEBUG")
-        logger.add(self.error_log_file, rotation="1 day", retention="7 days", level="ERROR")
-
-        channel_ids = await self.fetch_bound_channels()
-        for c_id in channel_ids:
-            if c_id not in self.channels:
-                if self.client_config['load_xtra_channels_on_start']:
-                    logger.info(f'EXTRA channel bound to this service on startup will be added: {c_id}')
-                    await self.initialize_channel(c_id)
-                else:
-                    logger.info(f'EXTRA channel bound to this service on startup will NOT be added b/c load_xtra_channels_on_start is False: {c_id}')
+        pass
 
     async def on_message_down(self, message_down):
         pass
@@ -127,10 +117,6 @@ class TemplateService(Moobius):
     async def on_message_up(self, message_up):
         """Runs various commands, such as resetting when the user types in "reset".
            (Agent-related commands are found in the agent.py instead of here)."""
-        from moobius.types import MessageBody
-        if type(message_up) is not MessageBody: # DEBUG TODO.
-            print(message_up)
-            raise Exception('message_up not message body see above.')
         channel_id = message_up.channel_id
         recipients = message_up.recipients
         sender = message_up.sender
@@ -192,14 +178,14 @@ class TemplateService(Moobius):
 
     async def on_fetch_buttons(self, action):
         example_socket_callback_payloads['on_fetch_buttons'] = action
+        sender = action.sender
         to_whom = await self.fetch_real_character_ids(action.channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
         if hasattr(self, 'TMP_print_buttons') and getattr(self, 'TMP_print_buttons'): # Set to True to indicate an extra call to print the buttons.
             self.TMP_print_buttons = False
             channel_id = action.channel_id
-            sender = action.sender
             await self.send_message(f"Fetch button action\n: {action}.", channel_id, sender, to_whom)
         else:
-            await self.send_buttons_from_database(action.channel_id, action.sender)
+            await self.send_buttons_from_database(action.channel_id, sender)
 
     async def on_fetch_channel_info(self, action):
         example_socket_callback_payloads['on_fetch_channel_info'] = action
@@ -315,7 +301,7 @@ class TemplateService(Moobius):
                 else:
                     sn = the_channel.states[who_clicked]['Mickey_num'] - 1
                     talker = the_channel.virtual_characters[f"Mickey_{sn}"].character_id
-                    await self.send_message(f"Mickey {sn} Here! Mickeys are stored in JSON db.", channel_id, who_clicked, to_whom)
+                    await self.send_message(f"Mickey {sn} Here! Mickeys are stored in JSON db.", channel_id, talker, to_whom)
         elif button_id == "command_btn".lower():
             cmds = """
 "show" (send to service): Show buttons and canvas.
