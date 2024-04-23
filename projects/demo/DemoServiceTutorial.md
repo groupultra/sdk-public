@@ -135,7 +135,7 @@ async def rate_task(self):
         recipients = list(channel.real_characters.keys())
         talker = channel.virtual_characters[self.WAND].character_id
         txt = f"Check in every minute! {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        await self.send_message(txt, channel_id, recipients, sender=talker)
+        await self.send_message(channel_id, txt, talker, recipients)
 ```
 
 On startup MoobiusService populates self.channels() with a list of channel_id values. It searches over all the channels and selects those for which service_id == self.client_id.
@@ -206,12 +206,12 @@ sender = message_up.sender
 recipients = message_up.recipients
 ```
 
-Lets replace messages of "moobius" sent to ALL with "Moobius is Great!":
+Lets replace messages of "moobius" sent to ALL with "Moobius is Great!". Note that self.send_message is quite polymorphic and can handle string messages as well as MessageBody messages:
 ```
 if recipients:
     # DEMO: text modification
     if txt.lower() == "moobius":
-        await self.send_message("Moobius is Great!", channel_id, sender, recipients)
+        await self.send_message(channel_id, "Moobius is Great!", sender, recipients)
     else:
         await self.send_message(message_up)
 ```
@@ -284,7 +284,7 @@ async def on_join_channel(self, action):
     character_ids = list(channel.real_characters.keys()) # In this example character_list is the same as character_ids; every user gets to see the update.
 
     await self.send_update_character_list(channel_id, character_list, character_ids)
-    await self.send_message(f'{name} joined the channel!', channel_id, sender, character_ids)
+    await self.send_message(channel_id, f'{name} joined the channel!', sender, character_ids)
 
 async def on_leave_channel(self, action):
     sender = action.sender
@@ -299,7 +299,7 @@ async def on_leave_channel(self, action):
     character_ids = list(real_characters.keys())
 
     await self.send_update_character_list(channel_id, character_list, character_ids)
-    await self.send_message(f'{name} left the channel!', channel_id, sender, character_ids)
+    await self.send_message(channel_id, f'{name} left the channel!', sender, character_ids)
 ```
 
 ## Overriding **self.on_spell(spell)**
@@ -321,7 +321,7 @@ async def on_spell(self, spell):
         channel = self.channels[channel_id]
         recipients = list(channel.real_characters.keys())
         talker = channel.virtual_characters[self.WAND].character_id
-        await self.send_message(text, channel_id, sender, recipients)
+        await self.send_message(channel_id, text, sender, recipients)
 ```
 
 ## Overriding self.on_button_click(button_click)
@@ -371,18 +371,14 @@ Will call self.send_service_login() if copy.status is invalid. Generally not use
 **async def on_fetch_channel_info(self, action)**
 This method is uncommon to override.
 
-**async def upload_avatar_and_create_character(self, service_id, name, image_path, description)**
+**async def upload_avatar_and_create_character(self, name, image_path, description)**
 Uses HTTPS to uploade an image and assign it to a new character. Used by the demos *neko* and *script_cinema*.
-
 
 **async def on_unknown_payload(self, payload: Payload)**
 This is used as a catchall in the handle_received_payload switchyard and is uncommon to override.
 
 **async def send_service_login(self)**
 Used internally in the Service class.
-
-**async def send_message_down(self, channel_id, recipients, subtype, message_content, sender)**
-Used by virtual characters to send messages to users. Used many times in the demo *mouse*.
 
 **async def send_update(self, target_client_id, data)**
 Generaic send_update. It is generally not used, more specific functions such as send_update_character_list are used instead.

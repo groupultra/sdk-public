@@ -1,0 +1,83 @@
+[
+    {
+        "button_id": "message_btn",
+        "button_name": "Message stuff",
+        "button_text": "Message!",
+        "new_window": true,
+        "arguments": [
+            {
+                "name": "Select Task",
+                "type": "enum",
+                "optional": false,
+                "values": ["TextMessage", "CardMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
+                "placeholder": "(choose)"
+            }
+        ]
+    },
+    {
+        "button_id": "channel_btn",
+        "button_name": "channely choice",
+        "button_text": "Channel!",
+        "new_window": true,
+        "arguments": [
+            {
+                "name": "Select Task",
+                "type": "enum",
+                "optional": false,
+                "values": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Test Database", "Wipe DatabaseA", "Wipe DatabaseB", "SDK direct download"],
+                "placeholder": "(choose)"
+            }
+        ]
+    },
+    {
+        "button_id": "user_btn",
+        "button_name": "user choice",
+        "button_text": "Characters!",
+        "new_window": true,
+        "arguments": [
+            {
+                "name": "Select task",
+                "type": "enum",
+                "optional": false,
+                "values": ["Make Mickey", "Mickey Talk", "Update Mickey (not agent) name", "List Characters"],
+                "placeholder": "(choose)"
+            }
+        ]
+    },
+    {
+        "button_id": "group_btn",
+        "button_name": "group choice",
+        "button_text": "Groups!",
+        "new_window": true,
+        "arguments": [
+            {
+                "name": "Select Group Operation",
+                "type": "enum",
+                "optional": false,
+                "values": ["List Channel Temp Groups", "List Channel Groups"],
+                "placeholder": "(choose)"
+            }
+        ]
+    },
+    {
+        "button_id": "money_btn",
+        "button_name": "money stuff",
+        "button_text": "Redis-Pay",
+        "new_window": true,
+        "arguments": [
+            {
+                "name": "currency_type",
+                "type": "enum",
+                "optional": false,
+                "values": ["(Print Savings)", "(Donate all)", "Naira", "Dollar", "Peso", "Yuan", "Euro", "Kina", "Penguin"],
+                "placeholder": "Select Currency"
+            }
+        ]
+    },
+    {
+        "button_id": "command_btn",
+        "button_name": "Show Commands",
+        "button_text": "Commands",
+        "new_window": false
+    }
+]

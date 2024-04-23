@@ -476,7 +476,6 @@ class HTTPAPIWrapper:
         upload_fields = response_dict.get('data').get('fields')
         return upload_url, upload_fields
 
-
     async def _do_upload_file(self, upload_url, upload_fields, file_path):
         """
         Upload a file to the given upload URL with the given upload fields.
@@ -520,6 +519,22 @@ class HTTPAPIWrapper:
         else:
             logger.error(f"Error getting upload url and upload fields! file_path: {file_path}")
             raise Exception(f"Error getting upload url and upload fields! file_path: {file_path}")
+
+    async def download_file(self, url, filename, assert_no_overwrite=False):
+        """Downloads a file from url to filename, automatically creating dirs and overwriting pre-existing files."""
+        requests_kwargs={'headers':self.headers} # Auth allows downloading form buckets we authed for.
+        # https://stackoverflow.com/questions/35388332/how-to-download-images-with-aiohttp
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, **requests_kwargs) as resp:
+                if resp.status == 200:
+                    if os.path.exists(filename) and assert_no_overwrite:
+                        raise Exception(f'Assert no overwrite to pre-existing file: {os.path.realpath(filename)}')
+                    os.makedirs(os.path.dirname(filename), exist_ok=True)
+                    with open(filename, 'wb') as fd:
+                        async for chunk in resp.content.iter_chunked(10):
+                            fd.write(chunk)
+                else:
+                    raise Exception(f'Cannot download file: {resp}')
 
     ############################# Groups ############################
 

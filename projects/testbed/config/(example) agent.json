@@ -1,0 +1,6 @@
+{
+    "http_server_uri": "https://api.moobius.net/",
+    "ws_server_uri": "wss://ws.moobius.net/",
+    "email": "<agent email>",
+    "password": "<agent password>"
+}
