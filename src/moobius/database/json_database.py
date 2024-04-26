@@ -1,6 +1,6 @@
 # json_database.py
 
-import json
+import json, dataclasses
 import os
 from pydoc import locate
 
@@ -11,6 +11,7 @@ from moobius.utils import EnhancedJSONEncoder
 from moobius import types
 from .database_interface import DatabaseInterface
 
+DTYPE = '_type' # Used to indicate the class name.
 
 # TODO: 
 # 1. validity check for key (must be str)
@@ -42,7 +43,6 @@ class JSONDatabase(DatabaseInterface):
         super().__init__()
 
         self.path = os.path.join(root_dir, domain.replace('.', os.sep))
-        self.ref_module = types
         os.makedirs(self.path, exist_ok=True)
 
     def get_value(self, key):
@@ -60,23 +60,24 @@ class JSONDatabase(DatabaseInterface):
         with open(filename, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-            if data['_type'] == 'NoneType':
+            if data[DTYPE] == 'NoneType':
                 return True, None   # You can't use NoneType(None) to construct a NoneType object, so we have to return None directly
             else:
-                class_name = data['_type']
-                data_type = locate(f'{self.ref_module.__name__}.{class_name}')
+                class_name_fullpath = data[DTYPE]
+                data_type = locate(class_name_fullpath)
 
-                if data_type:   # dataclass
-                    return True, from_dict(data_class=data_type, data=data[key])
-
-                else:   # possible built-in type, attempt to construct the object from the value
-                    data_type = locate(class_name)
-
+                if not data_type: # Legacy backwards compat. Remove this if block after enough time has passed.
+                    data_type = locate(f'{types.__name__}.{class_name_fullpath}')
                     if data_type:
-                        return True, data_type(data[key])
+                        logger.warning('Legacy compat JSONDatabase type system. This warning should disappear on save+load of the database.')
 
+                if data_type:
+                    if dataclasses.is_dataclass(data_type):
+                        return True, from_dict(data_class=data_type, data=data[key])
                     else:
-                        raise TypeError(f'Unknown type: {class_name}')
+                        return True, data_type(data[key])
+                else:
+                    raise TypeError(f'Unknown type: {class_name_fullpath}')
 
     def set_value(self, key, value):
         """Set the value (a dict) of a key (a string). Returns (is_success, the_key).
@@ -84,7 +85,7 @@ class JSONDatabase(DatabaseInterface):
         filename = os.path.join(self.path, key + '.json')
 
         with open(filename, 'w', encoding='utf-8') as f:
-            data = {key: value, '_type': type(value).__name__}
+            data = {key: value, DTYPE: type(value).__module__+'.'+type(value).__name__} # Fullpath is package.module.name.
             json.dump(data, f, indent=4, cls=EnhancedJSONEncoder, ensure_ascii=False)
             return True, key
 

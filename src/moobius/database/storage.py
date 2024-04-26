@@ -124,6 +124,11 @@ class CachedDict(dict):
         else:
             return default
 
+    def clear(self):
+        """Clears everything in both this file and on the disk."""
+        for k in list(self.keys()):
+            self.pop(k)
+
     def __str__(self):
         kys = list(self.keys())
         vs = [self.get(k) for k in kys]
