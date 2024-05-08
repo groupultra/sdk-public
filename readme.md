@@ -1,4 +1,4 @@
-# Welcome to Moobius Python SDK (Version 1.0.0)!
+# Welcome to Moobius Python SDK (Version 1.x.y)!
 
 ## Quick Start (Requires Python 3.10+)
 
@@ -41,7 +41,7 @@ Congratulations! Now you have your first Moobius Service. The demo contains `ser
 
 2. **Service:** The Service handles most of the interaction with the platform SDK. This includes sending and responding to messages, controlling the look and feel, and uploading assets. Callbacks have the format `on_xyz` and actuators have the format `send_xyz`. JSON is automatically converted to and from *dataclasses* within `types.py`.
 
-3. **Agent:** Like *service*, the agent overrides the `Moobius` class and is constructed with `is_agent` set to True. However, the agent is more limited in it's functionality: it cannot do much besides sending and recieving messages and modifying itself. Most other functions will generate an error. To use an agent under a given account requires knowing the secret credentials. Services call `send_message_down` while users and agents call `send_message_up`.
+3. **Agent:** Like *service*, the agent overrides the `Moobius` class and is constructed with `is_agent` set to True. However, the agent is more limited in it's functionality: it cannot do much besides sending and recieving messages and modifying itself. Most other functions will generate an error. To use an agent under a given account requires knowing the secret credentials. Services internally call `self.ws_client.message_down` while users and agents call `self.ws_client.send_message_up`.
 
 4. **Databases:** Databases are client-side and represented as `MoobiusStorage` instances. The structure is determined by a configuration file (usually `./config/db.json`). Each element has a `name` that is *directly written instance's attributes*. Each element also contains an `implementation` which determines the database engine; currently "json" and "redis" is supported. The Demo by default will only run "redis" on Linux and Mac.
 

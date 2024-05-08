@@ -79,6 +79,8 @@ class WSClient:
                 await asyncio.sleep(0.01)
             await self.websocket.send(message)  # Don't use asyncio.create_task() here, or the message could not be sent in order
         except websockets.exceptions.ConnectionClosed as e:
+            if self.is_reconnecting: # Already reconnecting.
+                return
             self.is_reconnecting = True
             logger.info(f"Connection closed: {e}. Attempting to reconnect...")
             await self.connect()
@@ -86,6 +88,8 @@ class WSClient:
             self.is_reconnecting = False
             await self.websocket.send(message)
         except Exception as e:
+            if self.is_reconnecting: # Already reconnecting.
+                return
             logger.error(f'Error with websocket.send: {e}')
             await self.connect()
             logger.info("Reconnected! Attempting to send message again, which is a long shot for non ConnectionClosed Exceptions...")
