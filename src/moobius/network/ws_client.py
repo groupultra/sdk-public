@@ -229,14 +229,14 @@ class WSClient:
         return message
 
     #################################### Updating ########################################
-    async def update_character_list(self, service_id, channel_id, character_list, recipients, *, dry_run=False):
+    async def update_character_list(self, service_id, channel_id, characters, recipients, *, dry_run=False):
         """
         Constructs and sends the update message for user list.
 
         Parameters:
           service_id (str): As always.
           channel_id (str): The channel id.
-          character_list (list): The list of character_id strings to be updated.
+          characters (str): The group id to represent the characters who are updated.
           recipients (str): The group id to send to.
           dry_run=False: if True don't acually send the message (messages are sent in thier JSON-strin format).
 
@@ -253,7 +253,7 @@ class WSClient:
                 "subtype": "update_characters",
                 "channel_id": channel_id,
                 "recipients": recipients,
-                "content":{"characters": character_list}
+                "content":{"characters": characters}
             }
         }
         if not dry_run:

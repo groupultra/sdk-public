@@ -55,9 +55,7 @@ class ServiceGroupLib():
             ids2id = self.id2ids_mup
             id2ids = self.id2ids_mup
         async with self.alock: # Make sure the old list is stored before the new list is created.
-            if type(character_ids) is str:
-                character_ids = [character_ids]
-            character_ids = list(character_ids)
+            character_ids = utils.to_char_id_list(character_ids)
             if len(character_ids) == 0:
                 return None
             else: # Convert list to a single group id in this mode.
@@ -368,24 +366,6 @@ class Moobius:
         if channel_id == list(self.channels.keys())[0]:
             logger.warning('checkin_channel not overriden, occasional desyncs are possible.')
 
-    async def upload_avatar_and_create_character(self, name, image_path, description):
-        """
-        Upload an avatar image and create a character. Service function.
-
-        Parameters:
-          name: str
-            The name of the character.
-          image_path: str
-            The local path of the avatar image.
-          description: str
-            The description of the character.
-
-        Returns:
-          The created character (Character object).
-        """
-        avatar = await self.http_api.upload_file(image_path)
-        return await self.http_api.create_character(self.client_id, name, avatar, description)
-
     def limit_len(self, txt, n):
         if len(txt)>n:
             txt = txt[0:n]+'...'+str(len(txt))+' chars'
@@ -609,7 +589,7 @@ class Moobius:
     async def fetch_service_id_list(self): """Calls self.http_api.fetch_service_id_list"""; return await self.http_api.fetch_service_id_list()
     async def fetch_service_characters(self): """Calls self.http_api.fetch_service_characters using self.client_id."""; return await self.http_api.fetch_service_characters(self.client_id)
     async def upload_file(self, filepath): """Calls self.http_api.upload_file."""; return await self.http_api.upload_file(filepath)
-    async def download_file(self, url, filepath, assert_no_overwrite=False): """Calls self.http_api.download_file"""; return await self.http_api.download_file(url, filepath, assert_no_overwrite=assert_no_overwrite)
+    async def download_file(self, url, filepath, assert_no_overwrite=False, headers=None): """Calls self.http_api.download_file"""; return await self.http_api.download_file(url, filepath, assert_no_overwrite=assert_no_overwrite, headers=headers)
     async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
     async def create_channel_group(self, channel_id, group_name, members): """Calls self.http_api.create_channel_group."""; return await self.http_api.create_channel_group(channel_id, group_name, members)
     async def create_service_group(self, group_id, members): """Calls self.http_api.create_service_group."""; return await self.http_api.create_service_group(group_id, members)

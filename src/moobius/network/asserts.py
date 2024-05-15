@@ -94,8 +94,8 @@ def structure_assert(gold, green, base_message, path=None):
         return True
 
 
-def optional_dict_template(min_keys, dtemplate):
-    """Creates a template function will not error on missing keys unless missing keys are in min_keys."""
+def min_subset_dict(min_keys, dtemplate):
+    """Creates a template function that will not error on missing keys unless missing keys are in min_keys."""
     dtemplate = dtemplate.copy() # Not sure if necessary.
     def t_fn(d, base_message, path):
         for k in min_keys:
@@ -140,8 +140,26 @@ def _style_check(style_element, base_message, path):
     """One element in a style vector. This is the most flexible."""
     template_dict = {'widget':'button1','display':'visible', 'text':'<h1>html_tags!</h1>', 'expand':'true', # Expand is a string?
                      'button_hook':{'button_id':'a.button', 'button_text':'A', 'arguments':[]}}
-    template = optional_dict_template([], template_dict)
+    template = min_subset_dict([], template_dict)
     return structure_assert(template, style_element, base_message, path)
+def _context_menu_item_check(cmenu_item, base_message, path):
+    if cmenu_item.get('new_window'):
+        if 'arguments' not in cmenu_item:
+            raise PlatformAssertException(f'context menu item with no arguments but a new_window specified; {base_message}; where={path}')
+        argtemplate = [min_subset_dict(['name', 'type', 'values', 'placeholder'],
+                                              {'name':'the_name', 'type':'enum', 'values':['choice1'],'placeholder':'place',
+                                               'optional':False})]
+        assert_so_far = structure_assert(argtemplate, cmenu_item['arguments'], base_message, path+['arguments'])
+    else:
+        assert_so_far = True
+
+    # Check the non-argument pard
+    cmenu_item = cmenu_item.copy()
+    for k in ['new_window', 'arguments']:
+        if k in cmenu_item:
+            del cmenu_item[k]
+    template = {'item_name':'option 1', 'item_id':'opt1','support_subtype':['txt']}
+    return assert_so_far and structure_assert(template, cmenu_item, base_message, path)
 def _socket_update_body_assert(b, base_message, path):
     """Many requests are updates with a body."""
     subty = b['subtype']
@@ -149,7 +167,7 @@ def _socket_update_body_assert(b, base_message, path):
     if subty=='update_characters':
         template['content'] = {'characters': '1234... group_id'}
     elif subty=='update_buttons':
-        button_arg_template = optional_dict_template(['name', 'type', 'placeholder', 'optional'], # Values is optional.
+        button_arg_template = min_subset_dict(['name', 'type', 'placeholder', 'optional'], # Values is optional.
                                                      {'name':'opt1', 'type':'enum', 'values':['a'], 'placeholder':'in-situ', 'optional':False})
         def _each_button(x, base_message, the_path):
             each_btn = {'button_id':'pressA', 'button_name':'pressA', 'button_text':'press this A',
@@ -166,12 +184,11 @@ def _socket_update_body_assert(b, base_message, path):
         template['content'] = {'channel_id':'123...', 'channel_name':'123...',
                                'context':{'channel_description':'a channel', 'channel_type':'ccs'}}
     elif subty=='update_canvas':
-        template['content'] = [optional_dict_template([], {'path':'url', 'text':'see this text here.'})]
+        template['content'] = [min_subset_dict([], {'path':'url', 'text':'see this text here.'})]
     elif subty=='update_style':
         template['content'] = [_style_check]
     elif subty=='update_context_menu':
-        template['content'] = [{'item_name':'option 1', 'item_id':'opt1',
-                                'support_subtype':['txt']}]
+        template['content'] = [_context_menu_item_check]
         template['context'] = {}
     elif subty=='update_characters':
         template['context'] = {}
@@ -186,9 +203,9 @@ def _socket_message_body_assert1(b, base_message, path, is_up):
                 'timestamp':12334567, 'context':{}}
     if not is_up:
         template['sender'] = '1234...'
-    if 'recipients' in base_message and base_message['recipients'] is None: # Accept None type.
-        base_message = base_message.copy()
-        base_message['recipients'] = 'noooone'
+    if 'recipients' in b and b['recipients'] is None: # Accept None type.
+        b = b.copy()
+        b['recipients'] = 'noooone'
     if subty in [types.TEXT, types.IMAGE, types.AUDIO, types.FILE]:
         content = b['content'].copy()
         if not content.get('path') and subty != types.TEXT:
@@ -224,7 +241,7 @@ def _button_click_body_assert(b, base_message, path):
 def _context_menuclick_body_assert(b, base_message, path):
     """Right click context menu click"""
     template = {'item_id':'item1', 'channel_id':'1234...', 'message_id':'1234...', 'message_subtype':'text/file/etc',
-                'message_content':optional_dict_template([], {'text':'text!', 'image':'url'}), 'context':{}}
+                'message_content':min_subset_dict([], {'text':'text!', 'image':'url'}), 'context':{}}
     return structure_assert(template, b, base_message, path)
 def _action_body_assert(b, base_message, path):
     """Various actions"""

@@ -100,7 +100,8 @@ class ContextMenuElement: # A single item in a context menu. This will likely be
     item_name: str # How it appears.
     item_id: str # An id choosen by the CCS app to identify which choice was selected.
     support_subtype: list[str] # What message types will open the context menu. ["text","file", etc].
-
+    new_window: Optional[bool] = False
+    arguments: Optional[list[ButtonArgument]] = None
 
 @dataclass
 @add_str_method
@@ -114,6 +115,7 @@ class MessageContent:
     button: Optional[str] = None # For "card" messages
     text: Optional[str] = None # For "card" messages
 
+
 @dataclass
 @add_str_method
 class MenuClick: # Right-click context menu.
@@ -125,6 +127,7 @@ class MenuClick: # Right-click context menu.
     sender: str
     recipients: list[str]
     context: dict # Rarely used by CCS apps.
+    arguments: Optional[list[ButtonClickArgument]] = None # If the context menu has itself menus.
 
 
 @dataclass

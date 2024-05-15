@@ -1,5 +1,6 @@
 # MISC functions TODO: Just move these to a better place, having a MISC category isn't clean code.
 import sys, os, re, json, threading, asyncio, dataclasses
+from moobius import types
 from loguru import logger
 
 
@@ -153,3 +154,14 @@ if __name__ == "__main__":
             os.makedirs(os.path.split(fname)[0], exist_ok=True)
             with open(fname,'w', encoding='utf-8') as f:
                 f.write(json.dumps(template, indent=4, ensure_ascii=False))
+
+
+def to_char_id_list(c):
+    """Converts c to a list of character_ids.
+    x can be a string, a list of strings (idempotent), a list of Character, a Character.
+    lists can actually be tuples or generators etc."""
+    if type(c) is str or type(c) is types.Character:
+        c = [c]
+    c = list(c)
+    c = [ch.character_id if type(ch) is types.Character else ch for ch in c] # Convert Character objects to IDs.
+    return c
