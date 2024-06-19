@@ -21,6 +21,12 @@ def send_tweak(the_message):
     return the_message
 
 
+async def time_out_wrap(co_routine, timeout=16):
+    """Sometimes the connection can hang forever.
+    """
+    return await asyncio.wait_for(co_routine, timeout=timeout)
+
+
 class WSClient:
     """
     WSClient is a websocket client that automatically reconnects when the connection is closed.
@@ -52,16 +58,44 @@ class WSClient:
         """
         self.websocket = None
         self.ws_server_uri = ws_server_uri
-        async def _on_connect(self): logger.info(f"Connected to {self.ws_server_uri}")
+        async def _default_on_connect(self): logger.info(f"Connected to {self.ws_server_uri}")
         async def _default_handle(self, message): logger.debug(f"{message}")
-        self.on_connect = on_connect or _on_connect
+        self.on_connect = on_connect or _default_on_connect # THe SDK sets on_connect to self.service or self.agent login.
         self.handle = handle or _default_handle
-        self.is_reconnecting = False # Block sending messages until this becomes True.
+        self.outbound_queue = asyncio.Queue()
+        self.outbound_queue_running = False
+        self.timeout = 16 # Connection and socket sending timeout (seems to hang every so often).
+        self.is_connected = False # Flag to indicate if the service is connected. Can only consume from the queue if connected.
 
-    async def connect(self):
-        """Connects to the websocket server. Call after self.authenticate(). Returns None."""
-        self.websocket = await websockets.connect(self.ws_server_uri)
+    async def connect(self): # Called from sdk.start() and from other functions when trying to reconnect.
+        """Connects to the websocket server. Call after self.authenticate(). Returns None.
+        Keeps trying if it failed!"""
+        while True:
+            try:
+                logger.info('Attempting to (re)connect...')
+                self.websocket = await time_out_wrap(websockets.connect(self.ws_server_uri), timeout=self.timeout)
+                logger.info('Reconnected sucessfully!')
+                self.is_connected = True
+                break
+            except Exception as e:
+                logger.warning(f'{e} {type(e)}; Will keep trying in this connection loop.')
         await self.on_connect()
+
+    async def _queue_consume(self):
+        """If the connection goes down a queue forms.
+        This sends out queued tasks in a loop."""
+        while True:
+            message = await self.outbound_queue.get()
+            if not self.is_connected:
+                await self.connect() # This will likely fill the queue more.
+            try:
+                await time_out_wrap(self.websocket.send(message), self.timeout)
+                logger.opt(colors=True).info(f"<fg 128,0,240>{str(message).replace('<', '&lt;').replace('>', '&gt;')}</>")
+            except Exception as e:
+                logger.warning(f'Failed to send data, the connection seems to be lost: {e}; {type(e)}.')
+                self.is_connected = False # No longer connected!
+                # Put back the data since it failed to send. TODO: Does this change the order in a harmful way?
+                await self.outbound_queue.put(message)
 
     async def send(self, message):
         """
@@ -70,30 +104,14 @@ class WSClient:
         If an exception is raised, reconnect and send again.
         Returns None, but if the server responds to the message it will be detected in the self.recieve() loop.
         """
+        if not self.outbound_queue_running: # This must be inside an async, and __init__ is not async.
+            loop = asyncio.get_running_loop()
+            self.outbound_queue_running = True
+            loop.create_task(self._queue_consume())
         if type(message) is dict:
             message = self.dumps(message)
         asserts.socket_assert(json.loads(message))
-        try:
-            logger.opt(colors=True).info(f"<fg 128,0,240>{message.replace('<', '&lt;').replace('>', '&gt;')}</>")
-            while self.is_reconnecting: # Cannot use an async.lock() for this b/c doing so would make self.send() block itself.
-                await asyncio.sleep(0.01)
-            await self.websocket.send(message)  # Don't use asyncio.create_task() here, or the message could not be sent in order
-        except websockets.exceptions.ConnectionClosed as e:
-            if self.is_reconnecting: # Already reconnecting.
-                return
-            self.is_reconnecting = True
-            logger.info(f"Connection closed: {e}. Attempting to reconnect...")
-            await self.connect()
-            logger.info("Reconnected! Attempting to send message again...")
-            self.is_reconnecting = False
-            await self.websocket.send(message)
-        except Exception as e:
-            if self.is_reconnecting: # Already reconnecting.
-                return
-            logger.error(f'Error with websocket.send: {e}')
-            await self.connect()
-            logger.info("Reconnected! Attempting to send message again, which is a long shot for non ConnectionClosed Exceptions...")
-            await self.websocket.send(message)
+        await self.outbound_queue.put(message)
 
     async def receive(self):
         """
@@ -103,31 +121,25 @@ class WSClient:
         """
 
         while True:
+            if not self.is_connected:
+                await self.connect()
             try:
-                message = await self.websocket.recv()
-                logger.opt(colors=True).info(f"<yellow>{message.replace('<', '&lt;').replace('>', '&gt;')}</yellow>")
+                message = await time_out_wrap(self.websocket.recv(), 256) # BIG timeout so heartbeats can have time.
+                logger.opt(colors=True).info(f"<yellow>{str(message).replace('<', '&lt;').replace('>', '&gt;')}</yellow>")
                 asyncio.create_task(self.safe_handle(message))
-            except websockets.exceptions.ConnectionClosed:
-                logger.info("WSClient.receive() Connection closed. Attempting to reconnect...")
-                await self.connect()
-                logger.info("Reconnected!")
             except Exception as e:
-                logger.error(e)
-                await self.connect()
-                logger.info("Reconnected!")
+                logger.warning(f"WSClient.receive() failed; the connection seems to be no longer: {e}; {type(e)}")
+                self.is_connected = False # Will connect next loop iteration.
 
     async def safe_handle(self, message):
         """
         Handles a string-valued message from the websocket server. Returns None.
         The handle() function is defined by the user.
-        If an exception is raised, reconnect and handle again.
         """
         try:
             await self.handle(message)
         except Exception as e:
             logger.error(e)
-            await self.connect()
-            logger.info("Reconnected!")
 
     async def heartbeat(self, *, dry_run=False):
         """Sends a heartbeat unless dry_run is True. Returns the message dict."""

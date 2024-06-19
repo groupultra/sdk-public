@@ -131,6 +131,7 @@ class Moobius:
         self.group_lib = ServiceGroupLib()
 
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
+        # TODO: Is it easier just to pass in the socket.send_agent_login function rather than self.send_agent_login?
         self.ws_client = WSClient(ws_server_uri, on_connect=self.send_agent_login if self.is_agent else self.send_service_login, handle=self.handle_received_payload)
 
         self.queue = aioprocessing.AioQueue()
@@ -528,7 +529,7 @@ class Moobius:
         if 'type' in payload_dict and payload_dict['type'] == types.MESSAGE_DOWN:
             payload_dict['service_id'] = self.client_id
         if 'type' in payload_dict and (payload_dict['type'] == types.MESSAGE_UP or payload_dict['type'] == types.MESSAGE_DOWN):
-            ws_client.send_tweak(payload_dict)
+            ws_client.send_tweak(payload_dict) # TODO: what is this line for?
         await self.ws_client.send(payload_dict)
 
     async def send_button_click(self, channel_id, button_id, button_args):

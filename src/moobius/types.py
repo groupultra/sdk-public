@@ -113,7 +113,6 @@ class MessageContent:
     link: Optional[str] = None # For "card" messages
     title: Optional[str] = None # For "card" messages
     button: Optional[str] = None # For "card" messages
-    text: Optional[str] = None # For "card" messages
 
 
 @dataclass
