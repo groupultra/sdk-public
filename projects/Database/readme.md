@@ -1,0 +1,1 @@
+A very simple JSON database. Redis DB is also suppported, but would need a running Redis server.

@@ -204,9 +204,9 @@ class Payload:
 class Character:
     character_id: str
     name: str
-    avatar: str
-    description: str
-    character_context: dict # Rarely used by CCS apps.
+    avatar: Optional[str] = None
+    description: Optional[str] = None
+    character_context: Optional[dict] = None # Rarely used by CCS apps.
 
 
 @dataclass

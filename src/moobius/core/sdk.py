@@ -2,6 +2,7 @@
 
 import json, os, pathlib
 
+import dataclasses
 from dataclasses import asdict
 from dacite import from_dict
 
@@ -396,16 +397,14 @@ class Moobius:
         """
 
         async def _get_file_message_content(filepath, file_display_name=None, subtype=None):
-            """If a local file path, uploads the file to the bucket and gets the message content and the subtype.
-            If an http(s) file path, does NOT upload. Instead, returns the path."""
+            """Converts filepath into a MessageContent object, uploading files if need be."""
             if type(filepath) is not str:
                 filepath = filepath.as_posix() # For pathlib.paths.
-            if (filepath.lower().startswith('http:') or filepath.lower().startswith('https:')):
-                file_uri = filepath
-                size = None
-            else:
-                file_uri = await self.upload_file(filepath)
-                size = os.stat(filepath).st_size
+            file_uri = await self.http_api.convert_to_url(filepath)
+            size = None
+            if file_uri != filepath:
+                if os.path.exists(filepath):
+                    size = os.stat(filepath).st_size
             ext = '.'+file_uri.lower().split('.')[-1]
             filename = file_display_name if file_display_name else filepath.replace('\\','/').split('/')[-1]
             if not subtype:
@@ -567,6 +566,17 @@ class Moobius:
             await self.http_api.bind_service_to_channel(self.client_id, channel_id)  # may already be binded to the service itself
         return channel_id
 
+    async def send_update_canvas(self, channel_id, canvas_elements, recipients):
+        """Updates the canvas given a channel_id, a list of CanvasElements (which have text and/or images), and recipients."""
+        if type(canvas_elements) is dict or type (canvas_elements) is CanvasElement:
+            canvas_elements = [canvas_elements]
+        canvas_elements = [dataclasses.replace(elem) for elem in canvas_elements]
+        for elem in canvas_elements:
+            if elem.path:
+                elem.path = await self.http_api.convert_to_url(elem.path)
+        return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_elements, await self._update_rec(recipients, True))
+
+
     ################################## Single-line functions #######################################
     async def _update_rec(self, recipients, is_m_down, channel_id=None):
         """Pass in await self._update_rec(recipients) into "recipients".
@@ -582,14 +592,14 @@ class Moobius:
     async def update_channel(self, channel_id, channel_name, channel_desc): """Calls self.http_api.update_channel."""; return await self.http_api.update_channel(channel_id, channel_name, channel_desc)
     async def bind_service_to_channel(self, channel_id): """Calls self.http_api.bind_service_to_channel"""; return await self.http_api.bind_service_to_channel(self.client_id, channel_id)
     async def unbind_service_from_channel(self, channel_id): """Calls self.http_api.unbind_service_from_channel"""; return await self.http_api.unbind_service_from_channel(self.client_id, channel_id)
-    async def create_character(self, name, avatar, description): """Calls self.http_api.create_character using self.create_character."""; return await self.http_api.create_character(self.client_id, name, avatar, description)
+    async def create_character(self, name, avatar=None, description="No description"): """Calls self.http_api.create_character using self.create_character."""; return await self.http_api.create_character(self.client_id, name, avatar, description)
     async def fetch_popular_channels(self): """Calls self.http_api.fetch_popular_channels."""; return await self.http_api.fetch_popular_channels()
     async def fetch_channel_list(self): """Calls self.http_api.fetch_channel_list."""; return await self.http_api.fetch_channel_list()
     async def fetch_real_character_ids(self, channel_id, raise_empty_list_err=True): """Calls self.http_api.fetch_real_character_ids using self.client_id."""; return await self.http_api.fetch_real_character_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
     async def fetch_character_profile(self, character_id): """Calls self.http_api.fetch_character_profile"""; return await self.http_api.fetch_character_profile(character_id)
     async def fetch_service_id_list(self): """Calls self.http_api.fetch_service_id_list"""; return await self.http_api.fetch_service_id_list()
     async def fetch_service_characters(self): """Calls self.http_api.fetch_service_characters using self.client_id."""; return await self.http_api.fetch_service_characters(self.client_id)
-    async def upload_file(self, filepath): """Calls self.http_api.upload_file."""; return await self.http_api.upload_file(filepath)
+    async def upload_file(self, filepath): """Calls self.http_api.upload_file. Note that uploads happen automatically for any function that accepts a filepath/url when given a local path."""; return await self.http_api.upload_file(filepath)
     async def download_file(self, url, filepath, assert_no_overwrite=False, headers=None): """Calls self.http_api.download_file"""; return await self.http_api.download_file(url, filepath, assert_no_overwrite=assert_no_overwrite, headers=headers)
     async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
     async def create_channel_group(self, channel_id, group_name, members): """Calls self.http_api.create_channel_group."""; return await self.http_api.create_channel_group(channel_id, group_name, members)
@@ -608,7 +618,6 @@ class Moobius:
     async def send_update(self, target_client_id, data): """Calls self.ws_client.update"""; return await self.ws_client.update(self.client_id, target_client_id, data)
     async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
     async def send_update_channel_info(self, channel_id, channel_info): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_info)
-    async def send_update_canvas(self, channel_id, canvas_elements, recipients): """Calls self.ws_client.update_canvas using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_elements, await self._update_rec(recipients, True))
     async def send_update_buttons(self, channel_id, buttons, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(self.client_id, channel_id, buttons, await self._update_rec(recipients, True))
     async def send_update_context_menu(self, channel_id, menu_elements, recipients): """Calls self.ws_client.update_context_menu using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_context_menu(self.client_id, channel_id, menu_elements, await self._update_rec(recipients, True))
     async def send_update_style(self, channel_id, style_content, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(self.client_id, channel_id, style_content, await self._update_rec(recipients, True))

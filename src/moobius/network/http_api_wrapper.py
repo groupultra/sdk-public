@@ -1,5 +1,5 @@
 # aiohttp-based wrapper of the Platform's HTTP.
-import json, os, io
+import json, os, io, hashlib
 import aiohttp
 from loguru import logger
 from dacite import from_dict
@@ -86,6 +86,7 @@ class HTTPAPIWrapper:
         self.password = password
         self.access_token = ""
         self.refresh_token = ""
+        self.filehash2URL = {} # Avoid uploading the same file twice!
 
     async def _checked_get_or_post(self, url, the_request, is_post, requests_kwargs=None, good_message=None, bad_message="This HTTPs request failed", raise_errors=True):
         """Runs a GET or POST request returning the result as a JSON with optional logging and error raising.
@@ -305,12 +306,13 @@ class HTTPAPIWrapper:
         """Updates the user info. Will only be an Agent function in the .net version.
 
            Parameters:
-             avatar: Link to image.
+             avatar: Link to image or local filepath to upload.
              description: Of the user.
              name: The name that shows in chat.
 
            No return value.
         """
+        avatar = await self.convert_to_url(avatar)
         the_request={"avatar": avatar, 'description':description, 'name':name}
         asserts.types_assert(str, avatar=avatar, description=description, name=name)
         response_dict = await self.checked_post(url=self.http_server_uri + f"/user/info", the_request=the_request, requests_kwargs={'headers':self.headers}, good_message="Successfully updated user info", bad_message="Error updating user info", raise_errors=True)
@@ -337,17 +339,12 @@ class HTTPAPIWrapper:
         Parameters:
           service_id (str): The service_id/client_id.
           name (str): The name of the user.
-          avatar (str): The image URL of the user's picture OR the local file path.
+          avatar (str): The image URL of the user's picture OR a local file path.
           description (str): The description of the user.
 
         Returns: A Character object representing the created user, None if doesn't receive a valid response (error condition). TODO: Should these error conditions jsut raise Exceptions instead?
         """
-        if 'https://' in avatar or 'http://' in avatar or 'ftp://' in avatar or 'ftps://' in avatar:
-            pass
-        elif not os.path.exists(avatar):
-            raise Exception(f'Cannot find this local file to upload: {os.path.realpath(avatar)}')
-        else:
-            avatar = await self.upload_file(avatar)
+        avatar = await self.convert_to_url(avatar)
 
         jsonr = {"service_id": service_id,
                  "context": {
@@ -365,13 +362,15 @@ class HTTPAPIWrapper:
            Parameters:
              service_id (str): Which service holds the user.
              character_id (str): Of the user. Can also be a Character. Cannot be a list.
-             avatar (str): Link to user's image.
+             avatar (str): Link to user's image or a local filepath to upload.
              description (str): Description of user.
              name (str): The name that shows in chat.
 
            Returns:
             Data about the user as a dict.
         """
+        avatar = await self.convert_to_url(avatar)
+
         if type(character_id) is Character:
             character_id = character_id.character_id
         asserts.types_assert(str, service_id=service_id, character_id=character_id, description=description, name=name, avatar=avatar)
@@ -526,6 +525,23 @@ class HTTPAPIWrapper:
         else:
             logger.error(f"Error getting upload url and upload fields! file_path: {file_path}")
             raise Exception(f"Error getting upload url and upload fields! file_path: {file_path}")
+
+    async def convert_to_url(self, file_path):
+        """Converts file paths to URLs (uploading files to buckets). Idempotent: If given a URL will just return the URL.
+        Empty, False, or None strings are converted to a default URL."""
+        if not file_path:
+            return "https://moobius-test-bucket.s3.amazonaws.com/db91962d-a81c-4398-9acc-bd595f5131cb.png"
+        if 'https://' in file_path or 'http://' in file_path or 'ftp://' in file_path or 'ftps://' in file_path:
+            return file_path
+        elif not os.path.exists(file_path):
+            raise Exception(f'Cannot find this local file to upload: {os.path.realpath(file_path)}')
+        else:
+            with open(file_path, 'rb') as f:
+                the_bytes = f.read()
+            the_hash = hashlib.sha256(the_bytes).hexdigest()
+            if the_hash not in self.filehash2URL:
+                self.filehash2URL[the_hash] = await self.upload_file(file_path)
+            return self.filehash2URL[the_hash]
 
     async def download_file(self, url, filename=None, assert_no_overwrite=False, headers=None):
         """Downloads a file from url to filename, automatically creating dirs and overwriting pre-existing files.

@@ -371,9 +371,6 @@ Will call self.send_service_login() if copy.status is invalid. Generally not use
 **async def on_fetch_channel_info(self, action)**
 This method is uncommon to override.
 
-**async def upload_avatar_and_create_character(self, name, image_path, description)**
-Uses HTTPS to uploade an image and assign it to a new character. Used by the demos *neko* and *script_cinema*.
-
 **async def on_unknown_payload(self, payload: Payload)**
 This is used as a catchall in the handle_received_payload switchyard and is uncommon to override.
 
