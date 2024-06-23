@@ -3,6 +3,11 @@
 Exhaustive list of all methods and module-level functions
 ==================
 
+* :ref:`moobius.quickstart.open_folder_in_explorer <moobius.quickstart.open_folder_in_explorer>` (folder_path)
+* :ref:`moobius.quickstart.download_text_file_to_string <moobius.quickstart.download_text_file_to_string>` (url)
+* :ref:`moobius.quickstart.save <moobius.quickstart.save>` (fname, x)
+* :ref:`moobius.quickstart.submit <moobius.quickstart.submit>` ()
+* :ref:`moobius.quickstart.make_box <moobius.quickstart.make_box>` (name, detailed_name, options)
 * :ref:`moobius.types.add_str_method <moobius.types.add_str_method>` (cls)
 * :ref:`moobius.types.add_str_method.__str__ <moobius.types.add_str_method.__str__>` (self)
 * :ref:`moobius.utils.summarize_html <moobius.utils.summarize_html>` (html_str)

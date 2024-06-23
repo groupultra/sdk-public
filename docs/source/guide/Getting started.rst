@@ -1,5 +1,11 @@
 .. _getting-started-tut:
 
+**Super fast** getting started
+=================================
+0. Get an account and create a channel.
+1. Type these three lines into your shell: pip install moobius; python; from moobius import quickstart
+2. Follow the instructions in the wizard.
+
 **Fast** getting started
 =================================
 

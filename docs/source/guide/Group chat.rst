@@ -1,4 +1,4 @@
-.. _group-chat:
+.. _group-chat-tut:
 
 There are two ingrediants for setting up group chat: The user list and the messaging system.
 

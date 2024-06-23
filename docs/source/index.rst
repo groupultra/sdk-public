@@ -30,13 +30,14 @@ Have to set up a right-click menu and canvas? :ref:`Context menus and the canvas
 
 Want a Python dict that stores data through an app restart? :ref:`Database <database-tut>`
 
-What does a fully-featured game of Battleship look like? (TODO) :ref:`Battleship game <battleship-tut>`
+What does a fully-featured game of Battleship look like? :ref:`Battleship game <battleship-tut>`
 
 Finally, there is a getting started `video <https://vimeo.com/965607943>`_
 
 Modules
 ==================
 
+* :ref:`moobius.quickstart <moobius_quickstart>`
 * :ref:`moobius.types <moobius_types>`
 * :ref:`moobius.utils <moobius_utils>`
 * :ref:`moobius.core.sdk <moobius_core_sdk>`
