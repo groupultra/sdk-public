@@ -83,6 +83,9 @@ if __name__ == "__main__":
 
     handle = wand.run(
         TheService,
+        log_file="logs/service.log",
+        error_log_file="logs/error.log",
+        terminal_log_level="INFO",
         config_path="config/service.json", # Default service. Necessary to avoid hard-coding credentials.
         db_config_path="config/db.json", # Commonly used, but not strictly necessary.
         is_agent=False, # Make this True to run an Agent instead (agents also need thier own config_path).
@@ -165,3 +168,9 @@ def to_char_id_list(c):
     c = list(c)
     c = [ch.character_id if type(ch) is types.Character else ch for ch in c] # Convert Character objects to IDs.
     return c
+
+
+def set_terminal_logger_level(the_level):
+    """Sets the logger from the terminal, but preserves other files."""
+    logger.remove() # Remove the default one.
+    logger.add(sys.stdout, level=the_level)

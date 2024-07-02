@@ -11,13 +11,13 @@ from moobius.types import Button, CanvasElement, StyleElement, ContextMenuElemen
 
 
 class DemoService(Moobius):
-    def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
+    def __init__(self, **kwargs):
 
         with open('./config/client.json') as f: # Demo-specific config.
             self.client_config = json.load(f)
 
         initialize_all_bound_channels = self.client_config['load_xtra_channels_on_start']
-        super().__init__(log_file=log_file, error_log_file=error_log_file, initialize_all_bound_channels=initialize_all_bound_channels, **kwargs)
+        super().__init__(initialize_all_bound_channels=initialize_all_bound_channels, **kwargs)
 
         with open('resources/buttons.json', 'r') as f:
             self._default_buttons = [Button(**b) for b in json.load(f)]

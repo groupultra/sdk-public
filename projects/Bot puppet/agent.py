@@ -2,7 +2,7 @@
 from moobius import Moobius
 
 class BotAgent(Moobius):
-    def __init__(self, log_file="logs/agent.log", error_log_file="logs/error.log", **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     async def on_start(self):

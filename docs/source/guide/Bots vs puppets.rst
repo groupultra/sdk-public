@@ -54,7 +54,7 @@ Note the use of "on_message_down" instead of "on_message_up"; it is responding t
     from moobius import Moobius
 
     class BotAgent(Moobius):
-        def __init__(self, log_file="logs/agent.log", error_log_file="logs/error.log", **kwargs):
+        def __init__(self, **kwargs):
             super().__init__(**kwargs)
 
         async def on_start(self): # Log in the agent using thier credentials.
@@ -72,7 +72,8 @@ The main.py launches the service. Make it also launch the agent by adding this c
     agent_handle = wand.run(
         BotAgent,
         log_file="logs/agent.log",
-        error_log_file="logs/error.log",
+        error_log_file="logs/agent_error.log",
+        terminal_log_level="INFO",
         config_path="config/agent.json",
         db_config_path="config/agent_db.json",
         is_agent=True,

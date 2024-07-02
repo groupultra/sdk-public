@@ -10,12 +10,10 @@ from moobius import Moobius, MoobiusStorage, utils, types
 
 
 class DemoAgent(Moobius):
-    def __init__(self, log_file="logs/agent.log", error_log_file="logs/error.log", **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         logger.info("I speak 中国人, English, and many other languages because I know Unicode!")
-        self.log_file = log_file
-        self.error_log_file = error_log_file
 
     async def on_start(self):
         """Called after successful connection to Platform websocket and Agent login success."""

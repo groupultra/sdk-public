@@ -3,7 +3,7 @@ from moobius.types import CanvasElement, MenuClick, StyleElement, ContextMenuEle
 import moobius.types as types
 
 class MenuCanvasService(Moobius):
-    def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(log_file=log_file, error_log_file=error_log_file, **kwargs)
 
     async def on_fetch_canvas(self, action):

@@ -12,15 +12,12 @@ from moobius.types import Button, CanvasElement, StyleElement, ContextMenuElemen
 example_socket_callback_payloads = {} # Print these out when the AI is done.
 
 class TemplateService(Moobius):
-    def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
+    def __init__(self, **kwargs):
 
-        super().__init__(log_file=log_file, error_log_file=error_log_file, **kwargs)
+        super().__init__(**kwargs)
 
         with open('./config/client.json') as f: # Demo-specific config.
             self.client_config = json.load(f)
-
-        self.log_file = log_file
-        self.error_log_file = error_log_file
 
         with open('resources/buttons.json', 'r') as f:
             self._default_buttons = [Button(**b) for b in json.load(f)]

@@ -2,8 +2,8 @@ from moobius import Moobius
 from moobius.types import Button, ButtonClick, ButtonArgument
 
 class ButtonService(Moobius):
-    def __init__(self, log_file="logs/service.log", error_log_file="logs/error.log", **kwargs):
-        super().__init__(log_file=log_file, error_log_file=error_log_file, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     async def on_fetch_buttons(self, action):
         simple_button = Button(button_id='easy', button_name='easy', button_text='Simple button.', new_window=False)

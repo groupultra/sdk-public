@@ -97,6 +97,9 @@ class Moobius:
         Example:
           >>> service = SDK(config_path="./config/service.json", db_config_path="./config/database.json", is_agent=False)
         """
+        self._log_level = kwargs.get("terminal_log_level", "INFO")
+        utils.set_terminal_logger_level(self._log_level)
+
         self.config_path = config_path
         self.is_agent = is_agent
 
@@ -161,6 +164,7 @@ class Moobius:
 
         No parameters or return value.
         """
+        utils.set_terminal_logger_level(self._log_level)
 
         logger.debug("Starting agent..." if self.is_agent else "Starting service...")
 
@@ -366,7 +370,7 @@ class Moobius:
     async def checkin_channel(self, channel_id):
         """This is called on startup and on reconnect"""
         if channel_id == list(self.channels.keys())[0]:
-            logger.warning('checkin_channel not overriden, occasional desyncs are possible.')
+            logger.info('checkin_channel not overriden, occasional desyncs are possible.')
 
     def limit_len(self, txt, n):
         if len(txt)>n:
