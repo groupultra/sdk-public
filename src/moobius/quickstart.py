@@ -3,13 +3,13 @@
 # CLI (defaults will be provided if not given, channels can be a comma-seperated list):
 """
 pip install moobius
-python -m moobius.quickstart channels=1234abcd... email=foo@bar.com password=password folder=~/my_moobius template=Buttons
+python -m moobius channels=1234abcd... email=foo@bar.com password=password folder=~/my_moobius template=Buttons
 echo "Done!"
 """
 # GUI (specifying cmds is possible as well as shown in this example):
 """
 pip install moobius
-python -m moobius.quickstart gui email=foo@bar.com
+python -m moobius gui email=foo@bar.com
 echo "Done!"
 """
 
@@ -85,6 +85,7 @@ def submit(out):
     print('Values choosen:', out)
 
     service_template['channels'] = out['channels'].strip().replace(',', ' ').replace('  ',' ').split(' ')
+    print('Channels:', service_template['channels'])
     for k in ['email', 'password', 'service_id', 'others']:
         service_template[k] = out[k]
     service_template['http_server_uri'] = "https://api."+out['url']
@@ -110,8 +111,10 @@ def submit(out):
 cur_row = 1
 
 
-def make_box(name, detailed_name, default, options=None):
+def make_box(root, name, detailed_name, default, options=None):
     """None options means fill in."""
+    import tkinter as tk
+    from tkinter import ttk
     global cur_row
 
     w = 60
@@ -134,11 +137,14 @@ def make_box(name, detailed_name, default, options=None):
     cur_row += 1
     return the_box
 
-if __name__ == '__main__': 
+
+def save_starter_ccs():
+    """Uses sys.argv"""
     print('Quickstart!')
     #print('Sys args:', sys.argv)
     opts = {'channels':'<channel-id>', 'email':'<name@site.com>', 'password':'<secret>', 'template':'Zero',
-            'service_id':'', 'others':'include', 'url':'moobius.net', 'others':'include'}
+            'service_id':'', 'others':'include', 'url':'moobius.net', 'others':'include',
+            'folder':'.'}
 
     # Handle spaces around the = signs if there are any. Note: the [0] arg is the filename, not needed.
     txt = ' '.join([f"{ai}" for ai in sys.argv[1:]])
@@ -148,7 +154,7 @@ if __name__ == '__main__':
         txt = txt.replace(' =', '=')
     txt = txt.replace('=""','=').replace('""=','=') # Smash args seperating = and space from single args.
     argv = shlex.split(txt)
-    #print('Argv:', argv)
+    print('Argv:', argv)
 
     for a in argv:
         if '=' not in a:
@@ -159,7 +165,10 @@ if __name__ == '__main__':
         k,v = a.strip().split('=')
         if v in ['False', '0', 'false']:
             v = False
-        opts[k.strip().lower().replace('channel', 'channels')] = v.strip()
+        k = k.strip().lower()
+        if k=='channel':
+            k = 'channels'
+        opts[k.strip().lower()] = v.strip()
 
     if opts.get('gui', False):
         import tkinter as tk
@@ -171,14 +180,14 @@ if __name__ == '__main__':
         root.title("Input your channel params")
 
         # Options:
-        make_box("channels", "Channel id(s)", opts['channels'], None)
-        make_box("email", "Account email/username", opts['email'], None)
-        make_box("password", "Account password (.gitignore!)", opts['password'], None)
-        make_box("template", "Choose a starting point", opts['template'], ["Zero", "Bot puppet", "Buttons", "Database", "Demo", "Group chat", "Menu Canvas", "Battleship"])
-        make_box("url", "(Advanced) choose URL", opts['url'], ['moobius.net', 'moobius.link', 'moobius.net'])
-        make_box("service_id", "(Advanced) Reuse old service_id", opts['service_id'])
-        make_box("others", "(Advanced) Orphan channels", opts['others'], [types.INCLUDE, types.IGNORE, types.UNBIND])
-        folder_box = make_box("folder", "Working folder", opts.get('folder', ''))
+        make_box(root, "channels", "Channel id(s)", opts['channels'], None)
+        make_box(root, "email", "Account email/username", opts['email'], None)
+        make_box(root, "password", "Account password (.gitignore!)", opts['password'], None)
+        make_box(root, "template", "Choose a starting point", opts['template'], ["Zero", "Bot puppet", "Buttons", "Database", "Demo", "Group chat", "Menu Canvas", "Battleship"])
+        make_box(root, "url", "(Advanced) choose URL", opts['url'], ['moobius.net/', 'moobius.link/', 'moobius.app/'])
+        make_box(root, "service_id", "(Advanced) Reuse old service_id", opts['service_id'])
+        make_box(root, "others", "(Advanced) Orphan channels", opts['others'], [types.INCLUDE, types.IGNORE, types.UNBIND])
+        folder_box = make_box(root, "folder", "Output folder", opts['folder'])
 
         # Pick a folder:
         def _folder_button_callback(*args, **kwargs):
@@ -196,8 +205,5 @@ if __name__ == '__main__':
 
         root.mainloop()
     else:
-        if 'folder' not in opts:
-            opts['folder'] = input('No folder specified. Please input a folder: ').strip()
-            raise Exception('At minimum, specify "folder=..." in this input.')
         submit(opts)
 
