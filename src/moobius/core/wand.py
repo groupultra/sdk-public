@@ -1,12 +1,13 @@
 # Runs services and casts spells (sending commands to services).
-
-from moobius import utils
-import asyncio
+from threading import Thread
 from multiprocessing import Process
-import time
+import time, signal, sys, asyncio, os
+
 from loguru import logger
-import signal
-import sys
+from moobius import utils
+
+KEYBOARDEXIT = 1324 # The child process exits.
+
 
 class MoobiusWand:
     """
@@ -28,7 +29,7 @@ class MoobiusWand:
             asyncio.run(service.start())
         except KeyboardInterrupt:
             print("EXITING!")
-            sys.exit(1)
+            os._exit(KEYBOARDEXIT) # Force quit b/c sys.exit not working.
 
     def run(self, cls, background=False, **kwargs):
         """
@@ -66,6 +67,15 @@ class MoobiusWand:
             self.services[self.current_service_handle] = service
             self.processes[self.current_service_handle] = p_service
 
+            # Detect exits in the child process and in turn exit.
+            def _wait_f():
+                while True:
+                    if p_service.exitcode == KEYBOARDEXIT:
+                        os._exit(KEYBOARDEXIT)
+                    time.sleep(0.5)
+            keep_alive = Thread(target=_wait_f, daemon=False)
+            keep_alive.start()
+
             return self.current_service_handle
         else:
             asyncio.run(service.start())
@@ -79,7 +89,7 @@ class MoobiusWand:
             _process.kill() # Maximum force!
             logger.info(f"Service {_process.name} terminated")
         asyncio.get_event_loop().stop()
-        sys.exit()
+        os._exit()
 
     def spell(self, handle, obj):
         """
