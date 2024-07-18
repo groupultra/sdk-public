@@ -143,7 +143,7 @@ def save_starter_ccs():
     print('Quickstart!')
     #print('Sys args:', sys.argv)
     opts = {'channels':'<channel-id>', 'email':'<name@site.com>', 'password':'<secret>', 'template':'Zero',
-            'service_id':'', 'others':'include', 'url':'moobius.net', 'others':'include',
+            'service_id':'', 'others':'include', 'url':'moobius.net/', 'others':'include',
             'folder':'.'}
 
     # Handle spaces around the = signs if there are any. Note: the [0] arg is the filename, not needed.
@@ -176,7 +176,6 @@ def save_starter_ccs():
 
         # Create main window
         root = tk.Tk()
-        root.geometry('600x300')
         root.title("Input your channel params")
 
         # Options:

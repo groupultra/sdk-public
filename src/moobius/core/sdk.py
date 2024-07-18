@@ -335,7 +335,7 @@ class Moobius:
         return channel_ids
 
     async def fetch_characters(self, channel_id):
-        """Returns a list (or Character objects) with both the real caracters bound to channel_id
+        """Returns a list (or Character objects) with both the real characters bound to channel_id
         as well as fake virtual characters bound to, not a channel, but to service self.client_id."""
         real_character_ids = await self.fetch_real_character_ids(channel_id, False)
         real_characters = await self.fetch_character_profile(real_character_ids)

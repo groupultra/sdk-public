@@ -60,6 +60,7 @@ def add_str_method(cls):
 @dataclass
 @add_str_method
 class ButtonArgument:
+    """For buttons that open pop-up menus. Such buttons have "arguments" as a list of ButtonArguments."""
     name: str
     type: str
     optional: Optional[bool]
@@ -69,7 +70,8 @@ class ButtonArgument:
 
 @dataclass
 @add_str_method
-class Button: # Used for encoding Buttons, both for sending out updates and for recieving the on_update_buttons callback.
+class Button:
+    """A description of a button. These buttons appear above the chat-box."""
     button_id: str # An id choosen by the CCS app to identify which button was pressed.
     button_name: str
     button_text: str # This text appears in the browser.
@@ -80,13 +82,16 @@ class Button: # Used for encoding Buttons, both for sending out updates and for 
 @dataclass
 @add_str_method
 class ButtonClickArgument:
+    """Part of the callback of pop-up menu opening buttons. Such buttons, when clicked, return a ButtonClick with a list of ButtonClickArguments.
+    Also used, uncommonly, for context-menu clicks which use pop-up submenus."""
     name: str
     value: str | int
 
 
 @dataclass
 @add_str_method
-class ButtonClick: # When the user clicks on a button or a menu opened by a button.
+class ButtonClick:
+    """A description of a button click. Lists the button's id as well as any information they entered (if the button opens a pop-up menu)."""
     button_id: str
     channel_id: str
     sender: str
@@ -96,7 +101,8 @@ class ButtonClick: # When the user clicks on a button or a menu opened by a butt
 
 @dataclass
 @add_str_method
-class ContextMenuElement: # A single item in a context menu. This will likely be expanded upon with more features.
+class ContextMenuElement:
+    """A description of a context-menu is a list of these elements."""
     item_name: str # How it appears.
     item_id: str # An id choosen by the CCS app to identify which choice was selected.
     support_subtype: list[str] # What message types will open the context menu. ["text","file", etc].
@@ -106,6 +112,8 @@ class ContextMenuElement: # A single item in a context menu. This will likely be
 @dataclass
 @add_str_method
 class MessageContent:
+    """The content of a message. Most messages only have a single non-None item; for example "text" messages only have a "text" element.
+    Except "card" messages; they have links, title, and buttons."""
     text: Optional[str] = None # Used for text messages.
     path: Optional[str] = None # Used for every kind of non-text message.
     size: Optional[int] = None # Used for downloadable files only.
@@ -117,7 +125,8 @@ class MessageContent:
 
 @dataclass
 @add_str_method
-class MenuClick: # Right-click context menu.
+class MenuClick:
+    """A description of a context menu right-click. Includes a "copy" of the message that was clicked on."""
     item_id: str
     message_id: str
     message_subtype: str # 'text', 'image', 'audio', or 'file'
@@ -131,14 +140,16 @@ class MenuClick: # Right-click context menu.
 
 @dataclass
 @add_str_method
-class CanvasElement: # Updates to the Canvas are lists of CanvasElements.
+class CanvasElement:
+    """A description of the canvas is a list of these elements."""
     text: Optional[str] = None
     path: Optional[str] = None
 
 
 @dataclass
 @add_str_method
-class View: # TODO: What is this for?
+class View:
+    """An unused feature, for now."""
     character_ids: list[str]
     button_ids: list[str]
     canvas_id: str
@@ -147,6 +158,7 @@ class View: # TODO: What is this for?
 @dataclass
 @add_str_method
 class Group:
+    """A group of users. Only to be used internally."""
     group_id: str
     character_ids: list[str]
 
@@ -154,6 +166,7 @@ class Group:
 @dataclass
 @add_str_method
 class MessageBody:
+    """A message. Contains the content as well as information about who and where the message was sent."""
     subtype: str
     channel_id: str
     content: MessageContent
@@ -167,6 +180,7 @@ class MessageBody:
 @dataclass
 @add_str_method
 class Action:
+    """A description of a generic task performed by a user. Actions with different subtypes are routed to different callbacks."""
     subtype: str
     channel_id: str
     sender: str
@@ -176,14 +190,17 @@ class Action:
 @dataclass
 @add_str_method
 class ChannelInfo:
+    """Used to descripe an update for an old, rarely-used feature."""
     channel_id: str
     channel_name: str
-    context: dict
+    channel_description: str
+    channel_type: str # dcs, ccs, etc.
 
 
 @dataclass
 @add_str_method
 class Copy:
+    """Used internally for the on_copy_client() callback. Most CCS apps do not need to override the callback."""
     request_id: str
     origin_type: str
     status: bool
@@ -193,6 +210,7 @@ class Copy:
 @dataclass
 @add_str_method
 class Payload:
+    """Used internally by the Moobius.handle_received_payload function."""
     type: str
     request_id: Optional[str]
     user_id: Optional[str]
@@ -202,6 +220,7 @@ class Payload:
 @dataclass
 @add_str_method
 class Character:
+    """A description (name, id, image url) of a real or virtual user."""
     character_id: str
     name: str
     avatar: Optional[str] = None
@@ -211,16 +230,8 @@ class Character:
 
 @dataclass
 @add_str_method
-class ChannelInfo:
-    channel_id: str
-    channel_name: str
-    channel_description: str
-    channel_type: str # dcs, ccs, etc.
-
-
-@dataclass
-@add_str_method
-class StyleElement: # As of 2024_3_15 this is a work-in-progress on the Platform. When the Platform is updated this dataclass will be updated.
+class StyleElement:
+    """A description of a visual style is a list of these elements."""
     widget: str # Typically "canvas"
     display: str # "invisible", "visible"
     expand: str # "false", "true" (strings not bools! other options such as "force_true" may be added).
@@ -228,7 +239,8 @@ class StyleElement: # As of 2024_3_15 this is a work-in-progress on the Platform
 
 @dataclass
 @add_str_method
-class UpdateElement: # Used for on_update_xyz callbacks. Not used for send_update functions.
+class UpdateElement:
+    """Each Update has a list of UpdateElements."""
     character: Character | None # These fields will be None if they are not applicable to the type of update.
     button: Button | None # Only one of these is non-None at any given time.
     channel_info: ChannelInfo | None
@@ -239,7 +251,9 @@ class UpdateElement: # Used for on_update_xyz callbacks. Not used for send_updat
 
 @dataclass
 @add_str_method
-class Update: # Used for on_update_xyz callbacks. Not used for send_update functions.
+class Update:
+    """Used for on_update_xyz callbacks. Not used for send_update functions.
+    Used by an *agent* so that they can be notified that something that they can "see" has been updated."""
     subtype:str # 'update_characters' 'update_channel_info' 'update_canvas' 'update_buttons' 'update_style'
     channel_id:str
     content: list[UpdateElement]
@@ -251,6 +265,7 @@ class Update: # Used for on_update_xyz callbacks. Not used for send_update funct
 @dataclass
 @add_str_method
 class UserInfo:
+    """Used by an *agent* so that they can find out information about themselves."""
     avatar:str
     description:str
     name:str

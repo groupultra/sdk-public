@@ -24,7 +24,11 @@ class MoobiusWand:
 
     @staticmethod
     def run_job(service):
-        asyncio.run(service.start())
+        try:
+            asyncio.run(service.start())
+        except KeyboardInterrupt:
+            print("EXITING!")
+            sys.exit(1)
 
     def run(self, cls, background=False, **kwargs):
         """
@@ -70,10 +74,12 @@ class MoobiusWand:
         """Stops all processes using the_process.kill()
            Also stops asyncio's event loop.
            TODO: Unused arguments sgnum and frame. Maybe renamining this to stop_all()?"""
+        print("WAND FORCE STOPPING ALL!")
         for _process in self.processes.values():
-            _process.kill()
+            _process.kill() # Maximum force!
             logger.info(f"Service {_process.name} terminated")
         asyncio.get_event_loop().stop()
+        sys.exit()
 
     def spell(self, handle, obj):
         """
