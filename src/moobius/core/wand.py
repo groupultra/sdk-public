@@ -9,6 +9,10 @@ from moobius import utils
 KEYBOARDEXIT = 1324 # The child process exits.
 
 
+def sigint_handler(signal, frame):
+    os._exit(KEYBOARDEXIT)
+
+
 class MoobiusWand:
     """
     MoobiusWand is a class that starts and manages services.
@@ -25,6 +29,7 @@ class MoobiusWand:
 
     @staticmethod
     def run_job(service):
+        signal.signal(signal.SIGINT, sigint_handler) # In the child process as well, in case it catches the keyboard.
         try:
             asyncio.run(service.start())
         except KeyboardInterrupt:
@@ -67,15 +72,6 @@ class MoobiusWand:
             self.services[self.current_service_handle] = service
             self.processes[self.current_service_handle] = p_service
 
-            # Detect exits in the child process and in turn exit.
-            def _wait_f():
-                while True:
-                    if p_service.exitcode == KEYBOARDEXIT:
-                        os._exit(KEYBOARDEXIT)
-                    time.sleep(0.5)
-            keep_alive = Thread(target=_wait_f, daemon=False)
-            keep_alive.start()
-
             return self.current_service_handle
         else:
             asyncio.run(service.start())
@@ -89,7 +85,7 @@ class MoobiusWand:
             _process.kill() # Maximum force!
             logger.info(f"Service {_process.name} terminated")
         asyncio.get_event_loop().stop()
-        os._exit()
+        os._exit(1)
 
     def spell(self, handle, obj):
         """

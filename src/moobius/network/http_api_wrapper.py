@@ -530,7 +530,7 @@ class HTTPAPIWrapper:
         """Converts file paths to URLs (uploading files to buckets). Idempotent: If given a URL will just return the URL.
         Empty, False, or None strings are converted to a default URL."""
         if not file_path:
-            return "https://moobius-test-bucket.s3.amazonaws.com/db91962d-a81c-4398-9acc-bd595f5131cb.png"
+            return "https://gba-moobius.s3.us-east-2.amazonaws.com/LogoLight.jpg"
         if 'https://' in file_path or 'http://' in file_path or 'ftp://' in file_path or 'ftps://' in file_path:
             return file_path
         elif not os.path.exists(file_path):
