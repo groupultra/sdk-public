@@ -6,14 +6,14 @@ There are two ingrediants for setting up group chat: The user list and the messa
 The user list
 ===============================================
 
-The users need to see who is in the chat. This is done with self.send_update_character_list
+The users need to see who is in the chat. This is done with self.send_update_characters
 
 It helps to make a function to update the user list:
 
 .. code-block:: Python
     async def _update_char_list(self, action, all=False):
         ids = await self.fetch_member_ids(action.channel_id, False)
-        await self.send_update_character_list(channel_id=action.channel_id, character_list=ids, recipients=[ids] if all else [action.sender])
+        await self.send_update_characters(channel_id=action.channel_id, character_ids=ids, recipients=[ids] if all else [action.sender])
 
 
 Then it can be used whenever the user list needs to be updated. Which is in three cases (the fetch callback, and when someone else joins or leaves):

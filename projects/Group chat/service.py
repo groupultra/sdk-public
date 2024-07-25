@@ -22,7 +22,7 @@ class GroupService(Moobius):
 
     async def _update_char_list(self, action, all=False):
         ids = await self.fetch_member_ids(action.channel_id, False)
-        await self.send_update_character_list(channel_id=action.channel_id, character_list=ids, recipients=[ids] if all else [action.sender])
+        await self.send_update_characters(channel_id=action.channel_id, character_ids=ids, recipients=[ids] if all else [action.sender])
 
     async def on_fetch_characters(self, action):
         await self._update_char_list(action, all=False)

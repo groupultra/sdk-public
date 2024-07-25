@@ -24,8 +24,8 @@ class DemoAgent(Moobius):
         """Listen to messages the user sends and respond to them."""
         channel_id = message_down.channel_id
         content = message_down.content
-        if not channel_id in self.channels:
-            self.channels[channel_id] = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
+        if not channel_id in self.channel_storages:
+            self.channel_storages[channel_id] = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
             await self.send_fetch_characters(channel_id)
             await self.send_fetch_buttons(channel_id)
 
@@ -74,14 +74,14 @@ class DemoAgent(Moobius):
             if type(character_id) is not str:
                 raise Exception('The characters in update should be a list of character ids.') # Extra assert just in case.
             c_id = update.channel_id
-            while c_id not in self.channels:
+            while c_id not in self.channel_storages:
                 logger.info(f'Agent waiting (for on_start) while update characters for channel: {c_id}')
                 await asyncio.sleep(2)
 
-            self.channels[c_id].characters[character_id] = character_profile
+            self.channel_storages[c_id].characters[character_id] = character_profile
 
     async def on_update_buttons(self, update):
-        self.channels[update.channel_id].buttons = [c.button for c in update.content]
+        self.channel_storages[update.channel_id].buttons = [c.button for c in update.content]
 
     async def on_update_canvas(self, update):
         pass
@@ -105,6 +105,6 @@ class DemoAgent(Moobius):
         if type(text) is not str:
             logger.warning('Agent spell got non-string text')
         if text == "nya_all":
-            for channel_id in self.channels.keys():
-                recipients = list(self.channels[channel_id].characters.keys())
+            for channel_id in self.channel_storages.keys():
+                recipients = list(self.channel_storages[channel_id].characters.keys())
                 await self.send_message("nya nya nya", channel_id, recipients)

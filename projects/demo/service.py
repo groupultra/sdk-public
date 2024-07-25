@@ -66,7 +66,7 @@ class DemoService(Moobius):
            All of this is stored in a MoobiusStorage object."""
 
         the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
-        self.channels[channel_id] = the_channel
+        self.channel_storages[channel_id] = the_channel
 
         member_ids = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)
 
@@ -111,9 +111,9 @@ class DemoService(Moobius):
 
     async def get_channel(self, channel_id):
         """Prevents KeyErrors by creating new channel databases if they don't exist yet."""
-        if channel_id not in self.channels:
+        if channel_id not in self.channel_storages:
             await self.initialize_channel(channel_id)
-        return self.channels[channel_id]
+        return self.channel_storages[channel_id]
 
     async def on_message_down(self, message_down):
         pass
@@ -208,17 +208,17 @@ class DemoService(Moobius):
         the_channel.states[character_id] = self.default_status
 
         character_ids = list(the_channel.real_characters.keys())
-        await self.send_update_character_list(channel_id, character_ids, character_ids)
+        await self.send_update_characters(channel_id, character_ids, character_ids)
         await self.send_message(f'{name} {intro} (id={character_id})', channel_id, character_id, character_ids)
 
     async def on_join_channel(self, action):
-        """Most join handlers, as this one does, will send_update_character_list with the new character added and send a "user joined!" message."""
+        """Most join handlers, as this one does, will send_update_characters with the new character added and send a "user joined!" message."""
         sender_id = action.sender
         channel_id = action.channel_id
         await self.add_real_character(channel_id, sender_id, intro="joined the channel!")
 
     async def on_leave_channel(self, action):
-        """Most leave handlers, as this one does, will send_update_character_list with the character removed and maybe send a "user left!" message."""
+        """Most leave handlers, as this one does, will send_update_characters with the character removed and maybe send a "user left!" message."""
         sender = action.sender
         channel_id = action.channel_id
         character = (await self.get_channel(action.channel_id)).real_characters.pop(sender, None)
@@ -229,7 +229,7 @@ class DemoService(Moobius):
         real_characters = (await self.get_channel(channel_id)).real_characters
         character_ids = list(real_characters.keys())
 
-        await self.send_update_character_list(channel_id, character_ids, character_ids)
+        await self.send_update_characters(channel_id, character_ids, character_ids)
         await self.send_message(f'{name} left the channel!', channel_id, sender, character_ids)
 
     async def on_copy_client(self, the_copy):
@@ -354,8 +354,8 @@ class DemoService(Moobius):
                 for c_id in channel_ids:
                          if c_id in self.config["channels"]:
                              continue # Do not leave the core channels.
-                         if c_id in self.channels:
-                             del self.channels[c_id]
+                         if c_id in self.channel_storages:
+                             del self.channel_storages[c_id]
                          left_channels.append(c_id)
                 await self.send_message(f"Will try to leave these channels:\n{left_channels}.", channel_id, who_clicked, to_whom)
                 sucessfully_left = []
@@ -461,7 +461,7 @@ class DemoService(Moobius):
 
         text = f"WAND: {content * times}"
 
-        for channel_id in self.channels.keys():
+        for channel_id in self.channel_storages.keys():
             the_channel = await self.get_channel(channel_id)
             recipients = list(the_channel.real_characters.keys())
             talker = the_channel.puppet_characters[self.WAND].character_id
@@ -475,7 +475,7 @@ class DemoService(Moobius):
         await self.send_update_buttons(channel_id, button_list, [character_id])
 
     async def calculate_and_update_character_list_from_database(self, channel_id, character_id):
-        """Pipes all real users + the correct number of Mickeys to self.send_update_character_list."""
+        """Pipes all real users + the correct number of Mickeys to self.send_update_characters."""
         the_channel = await self.get_channel(channel_id)
         real_characters = the_channel.real_characters
         character_list = list(real_characters.keys())
@@ -486,4 +486,4 @@ class DemoService(Moobius):
             key = f"{self.MICKEY}_{sn}"
             character_list.append(the_channel.puppet_characters[key].character_id)
 
-        await self.send_update_character_list(channel_id, character_list, [character_id])
+        await self.send_update_characters(channel_id, character_list, [character_id])

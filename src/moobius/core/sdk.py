@@ -90,14 +90,14 @@ class Moobius:
 
     ############################ Startup functions ########################################
 
-    def __init__(self, config_path, db_config_path, is_agent=False, **kwargs):
+    def __init__(self, config_path, db_config_path=None, is_agent=False, **kwargs):
         """
         Initializes a service or agent object.
 
         Parameters:
           config_path: The path of the agent or service config file.
             Can instead be a dict of the actual config, so that no file is loaded.
-          db_config_path: The path of the database config file.
+          db_config_path=None: The optional path of the database config file.
             Can also be a dict instead of a file.
           is_agent=False: True for an agent, False for a service.
             Agents are bots which simulate users and are limited to what a user can see.
@@ -144,6 +144,8 @@ class Moobius:
         elif type(db_config_path) is str and db_config_path != "":
             with open(db_config_path, "r", encoding='utf-8') as f:
                 self.db_config = json.load(f)
+        elif not db_config_path:
+            self.db_config = None
         else:
             raise Exception('db_config_path not understood')
 
@@ -157,7 +159,8 @@ class Moobius:
         if not self.is_agent:
             self.client_id = self.config.get("service_id", "")
 
-        self.channels = {} # Generally filled up by self.initialize_channel().
+        self._channels = [] # Generally filled up when initializing a channel.
+        self.channel_storages = {} # MoobiusStorage objects.
         self.group_lib = ServiceGroupLib()
 
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
@@ -261,10 +264,13 @@ class Moobius:
                 logger.info(f'The channel {channel_id} has groups {groupid2ids}, adding these to self.group_lib.')
                 self.group_lib.id2ids_mdown = {**self.group_lib.id2ids_mdown, **groupid2ids}
                 await self.initialize_channel(channel_id)
+                self._channels.append('channel_id')
 
-            if not self.channels:
-                logger.error("All channels are used up by other services and the 'others' option is not set to 'include' to steal them back.")
-                return
+            if len(self._channels) == 0:
+                if len(self.config["channels"]) == 0:
+                    logger.warning("No channels specified in the config. Channels will have to be created by your service in order to do anything.")
+                else:
+                    logger.warning("Channels were specified in the config, but they are all bound to other services and the 'others' option was not set to include")
 
             await self.send_service_login() # It is OK (somehow) to log in after all of this not before.
 
@@ -287,10 +293,10 @@ class Moobius:
         if not self.is_agent:
             channel_ids = await self.fetch_bound_channels()
             for c_id in channel_ids:
-                if c_id not in self.channels:
+                if c_id not in self._channels:
                     if self.init_all_channels:
                         logger.info(f'Extra channel bound to this service on startup will be initialized  (self.init_all_channels is True): {c_id}')
-                        await self.initialize_channel(c_id) # This channel was not initialized in the main "initialize channels" for loop because it is not in self.channels.
+                        await self.initialize_channel(c_id) # This channel was not initialized in the main "initialize channels" for loop because it is not in self._channels.
                     else:
                         logger.info(f'Extra channel bound to this service on startup will NOT be initialized (self.init_all_channels is False): {c_id}')
 
@@ -637,7 +643,7 @@ class Moobius:
     async def send_agent_login(self): """Calls self.ws_client.agent_login using self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.agent_login(self.http_api.access_token)
     async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
     async def send_update(self, target_client_id, data): """Calls self.ws_client.update"""; return await self.ws_client.update(self.client_id, target_client_id, data)
-    async def send_update_character_list(self, channel_id, character_list, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_list, True), await self._update_rec(recipients, True))
+    async def send_update_characters(self, channel_id, character_ids, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_ids, True), await self._update_rec(recipients, True))
     async def send_update_channel_info(self, channel_id, channel_info): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(self.client_id, channel_id, channel_info)
     async def send_update_buttons(self, channel_id, buttons, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(self.client_id, channel_id, buttons, await self._update_rec(recipients, True))
     async def send_update_context_menu(self, channel_id, menu_elements, recipients): """Calls self.ws_client.update_context_menu using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_context_menu(self.client_id, channel_id, menu_elements, await self._update_rec(recipients, True))
@@ -654,7 +660,7 @@ class Moobius:
 
     async def checkin(self):
         """Called as a rate task, used to resync users, etc. Only called after on_start()"""
-        for channel_id in self.channels.keys():
+        for channel_id in self._channels:
             await self.checkin_channel(channel_id)
 
     @logger.catch
@@ -852,13 +858,14 @@ class Moobius:
 
     async def initialize_channel(self, channel_id):
         """Called once per channel on startup. Returns None.
-        By default, creates a MoobiusStorage object with the parameters specified by self.db_config in self.channels[channel_id]."""
-        the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
-        self.channels[channel_id] = the_channel
+        By default, if self.db_config has been set, a MoobiusStorage is created in self.channel_storages"""
+        if self.db_config: # Optional storage.
+            self.channel_storages[channel_id] = MoobiusStorage(self.client_id, channel_id, self.db_config)
+        logger.debug('Initalized channel.')
 
     async def checkin_channel(self, channel_id):
         """A "wellness check" which is called on startup, on reconnect, and as a periodic "check-in". Returns None."""
-        if channel_id == list(self.channels.keys())[0]:
+        if channel_id == self._channels[0]:
             logger.info('checkin_channel not overriden, occasional desyncs are possible.')
 
     async def on_spell(self, obj):
@@ -1024,6 +1031,10 @@ class Moobius:
         logger.warning("WARNING: fetch_service_characters is deprecated use fetch_puppets instead.")
         return await self.http_api.fetch_puppets(self.client_id)
 
+    async def send_update_character_list(self, channel_id, character_ids, recipients):
+        """DEPRECATED use send_update_characters instead. Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""
+        logger.warning("WARNING: send_update_character_list is deprecated use send_update_characters instead.")
+        return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_ids, True), await self._update_rec(recipients, True))
 
     #######################################################################################################################
 
@@ -1032,7 +1043,7 @@ class Moobius:
         http_server_uri = self.config["http_server_uri"]
         ws_server_uri = self.config["ws_server_uri"]
         email = self.config["email"]
-        num_channels = len(self.channels)
+        num_channels = len(self._channels)
         agsv = 'Agent' if self.is_agent else 'Service'
         return f'moobius.SDK({agsv}; config=config={fname}, http_server_uri={http_server_uri}, ws_server_uri={ws_server_uri}, ws={ws_server_uri}, email={email}, password=****, num_channels={num_channels})'
     def __repr__(self):

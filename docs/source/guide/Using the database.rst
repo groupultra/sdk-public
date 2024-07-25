@@ -32,19 +32,19 @@ Then to use the initialize_channel callback:
 
 .. code-block:: Python
     async def initialize_channel(self, channel_id):
-        self.channels[channel_id] = MoobiusStorage(self.client_id, channel_id, self.db_config)
+        self.channel_storages[channel_id] = MoobiusStorage(self.client_id, channel_id, self.db_config)
 
 The "name" was set to "stats", which becomes an attribute (dynamic attribute setting):
 
 .. code-block:: Python
     default_stats = {'str':1, 'dex':1, 'int':1}
-    stats = self.channels[c_id].stats.get(sender, default_stats)
+    stats = self.channel_storages[c_id].stats.get(sender, default_stats)
 
 stats.get(sender) itself is a dictionary, and when modified in-place there is no way that the stats can tell.
 Thus another assignment call is needed to update the disk. This line of code would not be necessary for vanilla dicts:
 
 .. code-block:: Python
-    self.channels[c_id].stats[sender] = stats
+    self.channel_storages[c_id].stats[sender] = stats
 
 The stats are persistent (for each player, on each channel) on app restart.
 

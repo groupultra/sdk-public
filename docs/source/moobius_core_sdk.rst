@@ -645,10 +645,10 @@ Parameters:
 
 Returns: The message as a dict.
 
-.. _moobius.core.sdk.Moobius.send_update_character_list:
-Moobius.send_update_character_list
+.. _moobius.core.sdk.Moobius.send_update_characters:
+Moobius.send_update_characters
 -----------------------------------
-Moobius.send_update_character_list(self, channel_id, character_list, recipients)
+Moobius.send_update_characters(self, channel_id, character_list, recipients)
 
 Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list.
 Doc for the called function:
@@ -897,7 +897,7 @@ Moobius.initialize_channel
 Moobius.initialize_channel(self, channel_id)
 
 Called once per channel on startup. Returns None.
-By default, creates a MoobiusStorage object with the parameters specified by self.db_config in self.channels[channel_id].
+By default, creates a MoobiusStorage object with the parameters specified by self.db_config in self.channel_storages[channel_id].
 
 .. _moobius.core.sdk.Moobius.checkin_channel:
 Moobius.checkin_channel

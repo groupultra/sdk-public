@@ -73,7 +73,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.core.sdk.Moobius.send_agent_login <moobius.core.sdk.Moobius.send_agent_login>` (self)
 * :ref:`moobius.core.sdk.Moobius.send_service_login <moobius.core.sdk.Moobius.send_service_login>` (self)
 * :ref:`moobius.core.sdk.Moobius.send_update <moobius.core.sdk.Moobius.send_update>` (self, target_client_id, data)
-* :ref:`moobius.core.sdk.Moobius.send_update_character_list <moobius.core.sdk.Moobius.send_update_character_list>` (self, channel_id, character_list, recipients)
+* :ref:`moobius.core.sdk.Moobius.send_update_characters <moobius.core.sdk.Moobius.send_update_characters>` (self, channel_id, character_list, recipients)
 * :ref:`moobius.core.sdk.Moobius.send_update_channel_info <moobius.core.sdk.Moobius.send_update_channel_info>` (self, channel_id, channel_info)
 * :ref:`moobius.core.sdk.Moobius.send_update_buttons <moobius.core.sdk.Moobius.send_update_buttons>` (self, channel_id, buttons, recipients)
 * :ref:`moobius.core.sdk.Moobius.send_update_context_menu <moobius.core.sdk.Moobius.send_update_context_menu>` (self, channel_id, menu_elements, recipients)
