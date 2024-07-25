@@ -1,4 +1,4 @@
-# Defines class MoobiusStorage
+# Dict-like storage that is persistent across program restarts.
 
 from loguru import logger
 
@@ -7,7 +7,7 @@ from loguru import logger
 
 
 def get_engine(implementation):
-    """Only import the database engine that is needed. Returns a Class object given a string."""
+    """Returns the engine's Class. Last-minute-imports the module so that no pip package is needed for unused engines."""
 
     def _hit(matches):
         for m in matches:
@@ -56,21 +56,18 @@ class CachedDict(dict):
         self.strict_mode = strict_mode  
 
     def load(self):
-        """Load all keys from the database to the cache. Returns None."""
+        """Loads all keys from the database to the cache. Returns None."""
         for key in self.database.all_keys():
             self.__getitem__(key)
 
     def save(self, key):
-        """Save a key to the database. given a string-valued key. Returns None.
-        For JSONDatabase, this will create a new json file named after the key."""
+        """Saves a key to the database. given a string-valued key. Returns None.
+        For a JSONDatabase, this will create a new json file named after the database's domain and key."""
         self.__setitem__(key, self.__getitem__(key))
 
     def __getitem__(self, key):
-        """
-        Override the __getitem__, __setitem__, and __delitem__ methods of the CachedDict class to support database interaction.
-        These methods are called when accessing elements using index notation and square brackets.
-        Raises a KeyError if strict_mode is True and the key is not found.
-        """
+        """Overrides dict-like usages of the form: "v = d['my_key']" to query from the database.
+        Raises a KeyError if strict_mode is True and the key is not found."""
         if dict.__contains__(self, key):
             return dict.__getitem__(self, key)
         else:
@@ -86,8 +83,8 @@ class CachedDict(dict):
                 raise KeyError(f'Key {key} not found in database')
 
     def __setitem__(self, key, value):
-        """Allows i.e. "my_cached_dict["foo"] = some_dict" to access the underlying database, much like __getitem__.
-           Raises an Exception if in strict_mode and the database cannot set the value for whatever reason."""
+        """Overrides dict-like usages of the form: "d['my_key'] = v" to save to the database.
+        For a JSONDatabase, this will save the updated json to a file."""
         is_success, err_message = self.database.set_value(key, value)
 
         if is_success:
@@ -100,8 +97,8 @@ class CachedDict(dict):
                 dict.__setitem__(self, key, value)    
 
     def __delitem__(self, key):
-        """Allows i.e. "del my_cached_dict["foo"]" to access the underlying database, much like __getitem__.
-           Raises an Exception if in strict_mode and the database cannot delete the key for whatever reason (or does not have the key)."""
+        """Overrides dict-like usages of the form: "del d['my_key']" to delete a key from the database.
+        For a JSONDatabase, this will save the updated json to a file."""
         is_success, err_message = self.database.delete_key(key)
 
         if is_success:
@@ -114,7 +111,7 @@ class CachedDict(dict):
                 dict.__delitem__(self,key)
 
     def pop(self, key, default="__unspecified__"):
-        """Pop = get followed by __delitem__."""
+        """Overrides "v = d.pop(k)" to get and delete k from the database."""
         if default == "__unspecified__" and not dict.__contains__(self, key):
             raise KeyError(f'Key {key} not in dict.')
         if dict.__contains__(self, key):
@@ -125,7 +122,7 @@ class CachedDict(dict):
             return default
 
     def clear(self):
-        """Clears everything in both this file and on the disk."""
+        """Overrides "d.clear()" to clear the database."""
         for k in list(self.keys()):
             self.pop(k)
 
@@ -139,15 +136,8 @@ class CachedDict(dict):
 
 class MoobiusStorage():
     """
-    MoobiusStorage combines multiple databases into a single interface.
-
-    The config file to specify this database should be a list of dicts. The dict parameters are:
-      implementation (str): The type of the database.
-      load (bool): Whether to load the database when initializing the database.
-      clear (bool): Whether to clear the database when initializing the database.
-      name (str): The name of the json database.
-      settings (dict): Misc settings such as Redis port, etc.
-      root_dir (str): The root directory of the all the json files.
+    MoobiusStorage combines multiple databases together.
+    Each database becomes one attribute using dynamic attribute creation.
     """
     def __init__(self, service_id, channel_id, db_config=()):
         """
@@ -157,9 +147,13 @@ class MoobiusStorage():
           service_id (str): The id of the service.
           channel_id (str): The id of the channel.
           db_config(list): The config of the databases, should be a list of config dicts.
-            Each dict's 'implemetation' selects the engine. (TODO? use the field 'engine' instead of 'implementation'?)
-
-        No return value.
+            Dict keys of each element:
+              implementation (str): The type of the database.
+              load (bool): Whether to load the database when initializing the database.
+              clear (bool): Whether to clear the database when initializing the database.
+              name (str): The name of the json database.
+              settings (dict): Misc settings such as Redis port, etc.
+              root_dir (str): The root directory of the all the json files.
 
         Example:
           >>> storage = MoobiusStorage(service_id='1', channel_id='1', db_config=[{'implementation': 'json', 'load': True, 'clear': False, 'name': 'character', 'settings': {'root_dir': 'data'}}])
@@ -175,7 +169,7 @@ class MoobiusStorage():
 
     def put(self, attr_name, database, load=True, clear=False):
         """Sets self.attr_name to database (a DatabaseInterface object) for later retrieval.
-           load (default True) to load the dict, clear (default False) to clear the dict and skip loading it."""
+           load (default True) to load the dict immediatly, clear (default False) to clear the dict and skip loading it."""
         if attr_name in self.__dict__:
             raise Exception('Domain {n} already exists'.format(n=attr_name))
         else:
@@ -193,7 +187,7 @@ class MoobiusStorage():
     @logger.catch
     def add_container(self, implementation, settings, name, load=True, clear=False):
         """
-        Add a database using the config dict.
+        Adds a database using the config dict.
 
         Parameters:
           implementation (str): The engine of the database.

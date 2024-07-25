@@ -1,4 +1,6 @@
-# aiohttp-based wrapper of the Platform's HTTP.
+# aiohttp-based wrapper for HTTPS interaction with the platform.
+# Handles auth as well as GET and POST requests.
+# This module is designed to be used by the Moobius service.
 import json, os, io, hashlib
 import aiohttp
 from loguru import logger
@@ -10,7 +12,8 @@ from moobius.network import asserts
 _URL2example_response = {} # Debug tool that allows inspecting example responses.
 
 async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_errors=True):
-    """Get or post, will use requests.get/post or aiohttp.session.get/post depending on which one has been choosen.
+    """
+    Sends a GET or POST request and awaits for the response.
 
     Parameters:
       url (str): https://...
@@ -18,12 +21,17 @@ async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_erro
       requests_kwargs=None: These are fed into the requests/session get/post function.
       raise_json_decode_errors=True
 
-    Returns: A dict which is json.loads() of the return.
-      dict['code'] has the code, 10000 is good and 204 indicates no return but without error which is also fine.
-      dict['blob'] is the response text in cases where the JSON fail and raise_json is False.
+    Returns: A dict which is the json.loads() of the return.
+      Error condition if JSON decoding fails:
+        dict['code'] contains the code
+          10000 is "good" (but the JSON still failed).
+          204 indicates no return but without error which is also fine.
+          Many other codes exist.
+        dict['blob'] is the response text in cases where the JSON fail and raise_json is False.
 
     Raises:
-      Exception if Json fails and raise_json is True. Not all non-error returns are JSON thus the "blob" option."""
+      An Exception if Json fails and raise_json is True. Not all non-error returns are JSON thus the "blob" option.
+    """
     async with aiohttp.ClientSession() as session:
         async with (session.post if is_post else session.get)(url, **requests_kwargs) as resp:
             try:
@@ -59,7 +67,7 @@ class HTTPAPIWrapper:
     All methods except for authenticate() and refresh() require authentication headers. 
     When calling these methods, make sure to call authenticate() first and add headers=self.headers to the method call.
 
-    This Wrapper's methods are categorized as follows:
+    This wrapper's methods are categorized as follows:
       Auth: Authentication and sign in/out.
       User: Dealing with real users.
       Service: Apps use this API to be a service.
@@ -69,14 +77,12 @@ class HTTPAPIWrapper:
     """
     def __init__(self, http_server_uri="", email="", password=""):
         """
-        Initialize the HTTP API wrapper.
+        Initializes the HTTP API wrapper.
 
         Parameters:
           http_server_uri (str): The URI of the Moobius HTTP server.
           email (str): The email of the user.
           password (str): The password of the user.
-
-        No return value.
 
         Example:
           >>> http_api_wrapper = HTTPAPIWrapper("http://localhost:8080", "test@test", "test")
@@ -89,7 +95,8 @@ class HTTPAPIWrapper:
         self.filehash2URL = {} # Avoid uploading the same file twice!
 
     async def _checked_get_or_post(self, url, the_request, is_post, requests_kwargs=None, good_message=None, bad_message="This HTTPs request failed", raise_errors=True):
-        """Runs a GET or POST request returning the result as a JSON with optional logging and error raising.
+        """
+        Runs a GET or POST request returning the result as a JSON with optional logging and error raising.
 
            Parameters:
              url (str): The https://... url.
@@ -97,14 +104,15 @@ class HTTPAPIWrapper:
              is_post: True for post, False for get.
              requests_kwargs=None: Dict of extra arguments to send to requests/aiohttp. None is equivalent to {}
              good_message=None: The string-valued message to logger.debug. None means do not log.
-             bad_message="...": The string-valued to prepend to logger.error if the response isnt code 10000.
+             bad_message="...": The string-valued message to prepend to logger.error if the response isnt code 10000.
              raise_errors=True: Raise a BadResponseException if the request returns an error.
 
            Returns:
              The https response as a dict, using requests/aiohttp.post(...).json() to parse it.
 
            Raises:
-             BadResponseException if raise_errors=True and the response is an error response."""
+             BadResponseException if raise_errors=True and the response is an error response.
+        """
         if the_request is not None and type(the_request) is not dict:
             raise Exception(f'the_request must be None or a dict, not a {type(the_request)} because; dicts are turned into json.')
         if requests_kwargs is None:
@@ -149,11 +157,11 @@ class HTTPAPIWrapper:
         return response_dict
 
     async def checked_get(self, url, the_request, requests_kwargs=None, good_message=None, bad_message="This HTTPs GET request failed", raise_errors=True):
-        """Calls self._checked_get_or_post with is_post=False"""
+        """Calls self._checked_get_or_post with is_post=False."""
         url = url.replace('//','/').replace(':/','://') # May not be needed, but looks better in the printouts.
         return await self._checked_get_or_post(url, the_request, False, requests_kwargs=requests_kwargs, good_message=good_message, bad_message=bad_message, raise_errors=raise_errors)
     async def checked_post(self, url, the_request, requests_kwargs=None, good_message=None, bad_message="This HTTPs POST request failed", raise_errors=True):
-        """Calls self._checked_get_or_post with is_post=True"""
+        """Calls self._checked_get_or_post with is_post=True."""
         url = url.replace('//','/').replace(':/','://') # May not be needed, but looks better in the printouts.
         return await self._checked_get_or_post(url, the_request, True, requests_kwargs=requests_kwargs, good_message=good_message, bad_message=bad_message, raise_errors=raise_errors)
 
@@ -161,9 +169,11 @@ class HTTPAPIWrapper:
 
     @property
     def headers(self):
-        """Returns the authentication headers. Used for all API calls except for authenticate() and refresh().
+        """
+        Returns the authentication headers. Used for all API calls except for authenticate() and refresh().
         headers["Auth-Origin"] is the authentication service, such as "cognito".
-        headers["Authorization"] is the access token, etc that proves authentication."""
+        headers["Authorization"] is the access token, etc that proves authentication.
+        """
         return {
             "Auth-Origin": "cognito",
             "Authorization": f"Bearer {self.access_token}"
@@ -171,9 +181,12 @@ class HTTPAPIWrapper:
 
     @logger.catch
     async def authenticate(self):
-        """Authenticates the user. Needs to be called before any other API calls.
-           Returns (the access token, the refresh token). Exception if doesn't receive a valid response.
-           Like most GET and POST functions it will raise any errors thrown by the http API."""
+        """
+        Authenticates using self.username andself.password. Needs to be called before any other API calls.
+        Returns (the access token, the refresh token).
+        Raises an Exception if doesn't receive a valid response.
+        Like most GET and POST functions it will raise any errors thrown by the http API.
+        """
         response_dict = await self.checked_post(url=self.http_server_uri + "/auth/sign_in", the_request={"username": self.username, "password": self.password}, requests_kwargs=None, good_message=None, bad_message="Error during authentication", raise_errors=True)
         self.access_token = response_dict.get('data').get('AuthenticationResult').get('AccessToken')
         self.refresh_token = response_dict.get('data').get('AuthenticationResult').get('RefreshToken')
@@ -181,8 +194,7 @@ class HTTPAPIWrapper:
         return self.access_token, self.refresh_token
 
     async def sign_up(self):
-        """Signs up. Returns (the access token, the refresh token).
-        Exception if doesn't receive a valid response."""
+        """Signs up. Returns (the access token, the refresh token)."""
         response_dict = await self.checked_post(url=self.http_server_uri + "/auth/sign_up", the_request={"username": self.username, "password": self.password}, requests_kwargs=None, good_message=None, bad_message="Error during signup", raise_errors=True)
         self.access_token = response_dict.get('data').get('AuthenticationResult').get('AccessToken')
         self.refresh_token = response_dict.get('data').get('AuthenticationResult').get('RefreshToken')
@@ -204,6 +216,7 @@ class HTTPAPIWrapper:
     ######################## User #########################
 
     def _xtract_character(self, resp_data):
+        """Generates a Character object out of the JSON response_data."""
         c_data = {}
         c_data['character_id'] = resp_data['character_id']
         c_data['name'] = resp_data['character_context']['name']
@@ -235,7 +248,7 @@ class HTTPAPIWrapper:
          A list of character_id strings.
 
         Raises:
-          Exception (empty list) if raise_empty_list_err is True and the list is empty.
+          An Exception (empty list) if raise_empty_list_err is True and the list is empty.
         """
         asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
@@ -265,7 +278,7 @@ class HTTPAPIWrapper:
             raise Exception(f"Empty character_list error, channel_id: {channel_id}, service_id: {service_id}.")
 
     async def fetch_service_characters(self, service_id):
-        """Get the user list (a list of Character objects), of a service given the string-valued service_id."""
+        """Get the user list (a list of Character objects), of the service with id service_id."""
         asserts.types_assert(str, service_id=service_id)
         m0 = "Successfully fetched character list"
         mr = "Error fetching character list"
@@ -295,7 +308,7 @@ class HTTPAPIWrapper:
         return [self._xtract_character(d) for d in charlist]
 
     async def fetch_user_info(self):
-        """Used by the Agent to get their info as a UserInfo object."""
+        """Gets the UserInfo of the user logged in as, containing thier name, avatar, etc. Used by agents."""
         response_dict = await self.checked_get(url=self.http_server_uri + f"/user/info", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched user info", bad_message="Error getting user info", raise_errors=True)
         idict = response_dict.get('data')
         email_verified = idict.get('email_verified') # Sometimes this is unfilled.
@@ -303,7 +316,7 @@ class HTTPAPIWrapper:
                         email=idict['email'], email_verified=email_verified, user_id=idict['user_id'], system_context=idict['system_context'])
 
     async def update_current_user(self, avatar, description, name):
-        """Updates the user info. Will only be an Agent function in the .net version.
+        """Updates the user info. Used by agents.
 
            Parameters:
              avatar: Link to image or local filepath to upload.
@@ -321,19 +334,20 @@ class HTTPAPIWrapper:
     ############################# Service ############################
 
     async def create_service(self, description):
-        """Creates a service with the given description string and returns the string-valued service_id."""
+        """Creates a service with the given description string and returns the string-valued service_id.
+        Called once by the Moobius class if there is no service specified."""
         asserts.types_assert(str, description=description)
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/create", the_request={"description": description}, requests_kwargs={'headers':self.headers}, good_message="Successfully created service!", bad_message="Error creating service", raise_errors=True)
         return response_dict.get('data').get('service_id')
 
     async def fetch_service_id_list(self):
-        """Returns a list of service ID strings of the user, or None if doesn't receive a valid response or one without any 'data' (error condition)."""
+        """Returns a list of service_id strings of the user."""
         response_dict = await self.checked_get(url=self.http_server_uri + "/service/list", the_request=None, requests_kwargs={'headers':self.headers}, good_message=None, bad_message='Error getting service list', raise_errors=True)
         return response_dict.get('data')
 
     async def create_character(self, service_id, name, avatar, description):
         """
-        Creates a character with given name, avatar, and description.
+        Creates a character with a given name, avatar, and description.
         The created user will be bound to the given service.
 
         Parameters:
@@ -342,7 +356,7 @@ class HTTPAPIWrapper:
           avatar (str): The image URL of the user's picture OR a local file path.
           description (str): The description of the user.
 
-        Returns: A Character object representing the created user, None if doesn't receive a valid response (error condition). TODO: Should these error conditions jsut raise Exceptions instead?
+        Returns: A Character object representing the created user.
         """
         avatar = await self.convert_to_url(avatar)
 
@@ -357,14 +371,14 @@ class HTTPAPIWrapper:
         return character
 
     async def update_character(self, service_id, character_id, avatar, description, name):
-        """Updates the user info for a FAKE user, for real users use update_current_user.
+        """Updates the characters name, avatar, etc for a FAKE user, for real users use update_current_user.
 
            Parameters:
              service_id (str): Which service holds the user.
-             character_id (str): Of the user. Can also be a Character. Cannot be a list.
-             avatar (str): Link to user's image or a local filepath to upload.
-             description (str): Description of user.
-             name (str): The name that shows in chat.
+             character_id (str): Who to update. Can also be a Character object. Cannot be a list.
+             avatar (str): A link to user's image or a local filepath to upload.
+             description (str): The description of user.
+             name (str): The name that will show in chat.
 
            Returns:
             Data about the user as a dict.
@@ -389,7 +403,8 @@ class HTTPAPIWrapper:
         return response_dict['data']['channel_id']
 
     async def bind_service_to_channel(self, service_id, channel_id):
-        """Binds a service to a channel given the service and channel IDs. Returns whether sucessful."""
+        """Binds a service to a channel given the service and channel IDs.
+        This function is unusual in that it returns whether it was sucessful rather than raising errors if it fails."""
         asserts.types_assert(str, service_id=service_id, channel_id=channel_id)
         jsonr = {"channel_id": channel_id, "service_id": service_id}
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/bind", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully binded service {service_id} to channel {channel_id}.", bad_message=f"Error binding service {service_id} to channel {channel_id}", raise_errors=False)
@@ -450,7 +465,7 @@ class HTTPAPIWrapper:
           limit=64: Max number of messages to return (messages further back in time, if any, will not be returned).
           before="null": Only return messages older than this.
 
-        Should return a list of dicts, but has not been tested.
+        Returns a list of dicts.
         """
         if type(limit) is not str:
             limit = str(limit)
@@ -465,14 +480,14 @@ class HTTPAPIWrapper:
         return the_response
 
     async def this_user_channels(self):
-        """What channels this user is joined to?"""
+        """Returns the list of channel_ids this user is in."""
         the_response = await self.checked_get(url=self.http_server_uri + "/channel/list", the_request=None, requests_kwargs={'headers':self.headers}, good_message=f"Successfully listed channels current user is in.", bad_message=f"Error listing channels current user is in.", raise_errors=False)
         return [x['channel_id'] for x in the_response['data']]
-
+ 
     ############################# File ############################
 
     async def _upload_extension(self, extension):
-        """Get the upload URL and upload fields for uploading a file with the given string-valued extension.
+        """Gets the upload URL and needed fields for uploading a file with the given string-valued extension.
         Returns (upload_url or None, upload_fields)."""
         asserts.types_assert(str, extension=extension)
         requests_kwargs = {'params':{"extension": extension}, 'headers':self.headers}
@@ -484,7 +499,7 @@ class HTTPAPIWrapper:
 
     async def _do_upload_file(self, upload_url, upload_fields, file_path):
         """
-        Upload a file to the given upload URL with the given upload fields.
+        Uploads a file to the given upload URL with the given upload fields.
 
         Parameters:
           upload_url (str): obtained with _upload_extension.
@@ -495,7 +510,7 @@ class HTTPAPIWrapper:
           The full URL string of the uploaded file. None if doesn't receive a valid response (error condition).
 
         Raises:
-          Exception: If the file upload fails, this function will raise an exception about the error.
+          Exception: If the file upload fails, this function will raise an exception detailing the error.
         """
         if type(upload_fields) is not dict:
             raise Exception('Upload fields must be a dict, and one that comes from _upload_extension')
@@ -511,8 +526,8 @@ class HTTPAPIWrapper:
             return full_url
 
     async def upload_file(self, file_path):
-        """Upload the file at local path file_path to the Moobius server. Automatically gets the upload URL and upload fields.
-        Returns the full upload URL. Raises Exception if the upload fails.
+        """Uploads the file at local path file_path to the Moobius server. Automatically calculates the upload URL and upload fields.
+        Returns the uploaded URL. Raises an Exception if the upload fails.
         """
         if not os.path.exists(file_path):
             raise Exception(f'Local file not found: {os.path.realpath(file_path)}')
@@ -527,7 +542,7 @@ class HTTPAPIWrapper:
             raise Exception(f"Error getting upload url and upload fields! file_path: {file_path}")
 
     async def convert_to_url(self, file_path):
-        """Converts file paths to URLs (uploading files to buckets). Idempotent: If given a URL will just return the URL.
+        """Converts file-paths to URLs (uploading files to buckets). Idempotent: If given a URL will just return the URL.
         Empty, False, or None strings are converted to a default URL."""
         if not file_path:
             return "https://gba-moobius.s3.us-east-2.amazonaws.com/LogoLight.jpg"
@@ -544,8 +559,8 @@ class HTTPAPIWrapper:
             return self.filehash2URL[the_hash]
 
     async def download_file(self, url, filename=None, assert_no_overwrite=False, headers=None):
-        """Downloads a file from url to filename, automatically creating dirs and overwriting pre-existing files.
-        If filename is None will return the bytes and not save any file."""
+        """Downloads a file from a url to a local filename, automatically creating dirs and overwriting pre-existing files.
+        If filename is None it will return the bytes and not save any file instead."""
         if headers is None: # These buckets are public so no need to upload.
             headers = {}
         if headers == 'self':
@@ -573,7 +588,7 @@ class HTTPAPIWrapper:
     ############################# Groups ############################
 
     async def fetch_channel_group_dict(self, channel_id, service_id):
-        """Like fetch_real_character_ids but returns a dict from group_id to all characters."""
+        """Like fetch_real_character_ids but returns a dict from each group_id to all characters."""
         asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
@@ -605,7 +620,7 @@ class HTTPAPIWrapper:
           characters (list): A list of channel_id strings that will be inside the group.
 
         Returns:
-          The group id string.
+          The group_id string.
         """
         character_ids = utils.to_char_id_list(character_ids) # Should not be necessary since this function is an internal function.
         asserts.types_assert(str, channel_id=channel_id, group_name=group_name)
@@ -618,7 +633,7 @@ class HTTPAPIWrapper:
         """
         Gets a list of character ids belonging to a service group.
         Note that the 'recipients' in 'on message up' might be None:
-          This function will return an empty list given Falsey inputs or Falsey string literals.
+          To avoid requiring checks for None this function will return an empty list given Falsey inputs or Falsey string literals.
         """
         if not group_id or group_id in ['None', 'null', 'none', 'Null', 'false', 'False']:
             return []
@@ -637,12 +652,15 @@ class HTTPAPIWrapper:
 
     async def character_ids_of_channel_group(self, sender_id, channel_id, group_id):
         """
-        Gets a list of character ids belonging to a channel group that is returned by a message.
+        Gets a list of character ids belonging to a channel group.
+        Websocket payloads contain these channel_groups which are shorthand for a list of characters.
 
         Parameters:
           sender_id: The message's sender.
           channel_id: The message specified that it was sent in this channel.
           group_id: The messages recipients.
+
+        Returns the character_id list.
         """
         asserts.types_assert(str, channel_id=channel_id, sender_id=sender_id, group_id=group_id)
         use_questionmark = True
@@ -659,15 +677,16 @@ class HTTPAPIWrapper:
 
     async def create_service_group(self, character_ids):
         """
-        Create a group containing characters id list, returning a Group object.
-        Sending messages down for the new .net API requires giving myGroup.group_id instead of a list of character_ids.
+        Creates a group containing the list of characters_ids and returns this Group object.
+        This group can then be used in send_message_down payloads.
 
         Parameters:
           group_name (str): What to call it.
           character_ids (list): A list of character_id strings or Characters that will be inside the group.
 
         Returns:
-          A Group object."""
+          A Group object.
+        """
         character_ids = utils.to_char_id_list(character_ids) # Should not be necessary since this function is an internal function.
         asserts.structure_assert(['the_id'], character_ids, 'Create service group characters')
         jsonr = {"group_id": "", "characters": character_ids}
@@ -704,7 +723,7 @@ class HTTPAPIWrapper:
         raise Exception('Unknown if this function is needed.')
 
     async def fetch_channel_temp_group(self, channel_id, service_id):
-        """Like fetch_channel_group_list but for Temp groups."""
+        """Like fetch_channel_group_list but for TEMP groups."""
         asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
@@ -714,7 +733,8 @@ class HTTPAPIWrapper:
 
     async def fetch_user_from_group(self, user_id, channel_id, group_id):
         """
-        Fetch the user profile of a user from a group.
+        Not yet implemented!
+        Fetches the user profile of a user from a group.
 
         Parameters:
             user_id (str): The user ID.
@@ -724,18 +744,11 @@ class HTTPAPIWrapper:
         Returns:
             The user profile Character object.
         """
-        raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
-        params = {"user_id": user_id,
-                  "channel_id": channel_id,
-                  "group_id": group_id}
-        rkwargs = {'params':params, 'headers':self.headers}
-        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group", the_request=None, requests_kwargs=rkwargs, good_message="Successfully fetched user profile!", bad_message="Error fetching user profile", raise_errors=True)
-
-        character = from_dict(data_class=Character, data=response_dict['data'])
-        return character
+        raise Exception('http_api_wrapper.fetch_user_from_group has not yet been implemented.')
 
     async def fetch_target_group(self, user_id, channel_id, group_id):
         """
+        Not yet implemented!
         Fetches info about the group.
 
           Parameters:
@@ -745,10 +758,7 @@ class HTTPAPIWrapper:
           Returns:
             The data-dict data.
         """
-        raise Exception('Group functions are not yet fully supported in the platform. Once supported remove this and all other group-not-supported exceptions in http_api_wrapper.py')
-        jsonr = {'user_id':user_id, 'channel_id':channel_id, 'group_id':group_id}
-        response_dict = await self.checked_get(url=self.http_server_uri + "/user/group", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully fetched group for channel {channel_id}", bad_message=f"Error fetching group for channel {channel_id}", raise_errors=True)
-        return response_dict['data']
+        raise Exception('http_api_wrapper.fetch_target_group has not yet been implemented.')
 
     def __str__(self):
         access = self.access_token

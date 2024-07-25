@@ -1,11 +1,12 @@
-# null_database.py
+# A 
 
 from .database_interface import DatabaseInterface
 from loguru import logger
 
 
 class NullDatabase(DatabaseInterface):
-    """The NullDatabase is like /dev/null. Gets returns (True, None) and sets/deletes return (True, "")."""
+    """The NullDatabase is like /dev/null; nothing is ever stored.
+    Get returns (True, None) and set/delete return (True, "")."""
     def __init__(self, domain='', **kwargs):
         super().__init__(domain=domain, **kwargs)
 

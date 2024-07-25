@@ -1,4 +1,4 @@
-# Runs services and casts spells (sending commands to services).
+# Runs and manages Moobius services and casts spells (sending commands to services).
 from threading import Thread
 from multiprocessing import Process
 import time, signal, sys, asyncio, os
@@ -10,14 +10,21 @@ KEYBOARDEXIT = 1324 # The child process exits.
 
 
 def sigint_handler(signal, frame):
+    """Exits using a special error code that the parent process will recognize as a "Ctrl+C" interrupt."""
     os._exit(KEYBOARDEXIT)
 
 
 class MoobiusWand:
     """
-    MoobiusWand is a class that starts and manages services.
+    Starts and manages services.
     It can also be used to send messages to a service using the spell() function or the async aspell() function.
-    To use this class, you need to specify the service config in the config file.
+
+    The typical use-case and suggested file paths:
+      >>> wand = MoobiusWand()
+      >>> handle = wand.run(MyService, config_path="config/service.json", db_config_path="config/db.json",
+      >>>                   log_file="logs/service.log", error_log_file="logs/error.log", terminal_log_level="INFO",
+      >>>                   is_agent=False, background=True)
+      >>> wand.spell(handle, xyz_message) # Use to send data to the service.
     """
 
     def __init__(self):
@@ -25,10 +32,11 @@ class MoobiusWand:
         self.services = {}
         self.processes = {}
         self.current_service_handle = 0     # TODO: use handle to terminate or restart a service
-        signal.signal(signal.SIGINT, self.stop)
+        signal.signal(signal.SIGINT, lambda: self.stop_all(force_exit=True))
 
     @staticmethod
     def run_job(service):
+        """Runs service.start(), which blocks in an infinite loop, using asyncio."""
         signal.signal(signal.SIGINT, sigint_handler) # In the child process as well, in case it catches the keyboard.
         try:
             asyncio.run(service.start())
@@ -38,12 +46,12 @@ class MoobiusWand:
 
     def run(self, cls, background=False, **kwargs):
         """
-        Starts a service or agent.
+        Starts a service or agent, either on the same process in a blocking infinite loop or on another process.
 
         Parameters:
-          cls (Class object). A subclass of the SDK class but NOT an instance.
-          background=False: If True run on another Process instead of creating an infinite loop.
-          **kwargs: These are passed to the constructor of cls.
+          cls: A subclass of the Moobius class but NOT an instance.
+          background=False: If True, runs on another Process.
+          **kwargs: Kwargs passed to the constructor of cls.
 
         No return value.
 
@@ -76,20 +84,20 @@ class MoobiusWand:
         else:
             asyncio.run(service.start())
 
-    def stop(self, signum, frame):
-        """Stops all processes using the_process.kill()
-           Also stops asyncio's event loop.
-           TODO: Unused arguments sgnum and frame. Maybe renamining this to stop_all()?"""
-        print("WAND FORCE STOPPING ALL!")
+    def stop_all(self, force_exit=False):
+        """Stops all processes using the_process.kill().
+           Also stops the asyncio event loop."""
+        print("WAND FORCE STOPPING ALL!"+(" And exiting" if force_exit else ""))
         for _process in self.processes.values():
             _process.kill() # Maximum force!
             logger.info(f"Service {_process.name} terminated")
         asyncio.get_event_loop().stop()
-        os._exit(1)
+        if force_exit:
+            os._exit(1)
 
     def spell(self, handle, obj):
         """
-        Send a message to a service.
+        Sends a message to a service by putting to it's aioprocessing.AioQueue().
 
         Parameters:
           handle (int): The handle of the service created by the run() function.

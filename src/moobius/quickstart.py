@@ -1,6 +1,6 @@
-# Need a FAST start to your CCS app?
-# This offers both cli and gui options.
-# CLI (defaults will be provided if not given, channels can be a comma-seperated list):
+# This module makes it very easy to gwet started with your own service.
+# There is an optional GUI mode as well.
+# Run "python -m moobius -help" to learn more.
 """
 pip install moobius
 python -m moobius channels=1234abcd... email=foo@bar.com password=password folder=~/my_moobius template=Buttons
@@ -13,9 +13,9 @@ python -m moobius gui email=foo@bar.com
 echo "Done!"
 """
 
-import requests, json, os, sys, shlex
+import requests, json, os, sys, shlex, asyncio
 import platform, subprocess
-from moobius import types
+from moobius import types, Moobius
 
 
 service_template = {
@@ -34,10 +34,43 @@ agent_template = {
     "password": "<agent password>"
 }
 
+download_failed_defaults = {'main.py':
+                            '''
+from service import MyService
+from moobius import MoobiusWand
+
+if __name__ == "__main__":
+
+    wand = MoobiusWand()
+
+    handle = wand.run(
+        MyService,
+        config_path="config/service.json",
+        db_config_path="config/db.json",
+        log_file="logs/service.log",
+        error_log_file="logs/error.log",
+        terminal_log_level="INFO",
+        is_agent=False,
+        background=True)
+                            '''.strip(),
+'readme.md':'This needs a more detailed description.',
+'service.py':'''
+from moobius import Moobius
+
+
+class MyService(Moobius):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    # Put your code here.
+'''.strip(),
+'config/db.json':'[]'}
+
 boxes = {}
 
 
 def open_folder_in_explorer(folder_path):
+    """Lets the user select a folder. This is used for gui-mode only."""
     which_os = platform.system()
     try:
         if which_os == "Windows":
@@ -53,6 +86,7 @@ def open_folder_in_explorer(folder_path):
 
 
 def download_text_file_to_string(url):
+    """A simple download, used to get CCS code from GitHub."""
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -63,7 +97,30 @@ def download_text_file_to_string(url):
         raise Exception(f"Other error occurred: {err}")
 
 
+def create_channel(email, password, url):
+    """Creates a channel and returns the service_id, channel_id. Used if no channel is specified."""
+    http_server_uri = "https://api."+url
+    ws_server_uri = "wss://ws."+url
+
+    channel_name = 'starting_channel'
+    config_path = {'http_server_uri':http_server_uri, 'ws_server_uri':ws_server_uri, 'email':email, 'password':password,
+                   'service_id':'', 'channels':[], 'others':'include'}
+    print('Creating channel...', end='', flush=True)
+    service = Moobius(config_path=config_path, db_config_path={}, is_agent=False)
+
+    asyncio.run(service.start())
+    service_id = service.client_id
+    new_channel_id = asyncio.run(service.create_channel(channel_name, 'Channel created by the GUI.'))
+    if not service_id:
+        raise Exception('None service id bug.')
+    if not new_channel_id:
+        raise Exception('None new_channel_id bug.')
+    print('Done, id =', service_id, new_channel_id)
+    return service_id, new_channel_id
+
+
 def save(fname, x):
+    """Saves a file to a string, making dirs if need be."""
     if type(x) is not str:
         x = json.dumps(x, indent=4)
     os.makedirs(os.path.dirname(fname), exist_ok=True)
@@ -80,6 +137,7 @@ def _get_boxes():
 
 
 def submit(out):
+    """Given a configuration dict with all the settings, saves the CCS files (code and config) to a folder."""
     out = {**out, **_get_boxes()}
     the_folder = os.path.realpath(out['folder'].replace('~', os.path.expanduser("~"))).replace('\\','/')
     print('Values choosen:', out)
@@ -100,7 +158,12 @@ def submit(out):
     for ky in kys:
         x = non_requests.get(ky, None)
         if not x:
-            x = download_text_file_to_string(base_url+ky)
+            url = base_url+ky
+            try:
+                x = download_text_file_to_string(url)
+            except Exception as e:
+                print(f"Warning: Download {url} failed using a simple default file")
+                x = download_failed_defaults[ky]
 
         save(the_folder+'/'+ky, x)
 
@@ -112,7 +175,7 @@ cur_row = 1
 
 
 def make_box(root, name, detailed_name, default, options=None):
-    """None options means fill in."""
+    """Makes a box for GUI usage. None options means fill in."""
     import tkinter as tk
     from tkinter import ttk
     global cur_row
@@ -139,38 +202,87 @@ def make_box(root, name, detailed_name, default, options=None):
 
 
 def save_starter_ccs():
-    """Uses sys.argv"""
+    """
+    Reads sys.argv, as well as gui interaction if specified.
+    Uses this information to construct a CCS app and saves to the folder that was specified.
+    This function is called, from the __init__.py in src/moobius, when "python -m moobius" is
+    typed into the command line.
+    """
+
+    # Help mode:
+    for ai in sys.argv[1:]:
+        if ai.lower()=='-h' or ai.lower()=='-help':
+            help_msg = '''
+Usage: python -m moobius [-h] [-g] [-c] [-e email] [-p ****] [-d directory] [-t template] [-o include] [-url url]
+Creates a template service in a given folder to make it easier to get started.
+
+Example:
+  python -m moobius channels id1 id2 email foo@bar.com password ****** directory . template=Buttons
+
+Help:
+  specify -h to print this help and do nothing else.
+Graphical interface:
+  specify "-g" to open up a GUI. This can be done in addition to specifying other arguments.
+Common arguments:
+  -e: The user email (which you use to log in).
+  -p: The user password (which you use to log in).
+  -t: The starting point for your app. The name of a sub-folder in https://github.com/groupultra/sdk-public/tree/main/projects
+  -c: The channel-id(s) or a list of comma-seperated channels that you have created in Moobius.
+  -d: The folder to save the service to.
+Less common arguments:
+  -s: Use this to override the default of empty string if you already created and ran a service.
+  -o: How to deal with channels that are bound to a different service (set to ignore, unbind, or include), default is "include".
+  -url: Use this to override the default url if you are beta-testing a newer version.
+'''
+            print(help_msg)
+            sys.exit()
+
     print('Quickstart!')
     #print('Sys args:', sys.argv)
-    opts = {'channels':'<channel-id>', 'email':'<name@site.com>', 'password':'<secret>', 'template':'Zero',
-            'service_id':'', 'others':'include', 'url':'moobius.net/', 'others':'include',
-            'folder':'.'}
+    defaults = {'channels':'<channel-id>', 'email':'<name@site.com>', 'password':'<secret>', 'template':'Zero',
+                'service_id':'', 'others':'include', 'url':'moobius.net/', 'others':'include',
+                'folder':'.', 'gui':False}
 
-    # Handle spaces around the = signs if there are any. Note: the [0] arg is the filename, not needed.
-    txt = ' '.join([f"{ai}" for ai in sys.argv[1:]])
-    while '= ' in txt:
-        txt = txt.replace('= ', '=')
-    while ' =' in txt:
-        txt = txt.replace(' =', '=')
-    txt = txt.replace('=""','=').replace('""=','=') # Smash args seperating = and space from single args.
-    argv = shlex.split(txt)
-    print('Argv:', argv)
+    opts = {}
+    # Parse the arguments.
+    singles = ['g']
+    vector = ['c']
+    name_map = {'g':'gui', 'c':'channels', 'e':'email', 'u':'email', 'p':'password', 'd':'folder', 'f':'folder', 't':'template', 's':'service_id', 'o':'others'}
+    ix = 1
+    while ix<len(sys.argv):
+        if sys.argv[ix] == '-url':
+            ty = 'url'
+        else:
+            ty = sys.argv[ix].replace('-','').lower()[0]
+        if ty not in name_map:
+            raise Exception('Unrecognized option: ' + sys.argv[ix])
+        ky = name_map[ty]
+        if ty in singles:
+            opts[ky] = True
+            ix = ix+1
+        elif ty in vector:
+            v = []
+            ix = ix+1
+            while ix<len(sys.argv):
+                if sys.argv[ix].startswith('-'):
+                    break
+                else:
+                    v.append(sys.argv[ix])
+                    ix = ix+1
+            opts[ky] = v
+        else:
+            opts[ky] = sys.argv[ix+1]
+            ix = ix+2
 
-    for a in argv:
-        if '=' not in a:
-            if a == 'gui' or a == 'Gui':
-                a = 'gui=True'
-            else:
-                raise Exception(f'Argument is not k=v format: {a}')
-        k,v = a.strip().split('=')
-        if v in ['False', '0', 'false']:
-            v = False
-        k = k.strip().lower()
-        if k=='channel':
-            k = 'channels'
-        opts[k.strip().lower()] = v.strip()
+    total_opts = {**defaults, **opts}
 
-    if opts.get('gui', False):
+    if 'email' in opts and 'password' in opts and 'channels' not in opts and 'service_id' not in opts: #Create a channel.
+        opts['service_id'], opts['channels'] = create_channel(opts['email'], opts['password'], total_opts['url'])
+
+    if type(opts['channels']) in [list, tuple]:
+        opts['channels'] = ', '.join(opts['channels'])
+
+    if total_opts['gui']:
         import tkinter as tk
         from tkinter import ttk, filedialog
 
@@ -179,14 +291,14 @@ def save_starter_ccs():
         root.title("Input your channel params")
 
         # Options:
-        make_box(root, "channels", "Channel id(s)", opts['channels'], None)
-        make_box(root, "email", "Account email/username", opts['email'], None)
-        make_box(root, "password", "Account password (.gitignore!)", opts['password'], None)
-        make_box(root, "template", "Choose a starting point", opts['template'], ["Zero", "Bot puppet", "Buttons", "Database", "Demo", "Group chat", "Menu Canvas", "Battleship"])
-        make_box(root, "url", "(Advanced) choose URL", opts['url'], ['moobius.net/', 'moobius.link/', 'moobius.app/'])
-        make_box(root, "service_id", "(Advanced) Reuse old service_id", opts['service_id'])
-        make_box(root, "others", "(Advanced) Orphan channels", opts['others'], [types.INCLUDE, types.IGNORE, types.UNBIND])
-        folder_box = make_box(root, "folder", "Output folder", opts['folder'])
+        make_box(root, "channels", "Channel id(s) comma-sep", total_opts['channels'], None)
+        make_box(root, "email", "Account email/username", total_opts['email'], None)
+        make_box(root, "password", "Account password (.gitignore!)", total_opts['password'], None)
+        make_box(root, "template", "Choose a starting point", total_opts['template'], ["Zero", "Bot puppet", "Buttons", "Database", "Demo", "Group chat", "Menu Canvas", "Battleship"])
+        make_box(root, "url", "(Advanced) choose URL", total_opts['url'], ['moobius.net/', 'moobius.link/', 'moobius.app/'])
+        make_box(root, "service_id", "(Advanced) Reuse old service_id", total_opts['service_id'])
+        make_box(root, "others", "(Advanced) Orphan channels", total_opts['others'], [types.INCLUDE, types.IGNORE, types.UNBIND])
+        folder_box = make_box(root, "folder", "Output folder", total_opts['folder'])
 
         # Pick a folder:
         def _folder_button_callback(*args, **kwargs):
@@ -199,10 +311,10 @@ def save_starter_ccs():
         folder_button.grid(row=cur_row+1, column=0, columnspan=2, pady=10)
 
         # Press this when they are all done:
-        submit_button = ttk.Button(root, text="Submit", command=lambda: submit(opts))
+        submit_button = ttk.Button(root, text="Submit", command=lambda: submit(total_opts))
         submit_button.grid(row=cur_row+1, column=1, columnspan=2, pady=10)
 
         root.mainloop()
     else:
-        submit(opts)
+        submit(total_opts)
 

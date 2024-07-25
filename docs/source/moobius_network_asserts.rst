@@ -11,15 +11,14 @@ types_assert
 -----------------------------------
 types_assert(ty, \*kwargs)
 
-Asserts that every one of kwargs is type ty, giving an error message if there is a mismatch.
-types_assert(str, foo=foo, bar=bar)
+Asserts that every one of kwargs is type ty, giving an error message if there is a mismatch. Returns True.
 
 .. _moobius.network.asserts.structure_assert:
 structure_assert
 -----------------------------------
 structure_assert(gold, green, base_message, path)
 
-Asserts whether "green" follows the data-structure in "gold".
+Asserts whether a data-structure follows a given pattern.
 
 Parameters:
   gold: The datastructure to match. This is a nested datastructure with the following elements.
@@ -38,6 +37,7 @@ Parameters:
   path=None: The path within the datastructure. None will be [].
 
 Returns: True if the assert passes.
+
 Raises: PlatformAssertException if the assert fails, using the base_message.
 
 .. _moobius.network.asserts.min_subset_dict:
@@ -45,15 +45,14 @@ min_subset_dict
 -----------------------------------
 min_subset_dict(min_keys, dtemplate)
 
-Creates a template function that will not error on missing keys unless missing keys are in min_keys.
+Creates a template-matching function that will not error on missing keys, unless they are in in min_keys.
 
 .. _moobius.network.asserts.temp_modify:
 temp_modify
 -----------------------------------
 temp_modify(socket_request)
 
-Sometimes the request has extra stuff. This function removes it so it works.
-But TODO remove extra stuff and test.
+Sometimes the request has extra stuff. This function removes it.
 
 .. _moobius.network.asserts._style_check:
 _style_check
@@ -81,28 +80,28 @@ _socket_message_body_assert1
 -----------------------------------
 _socket_message_body_assert1(b, base_message, path, is_up)
 
-Both text and image messages are supported.
+All message types, including text and image messages, are supported.
 
 .. _moobius.network.asserts._button_click_body_assert:
 _button_click_body_assert
 -----------------------------------
 _button_click_body_assert(b, base_message, path)
 
-Some buttons have options. Some don't.
+Some buttons have options. Some don't, so options are optional.
 
 .. _moobius.network.asserts._context_menuclick_body_assert:
 _context_menuclick_body_assert
 -----------------------------------
 _context_menuclick_body_assert(b, base_message, path)
 
-Right click context menu click
+Right click context menu click.
 
 .. _moobius.network.asserts._action_body_assert:
 _action_body_assert
 -----------------------------------
 _action_body_assert(b, base_message, path)
 
-Various actions
+Various actions.
 
 .. _moobius.network.asserts.socket_assert:
 socket_assert
@@ -131,6 +130,6 @@ _socket_update_body_assert._each_button(x, base_message, the_path)
 Class PlatformAssertException
 ===================
 
-<no class docstring>
+A special Exception that is raised when the datastructure is not the correct format.
 
 

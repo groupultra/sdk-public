@@ -11,6 +11,7 @@ summarize_html
 -----------------------------------
 summarize_html(html_str)
 
+Summerizes html strings, a very niche use.
 Converts HTML to an easier-for-a-human format by cutting out some of the more common tags. Far from perfect.
 
 .. _moobius.utils.make_fn_async:
@@ -19,6 +20,7 @@ make_fn_async
 make_fn_async(f)
 
 Converts functions to async functions.
+Can be used as "await (make_fun_asycnc(f)(arg1, arg2, etc)).
 
 .. _moobius.utils.maybe_make_template_files:
 maybe_make_template_files
@@ -26,18 +28,18 @@ maybe_make_template_files
 maybe_make_template_files(args)
 
 Makes template files if there is a need to do so, based on args and sys.argv.
-Called by "import moobius" with no args and by wand.run() before initializing the Moobius class.
+Called by wand.run() before initializing the Moobius class if it doesn't have any templates.
 
-A template main.py python file which calls Wand.run:
-  Only created if the file does not exist AND "make_main main.py" (or "make_main foo.py", etc) is in the system args.
-
-A sample config.py:
-  Only created if "config_path" is in args (or system args) AND the file does not exist.
-  This requires user information:
-    email: If no system arg "email my@email.com" or "username my@email.com" is specified, prompts for one with input().
-    password: If no system arg "password my_sec**t_pword", prompts for one.
-    channels: If no system arg "channels abc... def..." to specify one or more channels, prompts for one or more.
-  Note: when the user inputs an empty input() than a nonfunctional default is used, which can be filled in later.
+Which files are created:
+  A template main.py python file which calls Wand.run:
+    Only created if the file does not exist AND "make_main main.py" (or "make_main foo.py", etc) is in the system args.
+  A sample config.py:
+    Only created if "config_path" is in args (or system args) AND the file does not exist.
+    This requires user information:
+      email: If no system arg "email my@email.com" or "username my@email.com" is specified, prompts for one with input().
+      password: If no system arg "password my_sec**t_pword", prompts for one.
+      channels: If no system arg "channels abc... def..." to specify one or more channels, prompts for one or more.
+    Note: if the user gives an empty response to input(), a nonfunctional default is used, which can be filled in later.
 
 Unittests to run in a python prompt in an empty folder:
   >>> # Make a main.py file:
@@ -54,9 +56,20 @@ to_char_id_list
 -----------------------------------
 to_char_id_list(c)
 
-Converts c to a list of character_ids.
-x can be a string, a list of strings (idempotent), a list of Character, a Character.
-lists can actually be tuples or generators etc.
+Converts the input to a list of character_ids, designed to accept a wide range of inputs.
+Accepts:
+  A Character (returns it's id as one-element list).
+  A string (assumes it's an id wraps it into a one element list).
+  A list of Characters (extracts the ids).
+  A list of strings (returns a copy of the list).
+  A mixed character and string list.
+
+.. _moobius.utils.set_terminal_logger_level:
+set_terminal_logger_level
+-----------------------------------
+set_terminal_logger_level(the_level)
+
+Sets the logger from the terminal, but preserves other files.
 
 .. _moobius.utils.make_fn_async.run_f:
 make_fn_async.run_f
@@ -77,7 +90,7 @@ make_fn_async.run_f.f1()
 Class EnhancedJSONEncoder
 ===================
 
-Json Encoder but with automatic conversion of dataclasses to dict.
+A better Json Encoder which has automatic conversion of dataclasses to dicts.
 
 .. _moobius.utils.EnhancedJSONEncoder.default:
 EnhancedJSONEncoder.default

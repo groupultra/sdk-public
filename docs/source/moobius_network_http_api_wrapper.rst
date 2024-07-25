@@ -11,7 +11,7 @@ get_or_post
 -----------------------------------
 get_or_post(url, is_post, requests_kwargs, raise_json_decode_errors)
 
-Get or post, will use requests.get/post or aiohttp.session.get/post depending on which one has been choosen.
+Sends a GET or POST request and awaits for the response.
 
 Parameters:
   url (str): https://...
@@ -19,12 +19,16 @@ Parameters:
   requests_kwargs=None: These are fed into the requests/session get/post function.
   raise_json_decode_errors=True
 
-Returns: A dict which is json.loads() of the return.
-  dict['code'] has the code, 10000 is good and 204 indicates no return but without error which is also fine.
-  dict['blob'] is the response text in cases where the JSON fail and raise_json is False.
+Returns: A dict which is the json.loads() of the return.
+  Error condition if JSON decoding fails:
+    dict['code'] contains the code
+      10000 is "good" (but the JSON still failed).
+      204 indicates no return but without error which is also fine.
+      Many other codes exist.
+    dict['blob'] is the response text in cases where the JSON fail and raise_json is False.
 
 Raises:
-  Exception if Json fails and raise_json is True. Not all non-error returns are JSON thus the "blob" option.
+  An Exception if Json fails and raise_json is True. Not all non-error returns are JSON thus the "blob" option.
 
 ===================
 
@@ -42,7 +46,7 @@ Helper class for interacting with the Moobius HTTP API.
 All methods except for authenticate() and refresh() require authentication headers. 
 When calling these methods, make sure to call authenticate() first and add headers=self.headers to the method call.
 
-This Wrapper's methods are categorized as follows:
+This wrapper's methods are categorized as follows:
   Auth: Authentication and sign in/out.
   User: Dealing with real users.
   Service: Apps use this API to be a service.
@@ -55,14 +59,12 @@ HTTPAPIWrapper.__init__
 -----------------------------------
 HTTPAPIWrapper.__init__(self, http_server_uri, email, password)
 
-Initialize the HTTP API wrapper.
+Initializes the HTTP API wrapper.
 
 Parameters:
   http_server_uri (str): The URI of the Moobius HTTP server.
   email (str): The email of the user.
   password (str): The password of the user.
-
-No return value.
 
 Example:
   >>> http_api_wrapper = HTTPAPIWrapper("http://localhost:8080", "test@test", "test")
@@ -74,34 +76,34 @@ HTTPAPIWrapper._checked_get_or_post(self, url, the_request, is_post, requests_kw
 
 Runs a GET or POST request returning the result as a JSON with optional logging and error raising.
 
-Parameters:
-  url (str): The https://... url.
-  the_request (dict): The "json" kwarg is set to this. Can be None in which no "json" will be set.
-  is_post: True for post, False for get.
-  requests_kwargs=None: Dict of extra arguments to send to requests/aiohttp. None is equivalent to {}
-  good_message=None: The string-valued message to logger.debug. None means do not log.
-  bad_message="...": The string-valued to prepend to logger.error if the response isnt code 10000.
-  raise_errors=True: Raise a BadResponseException if the request returns an error.
+   Parameters:
+     url (str): The https://... url.
+     the_request (dict): The "json" kwarg is set to this. Can be None in which no "json" will be set.
+     is_post: True for post, False for get.
+     requests_kwargs=None: Dict of extra arguments to send to requests/aiohttp. None is equivalent to {}
+     good_message=None: The string-valued message to logger.debug. None means do not log.
+     bad_message="...": The string-valued message to prepend to logger.error if the response isnt code 10000.
+     raise_errors=True: Raise a BadResponseException if the request returns an error.
 
-Returns:
-  The https response as a dict, using requests/aiohttp.post(...).json() to parse it.
+   Returns:
+     The https response as a dict, using requests/aiohttp.post(...).json() to parse it.
 
-Raises:
-  BadResponseException if raise_errors=True and the response is an error response.
+   Raises:
+     BadResponseException if raise_errors=True and the response is an error response.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.checked_get:
 HTTPAPIWrapper.checked_get
 -----------------------------------
 HTTPAPIWrapper.checked_get(self, url, the_request, requests_kwargs, good_message, bad_message, raise_errors)
 
-Calls self._checked_get_or_post with is_post=False
+Calls self._checked_get_or_post with is_post=False.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.checked_post:
 HTTPAPIWrapper.checked_post
 -----------------------------------
 HTTPAPIWrapper.checked_post(self, url, the_request, requests_kwargs, good_message, bad_message, raise_errors)
 
-Calls self._checked_get_or_post with is_post=True
+Calls self._checked_get_or_post with is_post=True.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.headers:
 HTTPAPIWrapper.headers
@@ -117,8 +119,9 @@ HTTPAPIWrapper.authenticate
 -----------------------------------
 HTTPAPIWrapper.authenticate(self)
 
-Authenticates the user. Needs to be called before any other API calls.
-Returns (the access token, the refresh token). Exception if doesn't receive a valid response.
+Authenticates using self.username andself.password. Needs to be called before any other API calls.
+Returns (the access token, the refresh token).
+Raises an Exception if doesn't receive a valid response.
 Like most GET and POST functions it will raise any errors thrown by the http API.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.sign_up:
@@ -127,7 +130,6 @@ HTTPAPIWrapper.sign_up
 HTTPAPIWrapper.sign_up(self)
 
 Signs up. Returns (the access token, the refresh token).
-Exception if doesn't receive a valid response.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.sign_out:
 HTTPAPIWrapper.sign_out
@@ -148,7 +150,7 @@ HTTPAPIWrapper._xtract_character
 -----------------------------------
 HTTPAPIWrapper._xtract_character(self, resp_data)
 
-<No doc string>
+Generates a Character object out of the JSON response_data.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_character_profile:
 HTTPAPIWrapper.fetch_character_profile
@@ -173,28 +175,28 @@ Returns:
  A list of character_id strings.
 
 Raises:
-  Exception (empty list) if raise_empty_list_err is True and the list is empty.
+  An Exception (empty list) if raise_empty_list_err is True and the list is empty.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_service_characters:
 HTTPAPIWrapper.fetch_service_characters
 -----------------------------------
 HTTPAPIWrapper.fetch_service_characters(self, service_id)
 
-Get the user list (a list of Character objects), of a service given the string-valued service_id.
+Get the user list (a list of Character objects), of the service with id service_id.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_user_info:
 HTTPAPIWrapper.fetch_user_info
 -----------------------------------
 HTTPAPIWrapper.fetch_user_info(self)
 
-Used by the Agent to get their info as a UserInfo object.
+Gets the UserInfo of the user logged in as, containing thier name, avatar, etc. Used by agents.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.update_current_user:
 HTTPAPIWrapper.update_current_user
 -----------------------------------
 HTTPAPIWrapper.update_current_user(self, avatar, description, name)
 
-Updates the user info. Will only be an Agent function in the .net version.
+Updates the user info. Used by agents.
 
 Parameters:
   avatar: Link to image or local filepath to upload.
@@ -209,20 +211,21 @@ HTTPAPIWrapper.create_service
 HTTPAPIWrapper.create_service(self, description)
 
 Creates a service with the given description string and returns the string-valued service_id.
+Called once by the Moobius class if there is no service specified.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_service_id_list:
 HTTPAPIWrapper.fetch_service_id_list
 -----------------------------------
 HTTPAPIWrapper.fetch_service_id_list(self)
 
-Returns a list of service ID strings of the user, or None if doesn't receive a valid response or one without any 'data' (error condition).
+Returns a list of service_id strings of the user.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.create_character:
 HTTPAPIWrapper.create_character
 -----------------------------------
 HTTPAPIWrapper.create_character(self, service_id, name, avatar, description)
 
-Creates a character with given name, avatar, and description.
+Creates a character with a given name, avatar, and description.
 The created user will be bound to the given service.
 
 Parameters:
@@ -231,21 +234,21 @@ Parameters:
   avatar (str): The image URL of the user's picture OR a local file path.
   description (str): The description of the user.
 
-Returns: A Character object representing the created user, None if doesn't receive a valid response (error condition). TODO: Should these error conditions jsut raise Exceptions instead?
+Returns: A Character object representing the created user.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.update_character:
 HTTPAPIWrapper.update_character
 -----------------------------------
 HTTPAPIWrapper.update_character(self, service_id, character_id, avatar, description, name)
 
-Updates the user info for a FAKE user, for real users use update_current_user.
+Updates the characters name, avatar, etc for a FAKE user, for real users use update_current_user.
 
 Parameters:
   service_id (str): Which service holds the user.
-  character_id (str): Of the user. Can also be a Character. Cannot be a list.
-  avatar (str): Link to user's image or a local filepath to upload.
-  description (str): Description of user.
-  name (str): The name that shows in chat.
+  character_id (str): Who to update. Can also be a Character object. Cannot be a list.
+  avatar (str): A link to user's image or a local filepath to upload.
+  description (str): The description of user.
+  name (str): The name that will show in chat.
 
 Returns:
  Data about the user as a dict.
@@ -263,7 +266,8 @@ HTTPAPIWrapper.bind_service_to_channel
 -----------------------------------
 HTTPAPIWrapper.bind_service_to_channel(self, service_id, channel_id)
 
-Binds a service to a channel given the service and channel IDs. Returns whether sucessful.
+Binds a service to a channel given the service and channel IDs.
+This function is unusual in that it returns whether it was sucessful rather than raising errors if it fails.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.unbind_service_from_channel:
 HTTPAPIWrapper.unbind_service_from_channel
@@ -312,21 +316,21 @@ Parameters:
   limit=64: Max number of messages to return (messages further back in time, if any, will not be returned).
   before="null": Only return messages older than this.
 
-Should return a list of dicts, but has not been tested.
+Returns a list of dicts.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.this_user_channels:
 HTTPAPIWrapper.this_user_channels
 -----------------------------------
 HTTPAPIWrapper.this_user_channels(self)
 
-What channels this user is joined to?
+Returns the list of channel_ids this user is in.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper._upload_extension:
 HTTPAPIWrapper._upload_extension
 -----------------------------------
 HTTPAPIWrapper._upload_extension(self, extension)
 
-Get the upload URL and upload fields for uploading a file with the given string-valued extension.
+Gets the upload URL and needed fields for uploading a file with the given string-valued extension.
 Returns (upload_url or None, upload_fields).
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper._do_upload_file:
@@ -334,7 +338,7 @@ HTTPAPIWrapper._do_upload_file
 -----------------------------------
 HTTPAPIWrapper._do_upload_file(self, upload_url, upload_fields, file_path)
 
-Upload a file to the given upload URL with the given upload fields.
+Uploads a file to the given upload URL with the given upload fields.
 
 Parameters:
   upload_url (str): obtained with _upload_extension.
@@ -345,22 +349,22 @@ Returns:
   The full URL string of the uploaded file. None if doesn't receive a valid response (error condition).
 
 Raises:
-  Exception: If the file upload fails, this function will raise an exception about the error.
+  Exception: If the file upload fails, this function will raise an exception detailing the error.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.upload_file:
 HTTPAPIWrapper.upload_file
 -----------------------------------
 HTTPAPIWrapper.upload_file(self, file_path)
 
-Upload the file at local path file_path to the Moobius server. Automatically gets the upload URL and upload fields.
-Returns the full upload URL. Raises Exception if the upload fails.
+Uploads the file at local path file_path to the Moobius server. Automatically calculates the upload URL and upload fields.
+Returns the uploaded URL. Raises an Exception if the upload fails.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.convert_to_url:
 HTTPAPIWrapper.convert_to_url
 -----------------------------------
 HTTPAPIWrapper.convert_to_url(self, file_path)
 
-Converts file paths to URLs (uploading files to buckets). Idempotent: If given a URL will just return the URL.
+Converts file-paths to URLs (uploading files to buckets). Idempotent: If given a URL will just return the URL.
 Empty, False, or None strings are converted to a default URL.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.download_file:
@@ -368,15 +372,15 @@ HTTPAPIWrapper.download_file
 -----------------------------------
 HTTPAPIWrapper.download_file(self, url, filename, assert_no_overwrite, headers)
 
-Downloads a file from url to filename, automatically creating dirs and overwriting pre-existing files.
-If filename is None will return the bytes and not save any file.
+Downloads a file from a url to a local filename, automatically creating dirs and overwriting pre-existing files.
+If filename is None it will return the bytes and not save any file instead.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_channel_group_dict:
 HTTPAPIWrapper.fetch_channel_group_dict
 -----------------------------------
 HTTPAPIWrapper.fetch_channel_group_dict(self, channel_id, service_id)
 
-Like fetch_real_character_ids but returns a dict from group_id to all characters.
+Like fetch_real_character_ids but returns a dict from each group_id to all characters.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_channel_group_list:
 HTTPAPIWrapper.fetch_channel_group_list
@@ -398,7 +402,7 @@ Parameters:
   characters (list): A list of channel_id strings that will be inside the group.
 
 Returns:
-  The group id string.
+  The group_id string.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.character_ids_of_service_group:
 HTTPAPIWrapper.character_ids_of_service_group
@@ -407,27 +411,30 @@ HTTPAPIWrapper.character_ids_of_service_group(self, group_id)
 
 Gets a list of character ids belonging to a service group.
 Note that the 'recipients' in 'on message up' might be None:
-  This function will return an empty list given Falsey inputs or Falsey string literals.
+  To avoid requiring checks for None this function will return an empty list given Falsey inputs or Falsey string literals.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.character_ids_of_channel_group:
 HTTPAPIWrapper.character_ids_of_channel_group
 -----------------------------------
 HTTPAPIWrapper.character_ids_of_channel_group(self, sender_id, channel_id, group_id)
 
-Gets a list of character ids belonging to a channel group that is returned by a message.
+Gets a list of character ids belonging to a channel group.
+Websocket payloads contain these channel_groups which are shorthand for a list of characters.
 
 Parameters:
   sender_id: The message's sender.
   channel_id: The message specified that it was sent in this channel.
   group_id: The messages recipients.
 
+Returns the character_id list.
+
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.create_service_group:
 HTTPAPIWrapper.create_service_group
 -----------------------------------
 HTTPAPIWrapper.create_service_group(self, character_ids)
 
-Create a group containing characters id list, returning a Group object.
-Sending messages down for the new .net API requires giving myGroup.group_id instead of a list of character_ids.
+Creates a group containing the list of characters_ids and returns this Group object.
+This group can then be used in send_message_down payloads.
 
 Parameters:
   group_name (str): What to call it.
@@ -468,14 +475,15 @@ HTTPAPIWrapper.fetch_channel_temp_group
 -----------------------------------
 HTTPAPIWrapper.fetch_channel_temp_group(self, channel_id, service_id)
 
-Like fetch_channel_group_list but for Temp groups.
+Like fetch_channel_group_list but for TEMP groups.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_user_from_group:
 HTTPAPIWrapper.fetch_user_from_group
 -----------------------------------
 HTTPAPIWrapper.fetch_user_from_group(self, user_id, channel_id, group_id)
 
-Fetch the user profile of a user from a group.
+Not yet implemented!
+Fetches the user profile of a user from a group.
 
 Parameters:
     user_id (str): The user ID.
@@ -490,6 +498,7 @@ HTTPAPIWrapper.fetch_target_group
 -----------------------------------
 HTTPAPIWrapper.fetch_target_group(self, user_id, channel_id, group_id)
 
+Not yet implemented!
 Fetches info about the group.
 
   Parameters:

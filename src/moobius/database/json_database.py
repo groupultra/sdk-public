@@ -1,4 +1,4 @@
-# json_database.py
+# A simple-to-use database that dumps all it's data into nested JSON files.
 
 import json, dataclasses
 import os
@@ -13,15 +13,11 @@ from .database_interface import DatabaseInterface
 
 DTYPE = '_type' # Used to indicate the class name.
 
-# TODO: 
-# 1. validity check for key (must be str)
-# 2. json serializable check
-# 3. rolling back when error occurs
 class JSONDatabase(DatabaseInterface):
-    # key: name of the database json file
-    # file content: {key: value}
     """
     JSONDatabase simply stores information as JSON strings in a list of files.
+    Each domain, key combination is stored as one file.
+    Dataclass objects can be seralized as wll.
     """
     def __init__(self, domain='', root_dir='', **kwargs):
         """
@@ -32,8 +28,6 @@ class JSONDatabase(DatabaseInterface):
             The name of the database directory. Will be automatically added in the add_container() function in MoobiusStorage.
           root_dir: str
             The root directory of the all the database files.
-
-        No return value.
 
         Example:
           Note: This should not be called directly. Users should config the database in the config file, and call MoobiusStorage to initialize the database.
@@ -47,11 +41,14 @@ class JSONDatabase(DatabaseInterface):
 
     def get_value(self, key):
         """
-        Gets the value (which is a dict) of a string-valued key. Returns (is_success, the_value).
+        Gets the value (which is a dict) of a string-valued key.
+        Note: This "key" is different from a key to look up a CachedDict file.
         Note: This function should not be called directly.
 
         Raises:
           TypeError: If the type of the value is unknown, so we can't construct the object.
+
+        Returns: is_sucessful, the_value
         """
         filename = os.path.join(self.path, key + '.json')
 

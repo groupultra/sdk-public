@@ -1,4 +1,6 @@
-# Ensures that the Socket and the HTTPAPI are acceptable for the Platform. No one wants Internal Server Error.
+# Ensures that the Socket and the HTTPAPI payloads sent acceptable for the Platform.
+# Reports errors if they are not pinpointing how the structure differes.
+# This module is designed to be used internally.
 import json
 from loguru import logger
 from moobius import types
@@ -8,12 +10,12 @@ allow_temp_modifications = True # TODO: There is some extra stuff sent to the so
                                 # Before removing it, this fn will remove it from (a copy of) the data.
 
 class PlatformAssertException(Exception):
+    """A special Exception that is raised when the datastructure is not the correct format."""
     pass
 
 
 def types_assert(ty, **kwargs):
-    """Asserts that every one of kwargs is type ty, giving an error message if there is a mismatch.
-    types_assert(str, foo=foo, bar=bar)"""
+    """Asserts that every one of kwargs is type ty, giving an error message if there is a mismatch. Returns True."""
     if not check_asserts:
         return True
     for k, v in kwargs.items():
@@ -24,7 +26,7 @@ def types_assert(ty, **kwargs):
 
 def structure_assert(gold, green, base_message, path=None):
     """
-    Asserts whether "green" follows the data-structure in "gold".
+    Asserts whether a data-structure follows a given pattern.
 
     Parameters:
       gold: The datastructure to match. This is a nested datastructure with the following elements.
@@ -43,6 +45,7 @@ def structure_assert(gold, green, base_message, path=None):
       path=None: The path within the datastructure. None will be [].
 
     Returns: True if the assert passes.
+
     Raises: PlatformAssertException if the assert fails, using the base_message.
     """
     if not check_asserts:
@@ -95,7 +98,7 @@ def structure_assert(gold, green, base_message, path=None):
 
 
 def min_subset_dict(min_keys, dtemplate):
-    """Creates a template function that will not error on missing keys unless missing keys are in min_keys."""
+    """Creates a template-matching function that will not error on missing keys, unless they are in in min_keys."""
     dtemplate = dtemplate.copy() # Not sure if necessary.
     def t_fn(d, base_message, path):
         for k in min_keys:
@@ -112,8 +115,7 @@ def min_subset_dict(min_keys, dtemplate):
 ######################### Temporary modifications (TODO: Get rid of once not working) ##########################
 
 def temp_modify(socket_request):
-    """Sometimes the request has extra stuff. This function removes it so it works.
-    But TODO remove extra stuff and test."""
+    """Sometimes the request has extra stuff. This function removes it."""
     if not allow_temp_modifications:
         return socket_request
     socket_request = socket_request.copy()
@@ -170,8 +172,13 @@ def _socket_update_body_assert(b, base_message, path):
         button_arg_template = min_subset_dict(['name', 'type', 'placeholder', 'optional'], # Values is optional.
                                                      {'name':'opt1', 'type':'enum', 'values':['a'], 'placeholder':'in-situ', 'optional':False})
         def _each_button(x, base_message, the_path):
-            each_btn = {'button_id':'pressA', 'button_name':'pressA', 'button_text':'press this A',
-                        'new_window':True, 'arguments':[button_arg_template]}
+            each_btn = {'button_id':'pressA', 'button_text':'press this A',
+                        'new_window':True, 'arguments':[button_arg_template], 'bottom_buttons':[{'text':'txt', 'type':'confirm'}]}
+            if not x.get('bottom_buttons'):
+                if 'bottom_buttons' in x:
+                    x = x.copy()
+                    del x['bottom_buttons']
+                del each_btn['bottom_buttons']
             if not x.get('new_window'):
                 if 'arguments' not in x or x.get('arguments') is None: # Falsey new_window is allowed to have None or missing arguments.
                     del each_btn['arguments']
@@ -197,7 +204,7 @@ def _socket_update_body_assert(b, base_message, path):
         raise PlatformAssertException(f'Unrecognized subtype for an update request {subty}; {base_message}.')
     return structure_assert(template, b, base_message, path)
 def _socket_message_body_assert1(b, base_message, path, is_up):
-    """Both text and image messages are supported."""
+    """All message types, including text and image messages, are supported."""
     subty = b['subtype']
     template = {'subtype':'the_subtype', 'channel_id':'1234...', 'recipients':'1234... group_id',
                 'timestamp':12334567, 'context':{}}
@@ -233,18 +240,18 @@ def _socket_message_body_assert1(b, base_message, path, is_up):
         raise PlatformAssertException(f'Unrecognized subtype for a message body: {subty}; {base_message}.')
     return structure_assert(template, b, base_message, path)
 def _button_click_body_assert(b, base_message, path):
-    """Some buttons have options. Some don't."""
+    """Some buttons have options. Some don't, so options are optional."""
     template = {'button_id':'button1', 'channel_id':'1234...',
                 'arguments':[{'name':'category', 'value':'A'}],
                 'context':{}}
     return structure_assert(template, b, base_message, path)
 def _context_menuclick_body_assert(b, base_message, path):
-    """Right click context menu click"""
+    """Right click context menu click."""
     template = {'item_id':'item1', 'channel_id':'1234...', 'message_id':'1234...', 'message_subtype':'text/file/etc',
                 'message_content':min_subset_dict([], {'text':'text!', 'image':'url'}), 'context':{}}
     return structure_assert(template, b, base_message, path)
 def _action_body_assert(b, base_message, path):
-    """Various actions"""
+    """Various actions."""
     subty = b['subtype']
     template = {'subtype':'the_subtype', 'channel_id':'1234...', 'context':{}}
     if subty.startswith('fetch_') or subty=='leave_channel':
@@ -253,6 +260,7 @@ def _action_body_assert(b, base_message, path):
         logger.warning(f'Unknown action subtype for assert, assert may not be valid: {subty}')
     return structure_assert(template, b, base_message, path)
 
+######################################### The main assert function ################################
 
 def socket_assert(x):
     """Asserts that a socket call is correct, using the type and subtype to determine the socket.

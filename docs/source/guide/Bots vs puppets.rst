@@ -71,8 +71,8 @@ The main.py launches the service. Make it also launch the agent by adding this c
 .. code-block:: Python
     agent_handle = wand.run(
         BotAgent,
-        log_file="logs/agent.log",
-        error_log_file="logs/agent_error.log",
+        log_file="logs/service.log",
+        error_log_file="logs/error.log",
         terminal_log_level="INFO",
         config_path="config/agent.json",
         db_config_path="config/agent_db.json",

@@ -24,7 +24,7 @@ Need to make a group chat with roles and differing message types? :ref:`Group ch
 
 Did you know that this supports both *simple* and *complex* buttons? :ref:`Buttons <buttons-tut>`
 
-Do you favor *bots* or *puppets*? :ref:`Buts and puppets <bot-puppet-tut>`
+Do you favor *bots* or *puppets*? :ref:`Bots and puppets <bot-puppet-tut>`
 
 Have to set up a right-click menu and canvas? :ref:`Context menus and the canvas <menu-canvas-tut>`
 
@@ -33,6 +33,8 @@ Want a Python dict that stores data through an app restart? :ref:`Database <data
 What does a fully-featured game of Battleship look like? :ref:`Battleship game <battleship-tut>`
 
 Finally, there is a getting started `video <https://vimeo.com/965607943>`_
+
+As well as a quickstart `feature <https://github.com/groupultra/sdk-public/blob/main/src/moobius/quickstart.py>` and `video <https://vimeo.com/manage/videos/968541227>`_
 
 Modules
 ==================

@@ -1,4 +1,9 @@
-# SDK interface, agent or service. Automatically wraps the two platform APIs (HTTP and Socket)
+# **The main Moobius module**
+# Handles channel and database initialization.
+# Wraps the two platform APIs (HTTP and Socket) together.
+# Supports both bieng a service and bieng an agent (a bot).
+# And much, much more.
+# Override the Moobius class to implement your service.
 
 import json, os, pathlib
 
@@ -26,10 +31,14 @@ strict_kwargs = False # If True all functions (except __init__) with more than o
 
 
 class ServiceGroupLib():
-    """Converts a list of character_ids into a service or channel group id, creating one if need be.
-       The lookup is O(n) so performance issues at extremly large list sizes are a theoretical possibility."""
+    """
+    (This class is for internal use)
+    Converts a list of character_ids into a service or channel group id, creating one if need be.
+       The lookup is O(n) so performance at extremly large list sizes may require optimizations.
+    """
 
     def __init__(self):
+        """Creates an empty ServiceGroupLib instance."""
         logger.info(f'Initialized new, empty ServiceGroupLib on process {os.getpid()}')
         self.id2ids_mdown = {} # Message down creates service group with /service/group/create
         self.ids2id_mdown = {}
@@ -39,12 +48,12 @@ class ServiceGroupLib():
 
     async def convert_list(self, http_api, character_ids, is_message_down, channel_id=None):
         """
-        Converts a list to single group id unless it is already a group id.
+        Converts a list to single group id, unless it is already a group id.
 
         Parameters:
           http_api: The http_api client in Moobius
           character_ids: List of ids. If a string, treated as a one element list.
-          is_message_down: True = message_down (Service sends message), False = message_up (Agent sends message).
+          is_message_down: True = message_down (a message sent from the service), False = message_up (a message sent from an agent).
           channel_id=None: If None and the conversion still needs to happen it will raise an Exception.
 
         Returns: The group id.
@@ -83,22 +92,39 @@ class Moobius:
 
     def __init__(self, config_path, db_config_path, is_agent=False, **kwargs):
         """
-        Initialize a service or agent object.
+        Initializes a service or agent object.
 
         Parameters:
-          config_path: The path of the agent or service config file. Can also be a dict.
+          config_path: The path of the agent or service config file.
+            Can instead be a dict of the actual config, so that no file is loaded.
           db_config_path: The path of the database config file.
-            Can also be a dict in which case no file will be loaded.
+            Can also be a dict instead of a file.
           is_agent=False: True for an agent, False for a service.
-            Agents and services have slight differences in auth and how the platform reacts to them, etc.
-
-        No return value.
+            Agents are bots which simulate users and are limited to what a user can see.
+            Both auth with user credentials, but there are slight differences under the hood.
 
         Example:
           >>> service = SDK(config_path="./config/service.json", db_config_path="./config/database.json", is_agent=False)
         """
-        self._log_level = kwargs.get("terminal_log_level", "INFO")
-        utils.set_terminal_logger_level(self._log_level)
+        # Default logging settings:
+        self.log_level = kwargs.get("terminal_log_level", "INFO")
+        self.log_retention = kwargs.get('log_retention', {'rotation':"1 day", 'retention':"7 days"})
+        self.log_file = kwargs.get('log_file')
+        self.error_log_file = kwargs.get('error_log_file')
+        self.error_log_level = kwargs.get('error_log_level', "WARNING")
+        if 'log_settings' in kwargs: # Alternative option to specify a JSON.
+            if type(kwargs['log_settings']) is str:
+                with open(kwargs['log_settings'], 'r') as f:
+                    kwargs['log_settings'] = json.load(f)
+                logset = kwargs['log_settings']
+                self.log_level = logset.get('log_level', self.log_level)
+                self.log_retention = logset.get('log_retention', self.log_retention)
+                self.log_file = logset.get('log_file', self.log_file)
+                self.error_log_file = logset.get('error_log_file', self.error_log_file)
+        self.log_level = self.log_level.upper()
+        self.error_log_level = self.error_log_level.upper()
+
+        utils.set_terminal_logger_level(self.log_level)
 
         self.config_path = config_path
         self.is_agent = is_agent
@@ -144,27 +170,24 @@ class Moobius:
         self.authenticate_interval = 7 * 24 * 60 * 60   # 30d expire, 7d refresh
         self.heartbeat_interval = 30                    # 30s heartbeat
         self.checkin_interval = 90
-        self.log_retention = kwargs.get('log_retention', {'rotation':"1 day", 'retention':"7 days"})
 
         self.scheduler = None
 
-        self.log_file = kwargs.get('log_file')
-        self.error_log_file = kwargs.get('error_log_file')
         self.init_all_channels = kwargs.get('initialize_all_bound_channels')
 
     async def start(self):
         """
-        Start the Service/Agent. start() fns are called with wand.run. There are 6 steps:
+        Starts the service/agent and calls start() fns are called with wand.run. There are 6 steps:
           1. Authenticate.
           2. Connect to the websocket server.
-          3. (if a Service) Bind the Service to the channels. If there is no service_id in the config file, create a new service and update the config file.
-          4. Start the scheduler, run refresh(), authenticate(), send_heartbeat() periodically.
+          3. Bind the service to the channels, if a service. If there is no service_id in the config file, create a new service and update the config file.
+          4. Start the scheduler and run refresh(), authenticate(), and send_heartbeat() periodically.
           5. Call the on_start() callback (override this method to perform your own initialization tasks).
           6. Start listening to the websocket and the Wand.
 
         No parameters or return value.
         """
-        utils.set_terminal_logger_level(self._log_level)
+        utils.set_terminal_logger_level(self.log_level)
 
         logger.debug("Starting agent..." if self.is_agent else "Starting service...")
 
@@ -254,9 +277,9 @@ class Moobius:
         self.scheduler.add_job(self.send_heartbeat, 'interval', seconds=self.heartbeat_interval)
 
         if self.log_file:
-            logger.add(self.log_file, level="DEBUG", **self.log_retention)
+            logger.add(self.log_file, level=self.log_level, **self.log_retention)
         if self.error_log_file:
-            logger.add(self.error_log_file, level="ERROR", **self.log_retention)
+            logger.add(self.error_log_file, level=self.error_log_level, **self.log_retention)
 
         self.scheduler.start()
         logger.debug("Scheduler started.")
@@ -316,8 +339,11 @@ class Moobius:
     ################################## Query functions #######################################
 
     async def fetch_service_id_each_channel(self):
-        """Returns a dict of which service_id is each channel_id bound to. Channels can only be bound to a single service.
-           Channels not bound to any service will not be in the dict."""
+        """
+        Returns a dict describing which service_id each channel_id is bound to. 
+        Channels can only be bound to a single service.
+        Channels not bound to any service will not be in the dict.
+        """
         service_list = await self.http_api.fetch_service_id_list()
         channelid2serviceid = {} # Channels can only be bound to a SINGLE service.
         for service in service_list:
@@ -326,7 +352,7 @@ class Moobius:
         return channelid2serviceid
 
     async def fetch_bound_channels(self):
-        """Returns a list of channels this Service is bound to."""
+        """Returns a list of channels that are bound to this service."""
         ch_id2s_id = await self.fetch_service_id_each_channel()
         channel_ids = []
         for channel_id, service_id in ch_id2s_id.items():
@@ -335,8 +361,11 @@ class Moobius:
         return channel_ids
 
     async def fetch_characters(self, channel_id):
-        """Returns a list (or Character objects) with both the real characters bound to channel_id
-        as well as fake virtual characters bound to, not a channel, but to service self.client_id."""
+        """
+        Returns a list (of Character objects).
+        This list include both real characters (users) who joined the channel with the given channel_id.
+        And fake virtual characters that have been created by this service; virtual characters are not bound to any channel.
+        """
         real_character_ids = await self.fetch_real_character_ids(channel_id, False)
         real_characters = await self.fetch_character_profile(real_character_ids)
         service_characters = await self.fetch_service_characters()
@@ -344,8 +373,14 @@ class Moobius:
 
     ################################## Actuators #######################################
 
+    def limit_len(self, txt, n):
+        """Returns a string with a limited length, appendin "...<number of> chars" if an abbreviation is necessary."""
+        if len(txt)>n:
+            txt = txt[0:n]+'...'+str(len(txt))+' chars'
+        return txt
+
     def _convert_message_content(self, subtype, content):
-        """Converts message content, which can be a string (for text messages), to a MessageContent object."""
+        """Creates a MessageContent object of the specified subtype, given the string or dict-valued content."""
         if type(content) is str:
             if subtype == types.TEXT:
                 content = MessageContent(text=content)
@@ -357,29 +392,9 @@ class Moobius:
             content = MessageContent(**content)
         return content
 
-    async def initialize_channel(self, channel_id):
-        """Creates a MoobiusStorage object for a channel given by channel_id. Commonly overridden. Returns None."""
-        the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
-        self.channels[channel_id] = the_channel
-
-    async def checkin(self):
-        """Called as a rate task, used to resync users, etc. Only called after on_start()"""
-        for channel_id in self.channels.keys():
-            await self.checkin_channel(channel_id)
-
-    async def checkin_channel(self, channel_id):
-        """This is called on startup and on reconnect"""
-        if channel_id == list(self.channels.keys())[0]:
-            logger.info('checkin_channel not overriden, occasional desyncs are possible.')
-
-    def limit_len(self, txt, n):
-        if len(txt)>n:
-            txt = txt[0:n]+'...'+str(len(txt))+' chars'
-        return txt
-
     async def send_message(self, the_message, channel_id=None, sender=None, recipients=None, subtype=None, len_limit=None, file_display_name=None):
         """
-        Sends a message. Commonly used by both Services and Agents.
+        Sends a message. Used by both servies and agents. This function is very flexible.
 
         Parameters:
           the_message:
@@ -401,7 +416,7 @@ class Moobius:
         """
 
         async def _get_file_message_content(filepath, file_display_name=None, subtype=None):
-            """Converts filepath into a MessageContent object, uploading files if need be."""
+            """Converts a filepath into a MessageContent object, uploading files if need be."""
             if type(filepath) is not str:
                 filepath = filepath.as_posix() # For pathlib.paths.
             file_uri = await self.http_api.convert_to_url(filepath)
@@ -473,7 +488,8 @@ class Moobius:
 
     async def send(self, payload_type, payload_body):
         """
-        Send any kind of payload, including message_down, update, update_characters, update_channel_info, update_canvas, update_buttons, update_style, and heartbeat.
+        Sends any kind of payload. Example payload types:
+          message_down, update, update_characters, update_channel_info, update_canvas, update_buttons, update_style, and heartbeat.
         Rarely used except internally, but provides the most flexibility for those special occasions.
 
         Parameters:
@@ -537,7 +553,7 @@ class Moobius:
 
     async def send_button_click(self, channel_id, button_id, button_args):
         """
-        Use to send a request to ask for a button call.
+        Used by agents to send a button click.
 
         Parameters:
           channel_id (str): Which channel.
@@ -562,9 +578,9 @@ class Moobius:
             await self.ws_client.heartbeat()
 
     async def create_channel(self, channel_name, channel_desc, bind=True):
-        """Create a channel with the provided name and description and binds self.client_id (the service_id) to it.
+        """Creates a channel with the provided name and description.
            By default bind is True, which means the service connects itself to the channel.
-           A Service function. Returns the channel id."""
+           Returns the channel id."""
         channel_id = await self.http_api.create_channel(channel_name, channel_desc)
         if bind:
             await self.http_api.bind_service_to_channel(self.client_id, channel_id)  # may already be binded to the service itself
@@ -630,15 +646,20 @@ class Moobius:
     async def send_fetch_style(self, channel_id): """Calls self.ws_client.fetch_style using self.client_id."""; return await self.ws_client.fetch_style(self.client_id, channel_id)
     async def send_fetch_canvas(self, channel_id): """Calls self.ws_client.fetch_canvas using self.client_id."""; return await self.ws_client.fetch_canvas(self.client_id, channel_id)
     async def send_fetch_channel_info(self, channel_id): """Calls self.ws_client.fetch_channel_info using self.client_id."""; return await self.ws_client.fetch_channel_info(self.client_id, channel_id)
-    async def send_join_channel(self, channel_id): """Calls self.ws_client.join_channel using self.client_id."""; return await self.ws_client.join_channel(self.client_id, channel_id)
-    async def send_leave_channel(self, channel_id): """Calls self.ws_client.leave_channel using self.client_id. The Agent version of self.unbind_service_from_channel."""; return await self.ws_client.leave_channel(self.client_id, channel_id)
+    async def send_join_channel(self, channel_id): """Calls self.ws_client.join_channel using self.client_id. Used by agents."""; return await self.ws_client.join_channel(self.client_id, channel_id)
+    async def send_leave_channel(self, channel_id): """Calls self.ws_client.leave_channel using self.client_id. Used by agents."""; return await self.ws_client.leave_channel(self.client_id, channel_id)
 
     ################################## Callback switchyards #######################################
 
+    async def checkin(self):
+        """Called as a rate task, used to resync users, etc. Only called after on_start()"""
+        for channel_id in self.channels.keys():
+            await self.checkin_channel(channel_id)
+
     @logger.catch
     async def listen_loop(self):
-        """Listens to the wand (in an infinite loop so) that the wand could send spells to the service at any time (not only before the service is started).
-           Uses asyncio.Queue."""
+        """Listens to the wand in an infinite loop, polling self.queue (which is an aioprocessing.AioQueue).
+        This allows the wand to send "spells" (messages) to the services at any time."""
         while True:
             obj = await self.queue.coro_get()
             await self.on_spell(obj)
@@ -646,7 +667,7 @@ class Moobius:
     @logger.catch
     async def handle_received_payload(self, payload):
         """
-        Decode the received (websocket) payload, a JSON string, and call the handler based on p['type']. Returns None.
+        Decodes the received websocket payload JSON and calls the handler based on p['type']. Returns None.
         Example methods called:
           on_message_up(), on_action(), on_button_click(), on_copy_client(), on_unknown_payload()
 
@@ -783,7 +804,6 @@ class Moobius:
         Calls the corresponding method to handle different subtypes of action.
         Example methods called:
           on_fetch_service_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
-        Service function.
         """
         if action.subtype == types.FETCH_CHARACTERS:
             await self.on_fetch_service_characters(action)
@@ -803,7 +823,7 @@ class Moobius:
             logger.error(f"Unknown action subtype: {action.subtype}")
 
     async def on_update(self, update):
-        """Dispatches an Update instance to one of various callbacks. Agent function.
+        """Dispatches an Update object to one of various callbacks. Agent function.
            It is recommended to overload the invididual callbacks instead of this function."""
         if update.subtype == types.UPDATE_CHARACTERS:
             await self.on_update_characters(update)
@@ -820,25 +840,123 @@ class Moobius:
         else:
             logger.error(f"Unknown update subtype: {update.subtype}")
 
-    ################################## Individual callbacks #######################################
-
-    async def on_spell(self, obj):
-        """Called when a spell is received, which can be any object but is often a string. Returns None."""
-        logger.debug(f'Spell Received {obj}')
+    ############################## Simple callbacks (these are commonly overridden) #######################################
 
     async def on_start(self):
         """Called when the service is initialized. Returns None"""
         logger.debug("Service started. Override this method to perform initialization tasks.")
 
+    async def initialize_channel(self, channel_id):
+        """Called once per channel on startup. Returns None.
+        By default, creates a MoobiusStorage object with the parameters specified by self.db_config in self.channels[channel_id]."""
+        the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
+        self.channels[channel_id] = the_channel
+
+    async def checkin_channel(self, channel_id):
+        """A "wellness check" which is called on startup, on reconnect, and as a periodic "check-in". Returns None."""
+        if channel_id == list(self.channels.keys())[0]:
+            logger.info('checkin_channel not overriden, occasional desyncs are possible.')
+
+    async def on_spell(self, obj):
+        """Called when a "spell" from the wand is received, which can be any object but is often a string. Returns None."""
+        logger.debug(f'Spell Received {obj}')
+
     async def on_message_up(self, message_up: MessageBody):
         """
-        Handles a payload from a user. Service function. Returns None.
+        Called when a user sends a message. Returns None.
         Example MessageBody object:
-          moobius.MessageBody(subtype=text, channel_id=<channel id>, content=MessageContent(...), timestamp=1707254706635,
-                              recipients=[<user id 1>, <user id 2>], sender=<user id>, message_id=<message-id>,
-                              context={'group_id': <group-id>, 'channel_type': 'ccs'})
+        >>>  moobius.MessageBody(subtype="text", channel_id=<channel id>, content=MessageContent(...), timestamp=1707254706635,
+        >>>                      recipients=[<user id 1>, <user id 2>], sender=<user id>, message_id=<message-id>,
+        >>>                      context={'group_id': <group-id>, 'channel_type': 'ccs'})
         """
         logger.debug(f"MessageUp received: {message_up}")
+
+    async def on_fetch_buttons(self, action):
+        """
+        Called when the user's browser requests the list of buttons. Returns None.
+        This and other "on_fetch_xyz" functions are commonly overriden to call "send_update_xyz" with the needed material.
+        Example Action object:
+        >>> moobius.Action(subtype="fetch_buttons", channel_id=<channel id>, sender=<user id>, context={})
+        """
+        logger.debug("on_action fetch_buttons")
+
+    async def on_fetch_service_characters(self, action):
+        """
+        Called when the user's browser requests the list of characters. Returns None.
+        Example Action object:
+        >>> moobius.Action(subtype="fetch_characters", channel_id=<channel id>, sender=<user id>, context={}).
+        """
+        logger.debug("on_action fetch_service_characters")
+
+    async def on_fetch_canvas(self, action):
+        """
+        Called when the user's browser requests the content of the canvas. Returns None.
+        Example Action object:
+        >>> moobius.Action(subtype="fetch_canvas", channel_id=<channel id>, sender=<user id>, context={})
+        """
+        logger.debug("on_action fetch_canvas")
+
+    async def on_fetch_context_menu(self, action):
+        """
+        Called when the user's browser requests the content of the right-click menu. Returns None.
+        Example Action object:
+        >>> moobius.Action(subtype="fetch_context_menu", channel_id=<channel id>, sender=<user id>, context={})
+        """
+        logger.debug("on_action fetch_context_menu")
+
+    async def on_fetch_channel_info(self, action):
+        """
+        Called when the user's browser requests information about a channel. Returns None.
+        Example Action object:
+        >>> moobius.Action(subtype="fetch_channel_info", channel_id=<channel id>, sender=<user id>, context={})
+        """
+        logger.debug("on_action fetch_channel_info")
+
+    async def on_copy_client(self, copy):
+        """
+        Handles a "Copy" request bade by the user's browser. Returns None.
+        Example Copy object:
+        >>> moobius.Copy(request_id=<id>, origin_type=message_down, status=True, context={'message': 'Message received'})"""
+        if not self.is_agent and not copy.status:
+            await self.send_service_login()
+        logger.debug("on_copy_client")
+
+    async def on_join_channel(self, action):
+        """
+        Called when the user joins a channel. Returns None.
+        Commonly used to inform everyone about this new user and update everyone's character list.
+        Example Action object:
+        >>> moobius.Action(subtype="join_channel", channel_id=<channel id>, sender=<user id>, context={})"""
+        logger.debug("on_action join_channel")
+
+    async def on_leave_channel(self, action):
+        """
+        Called when the user leaves a channel. Returns None.
+        Commonly used to update everyone's character list.
+        Example Action object:
+        >>> moobius.Action(subtype="leave_channel", channel_id=<channel id>, sender=<user id>, context={})"""
+        logger.debug("on_action leave_channel")
+
+    async def on_button_click(self, button_click: ButtonClick):
+        """
+        Handles a button click from a user, usually performing some action. Returns None.
+        Example ButtonClick object:
+        >>> moobius.ButtonClick(button_id="the_big_red_button", channel_id=<channel id>, sender=<user id>, arguments=[], context={})
+        """
+        logger.debug(f"Button call received: {button_click}")
+
+    async def on_context_menu_click(self, context_click: MenuClick):
+        """Handles a context menu right click from a user, usually performing some action. Returns None.
+        Example MenuClick object:
+        >>> MenuClick(item_id=1, message_id=<id>, message_subtype=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])
+        """
+        logger.debug(f"Right-click call received: {context_click}")
+
+    async def on_unknown_payload(self, payload: Payload):
+        """A catch-all for handling unknown Payload objects. Returns None."""
+        pass
+
+    ############################## Agent-specific simple callbacks (also commonly overridden) #######################################
 
     async def on_message_down(self, message_down):
         """Callback when a message is recieved (a MessageBody object similar to what on_message_up gets).
@@ -846,88 +964,36 @@ class Moobius:
         logger.debug(f"MessageDown received: {message_down}")
 
     async def on_update_characters(self, update):
-        """Handles changes to the character list. One of the multiple update callbacks. Returns None.
+        """Responds to changes to the character list. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_character_list")
 
     async def on_update_channel_info(self, update):
-        """Handles changes to the channel info. One of the multiple update callbacks. Returns None.
+        """Responds to changes to the channel info. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_channel_info")
 
     async def on_update_canvas(self, update):
-        """Handles changes to the canvas. One of the multiple update callbacks. Returns None.
+        """Responds to changes to the canvas. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_canvas")
 
     async def on_update_buttons(self, update):
-        """Handles changes to the buttons. One of the multiple update callbacks. Returns None.
+        """Responds to changes to the buttons. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_buttons")
 
     async def on_update_style(self, update):
-        """Handles changes to the style (look and feel). One of the multiple update callbacks. Returns None.
+        """Responds to changes to the style (look and feel). One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_style")
 
     async def on_update_context_menu(self, update):
-        """Handles changes to the context menu. One of the multiple update callbacks. Returns None.
+        """Responds to changes to the context menu. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("update_context_menu")
 
-    async def on_fetch_service_characters(self, action):
-        """Handles the received action of fetching a character_list. One of the multiple Action object callbacks. Returns None.
-           Example Action object: moobius.Action(subtype="fetch_characters", channel_id=<channel id>, sender=<user id>, context={})."""
-        logger.debug("on_action fetch_service_characters")
-
-    async def on_fetch_buttons(self, action): # TODO: This doesn't seem to have the buttons?
-        """Handles the received action of fetching buttons. One of the multiple Action object callbacks. Returns None.
-           Example Action object: moobius.Action(subtype="fetch_buttons", channel_id=<channel id>, sender=<user id>, context={})"""
-        logger.debug("on_action fetch_buttons")
-
-    async def on_fetch_canvas(self, action):
-        """Handles the received action (Action object) of fetching canvas. One of the multiple Action object callbacks. Returns None."""
-        logger.debug("on_action fetch_canvas")
-
-    async def on_fetch_context_menu(self, action):
-        """Handles the received action (Action object) of fetching the right-click context menu. One of the multiple Action object callbacks. Returns None."""
-        logger.debug("on_action fetch_context_menu")
-
-    async def on_fetch_channel_info(self, action):
-        """Handle the received action of fetching channel info. One of the multiple Action object callbacks. Returns None.
-           Example Action object: moobius.Action(subtype="fetch_channel_info", channel_id=<channel id>, sender=<user id>, context={})."""
-        logger.debug("on_action fetch_channel_info")
-
-    async def on_join_channel(self, action):
-        """Handles the received action of joining a channel. One of the multiple Action object callbacks. Returns None.
-           Example Action object: moobius.Action(subtype="join_channel", channel_id=<channel id>, sender=<user id>, context={})."""
-        logger.debug("on_action join_channel")
-
-    async def on_leave_channel(self, action):
-        """Handles the received action of leaving a channel. One of the multiple Action object callbacks. Returns None.
-           Example Action object: moobius.Action(subtype="leave_channel", channel_id=<channel id>, sender=<user id>, context={})."""
-        logger.debug("on_action leave_channel")
-
-    async def on_button_click(self, button_click: ButtonClick):
-        """Handles a button call from a user. Returns None.
-           Example ButtonClick object: moobius.ButtonClick(button_id="the_big_red_button", channel_id=<channel id>, sender=<user id>, arguments=[], context={})"""
-        logger.debug(f"Button call received: {button_click}")
-
-    async def on_context_menu_click(self, context_click: MenuClick):
-        """Handles a context menu right click from a user. Returns None. Example MenuClick object:
-        MenuClick(item_id=1, message_id=<id>, message_subtype=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])"""
-        logger.debug(f"Right-click call received: {context_click}")
-
-    async def on_copy_client(self, copy):
-        """Handles a "Copy" of a message. Returns None.
-           Example Copy object: moobius.Copy(request_id=<id>, origin_type=message_down, status=True, context={'message': 'Message received'})"""
-        if not self.is_agent and not copy.status:
-            await self.send_service_login()
-        logger.debug("on_copy_client")
-
-    async def on_unknown_payload(self, payload: Payload):
-        """Catch-all for handling unknown Payload objects. Returns None."""
-        pass
+    #######################################################################################################################
 
     def __str__(self):
         fname = self.config_path

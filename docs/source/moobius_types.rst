@@ -26,146 +26,156 @@ add_str_method.__str__(self)
 Class ButtonArgument
 ===================
 
-<no class docstring>
+Describes pop-up menus inside of buttons. Such buttons have "arguments" as a list of ButtonArguments.
+Not used if the button does not contain a pop-up menu.
+
+
+
+Class BottomButton
+===================
+
+Buttons appearing at the bottom of pop-up menus.
 
 
 
 Class Button
 ===================
 
-<no class docstring>
+A description of a button. These buttons appear above the chat-box.
 
 
 
 Class ButtonClickArgument
 ===================
 
-<no class docstring>
+Describes which option users clicked on in a pop-up menu.
+A ButtonClick will have a list of ButtonClickArguments if the button opens up a pop-up menu.
+Also used, uncommonly, for context-menu clicks which use pop-up submenus.
+Not used if the button does not contain a pop-up menu.
 
 
 
 Class ButtonClick
 ===================
 
-<no class docstring>
+A description of a button click. Who clicked on which button.
+And what arguments they picked, if the button opens a pop-up menu.
 
 
 
 Class ContextMenuElement
 ===================
 
-<no class docstring>
+One element of a right-click context menu. The full menu is described by a list of these elements.
 
 
 
 Class MessageContent
 ===================
 
-<no class docstring>
+The content of a message. Most messages only have a single non-None item; for example "text" messages only have a "text" element.
+The exteption is "card" messages; they have links, title, and buttons.
 
 
 
 Class MenuClick
 ===================
 
-<no class docstring>
+A description of a context menu right-click. Includes a "copy" of the message that was clicked on.
 
 
 
 Class CanvasElement
 ===================
 
-<no class docstring>
+A description of a canvas element. The full canvas description is a list of these elements.
 
 
 
 Class View
 ===================
 
-<no class docstring>
+An unused feature, for now.
 
 
 
 Class Group
 ===================
 
-<no class docstring>
+A group of users. Only to be used internally.
 
 
 
 Class MessageBody
 ===================
 
-<no class docstring>
+A message. Contains the content as well as who, when, and where the message was sent.
 
 
 
 Class Action
 ===================
 
-<no class docstring>
+A description of a generic task performed by a user. Actions with different subtypes are routed to different callbacks.
 
 
 
 Class ChannelInfo
 ===================
 
-<no class docstring>
+A decription of an update for an old, rarely-used feature.
 
 
 
 Class Copy
 ===================
 
-<no class docstring>
+Used internally for the on_copy_client() callback. Most CCS apps do not need to override the callback.
 
 
 
 Class Payload
 ===================
 
-<no class docstring>
+A description of a payload received from the websocket. Used internally by the Moobius.handle_received_payload function.
 
 
 
 Class Character
 ===================
 
-<no class docstring>
-
-
-
-Class ChannelInfo
-===================
-
-<no class docstring>
+A description (name, id, image url, etc) of a real or virtual user.
 
 
 
 Class StyleElement
 ===================
 
-<no class docstring>
+A description of a visual style element. The full visual style description is a list of these elements.
 
 
 
 Class UpdateElement
 ===================
 
-<no class docstring>
+A single update of something. A description of an update is a list of these elements.
+Most fields are None, only one is non-None at a given time.
 
 
 
 Class Update
 ===================
 
-<no class docstring>
+A description of an update. Includes update elements as well as who sees the update.
+Used for on_update_xyz callbacks. Not used for the send_update functions.
+This is sent to agents to notify them that something that they can "see" has been updated.
 
 
 
 Class UserInfo
 ===================
 
-<no class docstring>
+A description of a user profile.
+This is sent to agents so that they can learn about "themselves".
 
 

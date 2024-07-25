@@ -1,4 +1,5 @@
-# Common dataclasses.
+# Common datatypes are encoded as dataclasses which behave like dicts but have fixed keys.
+# In addition, string literals are encoded. This avoids "magic strings" appearing everywhere in the code.
 
 import dataclasses
 from dataclasses import dataclass
@@ -60,7 +61,8 @@ def add_str_method(cls):
 @dataclass
 @add_str_method
 class ButtonArgument:
-    """For buttons that open pop-up menus. Such buttons have "arguments" as a list of ButtonArguments."""
+    """Describes pop-up menus inside of buttons. Such buttons have "arguments" as a list of ButtonArguments.
+    Not used if the button does not contain a pop-up menu."""
     name: str
     type: str
     optional: Optional[bool]
@@ -68,22 +70,33 @@ class ButtonArgument:
     placeholder: str
 
 
+
+@dataclass
+@add_str_method
+class BottomButton:
+    """Buttons appearing at the bottom of pop-up menus."""
+    text: str
+    type: str
+
+
 @dataclass
 @add_str_method
 class Button:
     """A description of a button. These buttons appear above the chat-box."""
     button_id: str # An id choosen by the CCS app to identify which button was pressed.
-    button_name: str
     button_text: str # This text appears in the browser.
     new_window: bool
     arguments: Optional[list[ButtonArgument]]=None
+    bottom_buttons:Optional[list[BottomButton]]=None
 
 
 @dataclass
 @add_str_method
 class ButtonClickArgument:
-    """Part of the callback of pop-up menu opening buttons. Such buttons, when clicked, return a ButtonClick with a list of ButtonClickArguments.
-    Also used, uncommonly, for context-menu clicks which use pop-up submenus."""
+    """Describes which option users clicked on in a pop-up menu.
+    A ButtonClick will have a list of ButtonClickArguments if the button opens up a pop-up menu.
+    Also used, uncommonly, for context-menu clicks which use pop-up submenus.
+    Not used if the button does not contain a pop-up menu."""
     name: str
     value: str | int
 
@@ -91,9 +104,11 @@ class ButtonClickArgument:
 @dataclass
 @add_str_method
 class ButtonClick:
-    """A description of a button click. Lists the button's id as well as any information they entered (if the button opens a pop-up menu)."""
+    """A description of a button click. Who clicked on which button.
+    And what arguments they picked, if the button opens a pop-up menu."""
     button_id: str
     channel_id: str
+    button_type: str
     sender: str
     arguments: list[ButtonClickArgument]
     context: dict # Rarely used by CCS apps.
@@ -102,7 +117,7 @@ class ButtonClick:
 @dataclass
 @add_str_method
 class ContextMenuElement:
-    """A description of a context-menu is a list of these elements."""
+    """One element of a right-click context menu. The full menu is described by a list of these elements."""
     item_name: str # How it appears.
     item_id: str # An id choosen by the CCS app to identify which choice was selected.
     support_subtype: list[str] # What message types will open the context menu. ["text","file", etc].
@@ -113,7 +128,7 @@ class ContextMenuElement:
 @add_str_method
 class MessageContent:
     """The content of a message. Most messages only have a single non-None item; for example "text" messages only have a "text" element.
-    Except "card" messages; they have links, title, and buttons."""
+    The exteption is "card" messages; they have links, title, and buttons."""
     text: Optional[str] = None # Used for text messages.
     path: Optional[str] = None # Used for every kind of non-text message.
     size: Optional[int] = None # Used for downloadable files only.
@@ -141,7 +156,7 @@ class MenuClick:
 @dataclass
 @add_str_method
 class CanvasElement:
-    """A description of the canvas is a list of these elements."""
+    """A description of a canvas element. The full canvas description is a list of these elements."""
     text: Optional[str] = None
     path: Optional[str] = None
 
@@ -166,7 +181,7 @@ class Group:
 @dataclass
 @add_str_method
 class MessageBody:
-    """A message. Contains the content as well as information about who and where the message was sent."""
+    """A message. Contains the content as well as who, when, and where the message was sent."""
     subtype: str
     channel_id: str
     content: MessageContent
@@ -190,7 +205,7 @@ class Action:
 @dataclass
 @add_str_method
 class ChannelInfo:
-    """Used to descripe an update for an old, rarely-used feature."""
+    """A decription of an update for an old, rarely-used feature."""
     channel_id: str
     channel_name: str
     channel_description: str
@@ -210,7 +225,7 @@ class Copy:
 @dataclass
 @add_str_method
 class Payload:
-    """Used internally by the Moobius.handle_received_payload function."""
+    """A description of a payload received from the websocket. Used internally by the Moobius.handle_received_payload function."""
     type: str
     request_id: Optional[str]
     user_id: Optional[str]
@@ -220,7 +235,7 @@ class Payload:
 @dataclass
 @add_str_method
 class Character:
-    """A description (name, id, image url) of a real or virtual user."""
+    """A description (name, id, image url, etc) of a real or virtual user."""
     character_id: str
     name: str
     avatar: Optional[str] = None
@@ -231,7 +246,7 @@ class Character:
 @dataclass
 @add_str_method
 class StyleElement:
-    """A description of a visual style is a list of these elements."""
+    """A description of a visual style element. The full visual style description is a list of these elements."""
     widget: str # Typically "canvas"
     display: str # "invisible", "visible"
     expand: str # "false", "true" (strings not bools! other options such as "force_true" may be added).
@@ -240,7 +255,8 @@ class StyleElement:
 @dataclass
 @add_str_method
 class UpdateElement:
-    """Each Update has a list of UpdateElements."""
+    """A single update of something. A description of an update is a list of these elements.
+    Most fields are None, only one is non-None at a given time."""
     character: Character | None # These fields will be None if they are not applicable to the type of update.
     button: Button | None # Only one of these is non-None at any given time.
     channel_info: ChannelInfo | None
@@ -252,8 +268,11 @@ class UpdateElement:
 @dataclass
 @add_str_method
 class Update:
-    """Used for on_update_xyz callbacks. Not used for send_update functions.
-    Used by an *agent* so that they can be notified that something that they can "see" has been updated."""
+    """
+    A description of an update. Includes update elements as well as who sees the update.
+    Used for on_update_xyz callbacks. Not used for the send_update functions.
+    This is sent to agents to notify them that something that they can "see" has been updated.
+    """
     subtype:str # 'update_characters' 'update_channel_info' 'update_canvas' 'update_buttons' 'update_style'
     channel_id:str
     content: list[UpdateElement]
@@ -265,7 +284,8 @@ class Update:
 @dataclass
 @add_str_method
 class UserInfo:
-    """Used by an *agent* so that they can find out information about themselves."""
+    """A description of a user profile.
+    This is sent to agents so that they can learn about "themselves"."""
     avatar:str
     description:str
     name:str

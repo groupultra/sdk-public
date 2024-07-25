@@ -1,3 +1,4 @@
+# Uses Redis, an in-memory database, to improve performance. Requires a running Redis server.
 import json, redis
 from .database_interface import DatabaseInterface
 
@@ -8,10 +9,13 @@ autosave = False # Only set True for debugging, saving is O(N)!
 
 
 class RedisDatabase(DatabaseInterface):
-    """The redis database make use of a redis.Redis(...) server (Redis servers are set to localhost:6379 by default)."""
-    def __init__(self, domain='', host="localhost", port=6379, db=0, password="", **kwargs):
+    """The redis database make use of a redis.Redis(...) server (Redis servers are set to localhost:6379 by default).
+    By default uses the domains's hash code to differentiate different domains, unless a user-supplied "db" value is given."""
+    def __init__(self, domain='', host="localhost", port=6379, db=None, password="", **kwargs):
         super().__init__(domain, **kwargs)
         logger.info(f'Redis initialized on {host} port {port}')
+        if db is None:
+            db = abs(hash(domain))
         self.redis = redis.Redis(host=host, port=port, db=db, password=password)
 
     def get_value(self, key) -> (bool, any):

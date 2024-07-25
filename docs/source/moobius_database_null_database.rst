@@ -13,7 +13,8 @@ Module-level functions
 Class NullDatabase
 ===================
 
-The NullDatabase is like /dev/null. Gets returns (True, None) and sets/deletes return (True, "").
+The NullDatabase is like /dev/null; nothing is ever stored.
+Get returns (True, None) and set/delete return (True, "").
 
 .. _moobius.database.null_database.NullDatabase.__init__:
 NullDatabase.__init__

@@ -14,6 +14,7 @@ Class RedisDatabase
 ===================
 
 The redis database make use of a redis.Redis(...) server (Redis servers are set to localhost:6379 by default).
+By default uses the domains's hash code to differentiate different domains, unless a user-supplied "db" value is given.
 
 .. _moobius.database.redis_database.RedisDatabase.__init__:
 RedisDatabase.__init__

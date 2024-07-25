@@ -11,7 +11,7 @@ send_tweak
 -----------------------------------
 send_tweak(the_message)
 
-<No doc string>
+A slight modification of messages.
 
 .. _moobius.network.ws_client.time_out_wrap:
 time_out_wrap
@@ -19,25 +19,24 @@ time_out_wrap
 time_out_wrap(co_routine, timeout)
 
 Sometimes the connection can hang forever.
-    
+Returns a co-routine that is the same as the given co_routine except that
+await will raise an asyncio.TimeoutError if it takes too long.
 
 ===================
 
 Class WSClient
 ===================
 
-WSClient is a websocket client that automatically reconnects when the connection is closed.
-It contains the standard socket functions such as on_connect(), send(), receive().
-Custom on_connect() and handle() functions are also supported.
-Finally, there is a wide variety of Moobius-specific functions that send payloads recognized by the platform.
-Users should call all websocket APIs through this class just as they should call all HTTP APIs through HTTPAPIWrapper.
+WSClient is a websocket client that has a wide variety of Moobius-specific functions for sending payloads specific to the Moobius platform.
+It contains the standard socket functions such as on_connect(), send(), and receive() and is more robust:
+it has a queuing system and will automatically reconnect.
 
 .. _moobius.network.ws_client.WSClient.__init__:
 WSClient.__init__
 -----------------------------------
 WSClient.__init__(self, ws_server_uri, on_connect, handle)
 
-Initialize a WSClient object.
+Initializes a WSClient object.
 
 Parameters:
   ws_server_uri: str
@@ -46,8 +45,6 @@ Parameters:
     The function to be called when the websocket is connected.
   handle: function
     The function to be called when a message is received.
-
-No return value.
 
 Example:
   >>> ws_client = WSClient("ws://localhost:8765", on_connect=on_connect, handle=handle)
@@ -60,24 +57,23 @@ WSClient.connect
 WSClient.connect(self)
 
 Connects to the websocket server. Call after self.authenticate(). Returns None.
-Keeps trying if it failed!
+Keeps trying if it fails!
 
 .. _moobius.network.ws_client.WSClient._queue_consume:
 WSClient._queue_consume
 -----------------------------------
 WSClient._queue_consume(self)
 
-If the connection goes down a queue forms.
-This sends out queued tasks in a loop.
+Consumes tasks from an internal asyncio queue.
 
 .. _moobius.network.ws_client.WSClient.send:
 WSClient.send
 -----------------------------------
 WSClient.send(self, message)
 
-Sends a dict-valued message (or JSON string) to the websocket server. Call this and other socket functions after self.authenticate()
-If the connection is closed, reconnect and send again.
-If an exception is raised, reconnect and send again.
+Sends a dict-valued message (or JSON string) to the websocket server.
+  Adds the message to self.outbound_queue.
+Note: Call this and other socket functions after self.authenticate()
 Returns None, but if the server responds to the message it will be detected in the self.recieve() loop.
 
 .. _moobius.network.ws_client.WSClient.receive:
@@ -86,8 +82,7 @@ WSClient.receive
 WSClient.receive(self)
 
 Waits in a loop for messages from the websocket server or from the wand queue. Never returns.
-If the connection is closed, reconnect and keep going.
-If an exception is raised, reconnect and keep going.
+Reconnectes if the connection fails or self.websocket.recv() stops getting anything (no heartbeats nor messages).
 
 .. _moobius.network.ws_client.WSClient.safe_handle:
 WSClient.safe_handle
@@ -116,8 +111,7 @@ WSClient.service_login
 -----------------------------------
 WSClient.service_login(self, service_id, access_token)
 
-Constructs and sends a message that logs the service in. Need to be sent before any other messages.
-Of course it is an service function not an agent function.
+Logs in. Much like the HTTP api, this needs to be sent before any other messages.
 
 Parameters:
   service_id (str): The client_id of a Moobius service object, which is the ID of the running service.
@@ -134,12 +128,12 @@ WSClient.agent_login
 -----------------------------------
 WSClient.agent_login(self, access_token)
 
-Constructs the agent_login message. Of course it is an agent function not a service function.
+Logs-in agents.
 Every 2h AWS will force-disconnect, so it is a good idea to send agent_login on connect.
 
 Parameters:
   access_token: Used in the user_login message that is sent.
-    TODO: This is the access token from http_api_wrapper; for clean code decouple access_token here!
+    This is the access token from http_api_wrapper.
   dry_run=False: Don't acually send anything if True.
 
 Returns: The message as a dict.
@@ -149,21 +143,21 @@ WSClient.leave_channel
 -----------------------------------
 WSClient.leave_channel(self, user_id, channel_id)
 
-Makes the character with user_id leave the channel with channel_id, unless dry_run is True. Returns the message dict.
+Leaves the channel with channel_id, unless dry_run is True. Used by agents. Returns the message dict.
 
 .. _moobius.network.ws_client.WSClient.join_channel:
 WSClient.join_channel
 -----------------------------------
 WSClient.join_channel(self, user_id, channel_id)
 
-Makes the character with user_id join the channel with channel_id, unless dry_run is True. Returns the message dict.
+Joins the channel with channel_id, unless dry_run is True. Used by agents. Returns the message dict.
 
 .. _moobius.network.ws_client.WSClient.update_character_list:
 WSClient.update_character_list
 -----------------------------------
 WSClient.update_character_list(self, service_id, channel_id, characters, recipients)
 
-Constructs and sends the update message for user list.
+Updates the characters that the recipients see.
 
 Parameters:
   service_id (str): As always.
@@ -180,7 +174,7 @@ WSClient.update_buttons
 -----------------------------------
 WSClient.update_buttons(self, service_id, channel_id, buttons, recipients)
 
-Constructs and sends the update message for buttons list.
+Updates the buttons that the recipients see.
 
 Parameters:
   service_id (str): As always.
@@ -204,7 +198,7 @@ WSClient.update_context_menu
 -----------------------------------
 WSClient.update_context_menu(self, service_id, channel_id, menu_items, recipients)
 
-Updates the right click context menu.
+Updates the right-click menu that the recipients can open on various messages.
 
 Parameters:
   service_id (str): As always.
@@ -219,7 +213,7 @@ WSClient.update_style
 -----------------------------------
 WSClient.update_style(self, service_id, channel_id, style_content, recipients)
 
-Constructs and sends the update message for style update.
+Updates the style (whehter the canvas is expanded, other look-and-feel aspects) that the recipients see.
 
 Parameters:
   service_id (str): As always.
@@ -254,7 +248,7 @@ WSClient.update_channel_info
 -----------------------------------
 WSClient.update_channel_info(self, service_id, channel_id, channel_info)
 
-Constructs and sends the update message for channel info.
+Updates the channel name, description, etc for a given channel.
 
 Parameters:
   service_id (str): As always.
@@ -272,7 +266,7 @@ WSClient.update_canvas
 -----------------------------------
 WSClient.update_canvas(self, service_id, channel_id, canvas_elements, recipients)
 
-Constructs and sends the update message for the canvas.
+Updates the canvas that the recipients see.
 
 Parameters:
   service_id (str): As always.
@@ -294,7 +288,7 @@ WSClient.update
 -----------------------------------
 WSClient.update(self, service_id, target_client_id, data)
 
-Constructs the update message. (I think) more of a Service than Agent function.
+A generic update function that is rarely used.
 
 Parameters:
   service_id (str): As always.
@@ -309,7 +303,7 @@ WSClient.message_up
 -----------------------------------
 WSClient.message_up(self, user_id, service_id, channel_id, recipients, subtype, content)
 
-Constructs and sends a message_up message. The same parameters as self.message_down, except that no sender is needed.
+Used by agents to send messages.
 
 Parameters:
   user_id (str): An agent id generally.
@@ -326,8 +320,7 @@ WSClient.message_down
 -----------------------------------
 WSClient.message_down(self, user_id, service_id, channel_id, recipients, subtype, content, sender)
 
-Constructs and sends the message_down message.
-Currently, only text message is supported, so the subtype is always "text".
+Sends a message to the recipients.
 
 Parameters:
   user_id (str): An agent id generally.
@@ -346,8 +339,7 @@ WSClient.fetch_characters
 -----------------------------------
 WSClient.fetch_characters(self, user_id, channel_id)
 
-Constructs and sends the fetch_service_characters message.
-If everything works the server will send back a message with the information later.
+Asks for the list of characters. The socket will send back a message with the information later.
 
 Parameters (these are common to most fetch messages):
   user_id (str): Used in the "action" message that is sent.
@@ -355,35 +347,39 @@ Parameters (these are common to most fetch messages):
   dry_run=False: Don't acually send anything if True.
 
 Returns:
-  The message as a dict.
+  The message that was sent as a dict.
 
 .. _moobius.network.ws_client.WSClient.fetch_buttons:
 WSClient.fetch_buttons
 -----------------------------------
 WSClient.fetch_buttons(self, user_id, channel_id)
 
-Same usage as fetch_characters but for the buttons. Returns the message dict.
+Same usage as fetch_characters but for the buttons.
+These functions return the sent message, the actual response will come later.
 
 .. _moobius.network.ws_client.WSClient.fetch_style:
 WSClient.fetch_style
 -----------------------------------
 WSClient.fetch_style(self, user_id, channel_id)
 
-Same usage as fetch_characters but for the style. Returns the message dict.
+Same usage as fetch_characters but for the style.
+These functions return the sent message, the actual response will come later.
 
 .. _moobius.network.ws_client.WSClient.fetch_canvas:
 WSClient.fetch_canvas
 -----------------------------------
 WSClient.fetch_canvas(self, user_id, channel_id)
 
-Same usage as fetch_characters but for the canvas. Returns the message dict.
+Same usage as fetch_characters but for the canvas.
+These functions return the sent message, the actual response will come later.
 
 .. _moobius.network.ws_client.WSClient.fetch_channel_info:
 WSClient.fetch_channel_info
 -----------------------------------
 WSClient.fetch_channel_info(self, user_id, channel_id)
 
-Same usage as fetch_characters but for the channel_info. Returns the message dict.
+Same usage as fetch_characters but for the channel_info.
+These functions return the sent message, the actual response will come later.
 
 .. _moobius.network.ws_client.WSClient.__str__:
 WSClient.__str__

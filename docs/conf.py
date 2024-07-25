@@ -1,8 +1,13 @@
 # Configuration file for the Sphinx documentation builder.
+# TODO: CSS color like this:
+# https://docs.readthedocs.io/en/stable/guides/adding-custom-css.html
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../src/')) #https://sphinx-rtd-tutorial.readthedocs.io/en/latest/sphinx-config.html?highlight=autodoc#autodoc-configuration
+#sys.path.insert(0, os.path.abspath('../../src/')) #https://sphinx-rtd-tutorial.readthedocs.io/en/latest/sphinx-config.html?highlight=autodoc#autodoc-configuration
+
+def setup(app):
+    app.add_css_file('css/custom.css')
 
 # -- Project information
 
