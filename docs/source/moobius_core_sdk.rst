@@ -108,7 +108,7 @@ Moobius.fetch_characters(self, channel_id)
 
 Returns a list (of Character objects).
 This list include both real characters (users) who joined the channel with the given channel_id.
-And fake virtual characters that have been created by this service; virtual characters are not bound to any channel.
+And fake puppet characters that have been created by this service; puppet characters are not bound to any channel.
 
 .. _moobius.core.sdk.Moobius.limit_len:
 Moobius.limit_len
@@ -268,7 +268,7 @@ No return value.
 .. _moobius.core.sdk.Moobius.update_character:
 Moobius.update_character
 -----------------------------------
-Moobius.update_character(self, character_id, avatar, description, name)
+Moobius.update_puppet(self, character_id, avatar, description, name)
 
 Calls self.http_api.update_character using self.client_id.
 Doc for the called function:
@@ -319,12 +319,12 @@ Calls self.http_api.unbind_service_from_channel
 Doc for the called function:
 Unbinds a service to a channel given the service and channel IDs. Returns None.
 
-.. _moobius.core.sdk.Moobius.create_character:
-Moobius.create_character
+.. _moobius.core.sdk.Moobius.create_puppet:
+Moobius.create_puppet
 -----------------------------------
-Moobius.create_character(self, name, avatar, description)
+Moobius.create_puppet(self, name, avatar, description)
 
-Calls self.http_api.create_character using self.create_character.
+Calls self.http_api.create_puppet using self.create_puppet.
 Doc for the called function:
 Creates a character with a given name, avatar, and description.
 The created user will be bound to the given service.
@@ -355,12 +355,12 @@ Calls self.http_api.fetch_channel_list.
 Doc for the called function:
 Fetches all? channels, returning a list of channel_id strings.
 
-.. _moobius.core.sdk.Moobius.fetch_real_character_ids:
-Moobius.fetch_real_character_ids
+.. _moobius.core.sdk.Moobius.fetch_member_ids:
+Moobius.fetch_member_ids
 -----------------------------------
-Moobius.fetch_real_character_ids(self, channel_id, raise_empty_list_err)
+Moobius.fetch_member_ids(self, channel_id, raise_empty_list_err)
 
-Calls self.http_api.fetch_real_character_ids using self.client_id.
+Calls self.http_api.fetch_member_ids using self.client_id.
 Doc for the called function:
 Fetches the real user ids of a channel. A service function, will not work as an Agent function.
 
@@ -375,12 +375,12 @@ Returns:
 Raises:
   An Exception (empty list) if raise_empty_list_err is True and the list is empty.
 
-.. _moobius.core.sdk.Moobius.fetch_character_profile:
-Moobius.fetch_character_profile
+.. _moobius.core.sdk.Moobius.fetch_member_profile:
+Moobius.fetch_member_profile
 -----------------------------------
-Moobius.fetch_character_profile(self, character_id)
+Moobius.fetch_member_profile(self, character_id)
 
-Calls self.http_api.fetch_character_profile
+Calls self.http_api.fetch_member_profile
 Doc for the called function:
 Returns a Character object (or list) given a string-valued (or list-valued) character_id.
 
@@ -393,12 +393,12 @@ Calls self.http_api.fetch_service_id_list
 Doc for the called function:
 Returns a list of service_id strings of the user.
 
-.. _moobius.core.sdk.Moobius.fetch_service_characters:
-Moobius.fetch_service_characters
+.. _moobius.core.sdk.Moobius.fetch_puppets:
+Moobius.fetch_puppets
 -----------------------------------
-Moobius.fetch_service_characters(self)
+Moobius.fetch_puppets(self)
 
-Calls self.http_api.fetch_service_characters using self.client_id.
+Calls self.http_api.fetch_puppets using self.client_id.
 Doc for the called function:
 Get the user list (a list of Character objects), of the service with id service_id.
 
@@ -706,7 +706,7 @@ Returns:
 Example:
   >>> continue_button =
   >>>   {"button_name": "Continue Playing", "button_id": "play",
-  >>>    "button_text": "Continue Playing", "new_window": False,
+  >>>    "button_name": "Continue Playing", "new_window": False,
   >>>    "arguments": []}
   >>> ws_client.update_buttons("service_id", "channel_id", [continue_button], ["user1", "user2"])
 
@@ -757,7 +757,7 @@ Example:
     >>>     "display": "highlight",
     >>>     "button_hook": {
     >>>       "button_id": "button_id",
-    >>>       "button_text": "done",
+    >>>       "button_name": "done",
     >>>       "arguments": []
     >>>       },
     >>>     "text": "<h1>Start from here.</h1><p>This is a Button, which most channels have</p>"
@@ -874,7 +874,7 @@ Moobius.on_action(self, action)
 Handles an action (Action object) from a user. Returns None.
 Calls the corresponding method to handle different subtypes of action.
 Example methods called:
-  on_fetch_service_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
+  on_fetch_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
 
 .. _moobius.core.sdk.Moobius.on_update:
 Moobius.on_update
@@ -934,10 +934,10 @@ This and other "on_fetch_xyz" functions are commonly overriden to call "send_upd
 Example Action object:
 >>> moobius.Action(subtype="fetch_buttons", channel_id=<channel id>, sender=<user id>, context={})
 
-.. _moobius.core.sdk.Moobius.on_fetch_service_characters:
-Moobius.on_fetch_service_characters
+.. _moobius.core.sdk.Moobius.on_fetch_characters:
+Moobius.on_fetch_characters
 -----------------------------------
-Moobius.on_fetch_service_characters(self, action)
+Moobius.on_fetch_characters(self, action)
 
 Called when the user's browser requests the list of characters. Returns None.
 Example Action object:

@@ -141,7 +141,7 @@ def temp_modify(socket_request):
 def _style_check(style_element, base_message, path):
     """One element in a style vector. This is the most flexible."""
     template_dict = {'widget':'button1','display':'visible', 'text':'<h1>html_tags!</h1>', 'expand':'true', # Expand is a string?
-                     'button_hook':{'button_id':'a.button', 'button_text':'A', 'arguments':[]}}
+                     'button_hook':{'button_id':'a.button', 'button_name':'A', 'arguments':[]}}
     template = min_subset_dict([], template_dict)
     return structure_assert(template, style_element, base_message, path)
 def _context_menu_item_check(cmenu_item, base_message, path):
@@ -172,7 +172,7 @@ def _socket_update_body_assert(b, base_message, path):
         button_arg_template = min_subset_dict(['name', 'type', 'placeholder', 'optional'], # Values is optional.
                                                      {'name':'opt1', 'type':'enum', 'values':['a'], 'placeholder':'in-situ', 'optional':False})
         def _each_button(x, base_message, the_path):
-            each_btn = {'button_id':'pressA', 'button_text':'press this A',
+            each_btn = {'button_id':'pressA', 'button_name':'press this A',
                         'new_window':True, 'arguments':[button_arg_template], 'bottom_buttons':[{'text':'txt', 'type':'confirm'}]}
             if not x.get('bottom_buttons'):
                 if 'bottom_buttons' in x:

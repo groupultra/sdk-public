@@ -144,7 +144,7 @@ A description of a payload received from the websocket. Used internally by the M
 Class Character
 ===================
 
-A description (name, id, image url, etc) of a real or virtual user.
+A description (name, id, image url, etc) of a real or puppet user.
 
 
 

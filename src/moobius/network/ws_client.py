@@ -288,7 +288,7 @@ class WSClient:
         Example:
           >>> continue_button =
           >>>   {"button_name": "Continue Playing", "button_id": "play",
-          >>>    "button_text": "Continue Playing", "new_window": False,
+          >>>    "button_name": "Continue Playing", "new_window": False,
           >>>    "arguments": []}
           >>> ws_client.update_buttons("service_id", "channel_id", [continue_button], ["user1", "user2"])
         """
@@ -370,7 +370,7 @@ class WSClient:
             >>>     "display": "highlight",
             >>>     "button_hook": {
             >>>       "button_id": "button_id",
-            >>>       "button_text": "done",
+            >>>       "button_name": "done",
             >>>       "arguments": []
             >>>       },
             >>>     "text": "<h1>Start from here.</h1><p>This is a Button, which most channels have</p>"

@@ -152,17 +152,17 @@ HTTPAPIWrapper._xtract_character(self, resp_data)
 
 Generates a Character object out of the JSON response_data.
 
-.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_character_profile:
-HTTPAPIWrapper.fetch_character_profile
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_member_profile:
+HTTPAPIWrapper.fetch_member_profile
 -----------------------------------
-HTTPAPIWrapper.fetch_character_profile(self, character_id)
+HTTPAPIWrapper.fetch_member_profile(self, character_id)
 
 Returns a Character object (or list) given a string-valued (or list-valued) character_id.
 
-.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_real_character_ids:
-HTTPAPIWrapper.fetch_real_character_ids
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_member_ids:
+HTTPAPIWrapper.fetch_member_ids
 -----------------------------------
-HTTPAPIWrapper.fetch_real_character_ids(self, channel_id, service_id, raise_empty_list_err)
+HTTPAPIWrapper.fetch_member_ids(self, channel_id, service_id, raise_empty_list_err)
 
 Fetches the real user ids of a channel. A service function, will not work as an Agent function.
 
@@ -177,10 +177,10 @@ Returns:
 Raises:
   An Exception (empty list) if raise_empty_list_err is True and the list is empty.
 
-.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_service_characters:
-HTTPAPIWrapper.fetch_service_characters
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_puppets:
+HTTPAPIWrapper.fetch_puppets
 -----------------------------------
-HTTPAPIWrapper.fetch_service_characters(self, service_id)
+HTTPAPIWrapper.fetch_puppets(self, service_id)
 
 Get the user list (a list of Character objects), of the service with id service_id.
 
@@ -220,10 +220,10 @@ HTTPAPIWrapper.fetch_service_id_list(self)
 
 Returns a list of service_id strings of the user.
 
-.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.create_character:
-HTTPAPIWrapper.create_character
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.create_puppet:
+HTTPAPIWrapper.create_puppet
 -----------------------------------
-HTTPAPIWrapper.create_character(self, service_id, name, avatar, description)
+HTTPAPIWrapper.create_puppet(self, service_id, name, avatar, description)
 
 Creates a character with a given name, avatar, and description.
 The created user will be bound to the given service.
@@ -239,7 +239,7 @@ Returns: A Character object representing the created user.
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.update_character:
 HTTPAPIWrapper.update_character
 -----------------------------------
-HTTPAPIWrapper.update_character(self, service_id, character_id, avatar, description, name)
+HTTPAPIWrapper.update_puppet(self, service_id, character_id, avatar, description, name)
 
 Updates the characters name, avatar, etc for a FAKE user, for real users use update_current_user.
 
@@ -380,7 +380,7 @@ HTTPAPIWrapper.fetch_channel_group_dict
 -----------------------------------
 HTTPAPIWrapper.fetch_channel_group_dict(self, channel_id, service_id)
 
-Like fetch_real_character_ids but returns a dict from each group_id to all characters.
+Like fetch_member_ids but returns a dict from each group_id to all characters.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_channel_group_list:
 HTTPAPIWrapper.fetch_channel_group_list

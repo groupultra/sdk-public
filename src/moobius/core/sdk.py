@@ -324,9 +324,9 @@ class Moobius:
         for channel_id in channels:
             if channel_id not in ch1:
                 try:
-                    chars = await self.fetch_real_character_ids(channel_id, raise_empty_list_err=False)
+                    chars = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)
                 except Exception as e:
-                    logger.warning(f'fetch_real_character_ids failed: {e}. Channel will be joined')
+                    logger.warning(f'fetch_member_ids failed: {e}. Channel will be joined')
                     chars = []
                 try:
                     if type(chars) is not list or self.client_id not in chars:
@@ -363,13 +363,14 @@ class Moobius:
     async def fetch_characters(self, channel_id):
         """
         Returns a list (of Character objects).
-        This list include both real characters (users) who joined the channel with the given channel_id.
-        And fake virtual characters that have been created by this service; virtual characters are not bound to any channel.
+        This list includes:
+          Real members (ids for a particular user-channel combination) who joined the channel with the given channel_id.
+          Puppet characters that have been created by this service; puppet characters are not bound to any channel.
         """
-        real_character_ids = await self.fetch_real_character_ids(channel_id, False)
-        real_characters = await self.fetch_character_profile(real_character_ids)
-        service_characters = await self.fetch_service_characters()
-        return real_characters + service_characters
+        member_ids = await self.fetch_member_ids(channel_id, False)
+        member_profiles = await self.fetch_member_profile(member_ids)
+        puppet_profiles = await self.fetch_puppets()
+        return member_profiles + puppet_profiles
 
     ################################## Actuators #######################################
 
@@ -608,17 +609,17 @@ class Moobius:
     async def sign_up(self): """Calls self.http_api.sign_up."""; return await self.http_api.sign_up()
     async def sign_out(self): """Calls self.http_api.sign_out."""; return await self.http_api.sign_out()
     async def update_current_user(self, avatar, description, name): """Calls self.http_api.update_current_user."""; return await self.http_api.update_current_user(avatar, description, name)
-    async def update_character(self, character_id, avatar, description, name): """Calls self.http_api.update_character using self.client_id."""; return await self.http_api.update_character(self.client_id, character_id, avatar, description, name)
+    async def update_puppet(self, puppet_id, avatar, description, name): """Calls self.http_api.update_character using self.client_id."""; return await self.http_api.update_puppet(self.client_id, puppet_id, avatar, description, name)
     async def update_channel(self, channel_id, channel_name, channel_desc): """Calls self.http_api.update_channel."""; return await self.http_api.update_channel(channel_id, channel_name, channel_desc)
     async def bind_service_to_channel(self, channel_id): """Calls self.http_api.bind_service_to_channel"""; return await self.http_api.bind_service_to_channel(self.client_id, channel_id)
     async def unbind_service_from_channel(self, channel_id): """Calls self.http_api.unbind_service_from_channel"""; return await self.http_api.unbind_service_from_channel(self.client_id, channel_id)
-    async def create_character(self, name, avatar=None, description="No description"): """Calls self.http_api.create_character using self.create_character."""; return await self.http_api.create_character(self.client_id, name, avatar, description)
+    async def create_puppet(self, name, avatar=None, description="No description"): """Calls self.http_api.create_puppet using self.create_puppet."""; return await self.http_api.create_puppet(self.client_id, name, avatar, description)
     async def fetch_popular_channels(self): """Calls self.http_api.fetch_popular_channels."""; return await self.http_api.fetch_popular_channels()
     async def fetch_channel_list(self): """Calls self.http_api.fetch_channel_list."""; return await self.http_api.fetch_channel_list()
-    async def fetch_real_character_ids(self, channel_id, raise_empty_list_err=True): """Calls self.http_api.fetch_real_character_ids using self.client_id."""; return await self.http_api.fetch_real_character_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
-    async def fetch_character_profile(self, character_id): """Calls self.http_api.fetch_character_profile"""; return await self.http_api.fetch_character_profile(character_id)
+    async def fetch_member_ids(self, channel_id, raise_empty_list_err=False): """Calls self.http_api.fetch_member_ids using self.client_id."""; return await self.http_api.fetch_member_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
+    async def fetch_member_profile(self, character_id): """Calls self.http_api.fetch_member_profile"""; return await self.http_api.fetch_member_profile(character_id)
     async def fetch_service_id_list(self): """Calls self.http_api.fetch_service_id_list"""; return await self.http_api.fetch_service_id_list()
-    async def fetch_service_characters(self): """Calls self.http_api.fetch_service_characters using self.client_id."""; return await self.http_api.fetch_service_characters(self.client_id)
+    async def fetch_puppets(self): """Calls self.http_api.fetch_puppets using self.client_id."""; return await self.http_api.fetch_puppets(self.client_id)
     async def upload_file(self, filepath): """Calls self.http_api.upload_file. Note that uploads happen automatically for any function that accepts a filepath/url when given a local path."""; return await self.http_api.upload_file(filepath)
     async def download_file(self, url, filepath, assert_no_overwrite=False, headers=None): """Calls self.http_api.download_file"""; return await self.http_api.download_file(url, filepath, assert_no_overwrite=assert_no_overwrite, headers=headers)
     async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
@@ -803,10 +804,13 @@ class Moobius:
         Handles an action (Action object) from a user. Returns None.
         Calls the corresponding method to handle different subtypes of action.
         Example methods called:
-          on_fetch_service_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
+          on_fetch_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
         """
         if action.subtype == types.FETCH_CHARACTERS:
-            await self.on_fetch_service_characters(action)
+            if hasattr(self, 'on_fetch_puppets'):
+                logger.warning('on_fetch_puppets is deprecated, replace with on_fetch_characters')
+                await self.on_fetch_puppets(action)
+            await self.on_fetch_characters(action)
         elif action.subtype == types.FETCH_BUTTONS:
             await self.on_fetch_buttons(action)
         elif action.subtype == types.FETCH_CANVAS:
@@ -880,13 +884,13 @@ class Moobius:
         """
         logger.debug("on_action fetch_buttons")
 
-    async def on_fetch_service_characters(self, action):
+    async def on_fetch_characters(self, action):
         """
-        Called when the user's browser requests the list of characters. Returns None.
+        Called when the user's browser requests the list of characters that they will be able to see and send messages to. Returns None.
         Example Action object:
         >>> moobius.Action(subtype="fetch_characters", channel_id=<channel id>, sender=<user id>, context={}).
         """
-        logger.debug("on_action fetch_service_characters")
+        logger.debug("on_action fetch_puppets")
 
     async def on_fetch_canvas(self, action):
         """
@@ -992,6 +996,34 @@ class Moobius:
         """Responds to changes to the context menu. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("update_context_menu")
+
+    ###################################################### Deprecated functions ###########################################
+
+    async def create_character(self, name, avatar=None, description="No description"):
+        """DEPRECATED use create_puppet instead. Calls self.http_api.create_puppet using self.create_puppet."""
+        logger.warning("WARNING: create_character is deprecated use create_puppet instead.")
+        return await self.http_api.create_puppet(self.client_id, name, avatar, description)
+
+    async def fetch_real_character_ids(self, channel_id, raise_empty_list_err=False):
+        """DEPRECATED use fetch_member_ids instead. Calls self.http_api.fetch_member_ids using self.client_id."""
+        logger.warning("WARNING: fetch_real_character_ids is deprecated use fetch_member_ids instead.")
+        return await self.http_api.fetch_member_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
+
+    async def update_character(self, character_id, avatar, description, name):
+        """DEPRECATED use fetch_member_ids instead. Calls self.http_api.update_character using self.client_id."""
+        logger.warning("WARNING: update_character is deprecated use fetch_member_ids instead.")
+        return await self.http_api.update_puppet(self.client_id, character_id, avatar, description, name)
+
+    async def fetch_character_profile(self, character_id):
+        """DEPRECATED use fetch_member_profile instead. Calls self.http_api.fetch_member_profile"""
+        logger.warning("WARNING: fetch_character_profile is deprecated use fetch_member_profile instead.")
+        return await self.http_api.fetch_member_profile(character_id)
+
+    async def fetch_service_characters(self):
+        """DEPRECATED use fetch_puppets instead. Calls self.http_api.fetch_puppets using self.client_id."""
+        logger.warning("WARNING: fetch_service_characters is deprecated use fetch_puppets instead.")
+        return await self.http_api.fetch_puppets(self.client_id)
+
 
     #######################################################################################################################
 

@@ -24,10 +24,10 @@ The combined code of the two functions:
 
 .. code-block:: Python
     async def on_fetch_buttons(self, action):
-        simple_button = Button(button_id='easy', button_name='easy', button_text='Simple button.', new_window=False)
+        simple_button = Button(button_id='easy', button_name='easy', button_name='Simple button.', new_window=False)
         button_args = [ButtonArgument(name='Pick a fruit!', type='enum', optional=False, values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
                         ButtonArgument(name='Favorite color!', type='string', optional=False, placeholder="Artsy!", values=[])]
-        complex_button = Button(button_id='hard', button_name='hard', button_text='Pop-up button.', new_window=True, arguments=button_args)
+        complex_button = Button(button_id='hard', button_name='hard', button_name='Pop-up button.', new_window=True, arguments=button_args)
         await self.send_update_buttons(action.channel_id, [simple_button, complex_button], [action.sender])
 
 
@@ -50,16 +50,16 @@ This function responds to button clicks. The Action object tells us who sent it,
 
 Simple vs complex buttons
 ==============================================
-"Simple" buttons are just buttons that the user clicks on. Just specify a button_id, button_name, and button_text (the text is what is displayed). Set new_window to False.
+"Simple" buttons are just buttons that the user clicks on. Just specify a button_id, button_name, and button_name (the text is what is displayed). Set new_window to False.
 
 In the above example there is one simple button 
 
 .. code-block:: Python
-    simple_button = Button(button_id='easy', button_name='easy', button_text='Simple button.', new_window=False)
+    simple_button = Button(button_id='easy', button_name='easy', button_name='Simple button.', new_window=False)
 
 "Complex" buttons are buttons that open up a pop-up menu where the user selects an option. new_window has to be True and there are button arguments. In this example:
 
 .. code-block:: Python
     button_args = [ButtonArgument(name='Pick a fruit!', type='enum', optional=False, values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
                     ButtonArgument(name='Favorite color!', type='string', optional=False, placeholder="Artsy!", values=[])]
-    complex_button = Button(button_id='hard', button_name='hard', button_text='Pop-up button.', new_window=True, arguments=button_args)
+    complex_button = Button(button_id='hard', button_name='hard', button_name='Pop-up button.', new_window=True, arguments=button_args)

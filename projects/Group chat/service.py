@@ -10,7 +10,7 @@ class GroupService(Moobius):
     async def on_fetch_buttons(self, action):
         ids = ['default', 'quiet', 'vip']
         names = ['Default mode', 'Hear nothing mode', 'VIP mode']
-        buttons = [Button(button_id=ids[i], button_name=ids[i], button_text=names[i], new_window=False) for i in range(len(ids))]
+        buttons = [Button(button_id=ids[i], button_name=ids[i], button_name=names[i], new_window=False) for i in range(len(ids))]
         await self.send_update_buttons(action.channel_id, buttons, [action.sender])
 
     async def on_button_click(self, button_click: ButtonClick):
@@ -21,10 +21,10 @@ class GroupService(Moobius):
         await self.send_message('Your role set to: '+button_click.button_id, channel_id, sender, [sender])
 
     async def _update_char_list(self, action, all=False):
-        ids = await self.fetch_real_character_ids(action.channel_id, False)
+        ids = await self.fetch_member_ids(action.channel_id, False)
         await self.send_update_character_list(channel_id=action.channel_id, character_list=ids, recipients=[ids] if all else [action.sender])
 
-    async def on_fetch_service_characters(self, action):
+    async def on_fetch_characters(self, action):
         await self._update_char_list(action, all=False)
 
     async def on_join_channel(self, action):

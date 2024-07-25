@@ -12,14 +12,14 @@ It helps to make a function to update the user list:
 
 .. code-block:: Python
     async def _update_char_list(self, action, all=False):
-        ids = await self.fetch_real_character_ids(action.channel_id, False)
+        ids = await self.fetch_member_ids(action.channel_id, False)
         await self.send_update_character_list(channel_id=action.channel_id, character_list=ids, recipients=[ids] if all else [action.sender])
 
 
 Then it can be used whenever the user list needs to be updated. Which is in three cases (the fetch callback, and when someone else joins or leaves):
 
 .. code-block:: Python
-    async def on_fetch_service_characters(self, action):
+    async def on_fetch_characters(self, action):
         await self._update_char_list(action, all=False)
 
     async def on_join_channel(self, action):

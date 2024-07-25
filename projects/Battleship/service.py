@@ -72,7 +72,7 @@ class BattleshipService(Moobius):
 
     async def _update_buttons(self, channel_id, user_id):
         """Updates the buttons to match the state, and updates the canvas."""
-        buttons = [Button(button_id='new_game', button_name='new_game', button_text='New game/restart', new_window=False)]
+        buttons = [Button(button_id='new_game', button_name='new_game', button_name='New game/restart', new_window=False)]
         canvas_text = 'No active game'
         if user:= self.games[channel_id].get(user_id, None):
             canvas_text = 'Sinkage: '+user.sinkage+'\n'+'\n'.join(user.reports)
@@ -80,7 +80,7 @@ class BattleshipService(Moobius):
                 if count>0:
                     button_args = [ButtonArgument(name='row', type='string', optional=False, placeholder='Row'),
                                    ButtonArgument(name='col', type='string', optional=False, placeholder='Column')]
-                    buttons.append(Button(button_id=weapon, button_name=weapon, button_text=weapon+f' ({count})', new_window=True,
+                    buttons.append(Button(button_id=weapon, button_name=weapon, button_name=weapon+f' ({count})', new_window=True,
                                           arguments=button_args))
         await self.send_update_canvas([CanvasElement(text=canvas_text)])
         await self.send_update_buttons(channel_id, buttons, [user_id])
@@ -105,7 +105,7 @@ class BattleshipService(Moobius):
             the_game['players'][button_click.sender].reports += reports
             the_game['players'][button_click.sender].sinkage += sinkage
         elif button_click.button_id == 'new_game':
-            real_ids = await self.fetch_real_character_ids(button_click.channel_id)
+            real_ids = await self.fetch_member_ids(button_click.channel_id)
             for r_id in real_ids:
                 the_game[r_id] = Player()
             the_game['game'] = BattleGame(r=8, c=8, ships=6) # Randomally place ships down.

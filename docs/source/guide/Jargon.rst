@@ -26,7 +26,7 @@ Users can log into thier account and join a channel by entering it's secret ID. 
 
 The **real characters** are ids associated with a real account.
 
-The **virtual characters** are fake characters puppeted by the service.
+The **puppet characters** are fake characters puppeted by the service.
 
 A **Character** object is a representation of a character's name, id, avatar, and description.
 
@@ -63,4 +63,4 @@ The agent
 ==========================================
 The agent is a bot which responds to updates recieved from the service.
 
-Note: Do not use agents if you want virtual characters. Only use agents when you need *both* manual and automatic control of a character's behavior.
+Note: Do not use agents if you want puppet characters. Only use agents when you need *both* manual and automatic control of a character's behavior.

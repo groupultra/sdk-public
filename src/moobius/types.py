@@ -84,7 +84,7 @@ class BottomButton:
 class Button:
     """A description of a button. These buttons appear above the chat-box."""
     button_id: str # An id choosen by the CCS app to identify which button was pressed.
-    button_text: str # This text appears in the browser.
+    button_name: str # This text appears in the browser.
     new_window: bool
     arguments: Optional[list[ButtonArgument]]=None
     bottom_buttons:Optional[list[BottomButton]]=None
@@ -235,7 +235,7 @@ class Payload:
 @dataclass
 @add_str_method
 class Character:
-    """A description (name, id, image url, etc) of a real or virtual user."""
+    """A description (name, id, image url, etc) of a real or puppet user."""
     character_id: str
     name: str
     avatar: Optional[str] = None

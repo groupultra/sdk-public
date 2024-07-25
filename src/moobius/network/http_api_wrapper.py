@@ -225,8 +225,9 @@ class HTTPAPIWrapper:
         c_data['description'] = resp_data['character_context']['description']
         return from_dict(data_class=Character, data=c_data)
 
-    async def fetch_character_profile(self, character_id):
-        """Returns a Character object (or list) given a string-valued (or list-valued) character_id."""
+    async def fetch_member_profile(self, character_id):
+        """Returns a Character object (or list therof) given a string-valued (or list-valued) character_id.
+        It works for both member_ids and puppet_ids."""
         is_list = type(character_id) not in [str, Character]
         character_id = utils.to_char_id_list(character_id)
         for cid in character_id:
@@ -235,14 +236,14 @@ class HTTPAPIWrapper:
         characters = [self._xtract_character(d) for d in response_dict['data']]
         return characters if is_list else characters[0]
 
-    async def fetch_real_character_ids(self, channel_id, service_id, raise_empty_list_err=True):
+    async def fetch_member_ids(self, channel_id, service_id, raise_empty_list_err=False):
         """
-        Fetches the real user ids of a channel. A service function, will not work as an Agent function.
+        Fetches the member ids of a channel which coorespond to real users.
 
         Parameters:
           channel_id (str): The channel ID.
           service_id (str): The service/client/agent ID.
-          raise_empty_list_err=True: Raises an Exception if the list is empty.
+          raise_empty_list_err=False: Raises an Exception if the list is empty.
 
         Returns:
          A list of character_id strings.
@@ -277,8 +278,8 @@ class HTTPAPIWrapper:
         else:
             raise Exception(f"Empty character_list error, channel_id: {channel_id}, service_id: {service_id}.")
 
-    async def fetch_service_characters(self, service_id):
-        """Get the user list (a list of Character objects), of the service with id service_id."""
+    async def fetch_puppets(self, service_id):
+        """Gets all the puppets defined for this service, returning a list of Character objects."""
         asserts.types_assert(str, service_id=service_id)
         m0 = "Successfully fetched character list"
         mr = "Error fetching character list"
@@ -345,7 +346,7 @@ class HTTPAPIWrapper:
         response_dict = await self.checked_get(url=self.http_server_uri + "/service/list", the_request=None, requests_kwargs={'headers':self.headers}, good_message=None, bad_message='Error getting service list', raise_errors=True)
         return response_dict.get('data')
 
-    async def create_character(self, service_id, name, avatar, description):
+    async def create_puppet(self, service_id, name, avatar, description):
         """
         Creates a character with a given name, avatar, and description.
         The created user will be bound to the given service.
@@ -370,7 +371,7 @@ class HTTPAPIWrapper:
         character = self._xtract_character(response_dict['data'])
         return character
 
-    async def update_character(self, service_id, character_id, avatar, description, name):
+    async def update_puppet(self, service_id, character_id, avatar, description, name):
         """Updates the characters name, avatar, etc for a FAKE user, for real users use update_current_user.
 
            Parameters:
@@ -588,7 +589,7 @@ class HTTPAPIWrapper:
     ############################# Groups ############################
 
     async def fetch_channel_group_dict(self, channel_id, service_id):
-        """Like fetch_real_character_ids but returns a dict from each group_id to all characters."""
+        """Like fetch_member_ids but returns a dict from each group_id to all characters."""
         asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}

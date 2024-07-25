@@ -1,12 +1,12 @@
 .. _bot-puppet-tut:
 
-Virtual character puppets
+puppet character puppets
 ================================================
-Virtual characters are controlled by the service.
+puppet characters are controlled by the service.
 
 A simple usage pattern:
 
-Initialize and empty virtual character id:
+Initialize and empty puppet character id:
 
 .. code-block:: Python
     self._puppet = None
@@ -16,7 +16,7 @@ Provide a gettor that only makes a character once per app start:
 .. code-block:: Python
     async def _get_puppet_id(self):
         if not self._puppet:
-            self._puppet = (await self.create_character("Bot", "https://www.moobius.net/images/index/6.jpeg", "A bot!")).character_id
+            self._puppet = (await self.create_puppet("Bot", "https://www.moobius.net/images/index/6.jpeg", "A bot!")).character_id
         return self._puppet
 
 Use the puppet's id to send messages when certain events happen. This example has them to messages:
