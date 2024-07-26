@@ -225,7 +225,7 @@ class HTTPAPIWrapper:
         c_data['description'] = resp_data['character_context']['description']
         return from_dict(data_class=Character, data=c_data)
 
-    async def fetch_member_profile(self, character_id):
+    async def fetch_character_profile(self, character_id):
         """Returns a Character object (or list therof) given a string-valued (or list-valued) character_id.
         It works for both member_ids and puppet_ids."""
         is_list = type(character_id) not in [str, Character]

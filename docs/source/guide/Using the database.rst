@@ -1,12 +1,29 @@
 .. _database-tut:
 
-The DB config
+Moobius offers built-in database engines to get you started.
+
+A dict-like storage
 ==========================================
 
-It is preferable (although not manditory) to use a JSON file to store the database config. This makes it easier.
+Databases allow dict-like interaction with datastructures that persist on the disk.
 
-The main.py sets the db conf file to "config/db.json". Note: config/service.json is .gitignored but db.json is *not*.
-In this db file, create a single-element config with the "name" set to "stats". All the other fields are left as default:
+This is accompleshed by overriding __getitem__, __setitem__ and other Python magic methods that are used as operator overloads.
+
+
+MoobiusStorage objects
+==========================================
+
+Data is stored in MoobiusStorage objects.
+
+The constructor is:
+
+.. code-block:: Python
+
+    storage = MoobiusStorage(client_id, channel_id, db_config=self.db_config)
+
+Note that "client_id" and "channel_id" need not coorespond to an actual client and channel, any string will do.
+
+The value "db_config" is a list of dicts, for example:
 
 `
 [{
@@ -17,52 +34,63 @@ In this db file, create a single-element config with the "name" set to "stats". 
     "settings": {
         "root_dir": "json_db"
     }
-}]
+},
+{
+    "implementation": "redis",
+    "name": "profiles",
+    ...
+},
+]
 `
 
-Using it in the CCS
-=======================
+The "json" implementation is easier to work with. The "redis" implementation has higher performance.
+Each "name" attribute becomes one attribute of the MoobiusStorage instance, and it is interacted with as if it is a dict:
 
-A common pattern is to create a "channels" field that is initially empty:
-
-.. code-block:: Python
-    self.channels = {} # One MoobiusStorage object per channel.
-
-Then to use the initialize_channel callback:
 
 .. code-block:: Python
-    async def initialize_channel(self, channel_id):
-        self.channel_storages[channel_id] = MoobiusStorage(self.client_id, channel_id, self.db_config)
 
-The "name" was set to "stats", which becomes an attribute (dynamic attribute setting):
+    x = storage.stats['HP']
+    storage.profiles['John'] = "Profile." # This autosaves to disk or the DB engine.
 
-.. code-block:: Python
-    default_stats = {'str':1, 'dex':1, 'int':1}
-    stats = self.channel_storages[c_id].stats.get(sender, default_stats)
-
-stats.get(sender) itself is a dictionary, and when modified in-place there is no way that the stats can tell.
-Thus another assignment call is needed to update the disk. This line of code would not be necessary for vanilla dicts:
+There is a *slight* difference between using this and using a dict. In-place modifications to the dict should be saved:
 
 .. code-block:: Python
-    self.channel_storages[c_id].stats[sender] = stats
 
-The stats are persistent (for each player, on each channel) on app restart.
+    x.storage["ShyGuy"]["Happiness"] += 1 # The DB cannot detect that an in-place change was made.
+    x.storage.save("ShyGuy")
 
-They are stored in jsondb/service_1234.../channel_1234.../stats/1234....json
+These databases support nested lists, dicts, sets, and also custom dataclasses.
+
+
+Per-channel storage convention
+==========================================
+
+It's common to make one MoobiusStorage per channel.
+
+To do so, a db conf file such as "config/db.json" can be created and passed in as the "db_config" kwarg for the Moobius constructor.
+
+If such a config is specified, "service.channel_storages" is automatically populated during "initialize_channel".
+
+Setting the storages up this way moves configuration parameters outside of the core service Python code and can make the code cleaner.
 
 JSON vs Redis
 ==========================================
 
-JSON DB is much easier to set up, but is not considered to have high performance when the number of users grows large.
+The "json" implementation is easier to set up but is not considered to have high performance when the number of users grows large.
 
-Redis DB is also supported, and can be used by changing the "implementation" to "redis".
-
-Doing so requires a running Redis server on the correct port; the config can be 
+A redis implemetnation is also supported as well. It requires a running Redis server
+that is refrenced in the db_config. For example:
 
 ```
 "settings": {
-    "root_dir": "json_db",
+    "root_dir": "redis_db",
     "host":"localhost",
-    "port":1234
+    "port":6379
 }
 ```
+
+Demo code
+================================
+The demo code is available on
+
+`the public repo <https://github.com/groupultra/sdk-public/tree/main/projects/Database>`.

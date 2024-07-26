@@ -6,8 +6,8 @@ import os
 import sys
 #sys.path.insert(0, os.path.abspath('../../src/')) #https://sphinx-rtd-tutorial.readthedocs.io/en/latest/sphinx-config.html?highlight=autodoc#autodoc-configuration
 
-def setup(app):
-    app.add_css_file('css/custom.css')
+#def setup(app): # Can't get this way of making colors working
+#    app.add_css_file('/custom.css')
 
 # -- Project information
 
@@ -15,8 +15,8 @@ project = 'Moobius'
 copyright = '2024, GroupUltra Ltd'
 author = 'Kevin Kostlan'
 
-release = '1.1'
-version = '1.1.x'
+release = '1.3'
+version = '1.3.x'
 
 # -- General configuration
 
@@ -36,6 +36,8 @@ intersphinx_mapping = {
 intersphinx_disabled_domains = ['std']
 
 templates_path = ['_templates']
+
+html_static_path = ['.static']
 
 # -- Options for HTML output
 

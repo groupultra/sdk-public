@@ -1,7 +1,7 @@
 .. _function_index:
 
 Exhaustive list of all methods and module-level functions
-==================
+===========================================================================================
 
 * :ref:`moobius.quickstart.open_folder_in_explorer <moobius.quickstart.open_folder_in_explorer>` (folder_path)
 * :ref:`moobius.quickstart.download_text_file_to_string <moobius.quickstart.download_text_file_to_string>` (url)
@@ -24,6 +24,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.utils.EnhancedJSONEncoder.__repr__ <moobius.utils.EnhancedJSONEncoder.__repr__>` (self)
 * :ref:`moobius.utils.make_fn_async.run_f <moobius.utils.make_fn_async.run_f>` (\*kwargs)
 * :ref:`moobius.utils.make_fn_async.run_f.f1 <moobius.utils.make_fn_async.run_f.f1>` ()
+* :ref:`moobius.core.sdk._deprecated_wrap <moobius.core.sdk._deprecated_wrap>` (f, old_name, new_name)
 * :ref:`moobius.core.sdk.ServiceGroupLib.__init__ <moobius.core.sdk.ServiceGroupLib.__init__>` (self)
 * :ref:`moobius.core.sdk.ServiceGroupLib.convert_list <moobius.core.sdk.ServiceGroupLib.convert_list>` (self, http_api, character_ids, is_message_down, channel_id)
 * :ref:`moobius.core.sdk.Moobius.__init__ <moobius.core.sdk.Moobius.__init__>` (self, config_path, db_config_path, is_agent, \*kwargs)
@@ -46,7 +47,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.core.sdk.Moobius.sign_up <moobius.core.sdk.Moobius.sign_up>` (self)
 * :ref:`moobius.core.sdk.Moobius.sign_out <moobius.core.sdk.Moobius.sign_out>` (self)
 * :ref:`moobius.core.sdk.Moobius.update_current_user <moobius.core.sdk.Moobius.update_current_user>` (self, avatar, description, name)
-* :ref:`moobius.core.sdk.Moobius.update_character <moobius.core.sdk.Moobius.update_character>` (self, character_id, avatar, description, name)
+* :ref:`moobius.core.sdk.Moobius.update_puppet <moobius.core.sdk.Moobius.update_puppet>` (self, puppet_id, avatar, description, name)
 * :ref:`moobius.core.sdk.Moobius.update_channel <moobius.core.sdk.Moobius.update_channel>` (self, channel_id, channel_name, channel_desc)
 * :ref:`moobius.core.sdk.Moobius.bind_service_to_channel <moobius.core.sdk.Moobius.bind_service_to_channel>` (self, channel_id)
 * :ref:`moobius.core.sdk.Moobius.unbind_service_from_channel <moobius.core.sdk.Moobius.unbind_service_from_channel>` (self, channel_id)
@@ -54,7 +55,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.core.sdk.Moobius.fetch_popular_channels <moobius.core.sdk.Moobius.fetch_popular_channels>` (self)
 * :ref:`moobius.core.sdk.Moobius.fetch_channel_list <moobius.core.sdk.Moobius.fetch_channel_list>` (self)
 * :ref:`moobius.core.sdk.Moobius.fetch_member_ids <moobius.core.sdk.Moobius.fetch_member_ids>` (self, channel_id, raise_empty_list_err)
-* :ref:`moobius.core.sdk.Moobius.fetch_member_profile <moobius.core.sdk.Moobius.fetch_member_profile>` (self, character_id)
+* :ref:`moobius.core.sdk.Moobius.fetch_character_profile <moobius.core.sdk.Moobius.fetch_character_profile>` (self, character_id)
 * :ref:`moobius.core.sdk.Moobius.fetch_service_id_list <moobius.core.sdk.Moobius.fetch_service_id_list>` (self)
 * :ref:`moobius.core.sdk.Moobius.fetch_puppets <moobius.core.sdk.Moobius.fetch_puppets>` (self)
 * :ref:`moobius.core.sdk.Moobius.upload_file <moobius.core.sdk.Moobius.upload_file>` (self, filepath)
@@ -73,7 +74,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.core.sdk.Moobius.send_agent_login <moobius.core.sdk.Moobius.send_agent_login>` (self)
 * :ref:`moobius.core.sdk.Moobius.send_service_login <moobius.core.sdk.Moobius.send_service_login>` (self)
 * :ref:`moobius.core.sdk.Moobius.send_update <moobius.core.sdk.Moobius.send_update>` (self, target_client_id, data)
-* :ref:`moobius.core.sdk.Moobius.send_update_characters <moobius.core.sdk.Moobius.send_update_characters>` (self, channel_id, character_list, recipients)
+* :ref:`moobius.core.sdk.Moobius.send_update_characters <moobius.core.sdk.Moobius.send_update_characters>` (self, channel_id, character_ids, recipients)
 * :ref:`moobius.core.sdk.Moobius.send_update_channel_info <moobius.core.sdk.Moobius.send_update_channel_info>` (self, channel_id, channel_info)
 * :ref:`moobius.core.sdk.Moobius.send_update_buttons <moobius.core.sdk.Moobius.send_update_buttons>` (self, channel_id, buttons, recipients)
 * :ref:`moobius.core.sdk.Moobius.send_update_context_menu <moobius.core.sdk.Moobius.send_update_context_menu>` (self, channel_id, menu_elements, recipients)
@@ -115,6 +116,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.core.sdk.Moobius.on_update_context_menu <moobius.core.sdk.Moobius.on_update_context_menu>` (self, update)
 * :ref:`moobius.core.sdk.Moobius.__str__ <moobius.core.sdk.Moobius.__str__>` (self)
 * :ref:`moobius.core.sdk.Moobius.__repr__ <moobius.core.sdk.Moobius.__repr__>` (self)
+* :ref:`moobius.core.sdk._deprecated_wrap.out <moobius.core.sdk._deprecated_wrap.out>` (\*kwargs)
 * :ref:`moobius.core.sdk.Moobius.send_message._get_file_message_content <moobius.core.sdk.Moobius.send_message._get_file_message_content>` (filepath, file_display_name, subtype)
 * :ref:`moobius.core.sdk.Moobius.handle_received_payload._group2ids <moobius.core.sdk.Moobius.handle_received_payload._group2ids>` (g_id)
 * :ref:`moobius.core.sdk.Moobius.start._get_agent_info <moobius.core.sdk.Moobius.start._get_agent_info>` ()
@@ -199,7 +201,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.sign_out <moobius.network.http_api_wrapper.HTTPAPIWrapper.sign_out>` (self)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.refresh <moobius.network.http_api_wrapper.HTTPAPIWrapper.refresh>` (self)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper._xtract_character <moobius.network.http_api_wrapper.HTTPAPIWrapper._xtract_character>` (self, resp_data)
-* :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_member_profile <moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_member_profile>` (self, character_id)
+* :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_character_profile <moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_character_profile>` (self, character_id)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_member_ids <moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_member_ids>` (self, channel_id, service_id, raise_empty_list_err)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_puppets <moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_puppets>` (self, service_id)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_user_info <moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_user_info>` (self)
@@ -207,7 +209,7 @@ Exhaustive list of all methods and module-level functions
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.create_service <moobius.network.http_api_wrapper.HTTPAPIWrapper.create_service>` (self, description)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_service_id_list <moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_service_id_list>` (self)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.create_puppet <moobius.network.http_api_wrapper.HTTPAPIWrapper.create_puppet>` (self, service_id, name, avatar, description)
-* :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.update_character <moobius.network.http_api_wrapper.HTTPAPIWrapper.update_character>` (self, service_id, character_id, avatar, description, name)
+* :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.update_puppet <moobius.network.http_api_wrapper.HTTPAPIWrapper.update_puppet>` (self, service_id, character_id, avatar, description, name)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.create_channel <moobius.network.http_api_wrapper.HTTPAPIWrapper.create_channel>` (self, channel_name, channel_desc)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.bind_service_to_channel <moobius.network.http_api_wrapper.HTTPAPIWrapper.bind_service_to_channel>` (self, service_id, channel_id)
 * :ref:`moobius.network.http_api_wrapper.HTTPAPIWrapper.unbind_service_from_channel <moobius.network.http_api_wrapper.HTTPAPIWrapper.unbind_service_from_channel>` (self, service_id, channel_id)

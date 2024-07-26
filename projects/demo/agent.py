@@ -41,7 +41,7 @@ class DemoAgent(Moobius):
                 text2 = "nya"
             elif text1 == "agent info":
                 the_agent_id = self.client_id
-                agent_info1 = await self.fetch_member_profile(the_agent_id) # Should be equal to self.agent_info
+                agent_info1 = await self.fetch_character_profile(the_agent_id) # Should be equal to self.agent_info
                 text2 = f"Agent profile:\n{agent_info1}"
             elif text1.startswith("rename agent"):
                 new_name = text1.replace("rename agent",'').strip()
@@ -68,7 +68,7 @@ class DemoAgent(Moobius):
 
     async def on_update_characters(self, update):
         character_ids = [e.character.character_id for e in update.content]
-        for character_id, character_profile in zip(character_ids, await self.fetch_member_profile(character_ids)):
+        for character_id, character_profile in zip(character_ids, await self.fetch_character_profile(character_ids)):
             if not character_id:
                 raise Exception('None character id.')
             if type(character_id) is not str:

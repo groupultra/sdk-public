@@ -374,7 +374,7 @@ class Moobius:
           Puppet characters that have been created by this service; puppet characters are not bound to any channel.
         """
         member_ids = await self.fetch_member_ids(channel_id, False)
-        member_profiles = await self.fetch_member_profile(member_ids)
+        member_profiles = await self.fetch_character_profile(member_ids)
         puppet_profiles = await self.fetch_puppets()
         return member_profiles + puppet_profiles
 
@@ -623,7 +623,7 @@ class Moobius:
     async def fetch_popular_channels(self): """Calls self.http_api.fetch_popular_channels."""; return await self.http_api.fetch_popular_channels()
     async def fetch_channel_list(self): """Calls self.http_api.fetch_channel_list."""; return await self.http_api.fetch_channel_list()
     async def fetch_member_ids(self, channel_id, raise_empty_list_err=False): """Calls self.http_api.fetch_member_ids using self.client_id."""; return await self.http_api.fetch_member_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
-    async def fetch_member_profile(self, character_id): """Calls self.http_api.fetch_member_profile"""; return await self.http_api.fetch_member_profile(character_id)
+    async def fetch_character_profile(self, character_id): """Calls self.http_api.fetch_character_profile"""; return await self.http_api.fetch_character_profile(character_id)
     async def fetch_service_id_list(self): """Calls self.http_api.fetch_service_id_list"""; return await self.http_api.fetch_service_id_list()
     async def fetch_puppets(self): """Calls self.http_api.fetch_puppets using self.client_id."""; return await self.http_api.fetch_puppets(self.client_id)
     async def upload_file(self, filepath): """Calls self.http_api.upload_file. Note that uploads happen automatically for any function that accepts a filepath/url when given a local path."""; return await self.http_api.upload_file(filepath)
@@ -1022,9 +1022,9 @@ class Moobius:
         return await self.http_api.update_puppet(self.client_id, character_id, avatar, description, name)
 
     async def fetch_character_profile(self, character_id):
-        """DEPRECATED use fetch_member_profile instead. Calls self.http_api.fetch_member_profile"""
-        logger.warning("WARNING: fetch_character_profile is deprecated use fetch_member_profile instead.")
-        return await self.http_api.fetch_member_profile(character_id)
+        """DEPRECATED use fetch_character_profile instead. Calls self.http_api.fetch_character_profile"""
+        logger.warning("WARNING: fetch_character_profile is deprecated use fetch_character_profile instead.")
+        return await self.http_api.fetch_character_profile(character_id)
 
     async def fetch_service_characters(self):
         """DEPRECATED use fetch_puppets instead. Calls self.http_api.fetch_puppets using self.client_id."""

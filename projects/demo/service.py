@@ -70,7 +70,7 @@ class DemoService(Moobius):
 
         member_ids = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)
 
-        for character_id, character_profile in zip(member_ids, await self.fetch_member_profile(member_ids)):
+        for character_id, character_profile in zip(member_ids, await self.fetch_character_profile(member_ids)):
             if type(character_id) is not str:
                 raise Exception('character_id must be a str.')
             the_channel.real_characters[character_id] = character_profile
@@ -199,7 +199,7 @@ class DemoService(Moobius):
         await self.send_update_style(channel_id, [StyleElement(widget="canvas", display="visible", expand="true")], to_whom)
 
     async def add_real_character(self, channel_id, character_id, intro="joined the channel!"):
-        character = await self.fetch_member_profile(character_id)
+        character = await self.fetch_character_profile(character_id)
         name = character.name
         the_channel = await self.get_channel(channel_id)
 
@@ -424,7 +424,7 @@ class DemoService(Moobius):
                 await self.send_message(f"Puppet id list:\n {pprint.pformat(char_list)}", channel_id, who_clicked, to_whom, len_limit=4096)
                 real_ids = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)
                 await self.send_message(f'Real character ids: {real_ids}', channel_id, to_whom, who_clicked)
-                await self.send_message(f'Real character profiles: {await self.fetch_member_profile(real_ids)}', channel_id, who_clicked, to_whom)
+                await self.send_message(f'Real character profiles: {await self.fetch_character_profile(real_ids)}', channel_id, who_clicked, to_whom)
             else:
                 raise Exception(f'Strange value for button user_btn: {value}')
         elif button_id == "command_btn".lower():

@@ -1,5 +1,5 @@
 Welcome to the Moobius SDK
-===================================
+===============================================================================================
 
 **Moobius** is a group-driven social interaction platform which resembles Discord but has more features and flexibility.
 
@@ -11,12 +11,12 @@ Check out the :doc:`usage` section for further information, including
 how to :ref:`installation` the project.
 
 Jargon
-=====================
+==================================================================================================
 
 Important concepts are listed :ref:`here <jargon-concepts-tut>`
 
 Tutorials
-==================
+===================================================================================================
 
 Don't know how to set up a service? :ref:`Getting started <getting-started-tut>`
 
@@ -37,7 +37,7 @@ Finally, there is a getting started `video <https://vimeo.com/965607943>`_
 As well as a quickstart `feature <https://github.com/groupultra/sdk-public/blob/main/src/moobius/quickstart.py>` and `video <https://vimeo.com/manage/videos/968541227>`_
 
 Modules
-==================
+=======================================================================================================
 
 * :ref:`moobius.quickstart <moobius_quickstart>`
 * :ref:`moobius.types <moobius_types>`
@@ -54,7 +54,7 @@ Modules
 * :ref:`moobius.network.ws.client <moobius_network_ws_client>`
 
 Indices and tables
-==================
+========================================================================================================
 
 * :ref:`Function Index <function_index>`
 * :ref:`search`

@@ -1,32 +1,48 @@
 .. _moobius_core_sdk:
 
 moobius.core.sdk
-===================================
+====================================================================================
 
 Module-level functions
-===================
+===================================================================================
 
-(No module-level functions)
+.. _moobius.core.sdk._deprecated_wrap:
 
-===================
+_deprecated_wrap
+---------------------------------------------------------------------------------------------------------------------
+_deprecated_wrap(f, old_name, new_name)
+
+<No doc string>
+
+.. _moobius.core.sdk._deprecated_wrap.out:
+
+_deprecated_wrap.out
+---------------------------------------------------------------------------------------------------------------------
+_deprecated_wrap.out(\*kwargs)
+
+<No doc string>
+
+===================================================================================
 
 Class ServiceGroupLib
-===================
+===========================================================================================
 
 (This class is for internal use)
 Converts a list of character_ids into a service or channel group id, creating one if need be.
    The lookup is O(n) so performance at extremly large list sizes may require optimizations.
 
 .. _moobius.core.sdk.ServiceGroupLib.__init__:
+
 ServiceGroupLib.__init__
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 ServiceGroupLib.__init__(self)
 
 Creates an empty ServiceGroupLib instance.
 
 .. _moobius.core.sdk.ServiceGroupLib.convert_list:
+
 ServiceGroupLib.convert_list
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 ServiceGroupLib.convert_list(self, http_api, character_ids, is_message_down, channel_id)
 
 Converts a list to single group id, unless it is already a group id.
@@ -40,13 +56,14 @@ Parameters:
 Returns: The group id.
 
 Class Moobius
-===================
+===========================================================================================
 
 <no class docstring>
 
 .. _moobius.core.sdk.Moobius.__init__:
+
 Moobius.__init__
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.__init__(self, config_path, db_config_path, is_agent, \*kwargs)
 
 Initializes a service or agent object.
@@ -54,7 +71,7 @@ Initializes a service or agent object.
 Parameters:
   config_path: The path of the agent or service config file.
     Can instead be a dict of the actual config, so that no file is loaded.
-  db_config_path: The path of the database config file.
+  db_config_path=None: The optional path of the database config file.
     Can also be a dict instead of a file.
   is_agent=False: True for an agent, False for a service.
     Agents are bots which simulate users and are limited to what a user can see.
@@ -64,8 +81,9 @@ Example:
   >>> service = SDK(config_path="./config/service.json", db_config_path="./config/database.json", is_agent=False)
 
 .. _moobius.core.sdk.Moobius.start:
+
 Moobius.start
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.start(self)
 
 Starts the service/agent and calls start() fns are called with wand.run. There are 6 steps:
@@ -79,15 +97,17 @@ Starts the service/agent and calls start() fns are called with wand.run. There a
 No parameters or return value.
 
 .. _moobius.core.sdk.Moobius.agent_join_service_channels:
+
 Moobius.agent_join_service_channels
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.agent_join_service_channels(self, service_config_fname)
 
 Joins service channels given by service config filename.
 
 .. _moobius.core.sdk.Moobius.fetch_service_id_each_channel:
+
 Moobius.fetch_service_id_each_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_service_id_each_channel(self)
 
 Returns a dict describing which service_id each channel_id is bound to. 
@@ -95,38 +115,44 @@ Channels can only be bound to a single service.
 Channels not bound to any service will not be in the dict.
 
 .. _moobius.core.sdk.Moobius.fetch_bound_channels:
+
 Moobius.fetch_bound_channels
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_bound_channels(self)
 
 Returns a list of channels that are bound to this service.
 
 .. _moobius.core.sdk.Moobius.fetch_characters:
+
 Moobius.fetch_characters
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_characters(self, channel_id)
 
 Returns a list (of Character objects).
-This list include both real characters (users) who joined the channel with the given channel_id.
-And fake puppet characters that have been created by this service; puppet characters are not bound to any channel.
+This list includes:
+  Real members (ids for a particular user-channel combination) who joined the channel with the given channel_id.
+  Puppet characters that have been created by this service; puppet characters are not bound to any channel.
 
 .. _moobius.core.sdk.Moobius.limit_len:
+
 Moobius.limit_len
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.limit_len(self, txt, n)
 
 Returns a string with a limited length, appendin "...<number of> chars" if an abbreviation is necessary.
 
 .. _moobius.core.sdk.Moobius._convert_message_content:
+
 Moobius._convert_message_content
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius._convert_message_content(self, subtype, content)
 
 Creates a MessageContent object of the specified subtype, given the string or dict-valued content.
 
 .. _moobius.core.sdk.Moobius.send_message:
+
 Moobius.send_message
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_message(self, the_message, channel_id, sender, recipients, subtype, len_limit, file_display_name)
 
 Sends a message. Used by both servies and agents. This function is very flexible.
@@ -150,8 +176,9 @@ Parameters:
     Sets the subtype to "types.FILE" if subtype is not specified.
 
 .. _moobius.core.sdk.Moobius.send:
+
 Moobius.send
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send(self, payload_type, payload_body)
 
 Sends any kind of payload. Example payload types:
@@ -166,8 +193,9 @@ Parameters:
 No return value.
 
 .. _moobius.core.sdk.Moobius.send_button_click:
+
 Moobius.send_button_click
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_button_click(self, channel_id, button_id, button_args)
 
 Used by agents to send a button click.
@@ -180,15 +208,17 @@ Parameters:
 No return value.
 
 .. _moobius.core.sdk.Moobius.send_heartbeat:
+
 Moobius.send_heartbeat
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_heartbeat(self)
 
 Sends a heartbeat to the server. Return None
 
 .. _moobius.core.sdk.Moobius.create_channel:
+
 Moobius.create_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.create_channel(self, channel_name, channel_desc, bind)
 
 Creates a channel with the provided name and description.
@@ -196,23 +226,26 @@ By default bind is True, which means the service connects itself to the channel.
 Returns the channel id.
 
 .. _moobius.core.sdk.Moobius.send_update_canvas:
+
 Moobius.send_update_canvas
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_update_canvas(self, channel_id, canvas_elements, recipients)
 
 Updates the canvas given a channel_id, a list of CanvasElements (which have text and/or images), and recipients.
 
 .. _moobius.core.sdk.Moobius._update_rec:
+
 Moobius._update_rec
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius._update_rec(self, recipients, is_m_down, channel_id)
 
 Pass in await self._update_rec(recipients) into "recipients".
 Converts lists into group_id strings, creating a group if need be.
 
 .. _moobius.core.sdk.Moobius.refresh:
+
 Moobius.refresh
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.refresh(self)
 
 Calls self.http_api.refresh.
@@ -220,8 +253,9 @@ Doc for the called function:
 Refreshes the access token, returning it.
 
 .. _moobius.core.sdk.Moobius.authenticate:
+
 Moobius.authenticate
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.authenticate(self)
 
 Calls self.http_api.authenticate.
@@ -232,8 +266,9 @@ Raises an Exception if doesn't receive a valid response.
 Like most GET and POST functions it will raise any errors thrown by the http API.
 
 .. _moobius.core.sdk.Moobius.sign_up:
+
 Moobius.sign_up
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.sign_up(self)
 
 Calls self.http_api.sign_up.
@@ -241,8 +276,9 @@ Doc for the called function:
 Signs up. Returns (the access token, the refresh token).
 
 .. _moobius.core.sdk.Moobius.sign_out:
+
 Moobius.sign_out
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.sign_out(self)
 
 Calls self.http_api.sign_out.
@@ -250,8 +286,9 @@ Doc for the called function:
 Signs out using the access token obtained from signing in. Returns None.
 
 .. _moobius.core.sdk.Moobius.update_current_user:
+
 Moobius.update_current_user
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.update_current_user(self, avatar, description, name)
 
 Calls self.http_api.update_current_user.
@@ -265,12 +302,13 @@ Parameters:
 
 No return value.
 
-.. _moobius.core.sdk.Moobius.update_character:
-Moobius.update_character
------------------------------------
-Moobius.update_puppet(self, character_id, avatar, description, name)
+.. _moobius.core.sdk.Moobius.update_puppet:
 
-Calls self.http_api.update_character using self.client_id.
+Moobius.update_puppet
+---------------------------------------------------------------------------------------------------------------------
+Moobius.update_puppet(self, puppet_id, avatar, description, name)
+
+Calls self.http_api.update_puppet using self.client_id.
 Doc for the called function:
 Updates the characters name, avatar, etc for a FAKE user, for real users use update_current_user.
 
@@ -285,8 +323,9 @@ Returns:
  Data about the user as a dict.
 
 .. _moobius.core.sdk.Moobius.update_channel:
+
 Moobius.update_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.update_channel(self, channel_id, channel_name, channel_desc)
 
 Calls self.http_api.update_channel.
@@ -301,8 +340,9 @@ Parameters:
 No return value.
 
 .. _moobius.core.sdk.Moobius.bind_service_to_channel:
+
 Moobius.bind_service_to_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.bind_service_to_channel(self, channel_id)
 
 Calls self.http_api.bind_service_to_channel
@@ -311,8 +351,9 @@ Binds a service to a channel given the service and channel IDs.
 This function is unusual in that it returns whether it was sucessful rather than raising errors if it fails.
 
 .. _moobius.core.sdk.Moobius.unbind_service_from_channel:
+
 Moobius.unbind_service_from_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.unbind_service_from_channel(self, channel_id)
 
 Calls self.http_api.unbind_service_from_channel
@@ -320,8 +361,9 @@ Doc for the called function:
 Unbinds a service to a channel given the service and channel IDs. Returns None.
 
 .. _moobius.core.sdk.Moobius.create_puppet:
+
 Moobius.create_puppet
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.create_puppet(self, name, avatar, description)
 
 Calls self.http_api.create_puppet using self.create_puppet.
@@ -338,8 +380,9 @@ Parameters:
 Returns: A Character object representing the created user.
 
 .. _moobius.core.sdk.Moobius.fetch_popular_channels:
+
 Moobius.fetch_popular_channels
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_popular_channels(self)
 
 Calls self.http_api.fetch_popular_channels.
@@ -347,8 +390,9 @@ Doc for the called function:
 Fetches the popular channels, returning a list of channel_id strings.
 
 .. _moobius.core.sdk.Moobius.fetch_channel_list:
+
 Moobius.fetch_channel_list
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_channel_list(self)
 
 Calls self.http_api.fetch_channel_list.
@@ -356,18 +400,19 @@ Doc for the called function:
 Fetches all? channels, returning a list of channel_id strings.
 
 .. _moobius.core.sdk.Moobius.fetch_member_ids:
+
 Moobius.fetch_member_ids
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_member_ids(self, channel_id, raise_empty_list_err)
 
 Calls self.http_api.fetch_member_ids using self.client_id.
 Doc for the called function:
-Fetches the real user ids of a channel. A service function, will not work as an Agent function.
+Fetches the member ids of a channel which coorespond to real users.
 
 Parameters:
   channel_id (str): The channel ID.
   service_id (str): The service/client/agent ID.
-  raise_empty_list_err=True: Raises an Exception if the list is empty.
+  raise_empty_list_err=False: Raises an Exception if the list is empty.
 
 Returns:
  A list of character_id strings.
@@ -375,18 +420,21 @@ Returns:
 Raises:
   An Exception (empty list) if raise_empty_list_err is True and the list is empty.
 
-.. _moobius.core.sdk.Moobius.fetch_member_profile:
-Moobius.fetch_member_profile
------------------------------------
-Moobius.fetch_member_profile(self, character_id)
+.. _moobius.core.sdk.Moobius.fetch_character_profile:
 
-Calls self.http_api.fetch_member_profile
+Moobius.fetch_character_profile
+---------------------------------------------------------------------------------------------------------------------
+Moobius.fetch_character_profile(self, character_id)
+
+Calls self.http_api.fetch_character_profile
 Doc for the called function:
-Returns a Character object (or list) given a string-valued (or list-valued) character_id.
+Returns a Character object (or list therof) given a string-valued (or list-valued) character_id.
+It works for both member_ids and puppet_ids.
 
 .. _moobius.core.sdk.Moobius.fetch_service_id_list:
+
 Moobius.fetch_service_id_list
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_service_id_list(self)
 
 Calls self.http_api.fetch_service_id_list
@@ -394,17 +442,19 @@ Doc for the called function:
 Returns a list of service_id strings of the user.
 
 .. _moobius.core.sdk.Moobius.fetch_puppets:
+
 Moobius.fetch_puppets
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_puppets(self)
 
 Calls self.http_api.fetch_puppets using self.client_id.
 Doc for the called function:
-Get the user list (a list of Character objects), of the service with id service_id.
+Gets all the puppets defined for this service, returning a list of Character objects.
 
 .. _moobius.core.sdk.Moobius.upload_file:
+
 Moobius.upload_file
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.upload_file(self, filepath)
 
 Calls self.http_api.upload_file. Note that uploads happen automatically for any function that accepts a filepath/url when given a local path.
@@ -413,8 +463,9 @@ Uploads the file at local path file_path to the Moobius server. Automatically ca
 Returns the uploaded URL. Raises an Exception if the upload fails.
 
 .. _moobius.core.sdk.Moobius.download_file:
+
 Moobius.download_file
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.download_file(self, url, filepath, assert_no_overwrite, headers)
 
 Calls self.http_api.download_file
@@ -423,8 +474,9 @@ Downloads a file from a url to a local filename, automatically creating dirs and
 If filename is None it will return the bytes and not save any file instead.
 
 .. _moobius.core.sdk.Moobius.fetch_message_history:
+
 Moobius.fetch_message_history
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_message_history(self, channel_id, limit, before)
 
 Calls self.http_api.fetch_message_history.
@@ -439,8 +491,9 @@ Parameters:
 Returns a list of dicts.
 
 .. _moobius.core.sdk.Moobius.create_channel_group:
+
 Moobius.create_channel_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.create_channel_group(self, channel_id, group_name, members)
 
 Calls self.http_api.create_channel_group.
@@ -456,8 +509,9 @@ Returns:
   The group_id string.
 
 .. _moobius.core.sdk.Moobius.create_service_group:
+
 Moobius.create_service_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.create_service_group(self, group_id, members)
 
 Calls self.http_api.create_service_group.
@@ -473,8 +527,9 @@ Returns:
   A Group object.
 
 .. _moobius.core.sdk.Moobius.character_ids_of_channel_group:
+
 Moobius.character_ids_of_channel_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.character_ids_of_channel_group(self, sender_id, channel_id, group_id)
 
 Calls self.http_api.character_ids_of_channel_group
@@ -490,8 +545,9 @@ Parameters:
 Returns the character_id list.
 
 .. _moobius.core.sdk.Moobius.character_ids_of_service_group:
+
 Moobius.character_ids_of_service_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.character_ids_of_service_group(self, group_id)
 
 Calls self.http_api.character_ids_of_service_group
@@ -501,8 +557,9 @@ Note that the 'recipients' in 'on message up' might be None:
   To avoid requiring checks for None this function will return an empty list given Falsey inputs or Falsey string literals.
 
 .. _moobius.core.sdk.Moobius.update_channel_group:
+
 Moobius.update_channel_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.update_channel_group(self, channel_id, group_id, members)
 
 Calls self.http_api.update_channel_group.
@@ -517,8 +574,9 @@ Parameters:
 No return value.
 
 .. _moobius.core.sdk.Moobius.update_temp_channel_group:
+
 Moobius.update_temp_channel_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.update_temp_channel_group(self, channel_id, members)
 
 Calls self.http_api.update_temp_channel_group.
@@ -532,8 +590,9 @@ Parameters:
 No return value.
 
 .. _moobius.core.sdk.Moobius.fetch_channel_temp_group:
+
 Moobius.fetch_channel_temp_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_channel_temp_group(self, channel_id)
 
 Calls self.http_api.fetch_channel_temp_group.
@@ -541,8 +600,9 @@ Doc for the called function:
 Like fetch_channel_group_list but for TEMP groups.
 
 .. _moobius.core.sdk.Moobius.fetch_channel_group_list:
+
 Moobius.fetch_channel_group_list
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_channel_group_list(self, channel_id)
 
 Calls self.http_api.fetch_target_group.
@@ -558,8 +618,9 @@ Fetches info about the group.
     The data-dict data.
 
 .. _moobius.core.sdk.Moobius.fetch_user_from_group:
+
 Moobius.fetch_user_from_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_user_from_group(self, user_id, channel_id, group_id)
 
 Calls self.http_api.fetch_user_from_group.
@@ -576,8 +637,9 @@ Returns:
     The user profile Character object.
 
 .. _moobius.core.sdk.Moobius.fetch_target_group:
+
 Moobius.fetch_target_group
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.fetch_target_group(self, user_id, channel_id, group_id)
 
 Calls self.http_api.fetch_target_group.
@@ -593,8 +655,9 @@ Fetches info about the group.
     The data-dict data.
 
 .. _moobius.core.sdk.Moobius.send_agent_login:
+
 Moobius.send_agent_login
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_agent_login(self)
 
 Calls self.ws_client.agent_login using self.http_api.access_token; one of the agent vs service differences.
@@ -610,8 +673,9 @@ Parameters:
 Returns: The message as a dict.
 
 .. _moobius.core.sdk.Moobius.send_service_login:
+
 Moobius.send_service_login
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_service_login(self)
 
 Calls self.ws_client.service_login using self.client_id and self.http_api.access_token; one of the agent vs service differences.
@@ -629,8 +693,9 @@ Returns:
   The message as a dict.
 
 .. _moobius.core.sdk.Moobius.send_update:
+
 Moobius.send_update
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_update(self, target_client_id, data)
 
 Calls self.ws_client.update
@@ -646,9 +711,10 @@ Parameters:
 Returns: The message as a dict.
 
 .. _moobius.core.sdk.Moobius.send_update_characters:
+
 Moobius.send_update_characters
------------------------------------
-Moobius.send_update_characters(self, channel_id, character_list, recipients)
+---------------------------------------------------------------------------------------------------------------------
+Moobius.send_update_characters(self, channel_id, character_ids, recipients)
 
 Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list.
 Doc for the called function:
@@ -665,8 +731,9 @@ Returns:
   The message as a dict.
 
 .. _moobius.core.sdk.Moobius.send_update_channel_info:
+
 Moobius.send_update_channel_info
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_update_channel_info(self, channel_id, channel_info)
 
 Calls self.ws_client.update_channel_info using self.client_id.
@@ -685,8 +752,9 @@ Example:
   >>> ws_client.update_channel_info("service_id", "channel_id", {"name": "new_channel_name"})
 
 .. _moobius.core.sdk.Moobius.send_update_buttons:
+
 Moobius.send_update_buttons
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_update_buttons(self, channel_id, buttons, recipients)
 
 Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list.
@@ -711,8 +779,9 @@ Example:
   >>> ws_client.update_buttons("service_id", "channel_id", [continue_button], ["user1", "user2"])
 
 .. _moobius.core.sdk.Moobius.send_update_context_menu:
+
 Moobius.send_update_context_menu
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_update_context_menu(self, channel_id, menu_elements, recipients)
 
 Calls self.ws_client.update_context_menu using self.client_id. Converts recipients to a group_id if a list.
@@ -728,8 +797,9 @@ Returns:
   The message as a dict.
 
 .. _moobius.core.sdk.Moobius.send_update_style:
+
 Moobius.send_update_style
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_update_style(self, channel_id, style_content, recipients)
 
 Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list.
@@ -765,8 +835,9 @@ Example:
     >>> ws_client.update_style("service_id", "channel_id", style_content, ["user1", "user2"])
 
 .. _moobius.core.sdk.Moobius.send_fetch_characters:
+
 Moobius.send_fetch_characters
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_fetch_characters(self, channel_id)
 
 Calls self.ws_client.fetch_characters using self.client_id.
@@ -782,8 +853,9 @@ Returns:
   The message that was sent as a dict.
 
 .. _moobius.core.sdk.Moobius.send_fetch_buttons:
+
 Moobius.send_fetch_buttons
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_fetch_buttons(self, channel_id)
 
 Calls self.ws_client.fetch_buttons using self.client_id.
@@ -792,8 +864,9 @@ Same usage as fetch_characters but for the buttons.
 These functions return the sent message, the actual response will come later.
 
 .. _moobius.core.sdk.Moobius.send_fetch_style:
+
 Moobius.send_fetch_style
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_fetch_style(self, channel_id)
 
 Calls self.ws_client.fetch_style using self.client_id.
@@ -802,8 +875,9 @@ Same usage as fetch_characters but for the style.
 These functions return the sent message, the actual response will come later.
 
 .. _moobius.core.sdk.Moobius.send_fetch_canvas:
+
 Moobius.send_fetch_canvas
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_fetch_canvas(self, channel_id)
 
 Calls self.ws_client.fetch_canvas using self.client_id.
@@ -812,8 +886,9 @@ Same usage as fetch_characters but for the canvas.
 These functions return the sent message, the actual response will come later.
 
 .. _moobius.core.sdk.Moobius.send_fetch_channel_info:
+
 Moobius.send_fetch_channel_info
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_fetch_channel_info(self, channel_id)
 
 Calls self.ws_client.fetch_channel_info using self.client_id.
@@ -822,8 +897,9 @@ Same usage as fetch_characters but for the channel_info.
 These functions return the sent message, the actual response will come later.
 
 .. _moobius.core.sdk.Moobius.send_join_channel:
+
 Moobius.send_join_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_join_channel(self, channel_id)
 
 Calls self.ws_client.join_channel using self.client_id. Used by agents.
@@ -831,8 +907,9 @@ Doc for the called function:
 Joins the channel with channel_id, unless dry_run is True. Used by agents. Returns the message dict.
 
 .. _moobius.core.sdk.Moobius.send_leave_channel:
+
 Moobius.send_leave_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_leave_channel(self, channel_id)
 
 Calls self.ws_client.leave_channel using self.client_id. Used by agents.
@@ -840,23 +917,26 @@ Doc for the called function:
 Leaves the channel with channel_id, unless dry_run is True. Used by agents. Returns the message dict.
 
 .. _moobius.core.sdk.Moobius.checkin:
+
 Moobius.checkin
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.checkin(self)
 
 Called as a rate task, used to resync users, etc. Only called after on_start()
 
 .. _moobius.core.sdk.Moobius.listen_loop:
+
 Moobius.listen_loop
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.listen_loop(self)
 
 Listens to the wand in an infinite loop, polling self.queue (which is an aioprocessing.AioQueue).
 This allows the wand to send "spells" (messages) to the services at any time.
 
 .. _moobius.core.sdk.Moobius.handle_received_payload:
+
 Moobius.handle_received_payload
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.handle_received_payload(self, payload)
 
 Decodes the received websocket payload JSON and calls the handler based on p['type']. Returns None.
@@ -867,8 +947,9 @@ Example use-case:
   >>> self.ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login, handle=self.handle_received_payload)
 
 .. _moobius.core.sdk.Moobius.on_action:
+
 Moobius.on_action
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_action(self, action)
 
 Handles an action (Action object) from a user. Returns None.
@@ -877,45 +958,51 @@ Example methods called:
   on_fetch_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
 
 .. _moobius.core.sdk.Moobius.on_update:
+
 Moobius.on_update
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_update(self, update)
 
 Dispatches an Update object to one of various callbacks. Agent function.
 It is recommended to overload the invididual callbacks instead of this function.
 
 .. _moobius.core.sdk.Moobius.on_start:
+
 Moobius.on_start
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_start(self)
 
 Called when the service is initialized. Returns None
 
 .. _moobius.core.sdk.Moobius.initialize_channel:
+
 Moobius.initialize_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.initialize_channel(self, channel_id)
 
 Called once per channel on startup. Returns None.
-By default, creates a MoobiusStorage object with the parameters specified by self.db_config in self.channel_storages[channel_id].
+By default, if self.db_config has been set, a MoobiusStorage is created in self.channel_storages
 
 .. _moobius.core.sdk.Moobius.checkin_channel:
+
 Moobius.checkin_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.checkin_channel(self, channel_id)
 
 A "wellness check" which is called on startup, on reconnect, and as a periodic "check-in". Returns None.
 
 .. _moobius.core.sdk.Moobius.on_spell:
+
 Moobius.on_spell
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_spell(self, obj)
 
 Called when a "spell" from the wand is received, which can be any object but is often a string. Returns None.
 
 .. _moobius.core.sdk.Moobius.on_message_up:
+
 Moobius.on_message_up
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_message_up(self, message_up)
 
 Called when a user sends a message. Returns None.
@@ -925,8 +1012,9 @@ Example MessageBody object:
 >>>                      context={'group_id': <group-id>, 'channel_type': 'ccs'})
 
 .. _moobius.core.sdk.Moobius.on_fetch_buttons:
+
 Moobius.on_fetch_buttons
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_fetch_buttons(self, action)
 
 Called when the user's browser requests the list of buttons. Returns None.
@@ -935,17 +1023,19 @@ Example Action object:
 >>> moobius.Action(subtype="fetch_buttons", channel_id=<channel id>, sender=<user id>, context={})
 
 .. _moobius.core.sdk.Moobius.on_fetch_characters:
+
 Moobius.on_fetch_characters
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_fetch_characters(self, action)
 
-Called when the user's browser requests the list of characters. Returns None.
+Called when the user's browser requests the list of characters that they will be able to see and send messages to. Returns None.
 Example Action object:
 >>> moobius.Action(subtype="fetch_characters", channel_id=<channel id>, sender=<user id>, context={}).
 
 .. _moobius.core.sdk.Moobius.on_fetch_canvas:
+
 Moobius.on_fetch_canvas
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_fetch_canvas(self, action)
 
 Called when the user's browser requests the content of the canvas. Returns None.
@@ -953,8 +1043,9 @@ Example Action object:
 >>> moobius.Action(subtype="fetch_canvas", channel_id=<channel id>, sender=<user id>, context={})
 
 .. _moobius.core.sdk.Moobius.on_fetch_context_menu:
+
 Moobius.on_fetch_context_menu
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_fetch_context_menu(self, action)
 
 Called when the user's browser requests the content of the right-click menu. Returns None.
@@ -962,8 +1053,9 @@ Example Action object:
 >>> moobius.Action(subtype="fetch_context_menu", channel_id=<channel id>, sender=<user id>, context={})
 
 .. _moobius.core.sdk.Moobius.on_fetch_channel_info:
+
 Moobius.on_fetch_channel_info
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_fetch_channel_info(self, action)
 
 Called when the user's browser requests information about a channel. Returns None.
@@ -971,8 +1063,9 @@ Example Action object:
 >>> moobius.Action(subtype="fetch_channel_info", channel_id=<channel id>, sender=<user id>, context={})
 
 .. _moobius.core.sdk.Moobius.on_copy_client:
+
 Moobius.on_copy_client
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_copy_client(self, copy)
 
 Handles a "Copy" request bade by the user's browser. Returns None.
@@ -980,8 +1073,9 @@ Example Copy object:
 >>> moobius.Copy(request_id=<id>, origin_type=message_down, status=True, context={'message': 'Message received'})
 
 .. _moobius.core.sdk.Moobius.on_join_channel:
+
 Moobius.on_join_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_join_channel(self, action)
 
 Called when the user joins a channel. Returns None.
@@ -990,8 +1084,9 @@ Example Action object:
 >>> moobius.Action(subtype="join_channel", channel_id=<channel id>, sender=<user id>, context={})
 
 .. _moobius.core.sdk.Moobius.on_leave_channel:
+
 Moobius.on_leave_channel
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_leave_channel(self, action)
 
 Called when the user leaves a channel. Returns None.
@@ -1000,8 +1095,9 @@ Example Action object:
 >>> moobius.Action(subtype="leave_channel", channel_id=<channel id>, sender=<user id>, context={})
 
 .. _moobius.core.sdk.Moobius.on_button_click:
+
 Moobius.on_button_click
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_button_click(self, button_click)
 
 Handles a button click from a user, usually performing some action. Returns None.
@@ -1009,8 +1105,9 @@ Example ButtonClick object:
 >>> moobius.ButtonClick(button_id="the_big_red_button", channel_id=<channel id>, sender=<user id>, arguments=[], context={})
 
 .. _moobius.core.sdk.Moobius.on_context_menu_click:
+
 Moobius.on_context_menu_click
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_context_menu_click(self, context_click)
 
 Handles a context menu right click from a user, usually performing some action. Returns None.
@@ -1018,106 +1115,120 @@ Example MenuClick object:
 >>> MenuClick(item_id=1, message_id=<id>, message_subtype=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])
 
 .. _moobius.core.sdk.Moobius.on_unknown_payload:
+
 Moobius.on_unknown_payload
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_unknown_payload(self, payload)
 
 A catch-all for handling unknown Payload objects. Returns None.
 
 .. _moobius.core.sdk.Moobius.on_message_down:
+
 Moobius.on_message_down
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_message_down(self, message_down)
 
 Callback when a message is recieved (a MessageBody object similar to what on_message_up gets).
 Agent function. Returns None.
 
 .. _moobius.core.sdk.Moobius.on_update_characters:
+
 Moobius.on_update_characters
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_update_characters(self, update)
 
 Responds to changes to the character list. One of the multiple update callbacks. Returns None.
 Agent function. Update is an Update instance.
 
 .. _moobius.core.sdk.Moobius.on_update_channel_info:
+
 Moobius.on_update_channel_info
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_update_channel_info(self, update)
 
 Responds to changes to the channel info. One of the multiple update callbacks. Returns None.
 Agent function. Update is an Update instance.
 
 .. _moobius.core.sdk.Moobius.on_update_canvas:
+
 Moobius.on_update_canvas
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_update_canvas(self, update)
 
 Responds to changes to the canvas. One of the multiple update callbacks. Returns None.
 Agent function. Update is an Update instance.
 
 .. _moobius.core.sdk.Moobius.on_update_buttons:
+
 Moobius.on_update_buttons
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_update_buttons(self, update)
 
 Responds to changes to the buttons. One of the multiple update callbacks. Returns None.
 Agent function. Update is an Update instance.
 
 .. _moobius.core.sdk.Moobius.on_update_style:
+
 Moobius.on_update_style
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_update_style(self, update)
 
 Responds to changes to the style (look and feel). One of the multiple update callbacks. Returns None.
 Agent function. Update is an Update instance.
 
 .. _moobius.core.sdk.Moobius.on_update_context_menu:
+
 Moobius.on_update_context_menu
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.on_update_context_menu(self, update)
 
 Responds to changes to the context menu. One of the multiple update callbacks. Returns None.
 Agent function. Update is an Update instance.
 
 .. _moobius.core.sdk.Moobius.__str__:
+
 Moobius.__str__
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.__str__(self)
 
 <No doc string>
 
 .. _moobius.core.sdk.Moobius.__repr__:
+
 Moobius.__repr__
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.__repr__(self)
 
 <No doc string>
 
 .. _moobius.core.sdk.Moobius.send_message._get_file_message_content:
+
 Moobius.send_message._get_file_message_content
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.send_message._get_file_message_content(filepath, file_display_name, subtype)
 
 Converts a filepath into a MessageContent object, uploading files if need be.
 
 .. _moobius.core.sdk.Moobius.handle_received_payload._group2ids:
+
 Moobius.handle_received_payload._group2ids
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.handle_received_payload._group2ids(g_id)
 
 <No doc string>
 
 .. _moobius.core.sdk.Moobius.start._get_agent_info:
+
 Moobius.start._get_agent_info
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.start._get_agent_info()
 
 <No doc string>
 
 .. _moobius.core.sdk.Moobius.handle_received_payload._make_elem:
+
 Moobius.handle_received_payload._make_elem
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 Moobius.handle_received_payload._make_elem(d)
 
 <No doc string>

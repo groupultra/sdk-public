@@ -58,7 +58,7 @@ class TemplateService(Moobius):
 
         member_ids = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)
 
-        for character_id, character_profile in zip(member_ids, await self.fetch_member_profile(member_ids)):
+        for character_id, character_profile in zip(member_ids, await self.fetch_character_profile(member_ids)):
             if type(character_id) is not str:
                 raise Exception('character_id must be a str.')
             the_channel.real_characters[character_id] = character_profile
@@ -200,7 +200,7 @@ class TemplateService(Moobius):
         await self.send_update_style(channel_id, [StyleElement(widget="canvas", display="visible", expand="true")], to_whom)
 
     async def add_real_character(self, channel_id, character_id, intro="joined the channel!"):
-        character = await self.fetch_member_profile(character_id)
+        character = await self.fetch_character_profile(character_id)
         name = character.name
         the_channel = await self.get_channel(channel_id)
 

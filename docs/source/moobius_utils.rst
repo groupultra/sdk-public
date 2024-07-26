@@ -1,30 +1,33 @@
 .. _moobius_utils:
 
 moobius.utils
-===================================
+====================================================================================
 
 Module-level functions
-===================
+===================================================================================
 
 .. _moobius.utils.summarize_html:
+
 summarize_html
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 summarize_html(html_str)
 
 Summerizes html strings, a very niche use.
 Converts HTML to an easier-for-a-human format by cutting out some of the more common tags. Far from perfect.
 
 .. _moobius.utils.make_fn_async:
+
 make_fn_async
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 make_fn_async(f)
 
 Converts functions to async functions.
 Can be used as "await (make_fun_asycnc(f)(arg1, arg2, etc)).
 
 .. _moobius.utils.maybe_make_template_files:
+
 maybe_make_template_files
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 maybe_make_template_files(args)
 
 Makes template files if there is a need to do so, based on args and sys.argv.
@@ -52,8 +55,9 @@ Unittests to run in a python prompt in an empty folder:
   >>> import sys; sys.argv = '_ email abc@123.com password IAmSecret'.split(' '); from moobius import MoobiusWand; MoobiusWand().run(0, config_path="config/agent.json", is_agent=True)
 
 .. _moobius.utils.to_char_id_list:
+
 to_char_id_list
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 to_char_id_list(c)
 
 Converts the input to a list of character_ids, designed to accept a wide range of inputs.
@@ -65,50 +69,56 @@ Accepts:
   A mixed character and string list.
 
 .. _moobius.utils.set_terminal_logger_level:
+
 set_terminal_logger_level
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 set_terminal_logger_level(the_level)
 
 Sets the logger from the terminal, but preserves other files.
 
 .. _moobius.utils.make_fn_async.run_f:
+
 make_fn_async.run_f
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 make_fn_async.run_f(\*kwargs)
 
 <No doc string>
 
 .. _moobius.utils.make_fn_async.run_f.f1:
+
 make_fn_async.run_f.f1
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 make_fn_async.run_f.f1()
 
 <No doc string>
 
-===================
+===================================================================================
 
 Class EnhancedJSONEncoder
-===================
+===========================================================================================
 
 A better Json Encoder which has automatic conversion of dataclasses to dicts.
 
 .. _moobius.utils.EnhancedJSONEncoder.default:
+
 EnhancedJSONEncoder.default
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 EnhancedJSONEncoder.default(self, o)
 
 <No doc string>
 
 .. _moobius.utils.EnhancedJSONEncoder.__str__:
+
 EnhancedJSONEncoder.__str__
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 EnhancedJSONEncoder.__str__(self)
 
 <No doc string>
 
 .. _moobius.utils.EnhancedJSONEncoder.__repr__:
+
 EnhancedJSONEncoder.__repr__
------------------------------------
+---------------------------------------------------------------------------------------------------------------------
 EnhancedJSONEncoder.__repr__(self)
 
 <No doc string>

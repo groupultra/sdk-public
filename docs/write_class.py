@@ -4,7 +4,7 @@ def make_txt(class_name, class_docstring, class_fdocs):
     """Returns the resulting .rst file given the template .rst file, a class_name, and a list of fdocs to said class in order."""
     if x:=detail_overrides.override_class_docstring(class_name, class_docstring, class_fdocs):
         class_docstring = x
-    with open('./class.rst', 'r', encoding='utf-8') as f:
+    with open('./snippets/class.rst', 'r', encoding='utf-8') as f:
         template = f.read()
     template = template.replace('{CNAME}', class_name)
     template = template.replace('{CDOC}', class_docstring if class_docstring else '<no class docstring>')
