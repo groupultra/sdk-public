@@ -91,3 +91,8 @@ DatabaseInterface.__repr__
 DatabaseInterface.__repr__(self)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+DatabaseInterface.ABC

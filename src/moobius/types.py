@@ -5,6 +5,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Optional, Any
 
+BUTTON = "button"
+CANVAS = "canvas"
 SERVICE = "service"
 FETCH_CHARACTERS = "fetch_characters"
 FETCH_BUTTONS = "fetch_buttons"
@@ -123,6 +125,7 @@ class ContextMenuElement:
     support_subtype: list[str] # What message types will open the context menu. ["text","file", etc].
     new_window: Optional[bool] = False
     arguments: Optional[list[ButtonArgument]] = None
+
 
 @dataclass
 @add_str_method
@@ -247,9 +250,11 @@ class Character:
 @add_str_method
 class StyleElement:
     """A description of a visual style element. The full visual style description is a list of these elements."""
-    widget: str # Typically "canvas"
-    display: str # "invisible", "visible"
-    expand: str # "false", "true" (strings not bools! other options such as "force_true" may be added).
+    widget: str # Typically CANVAS
+    display: str # "invisible", "visible", or "highlight"
+    expand: Optional[bool] = None # For the canvas only.
+    button_id: Optional[str] = None
+    text: Optional[str] = None
 
 
 @dataclass

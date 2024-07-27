@@ -1,6 +1,5 @@
-from moobius import Moobius
+from moobius import Moobius, types
 
 
 class ZeroService(Moobius):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    pass

@@ -6,10 +6,10 @@ class ButtonService(Moobius):
         super().__init__(**kwargs)
 
     async def on_fetch_buttons(self, action):
-        simple_button = Button(button_id='easy', button_name='easy', button_name='Simple button.', new_window=False)
+        simple_button = Button(button_id='easy', button_name='Simple button.', new_window=False)
         button_args = [ButtonArgument(name='Pick a fruit!', type='enum', optional=False, values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
                        ButtonArgument(name='Favorite color!', type='string', optional=False, placeholder="Artsy!", values=[])]
-        complex_button = Button(button_id='hard', button_name='hard', button_name='Pop-up button.', new_window=True, arguments=button_args)
+        complex_button = Button(button_id='hard', button_name='Pop-up button.', new_window=True, arguments=button_args)
         await self.send_update_buttons(action.channel_id, [simple_button, complex_button], [action.sender])
 
     async def on_button_click(self, button_click: ButtonClick):

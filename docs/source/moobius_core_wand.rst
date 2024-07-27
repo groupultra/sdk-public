@@ -122,3 +122,8 @@ MoobiusWand.__repr__
 MoobiusWand.__repr__(self)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+

@@ -40,6 +40,11 @@ For when the network is not doing what it should.
 
 
 
+Class attributes
+--------------------
+
+BadResponseException.Exception
+
 Class HTTPAPIWrapper
 ===========================================================================================
 
@@ -404,10 +409,24 @@ Empty, False, or None strings are converted to a default URL.
 
 HTTPAPIWrapper.download_file
 ---------------------------------------------------------------------------------------------------------------------
-HTTPAPIWrapper.download_file(self, url, filename, assert_no_overwrite, headers)
+HTTPAPIWrapper.download_file(self, url, fullpath, auto_dir, overwrite, bytes, headers)
 
-Downloads a file from a url to a local filename, automatically creating dirs and overwriting pre-existing files.
-If filename is None it will return the bytes and not save any file instead.
+Downloads a file from a url to a local filename, automatically creating dirs if need be.
+
+Parameters:
+  url: The url to download the file from.
+  fullpath=None: The filepath to download to.
+    None will create a file based on the timestamp + random numbers.
+    If no extension is specified, will infer the extension from the url if one exists.
+  auto_dir=None: If no fullpath is specified, a folder must be choosen.
+    Defaults to './downloads'.
+  overwrite=None:
+    Allow overwriting pre-existing files. If False, will raise an Exception on name collision.
+  bytes=None:
+    If True, will return bytes instead of saving a file.
+  headers=None:
+    Optional headers. Use these for downloads that require auth.
+    Can set to "self" to use the same auth headers that this instance is using.
 
 .. _moobius.network.http_api_wrapper.HTTPAPIWrapper.fetch_channel_group_dict:
 
@@ -568,3 +587,8 @@ HTTPAPIWrapper.__repr__
 HTTPAPIWrapper.__repr__(self)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+

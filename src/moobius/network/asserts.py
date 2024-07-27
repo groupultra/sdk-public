@@ -140,8 +140,13 @@ def temp_modify(socket_request):
 
 def _style_check(style_element, base_message, path):
     """One element in a style vector. This is the most flexible."""
-    template_dict = {'widget':'button1','display':'visible', 'text':'<h1>html_tags!</h1>', 'expand':'true', # Expand is a string?
+    template_dict = {'widget':'button1','display':'visible', 'text':'<h1>html_tags!</h1>', 'expand':True,
+                     'button_id':'id', 'text':'Not sure that this is',
                      'button_hook':{'button_id':'a.button', 'button_name':'A', 'arguments':[]}}
+    style_element = style_element.copy()
+    for ky in ['expand', 'button_id', 'text']:
+        if ky in style_element and style_element[ky] is None:
+            style_element[ky] = template_dict[ky]
     template = min_subset_dict([], template_dict)
     return structure_assert(template, style_element, base_message, path)
 def _context_menu_item_check(cmenu_item, base_message, path):

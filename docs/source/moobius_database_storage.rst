@@ -125,6 +125,11 @@ CachedDict.__repr__(self)
 
 <No doc string>
 
+Class attributes
+--------------------
+
+CachedDict.dict
+
 Class MoobiusStorage
 ===========================================================================================
 
@@ -201,3 +206,8 @@ MoobiusStorage.__repr__
 MoobiusStorage.__repr__(self)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+

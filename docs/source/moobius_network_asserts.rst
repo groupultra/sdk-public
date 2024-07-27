@@ -147,3 +147,8 @@ Class PlatformAssertException
 A special Exception that is raised when the datastructure is not the correct format.
 
 
+
+Class attributes
+--------------------
+
+PlatformAssertException.Exception

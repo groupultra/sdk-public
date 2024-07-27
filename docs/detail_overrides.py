@@ -1,7 +1,8 @@
 # Override function-level docstrings, etc, generally for when more verbosity is needed.
 import dglobals
+from dglobals import FunctionDoc
 
-def override_docstring(fdoc):
+def override_docstring(fdoc: FunctionDoc):
     """Optionally overrides the docstring."""
     big_doc_dict = dglobals.module_doc_dict
     #print(fdoc.sym_qual)

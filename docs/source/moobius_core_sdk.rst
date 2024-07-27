@@ -55,6 +55,11 @@ Parameters:
 
 Returns: The group id.
 
+Class attributes
+--------------------
+
+
+
 Class Moobius
 ===========================================================================================
 
@@ -466,12 +471,26 @@ Returns the uploaded URL. Raises an Exception if the upload fails.
 
 Moobius.download_file
 ---------------------------------------------------------------------------------------------------------------------
-Moobius.download_file(self, url, filepath, assert_no_overwrite, headers)
+Moobius.download_file(self, url, fullpath, auto_dir, overwrite, bytes, headers)
 
 Calls self.http_api.download_file
 Doc for the called function:
-Downloads a file from a url to a local filename, automatically creating dirs and overwriting pre-existing files.
-If filename is None it will return the bytes and not save any file instead.
+Downloads a file from a url to a local filename, automatically creating dirs if need be.
+
+Parameters:
+  url: The url to download the file from.
+  fullpath=None: The filepath to download to.
+    None will create a file based on the timestamp + random numbers.
+    If no extension is specified, will infer the extension from the url if one exists.
+  auto_dir=None: If no fullpath is specified, a folder must be choosen.
+    Defaults to './downloads'.
+  overwrite=None:
+    Allow overwriting pre-existing files. If False, will raise an Exception on name collision.
+  bytes=None:
+    If True, will return bytes instead of saving a file.
+  headers=None:
+    Optional headers. Use these for downloads that require auth.
+    Can set to "self" to use the same auth headers that this instance is using.
 
 .. _moobius.core.sdk.Moobius.fetch_message_history:
 
@@ -1003,7 +1022,7 @@ Called when a "spell" from the wand is received, which can be any object but is 
 
 Moobius.on_message_up
 ---------------------------------------------------------------------------------------------------------------------
-Moobius.on_message_up(self, message_up)
+Moobius.on_message_up(self, message)
 
 Called when a user sends a message. Returns None.
 Example MessageBody object:
@@ -1108,7 +1127,7 @@ Example ButtonClick object:
 
 Moobius.on_context_menu_click
 ---------------------------------------------------------------------------------------------------------------------
-Moobius.on_context_menu_click(self, context_click)
+Moobius.on_context_menu_click(self, menu_click)
 
 Handles a context menu right click from a user, usually performing some action. Returns None.
 Example MenuClick object:
@@ -1126,7 +1145,7 @@ A catch-all for handling unknown Payload objects. Returns None.
 
 Moobius.on_message_down
 ---------------------------------------------------------------------------------------------------------------------
-Moobius.on_message_down(self, message_down)
+Moobius.on_message_down(self, message)
 
 Callback when a message is recieved (a MessageBody object similar to what on_message_up gets).
 Agent function. Returns None.
@@ -1232,3 +1251,10 @@ Moobius.handle_received_payload._make_elem
 Moobius.handle_received_payload._make_elem(d)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+Moobius
+
+Moobius

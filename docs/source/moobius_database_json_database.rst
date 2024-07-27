@@ -99,3 +99,8 @@ JSONDatabase.all_keys.key_iterator
 JSONDatabase.all_keys.key_iterator()
 
 <No doc string>
+
+Class attributes
+--------------------
+
+JSONDatabase.DatabaseInterface

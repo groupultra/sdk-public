@@ -21,7 +21,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, ButtonArgument, ButtonClickArgument, Payload, MenuClick, Update, UpdateElement, Character, ChannelInfo, CanvasElement, StyleElement, ContextMenuElement
+from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, ButtonArgument, ButtonClickArgument, Payload, MenuClick, Update, UpdateElement, Copy, Character, ChannelInfo, CanvasElement, StyleElement, ContextMenuElement
 from moobius.database.storage import MoobiusStorage
 from moobius import utils, types
 from loguru import logger
@@ -473,6 +473,8 @@ class Moobius:
         if channel_id is not None:
             the_message['channel_id'] = channel_id
         if sender is not None:
+            if type(sender) is Character:
+                sender = sender.character_id
             the_message['sender'] = sender
         if recipients is not None:
             the_message['recipients'] = recipients
@@ -615,7 +617,7 @@ class Moobius:
     async def sign_up(self): """Calls self.http_api.sign_up."""; return await self.http_api.sign_up()
     async def sign_out(self): """Calls self.http_api.sign_out."""; return await self.http_api.sign_out()
     async def update_current_user(self, avatar, description, name): """Calls self.http_api.update_current_user."""; return await self.http_api.update_current_user(avatar, description, name)
-    async def update_puppet(self, puppet_id, avatar, description, name): """Calls self.http_api.update_character using self.client_id."""; return await self.http_api.update_puppet(self.client_id, puppet_id, avatar, description, name)
+    async def update_puppet(self, puppet_id, avatar, description, name): """Calls self.http_api.update_puppet using self.client_id."""; return await self.http_api.update_puppet(self.client_id, puppet_id, avatar, description, name)
     async def update_channel(self, channel_id, channel_name, channel_desc): """Calls self.http_api.update_channel."""; return await self.http_api.update_channel(channel_id, channel_name, channel_desc)
     async def bind_service_to_channel(self, channel_id): """Calls self.http_api.bind_service_to_channel"""; return await self.http_api.bind_service_to_channel(self.client_id, channel_id)
     async def unbind_service_from_channel(self, channel_id): """Calls self.http_api.unbind_service_from_channel"""; return await self.http_api.unbind_service_from_channel(self.client_id, channel_id)
@@ -627,7 +629,7 @@ class Moobius:
     async def fetch_service_id_list(self): """Calls self.http_api.fetch_service_id_list"""; return await self.http_api.fetch_service_id_list()
     async def fetch_puppets(self): """Calls self.http_api.fetch_puppets using self.client_id."""; return await self.http_api.fetch_puppets(self.client_id)
     async def upload_file(self, filepath): """Calls self.http_api.upload_file. Note that uploads happen automatically for any function that accepts a filepath/url when given a local path."""; return await self.http_api.upload_file(filepath)
-    async def download_file(self, url, filepath, assert_no_overwrite=False, headers=None): """Calls self.http_api.download_file"""; return await self.http_api.download_file(url, filepath, assert_no_overwrite=assert_no_overwrite, headers=headers)
+    async def download_file(self, url, fullpath=None, auto_dir=None, overwrite=True, bytes=False, headers=None): """Calls self.http_api.download_file"""; return await self.http_api.download_file(url, fullpath, auto_dir, overwrite, bytes, headers)
     async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
     async def create_channel_group(self, channel_id, group_name, members): """Calls self.http_api.create_channel_group."""; return await self.http_api.create_channel_group(channel_id, group_name, members)
     async def create_service_group(self, group_id, members): """Calls self.http_api.create_service_group."""; return await self.http_api.create_service_group(group_id, members)
@@ -832,7 +834,7 @@ class Moobius:
         else:
             logger.error(f"Unknown action subtype: {action.subtype}")
 
-    async def on_update(self, update):
+    async def on_update(self, update: Update):
         """Dispatches an Update object to one of various callbacks. Agent function.
            It is recommended to overload the invididual callbacks instead of this function."""
         if update.subtype == types.UPDATE_CHARACTERS:
@@ -872,7 +874,7 @@ class Moobius:
         """Called when a "spell" from the wand is received, which can be any object but is often a string. Returns None."""
         logger.debug(f'Spell Received {obj}')
 
-    async def on_message_up(self, message_up: MessageBody):
+    async def on_message_up(self, message: MessageBody):
         """
         Called when a user sends a message. Returns None.
         Example MessageBody object:
@@ -880,9 +882,9 @@ class Moobius:
         >>>                      recipients=[<user id 1>, <user id 2>], sender=<user id>, message_id=<message-id>,
         >>>                      context={'group_id': <group-id>, 'channel_type': 'ccs'})
         """
-        logger.debug(f"MessageUp received: {message_up}")
+        logger.debug(f"MessageUp received: {message}")
 
-    async def on_fetch_buttons(self, action):
+    async def on_fetch_buttons(self, action: Action):
         """
         Called when the user's browser requests the list of buttons. Returns None.
         This and other "on_fetch_xyz" functions are commonly overriden to call "send_update_xyz" with the needed material.
@@ -891,7 +893,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_buttons")
 
-    async def on_fetch_characters(self, action):
+    async def on_fetch_characters(self, action: Action):
         """
         Called when the user's browser requests the list of characters that they will be able to see and send messages to. Returns None.
         Example Action object:
@@ -899,7 +901,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_puppets")
 
-    async def on_fetch_canvas(self, action):
+    async def on_fetch_canvas(self, action: Action):
         """
         Called when the user's browser requests the content of the canvas. Returns None.
         Example Action object:
@@ -907,7 +909,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_canvas")
 
-    async def on_fetch_context_menu(self, action):
+    async def on_fetch_context_menu(self, action: Action):
         """
         Called when the user's browser requests the content of the right-click menu. Returns None.
         Example Action object:
@@ -915,7 +917,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_context_menu")
 
-    async def on_fetch_channel_info(self, action):
+    async def on_fetch_channel_info(self, action: Action):
         """
         Called when the user's browser requests information about a channel. Returns None.
         Example Action object:
@@ -923,7 +925,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_channel_info")
 
-    async def on_copy_client(self, copy):
+    async def on_copy_client(self, copy: Copy):
         """
         Handles a "Copy" request bade by the user's browser. Returns None.
         Example Copy object:
@@ -932,7 +934,7 @@ class Moobius:
             await self.send_service_login()
         logger.debug("on_copy_client")
 
-    async def on_join_channel(self, action):
+    async def on_join_channel(self, action: Action):
         """
         Called when the user joins a channel. Returns None.
         Commonly used to inform everyone about this new user and update everyone's character list.
@@ -940,7 +942,7 @@ class Moobius:
         >>> moobius.Action(subtype="join_channel", channel_id=<channel id>, sender=<user id>, context={})"""
         logger.debug("on_action join_channel")
 
-    async def on_leave_channel(self, action):
+    async def on_leave_channel(self, action: Action):
         """
         Called when the user leaves a channel. Returns None.
         Commonly used to update everyone's character list.
@@ -956,12 +958,12 @@ class Moobius:
         """
         logger.debug(f"Button call received: {button_click}")
 
-    async def on_context_menu_click(self, context_click: MenuClick):
+    async def on_context_menu_click(self, menu_click: MenuClick):
         """Handles a context menu right click from a user, usually performing some action. Returns None.
         Example MenuClick object:
         >>> MenuClick(item_id=1, message_id=<id>, message_subtype=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])
         """
-        logger.debug(f"Right-click call received: {context_click}")
+        logger.debug(f"Right-click call received: {menu_click}")
 
     async def on_unknown_payload(self, payload: Payload):
         """A catch-all for handling unknown Payload objects. Returns None."""
@@ -969,72 +971,40 @@ class Moobius:
 
     ############################## Agent-specific simple callbacks (also commonly overridden) #######################################
 
-    async def on_message_down(self, message_down):
+    async def on_message_down(self, message: MessageBody):
         """Callback when a message is recieved (a MessageBody object similar to what on_message_up gets).
            Agent function. Returns None."""
-        logger.debug(f"MessageDown received: {message_down}")
+        logger.debug(f"MessageDown received: {message}")
 
-    async def on_update_characters(self, update):
+    async def on_update_characters(self, update: Update):
         """Responds to changes to the character list. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_character_list")
 
-    async def on_update_channel_info(self, update):
+    async def on_update_channel_info(self, update: Update):
         """Responds to changes to the channel info. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_channel_info")
 
-    async def on_update_canvas(self, update):
+    async def on_update_canvas(self, update: Update):
         """Responds to changes to the canvas. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_canvas")
 
-    async def on_update_buttons(self, update):
+    async def on_update_buttons(self, update: Update):
         """Responds to changes to the buttons. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_buttons")
 
-    async def on_update_style(self, update):
+    async def on_update_style(self, update: Update):
         """Responds to changes to the style (look and feel). One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("on_update_style")
 
-    async def on_update_context_menu(self, update):
+    async def on_update_context_menu(self, update: Update):
         """Responds to changes to the context menu. One of the multiple update callbacks. Returns None.
            Agent function. Update is an Update instance."""
         logger.debug("update_context_menu")
-
-    ###################################################### Deprecated functions ###########################################
-
-    async def create_character(self, name, avatar=None, description="No description"):
-        """DEPRECATED use create_puppet instead. Calls self.http_api.create_puppet using self.create_puppet."""
-        logger.warning("WARNING: create_character is deprecated use create_puppet instead.")
-        return await self.http_api.create_puppet(self.client_id, name, avatar, description)
-
-    async def fetch_real_character_ids(self, channel_id, raise_empty_list_err=False):
-        """DEPRECATED use fetch_member_ids instead. Calls self.http_api.fetch_member_ids using self.client_id."""
-        logger.warning("WARNING: fetch_real_character_ids is deprecated use fetch_member_ids instead.")
-        return await self.http_api.fetch_member_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
-
-    async def update_character(self, character_id, avatar, description, name):
-        """DEPRECATED use fetch_member_ids instead. Calls self.http_api.update_character using self.client_id."""
-        logger.warning("WARNING: update_character is deprecated use fetch_member_ids instead.")
-        return await self.http_api.update_puppet(self.client_id, character_id, avatar, description, name)
-
-    async def fetch_character_profile(self, character_id):
-        """DEPRECATED use fetch_character_profile instead. Calls self.http_api.fetch_character_profile"""
-        logger.warning("WARNING: fetch_character_profile is deprecated use fetch_character_profile instead.")
-        return await self.http_api.fetch_character_profile(character_id)
-
-    async def fetch_service_characters(self):
-        """DEPRECATED use fetch_puppets instead. Calls self.http_api.fetch_puppets using self.client_id."""
-        logger.warning("WARNING: fetch_service_characters is deprecated use fetch_puppets instead.")
-        return await self.http_api.fetch_puppets(self.client_id)
-
-    async def send_update_character_list(self, channel_id, character_ids, recipients):
-        """DEPRECATED use send_update_characters instead. Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""
-        logger.warning("WARNING: send_update_character_list is deprecated use send_update_characters instead.")
-        return await self.ws_client.update_character_list(self.client_id, channel_id, await self._update_rec(character_ids, True), await self._update_rec(recipients, True))
 
     #######################################################################################################################
 
@@ -1048,3 +1018,21 @@ class Moobius:
         return f'moobius.SDK({agsv}; config=config={fname}, http_server_uri={http_server_uri}, ws_server_uri={ws_server_uri}, ws={ws_server_uri}, email={email}, password=****, num_channels={num_channels})'
     def __repr__(self):
         return self.__str__()
+
+###################################################### Deprecated functions ###########################################
+deprecated_functions = {'create_character':'create_puppet',
+                        'fetch_real_character_ids':'fetch_member_ids',
+                        'update_character':'update_puppet',
+                        'fetch_member_profile':'fetch_character_profile',
+                        'fetch_service_characters':'fetch_puppets',
+                        'send_update_character_list':'send_update_characters'}
+
+def _deprecated_wrap(f, old_name, new_name):
+    def out(*args, **kwargs):
+        logger.warning(f'Deprecated function {old_name}, use {new_name} instead.')
+        return f(*args, **kwargs)
+    return out
+
+for old_name, new_name in deprecated_functions.items():
+    new_f = getattr(Moobius, new_name)
+    setattr(Moobius, old_name, _deprecated_wrap(old_name, new_name, new_f))

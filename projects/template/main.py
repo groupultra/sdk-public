@@ -15,4 +15,3 @@ if __name__ == "__main__":
         terminal_log_level="INFO",
         is_agent=False, # It defaults to False anyway.
         background=True)
-

@@ -440,3 +440,8 @@ WSClient.__init__._default_handle
 WSClient.__init__._default_handle(self, message)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+

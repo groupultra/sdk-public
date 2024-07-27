@@ -122,3 +122,8 @@ EnhancedJSONEncoder.__repr__
 EnhancedJSONEncoder.__repr__(self)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+EnhancedJSONEncoder.json

@@ -4,14 +4,14 @@ import moobius.types as types
 
 class MenuCanvasService(Moobius):
     def __init__(self, **kwargs):
-        super().__init__(log_file=log_file, error_log_file=error_log_file, **kwargs)
+        super().__init__(**kwargs)
 
     async def on_fetch_canvas(self, action):
         canvas_elements = [CanvasElement(text="Some **text** here, along with an image. Try sending a message and richt-clicking on it.", path="https://www.moobius.net/images/index/indexH2.png")]
         canvas_elements.append(CanvasElement(path="https://www.moobius.net/images/index/indexBg.png"))
         canvas_elements.append(CanvasElement(text="More `text` here.\nWith multiple lines.\nSeperated by newlines."))
         await self.send_update_canvas(action.channel_id, canvas_elements, [action.sender])
-        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand="true")], [action.sender])
+        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand=True)], [action.sender])
 
     async def on_fetch_context_menu(self, action):
         elements = []

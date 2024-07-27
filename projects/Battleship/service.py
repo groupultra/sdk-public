@@ -68,7 +68,7 @@ class BattleshipService(Moobius):
         self.games[channel_id] = {'players':{}, 'game': None}
 
     async def on_fetch_canvas(self, action):
-        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand="true")], [action.sender])
+        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand=True)], [action.sender])
 
     async def _update_buttons(self, channel_id, user_id):
         """Updates the buttons to match the state, and updates the canvas."""

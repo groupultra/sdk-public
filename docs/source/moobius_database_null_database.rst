@@ -71,3 +71,8 @@ NullDatabase.__repr__
 NullDatabase.__repr__(self)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+NullDatabase.DatabaseInterface

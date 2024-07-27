@@ -22,7 +22,7 @@ This example creates a simple canvase with three elements:
         canvas_elements.append(CanvasElement(path="https://www.moobius.net/images/index/indexBg.png"))
         canvas_elements.append(CanvasElement(text="More `text` here.\nWith multiple lines.\nSeperated by newlines."))
         await self.send_update_canvas(action.channel_id, canvas_elements, [action.sender])
-        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand="true")], [action.sender])
+        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand=True)], [action.sender])
 
 This canvas is not interactive, it is just a place to display information to the user.
 

@@ -5,8 +5,6 @@ class DbExampleService(Moobius):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.channels = {} # One MoobiusStorage object per channel.
-
     async def initialize_channel(self, channel_id):
         self.channel_storages[channel_id] = MoobiusStorage(self.client_id, channel_id, self.db_config)
 

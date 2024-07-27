@@ -1,7 +1,6 @@
 [
     {
         "button_id": "message_btn",
-        "button_name": "Message stuff",
         "button_name": "Message!",
         "new_window": true,
         "arguments": [
@@ -16,7 +15,6 @@
     },
     {
         "button_id": "user_btn",
-        "button_name": "user choice",
         "button_name": "Characters!",
         "new_window": true,
         "arguments": [
@@ -31,7 +29,6 @@
     },
     {
         "button_id": "command_btn",
-        "button_name": "Show Commands",
         "button_name": "Commands",
         "new_window": false
     }

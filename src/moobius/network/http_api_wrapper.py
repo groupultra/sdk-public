@@ -1,7 +1,7 @@
 # aiohttp-based wrapper for HTTPS interaction with the platform.
 # Handles auth as well as GET and POST requests.
 # This module is designed to be used by the Moobius service.
-import json, os, io, hashlib
+import json, os, io, hashlib, datetime, random
 import aiohttp
 from loguru import logger
 from dacite import from_dict
@@ -559,30 +559,57 @@ class HTTPAPIWrapper:
                 self.filehash2URL[the_hash] = await self.upload_file(file_path)
             return self.filehash2URL[the_hash]
 
-    async def download_file(self, url, filename=None, assert_no_overwrite=False, headers=None):
-        """Downloads a file from a url to a local filename, automatically creating dirs and overwriting pre-existing files.
-        If filename is None it will return the bytes and not save any file instead."""
+    async def download_file(self, url, fullpath=None, auto_dir=None, overwrite=None, bytes=None, headers=None):
+        """
+        Downloads a file from a url to a local filename, automatically creating dirs if need be.
+
+        Parameters:
+          url: The url to download the file from.
+          fullpath=None: The filepath to download to.
+            None will create a file based on the timestamp + random numbers.
+            If no extension is specified, will infer the extension from the url if one exists.
+          auto_dir=None: If no fullpath is specified, a folder must be choosen.
+            Defaults to './downloads'.
+          overwrite=None:
+            Allow overwriting pre-existing files. If False, will raise an Exception on name collision.
+          bytes=None:
+            If True, will return bytes instead of saving a file.
+          headers=None:
+            Optional headers. Use these for downloads that require auth.
+            Can set to "self" to use the same auth headers that this instance is using.
+        """
+        #datetime.datetime().strftime()+str(random.random())
         if headers is None: # These buckets are public so no need to upload.
             headers = {}
         if headers == 'self':
             headers={'headers':self.headers} # Auth allows downloading form buckets we authed for.
+        if not fullpath:
+            if not auto_dir:
+                auto_dir = './downloads'
+            fullpath = auto_dir+'/'+datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+(str(random.random())[2:10])
+        fullpath = os.path.realpath(fullpath).replace('\\','/')
+        if not '.' in fullpath.split('/')[-1]:
+            url_leaf = url.split('/')[-1]
+            if '.' in url_leaf: # Infer the extension from the url.
+                fullpath = fullpath+'.'+url_leaf.split('.')[-1]
+
         # https://stackoverflow.com/questions/35388332/how-to-download-images-with-aiohttp
         async with aiohttp.ClientSession() as session:
             async with session.get(url, **headers) as resp:
                 if resp.status == 200:
-                    if filename:
-                        os.makedirs(os.path.dirname(filename), exist_ok=True)
-                        if os.path.exists(filename) and assert_no_overwrite:
-                            raise Exception(f'Assert no overwrite to pre-existing file: {os.path.realpath(filename)}')
-                        with open(filename, 'wb') as fd:
-                            async for chunk in resp.content.iter_chunked(10):
-                                fd.write(chunk)
-                    else:
+                    if bytes:
                         buffer = io.BytesIO()
                         async for chunk in resp.content.iter_chunked(10):
                             buffer.write(chunk)
                         buffer.seek(0)
                         return buffer.getvalue()
+                    else:
+                        os.makedirs(os.path.dirname(fullpath), exist_ok=True)
+                        if os.path.exists(fullpath) and not overwrite:
+                            raise Exception(f'Assert no overwrite to pre-existing file: {fullpath}')
+                        with open(fullpath, 'wb') as fd:
+                            async for chunk in resp.content.iter_chunked(10):
+                                fd.write(chunk)
                 else:
                     raise Exception(f'Cannot download file: {resp}')
 

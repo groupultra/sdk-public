@@ -10,7 +10,7 @@ class GroupService(Moobius):
     async def on_fetch_buttons(self, action):
         ids = ['default', 'quiet', 'vip']
         names = ['Default mode', 'Hear nothing mode', 'VIP mode']
-        buttons = [Button(button_id=ids[i], button_name=ids[i], button_name=names[i], new_window=False) for i in range(len(ids))]
+        buttons = [Button(button_id=ids[i], button_name=names[i], new_window=False) for i in range(len(ids))]
         await self.send_update_buttons(action.channel_id, buttons, [action.sender])
 
     async def on_button_click(self, button_click: ButtonClick):

@@ -71,3 +71,8 @@ RedisDatabase.__repr__
 RedisDatabase.__repr__(self)
 
 <No doc string>
+
+Class attributes
+--------------------
+
+RedisDatabase.DatabaseInterface
