@@ -1,7 +1,9 @@
 .. _bot-puppet-tut:
 
+###################################################################################
 Service-created puppets
-================================================
+###################################################################################
+
 Puppet characters are created and controlled by the service.
 They appear just as any user would, and like real users can be sent messages.
 However, all recieved messages go to the service and all messages they sent are sent from the service.
@@ -62,6 +64,7 @@ In this example it responds to messages.
 Agents make use of "on_message_down" instead of "on_message_up" because they are listening to messages sent *down from* the service.
 
 .. code-block:: Python
+
     from moobius import Moobius
 
     class BotAgent(Moobius):

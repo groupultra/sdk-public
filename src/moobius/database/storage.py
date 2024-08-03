@@ -84,7 +84,7 @@ class CachedDict(dict):
 
     def __setitem__(self, key, value):
         """Overrides dict-like usages of the form: "d['my_key'] = v" to save to the database.
-        For a JSONDatabase, this will save the updated json to a file."""
+        For a JSONDatabase, this will save the updated json to a file. Raises a KeyError if strict_mode is True and the key is not found."""
         is_success, err_message = self.database.set_value(key, value)
 
         if is_success:
@@ -98,7 +98,7 @@ class CachedDict(dict):
 
     def __delitem__(self, key):
         """Overrides dict-like usages of the form: "del d['my_key']" to delete a key from the database.
-        For a JSONDatabase, this will save the updated json to a file."""
+        For a JSONDatabase, this will save the updated json to a file. Raises an Exception if the deletion fails."""
         is_success, err_message = self.database.delete_key(key)
 
         if is_success:
@@ -111,7 +111,7 @@ class CachedDict(dict):
                 dict.__delitem__(self,key)
 
     def pop(self, key, default="__unspecified__"):
-        """Overrides "v = d.pop(k)" to get and delete k from the database."""
+        """Overrides "v = d.pop(k)" to get and delete k from the database. Raises a key error if no default is set and the key is not in the dict."""
         if default == "__unspecified__" and not dict.__contains__(self, key):
             raise KeyError(f'Key {key} not in dict.')
         if dict.__contains__(self, key):

@@ -43,5 +43,10 @@ html_static_path = ['.static']
 
 html_theme = 'sphinx_rtd_theme'
 
+# https://stackoverflow.com/questions/36925871/toctree-nested-drop-down
+html_theme_options = {
+    "collapse_navigation" : True
+}
+
 # -- Options for EPUB output
 epub_show_urls = 'footnote'

@@ -1,5 +1,9 @@
 .. _menu-canvas-tut:
 
+###################################################################################
+Context Menus and the Canvas
+###################################################################################
+
 The context menu and the canvas are secondary GUI elements that can round out a more complete experience for the end-users.
 
 The Canvas
@@ -21,8 +25,8 @@ This example creates a simple canvase with three elements:
         canvas_elements = [CanvasElement(text="Some **text** here, along with an image", path="https://www.moobius.net/images/index/indexH2.png")]
         canvas_elements.append(CanvasElement(path="https://www.moobius.net/images/index/indexBg.png"))
         canvas_elements.append(CanvasElement(text="More `text` here.\nWith multiple lines.\nSeperated by newlines."))
-        await self.send_update_canvas(action.channel_id, canvas_elements, [action.sender])
-        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand=True)], [action.sender])
+        await self.send_update_canvas(canvas_elements, action.channel_id, [action.sender])
+        await self.send_update_style([StyleElement(widget="canvas", display="visible", expand=True)], action.channel_id, [action.sender])
 
 This canvas is not interactive, it is just a place to display information to the user.
 
@@ -51,7 +55,7 @@ This example will respond differently to each message type:
     for i in range(len(menu_types)):
         for j in range(3):
             elements.append(ContextMenuElement(item_name=menu_types[i]+' item '+str(j), item_id=menu_types[i]+str(j), support_subtype=[menu_types[i]]))
-    await self.send_update_context_menu(action.channel_id, elements, [action.sender])
+    await self.send_update_context_menu(elements, action.channel_id, [action.sender])
 
 To respond to the message, use the on_context_menu_click callback:
 

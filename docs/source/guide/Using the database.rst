@@ -1,5 +1,9 @@
 .. _database-tut:
 
+###################################################################################
+Dicts for the disk
+###################################################################################
+
 Moobius offers built-in database engines to get you started.
 
 A dict-like storage

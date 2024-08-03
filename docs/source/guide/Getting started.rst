@@ -1,5 +1,10 @@
 .. _getting-started-tut:
 
+###################################################################################
+Register, pip, run
+###################################################################################
+
+
 It is very easy to get Moobius started.
 You can use your own computer as a server without any port-forwarding or other special network configurations.
 

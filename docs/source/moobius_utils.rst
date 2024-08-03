@@ -1,10 +1,12 @@
 .. _moobius_utils:
 
-moobius.utils
-====================================================================================
+###################################################################################
+Module moobius.utils
+###################################################################################
 
+******************************
 Module-level functions
-===================================================================================
+******************************
 
 .. _moobius.utils.summarize_html:
 
@@ -12,8 +14,16 @@ summarize_html
 ---------------------------------------------------------------------------------------------------------------------
 summarize_html(html_str)
 
-Summerizes html strings, a very niche use.
+
+Creates a summary.
 Converts HTML to an easier-for-a-human format by cutting out some of the more common tags. Far from perfect.
+  Parameters:
+    html_str: The n html_string.
+  Returns:
+    The summary as a string.
+  Raises:
+    (this function does not raise any errors of its own)
+
 
 .. _moobius.utils.make_fn_async:
 
@@ -21,14 +31,23 @@ make_fn_async
 ---------------------------------------------------------------------------------------------------------------------
 make_fn_async(f)
 
+
 Converts functions to async functions.
-Can be used as "await (make_fun_asycnc(f)(arg1, arg2, etc)).
+Can be used as "await (make_fun_asycnc(f)(arg1, arg2, etc))..
+  Parameters:
+    f: The function;.
+  Returns:
+    The  async version of the function.
+  Raises:
+    (this function does not raise any errors of its own)
+
 
 .. _moobius.utils.maybe_make_template_files:
 
 maybe_make_template_files
 ---------------------------------------------------------------------------------------------------------------------
 maybe_make_template_files(args)
+
 
 Makes template files if there is a need to do so, based on args and sys.argv.
 Called by wand.run() before initializing the Moobius class if it doesn't have any templates.
@@ -52,7 +71,14 @@ Unittests to run in a python prompt in an empty folder:
   >>> # Provide credentials, making a service.json with no user input (NOTE: will generate an error b/c None class):
   >>> import sys; sys.argv = '_ email abc@123.com password IAmSecret channels abc-123 def-4561111111111111111111'.split(' '); from moobius import MoobiusWand; MoobiusWand().run(0, config_path="config/service.json")
   >>> # Provide agent credentials. There is no need to provide a channel id (NOTE: will generate an error b/c None class).
-  >>> import sys; sys.argv = '_ email abc@123.com password IAmSecret'.split(' '); from moobius import MoobiusWand; MoobiusWand().run(0, config_path="config/agent.json", is_agent=True)
+  >>> import sys; sys.argv = '_ email abc@123.com password IAmSecret'.split(' '); from moobius import MoobiusWand; MoobiusWand().run(0, config_path="config/agent.json", is_agent=True).
+  Parameters:
+    args: The list of args.
+  Returns:
+    The None.
+  Raises:
+    (this function does not raise any errors of its own)
+
 
 .. _moobius.utils.to_char_id_list:
 
@@ -60,13 +86,20 @@ to_char_id_list
 ---------------------------------------------------------------------------------------------------------------------
 to_char_id_list(c)
 
+
 Converts the input to a list of character_ids, designed to accept a wide range of inputs.
-Accepts:
-  A Character (returns it's id as one-element list).
-  A string (assumes it's an id wraps it into a one element list).
-  A list of Characters (extracts the ids).
-  A list of strings (returns a copy of the list).
-  A mixed character and string list.
+  Parameters:
+    c: The This can be one of many things:
+        A Character (returns it's id as one-element list).
+        A string (assumes it's an id wraps it into a one element list).
+        A list of Characters (extracts the ids).
+        A list of strings (returns a copy of the list).
+        A mixed character and string list.
+  Returns:
+    The list of character ids.
+  Raises:
+    (this function does not raise any errors of its own)
+
 
 .. _moobius.utils.set_terminal_logger_level:
 
@@ -74,28 +107,19 @@ set_terminal_logger_level
 ---------------------------------------------------------------------------------------------------------------------
 set_terminal_logger_level(the_level)
 
-Sets the logger from the terminal, but preserves other files.
 
-.. _moobius.utils.make_fn_async.run_f:
+Sets the logger from the terminal (but preserves other files).
+  Parameters:
+    the_level: The level.
+  Returns:
+    The None.
+  Raises:
+    (this function does not raise any errors of its own)
 
-make_fn_async.run_f
----------------------------------------------------------------------------------------------------------------------
-make_fn_async.run_f(\*kwargs)
 
-<No doc string>
-
-.. _moobius.utils.make_fn_async.run_f.f1:
-
-make_fn_async.run_f.f1
----------------------------------------------------------------------------------------------------------------------
-make_fn_async.run_f.f1()
-
-<No doc string>
-
-===================================================================================
-
+************************************
 Class EnhancedJSONEncoder
-===========================================================================================
+************************************
 
 A better Json Encoder which has automatic conversion of dataclasses to dicts.
 
@@ -105,7 +129,15 @@ EnhancedJSONEncoder.default
 ---------------------------------------------------------------------------------------------------------------------
 EnhancedJSONEncoder.default(self, o)
 
-<No doc string>
+
+
+  Parameters:
+    o: The n object to encode.
+  Returns:
+    The encoding as a string.
+  Raises:
+    (this function does not raise any errors of its own)
+
 
 .. _moobius.utils.EnhancedJSONEncoder.__str__:
 
@@ -113,7 +145,15 @@ EnhancedJSONEncoder.__str__
 ---------------------------------------------------------------------------------------------------------------------
 EnhancedJSONEncoder.__str__(self)
 
-<No doc string>
+
+The string output function for debugging.
+  Parameters:
+    (No parameters in this class constructor)
+  Returns:
+    The  easy-to-read string summary.
+  Raises:
+    (this function does not raise any errors of its own)
+
 
 .. _moobius.utils.EnhancedJSONEncoder.__repr__:
 
@@ -121,7 +161,15 @@ EnhancedJSONEncoder.__repr__
 ---------------------------------------------------------------------------------------------------------------------
 EnhancedJSONEncoder.__repr__(self)
 
-<No doc string>
+
+The string output function for debugging.
+  Parameters:
+    (No parameters in this class constructor)
+  Returns:
+    The  easy-to-read string summary.
+  Raises:
+    (this function does not raise any errors of its own)
+
 
 Class attributes
 --------------------

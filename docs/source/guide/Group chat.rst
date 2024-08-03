@@ -1,5 +1,9 @@
 .. _group-chat-tut:
 
+###################################################################################
+Group chat
+###################################################################################
+
 A group chat within which users can talk to each-other is at the core of most CCS apps.
 
 There are two ingredients for setting up the chat: The user list and the messaging system.
@@ -17,7 +21,7 @@ This example implementation first makes a function that queries and updates the 
 
     async def _update_char_list(self, action, all=False):
         ids = await self.fetch_member_ids(action.channel_id, False)
-        await self.send_update_characters(channel_id=action.channel_id, character_ids=ids, recipients=[ids] if all else [action.sender])
+        await self.send_update_characters(character_ids=ids, channel_id=action.channel_id, recipients=[ids] if all else [action.sender])
 
 There are three cases for which the user list needs to be sent out:
 * A user joins.

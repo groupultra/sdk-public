@@ -1,10 +1,14 @@
 .. _buttons-tut:
 
+###################################################################################
+Buttons
+###################################################################################
+
+
 Buttons appear just below the group chat (just above the message box). They are the main GUI component the user interacts and can open
 up choice and textboxes that accept user input.
 
 Implementing buttons
-==============================================
 
 There are three functions that are needed to get a button to work.
 
@@ -25,7 +29,7 @@ but the other opens up a pop-up menu when pressed:
         button_args = [ButtonArgument(name='Pick a fruit!', type='enum', optional=False, values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
                         ButtonArgument(name='Favorite color!', type='string', optional=False, placeholder="Artsy!", values=[])]
         complex_button = Button(button_id='hard', button_name='Pop-up button.', new_window=True, arguments=button_args)
-        await self.send_update_buttons(action.channel_id, [simple_button, complex_button], [action.sender])
+        await self.send_update_buttons([simple_button, complex_button], action.channel_id, [action.sender])
 
 
 **self.on_button_click(action)**

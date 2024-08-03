@@ -1,7 +1,8 @@
 .. _battleship-tut:
 
+###################################################################################
 Battleship example CCS
-=========================================
+###################################################################################
 
 At larger complexities, it is better to seperate the core logic from the Platform interaction.
 
