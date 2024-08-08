@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 class DatabaseInterface(ABC):
     """
-    An bstract base class that is to be inherited by different database backends.
+    An abstract base class that is to be inherited by different database backends.
     Currently available as of July 2024: JSONDatabase, NullDatabase, and RedisDatabase.
 
     When a MoobiusStorage object is constructed:
@@ -25,7 +25,7 @@ class DatabaseInterface(ABC):
     @abstractmethod
     def __init__(self, domain='', **kwargs):
         """
-        Creates the database itself.
+        Creates the database itself. Accepts the domain.
 
         The string-valued `domain` parameteras is used to prevent collisions: different domains with the same key are different database entries.
         Internally, differnt domains become different tables in the same database or different folders in the same file system.
@@ -36,17 +36,17 @@ class DatabaseInterface(ABC):
 
     @abstractmethod
     def get_value(self, key) -> (bool, any):
-        """Returns a tuple of (is_success, value)."""
+        """Accepts the key. Returns a tuple of (is_success, value)."""
         pass
 
     @abstractmethod
     def set_value(self, key, value) -> (bool, any):
-        """Returns a tuple of (is_success=True, key) or (is_success=False, err_message)."""
+        """Accepts the key and value. Returns a tuple of (is_success=True, key) or (is_success=False, err_message)."""
         pass
 
     @abstractmethod
     def delete_key(self, key) -> (bool, any):
-        """Returns a tuple of (is_success=True, key) or (is_success=False, err_message)."""
+        """Accepts the key. Returns a tuple of (is_success=True, key) or (is_success=False, err_message)."""
         pass
 
     @abstractmethod

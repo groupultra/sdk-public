@@ -70,7 +70,7 @@ boxes = {}
 
 
 def open_folder_in_explorer(folder_path):
-    """Lets the user select a folder. This is used for gui-mode only."""
+    """Lets the user select a folder given a default folder to pick. This is used for gui-mode only. Returns None."""
     which_os = platform.system()
     try:
         if which_os == "Windows":
@@ -86,7 +86,7 @@ def open_folder_in_explorer(folder_path):
 
 
 def download_text_file_to_string(url):
-    """A simple download, used to get CCS code from GitHub."""
+    """A simple download, used to get CCS code from GitHub given the URL. Returns the text. Raises network exceptions if the request fails."""
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -98,7 +98,7 @@ def download_text_file_to_string(url):
 
 
 def create_channel(email, password, url):
-    """Creates a channel and returns the service_id, channel_id. Used if no channel is specified."""
+    """Creates a channel given the email, password, and url. Returns the service_id, channel_id. Used if no channel is specified."""
     http_server_uri = "https://api."+url
     ws_server_uri = "wss://ws."+url
 
@@ -120,7 +120,7 @@ def create_channel(email, password, url):
 
 
 def save(fname, x):
-    """Saves a file to a string, making dirs if need be."""
+    """Saves a file given a filename and a string. Makes dirs if need be. Returns None."""
     if type(x) is not str:
         x = json.dumps(x, indent=4)
     os.makedirs(os.path.dirname(fname), exist_ok=True)
@@ -129,7 +129,7 @@ def save(fname, x):
 
 
 def _get_boxes():
-    """Empty dict if there are no boxes choosen."""
+    """Returns an empty dict if there are no boxes choosen."""
     out = {}
     for k, v in boxes.items():
         out[k] = v.get()
@@ -137,8 +137,15 @@ def _get_boxes():
 
 
 def submit(out):
-    """Given a configuration dict with all the settings, saves the CCS files (code and config) to a folder."""
+    """Saves the CCS files (code and config) to a folder given a configuration dict with all the settings. Returns sys.exit()"""
     out = {**out, **_get_boxes()}
+
+    #out['password'] = <secret> # Used for making videos, hardcode and *do not* git save just to make the video.
+
+    if 'email' in out and 'password' in out:
+        if not out.get('channels') and not out.get('service_id'): #Create a channel.
+            out['service_id'], out['channels'] = create_channel(out['email'], out['password'], out['url'])
+
     the_folder = os.path.realpath(out['folder'].replace('~', os.path.expanduser("~"))).replace('\\','/')
     print('Values choosen:', out)
 
@@ -175,7 +182,16 @@ cur_row = 1
 
 
 def make_box(root, name, detailed_name, default, options=None):
-    """Makes a box for GUI usage. None options means fill in."""
+    """
+    Makes a box for GUI usage. None options means fill in. Returns ttk.Combobox object.
+    
+    Parameters:
+      root: Tk.root
+      name: The box name.
+      detailed_name: More details.
+      default: The GUI default.
+      options=None: The options to pick, for boxes with options.
+    """
     import tkinter as tk
     from tkinter import ttk
     global cur_row
@@ -207,6 +223,7 @@ def save_starter_ccs():
     Uses this information to construct a CCS app and saves to the folder that was specified.
     This function is called, from the __init__.py in src/moobius, when "python -m moobius" is
     typed into the command line.
+    Returns None.
     """
 
     # Help mode:
@@ -239,7 +256,7 @@ Less common arguments:
 
     print('Quickstart!')
     #print('Sys args:', sys.argv)
-    defaults = {'channels':'<channel-id>', 'email':'<name@site.com>', 'password':'<secret>', 'template':'Zero',
+    defaults = {'channels':'', 'email':'<name@site.com>', 'password':'<secret>', 'template':'Zero',
                 'service_id':'', 'others':'include', 'url':'moobius.net/', 'others':'include',
                 'folder':'.', 'gui':False}
 
@@ -276,10 +293,7 @@ Less common arguments:
 
     total_opts = {**defaults, **opts}
 
-    if 'email' in opts and 'password' in opts and 'channels' not in opts and 'service_id' not in opts: #Create a channel.
-        opts['service_id'], opts['channels'] = create_channel(opts['email'], opts['password'], total_opts['url'])
-
-    if type(opts['channels']) in [list, tuple]:
+    if 'channels' in opts and type(opts['channels']) in [list, tuple]:
         opts['channels'] = ', '.join(opts['channels'])
 
     if total_opts['gui']:

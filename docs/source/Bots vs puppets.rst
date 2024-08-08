@@ -49,14 +49,17 @@ They can request canvas, buttons, and other with `send_fetch_xyz`. This simulate
 The agents will recieve an update which can be listened to with `on_update_xyz`.
 
 To make an agent, first create a config/agent.json file with thier account credentials:
-```
-{
-    "http_server_uri": "https://api.moobius.net/",
-    "ws_server_uri": "wss://ws.moobius.net/",
-    "email": "...@....com",
-    "password": "*********"
-}
-```
+
+
+.. code-block:: Json
+
+    {
+        "http_server_uri": "https://api.moobius.net/",
+        "ws_server_uri": "wss://ws.moobius.net/",
+        "email": "...@....com",
+        "password": "*********"
+    }
+
 
 Then create an agent.py file that, much like the service, extends the Moobius class. 
 

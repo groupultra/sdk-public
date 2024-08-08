@@ -6,10 +6,11 @@ import aiohttp
 from loguru import logger
 from dacite import from_dict
 from moobius import utils
-from moobius.types import Character, Group, UserInfo
+from moobius.types import Character, Group, UserInfo, MessageBody
 from moobius.network import asserts
 # TODO: refresh
 _URL2example_response = {} # Debug tool that allows inspecting example responses.
+
 
 async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_errors=True):
     """
@@ -157,11 +158,19 @@ class HTTPAPIWrapper:
         return response_dict
 
     async def checked_get(self, url, the_request, requests_kwargs=None, good_message=None, bad_message="This HTTPs GET request failed", raise_errors=True):
-        """Calls self._checked_get_or_post with is_post=False."""
+        """
+        Calls self._checked_get_or_post with is_post=False.
+        Accepts the url, the request itself, the kwargs for the request, the message to print on a happy 200, the message to print on a sad non-200, and whether to raise errors if sad.
+        Returns the response. Raises a BadResponseException if it fails and raise_errors is set.
+        """
         url = url.replace('//','/').replace(':/','://') # May not be needed, but looks better in the printouts.
         return await self._checked_get_or_post(url, the_request, False, requests_kwargs=requests_kwargs, good_message=good_message, bad_message=bad_message, raise_errors=raise_errors)
     async def checked_post(self, url, the_request, requests_kwargs=None, good_message=None, bad_message="This HTTPs POST request failed", raise_errors=True):
-        """Calls self._checked_get_or_post with is_post=True."""
+        """
+        Calls self._checked_get_or_post with is_post=True.
+        Accepts the url, the request itself, the kwargs for the request, the message to print on a happy 200, the message to print on a sad non-200, and whether to raise errors if sad.
+        Returns the response. Raises a BadResponseException if it fails and raise_errors is set.
+        """
         url = url.replace('//','/').replace(':/','://') # May not be needed, but looks better in the printouts.
         return await self._checked_get_or_post(url, the_request, True, requests_kwargs=requests_kwargs, good_message=good_message, bad_message=bad_message, raise_errors=raise_errors)
 
@@ -216,7 +225,7 @@ class HTTPAPIWrapper:
     ######################## User #########################
 
     def _xtract_character(self, resp_data):
-        """Generates a Character object out of the JSON response_data."""
+        """Given the JSON response data, returns a Character object."""
         c_data = {}
         c_data['character_id'] = resp_data['character_id']
         c_data['name'] = resp_data['character_context']['name']
@@ -226,7 +235,7 @@ class HTTPAPIWrapper:
         return from_dict(data_class=Character, data=c_data)
 
     async def fetch_character_profile(self, character_id):
-        """Returns a Character object (or list therof) given a string-valued (or list-valued) character_id.
+        """Given a string-valued (or list-valued) character_id returns a Character object (or list therof),
         It works for both member_ids and puppet_ids."""
         is_list = type(character_id) not in [str, Character]
         character_id = utils.to_char_id_list(character_id)
@@ -274,12 +283,14 @@ class HTTPAPIWrapper:
         if type(character_list) is not list:
             raise Exception('Got a character list which actually was not a list.')
         if character_list or not raise_empty_list_err:
+            if character_list and type(character_list) is list and character_list[0] and type(character_list[0]) is list:
+                raise Exception('Nested list bug (HTTP return).')
             return character_list
         else:
             raise Exception(f"Empty character_list error, channel_id: {channel_id}, service_id: {service_id}.")
 
     async def fetch_puppets(self, service_id):
-        """Gets all the puppets defined for this service, returning a list of Character objects."""
+        """Given the service ID returns a list of Character objects bound to this service."""
         asserts.types_assert(str, service_id=service_id)
         m0 = "Successfully fetched character list"
         mr = "Error fetching character list"
@@ -309,7 +320,7 @@ class HTTPAPIWrapper:
         return [self._xtract_character(d) for d in charlist]
 
     async def fetch_user_info(self):
-        """Gets the UserInfo of the user logged in as, containing thier name, avatar, etc. Used by agents."""
+        """Returns the UserInfo of the user logged in as, containing thier name, avatar, etc. Used by agents."""
         response_dict = await self.checked_get(url=self.http_server_uri + f"/user/info", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched user info", bad_message="Error getting user info", raise_errors=True)
         idict = response_dict.get('data')
         email_verified = idict.get('email_verified') # Sometimes this is unfilled.
@@ -324,7 +335,7 @@ class HTTPAPIWrapper:
              description: Of the user.
              name: The name that shows in chat.
 
-           No return value.
+           Returns None.
         """
         avatar = await self.convert_to_url(avatar)
         the_request={"avatar": avatar, 'description':description, 'name':name}
@@ -335,7 +346,7 @@ class HTTPAPIWrapper:
     ############################# Service ############################
 
     async def create_service(self, description):
-        """Creates a service with the given description string and returns the string-valued service_id.
+        """Accepts the description string. Creates and returns the string-valued service_id.
         Called once by the Moobius class if there is no service specified."""
         asserts.types_assert(str, description=description)
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/create", the_request={"description": description}, requests_kwargs={'headers':self.headers}, good_message="Successfully created service!", bad_message="Error creating service", raise_errors=True)
@@ -431,7 +442,7 @@ class HTTPAPIWrapper:
           channel_name (str): The new channel name.
           channel_desc (str): The new channel description.
 
-        No return value.
+        Returns None.
         """
         asserts.types_assert(str, channel_name=channel_name, channel_id=channel_id, channel_desc=channel_desc)
         jsonr = {"channel_id": channel_id, "channel_name": channel_name, "context":{"channel_description":channel_desc}}
@@ -488,7 +499,7 @@ class HTTPAPIWrapper:
     ############################# File ############################
 
     async def _upload_extension(self, extension):
-        """Gets the upload URL and needed fields for uploading a file with the given string-valued extension.
+        """Gets the upload URL and needed fields for uploading a file given a string-valued extension.
         Returns (upload_url or None, upload_fields)."""
         asserts.types_assert(str, extension=extension)
         requests_kwargs = {'params':{"extension": extension}, 'headers':self.headers}
@@ -498,7 +509,7 @@ class HTTPAPIWrapper:
         upload_fields = response_dict.get('data').get('fields')
         return upload_url, upload_fields
 
-    async def _do_upload_file(self, upload_url, upload_fields, file_path):
+    async def _do_upload(self, upload_url, upload_fields, file_path):
         """
         Uploads a file to the given upload URL with the given upload fields.
 
@@ -526,8 +537,8 @@ class HTTPAPIWrapper:
             _ = await self._checked_get_or_post(upload_url, the_request=None, is_post=True, requests_kwargs={'data':upload_fields}, good_message=f'Successfully uploaded {file_path} to {full_url}', bad_message=f'failed to upload {file_path}', raise_errors=False)
             return full_url
 
-    async def upload_file(self, file_path):
-        """Uploads the file at local path file_path to the Moobius server. Automatically calculates the upload URL and upload fields.
+    async def upload(self, file_path):
+        """Accepts a file_path. Uploads the file at local path file_path to the Moobius server. Automatically calculates the upload URL and upload fields.
         Returns the uploaded URL. Raises an Exception if the upload fails.
         """
         if not os.path.exists(file_path):
@@ -535,15 +546,15 @@ class HTTPAPIWrapper:
         extension = file_path.split(".")[-1]
         upload_url, upload_fields = await self._upload_extension(extension)
         if upload_url and upload_fields:
-            # Exception will be raised in _do_upload_file(), no need to raise here
-            full_url = await self._do_upload_file(upload_url, upload_fields, file_path)
+            # Exception will be raised in _do_upload(), no need to raise here
+            full_url = await self._do_upload(upload_url, upload_fields, file_path)
             return full_url
         else:
             logger.error(f"Error getting upload url and upload fields! file_path: {file_path}")
             raise Exception(f"Error getting upload url and upload fields! file_path: {file_path}")
 
     async def convert_to_url(self, file_path):
-        """Converts file-paths to URLs (uploading files to buckets). Idempotent: If given a URL will just return the URL.
+        """Accepts a file_path. Uploads and returns the bucket's url. Idempotent: If given a URL will just return the URL.
         Empty, False, or None strings are converted to a default URL."""
         if not file_path:
             return "https://gba-moobius.s3.us-east-2.amazonaws.com/LogoLight.jpg"
@@ -556,19 +567,19 @@ class HTTPAPIWrapper:
                 the_bytes = f.read()
             the_hash = hashlib.sha256(the_bytes).hexdigest()
             if the_hash not in self.filehash2URL:
-                self.filehash2URL[the_hash] = await self.upload_file(file_path)
+                self.filehash2URL[the_hash] = await self.upload(file_path)
             return self.filehash2URL[the_hash]
 
-    async def download_file(self, url, fullpath=None, auto_dir=None, overwrite=None, bytes=None, headers=None):
+    async def download(self, source, full_path=None, auto_dir=None, overwrite=None, bytes=None, headers=None):
         """
-        Downloads a file from a url to a local filename, automatically creating dirs if need be.
+        Downloads a file from a url or other source to a local filename, automatically creating dirs if need be.
 
         Parameters:
           url: The url to download the file from.
-          fullpath=None: The filepath to download to.
+          full_path=None: The filepath to download to.
             None will create a file based on the timestamp + random numbers.
             If no extension is specified, will infer the extension from the url if one exists.
-          auto_dir=None: If no fullpath is specified, a folder must be choosen.
+          auto_dir=None: If no full_path is specified, a folder must be choosen.
             Defaults to './downloads'.
           overwrite=None:
             Allow overwriting pre-existing files. If False, will raise an Exception on name collision.
@@ -577,21 +588,32 @@ class HTTPAPIWrapper:
           headers=None:
             Optional headers. Use these for downloads that require auth.
             Can set to "self" to use the same auth headers that this instance is using.
+
+        Returns:
+          The bytes if bytes=True.
         """
-        #datetime.datetime().strftime()+str(random.random())
         if headers is None: # These buckets are public so no need to upload.
             headers = {}
         if headers == 'self':
             headers={'headers':self.headers} # Auth allows downloading form buckets we authed for.
-        if not fullpath:
+        if not full_path:
             if not auto_dir:
                 auto_dir = './downloads'
-            fullpath = auto_dir+'/'+datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")+(str(random.random())[2:10])
-        fullpath = os.path.realpath(fullpath).replace('\\','/')
-        if not '.' in fullpath.split('/')[-1]:
+            full_path = auto_dir+'/'+datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f") + '_' + str(random.randint(1000, 9999))
+        if type(source) is str:
+            url = source
+        elif type(source) is MessageBody:
+            if hasattr(source.content, 'path') and source.content.path:
+                url = source.content.path
+            else:
+                raise Exception("This message does not have a path in it's content.")
+        else:
+            raise Exception(f"Source must be a str or MessageBody, not a {type(source)}")
+        full_path = os.path.realpath(full_path).replace('\\','/')
+        if not '.' in full_path.split('/')[-1]:
             url_leaf = url.split('/')[-1]
             if '.' in url_leaf: # Infer the extension from the url.
-                fullpath = fullpath+'.'+url_leaf.split('.')[-1]
+                full_path = full_path+'.'+url_leaf.split('.')[-1]
 
         # https://stackoverflow.com/questions/35388332/how-to-download-images-with-aiohttp
         async with aiohttp.ClientSession() as session:
@@ -604,10 +626,10 @@ class HTTPAPIWrapper:
                         buffer.seek(0)
                         return buffer.getvalue()
                     else:
-                        os.makedirs(os.path.dirname(fullpath), exist_ok=True)
-                        if os.path.exists(fullpath) and not overwrite:
-                            raise Exception(f'Assert no overwrite to pre-existing file: {fullpath}')
-                        with open(fullpath, 'wb') as fd:
+                        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                        if os.path.exists(full_path) and not overwrite:
+                            raise Exception(f'Assert no overwrite to pre-existing file: {full_path}')
+                        with open(full_path, 'wb') as fd:
                             async for chunk in resp.content.iter_chunked(10):
                                 fd.write(chunk)
                 else:
@@ -616,7 +638,7 @@ class HTTPAPIWrapper:
     ############################# Groups ############################
 
     async def fetch_channel_group_dict(self, channel_id, service_id):
-        """Like fetch_member_ids but returns a dict from each group_id to all characters."""
+        """Similar to fetch_member_ids. Accepts the channel_id and service_id. returns a dict from each group_id to all characters."""
         asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
@@ -630,7 +652,7 @@ class HTTPAPIWrapper:
         return id2members
 
     async def fetch_channel_group_list(self, channel_id, service_id):
-        """Like fetch_channel_group_dict but returns the raw data."""
+        """Similar to fetch_channel_group_dict. Accepts the channel_id and service_id. Returns the raw data."""
         asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
@@ -659,7 +681,7 @@ class HTTPAPIWrapper:
 
     async def character_ids_of_service_group(self, group_id):
         """
-        Gets a list of character ids belonging to a service group.
+        Given a group_id, returns a list of character ids belonging to a service group.
         Note that the 'recipients' in 'on message up' might be None:
           To avoid requiring checks for None this function will return an empty list given Falsey inputs or Falsey string literals.
         """
@@ -734,7 +756,7 @@ class HTTPAPIWrapper:
           group_name (str): What to call it.
           members (list): A list of character_id strings that will be inside the group.
 
-        No return value.
+        Returns None.
         """
         raise Exception('Unknown if this function is needed.')
 
@@ -746,12 +768,12 @@ class HTTPAPIWrapper:
           channel_id (str): The id of the group leader?
           members (list): A list of character_id strings that will be inside the group.
 
-        No return value.
+        Returns None.
         """
         raise Exception('Unknown if this function is needed.')
 
     async def fetch_channel_temp_group(self, channel_id, service_id):
-        """Like fetch_channel_group_list but for TEMP groups."""
+        """Like fetch_channel_group_list but for TEMP groups. Given the channel_id and service_id, returns the list of groups."""
         asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}

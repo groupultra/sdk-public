@@ -85,13 +85,13 @@ The "json" implementation is easier to set up but is not considered to have high
 A redis implemetnation is also supported as well. It requires a running Redis server
 that is refrenced in the db_config. For example:
 
-```
-"settings": {
-    "root_dir": "redis_db",
-    "host":"localhost",
-    "port":6379
-}
-```
+.. code-block:: json
+
+    "settings": {
+        "root_dir": "redis_db",
+        "host":"localhost",
+        "port":6379
+    }
 
 Demo code
 ================================

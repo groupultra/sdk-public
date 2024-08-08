@@ -1,7 +1,7 @@
 .. _moobius_database_database_interface:
 
 ###################################################################################
-Module moobius.database.database_interface
+moobius.database.database_interface
 ###################################################################################
 
 ******************************

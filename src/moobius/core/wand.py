@@ -10,7 +10,8 @@ KEYBOARDEXIT = 1324 # The child process exits.
 
 
 def sigint_handler(signal, frame):
-    """Exits using a special error code that the parent process will recognize as a "Ctrl+C" interrupt."""
+    """Exits using a special error code that the parent process will recognize as a "Ctrl+C" interrupt.
+    Accepts a integer signal and stack frame. Returns os._exit."""
     os._exit(KEYBOARDEXIT)
 
 
@@ -32,11 +33,11 @@ class MoobiusWand:
         self.services = {}
         self.processes = {}
         self.current_service_handle = 0     # TODO: use handle to terminate or restart a service
-        signal.signal(signal.SIGINT, lambda: self.stop_all(force_exit=True))
+        signal.signal(signal.SIGINT, lambda a,b: self.stop_all(force_exit=True))
 
     @staticmethod
     def run_job(service):
-        """Runs service.start(), which blocks in an infinite loop, using asyncio."""
+        """Accepts a Moobius service. Runs service.start(), which blocks in an infinite loop, using asyncio. Returns Never."""
         signal.signal(signal.SIGINT, sigint_handler) # In the child process as well, in case it catches the keyboard.
         try:
             asyncio.run(service.start())
@@ -53,7 +54,7 @@ class MoobiusWand:
           background=False: If True, runs on another Process.
           **kwargs: Kwargs passed to the constructor of cls.
 
-        No return value.
+        Returns None.
 
         Example:
           >>> wand = MoobiusWand()
@@ -85,8 +86,8 @@ class MoobiusWand:
             asyncio.run(service.start())
 
     def stop_all(self, force_exit=False):
-        """Stops all processes using the_process.kill().
-           Also stops the asyncio event loop."""
+        """Stops all processes using the_process.kill(). Accepts an option to force-quit.
+           Also stops the asyncio event loop. Returns exit."""
         print("WAND FORCE STOPPING ALL!"+(" And exiting" if force_exit else ""))
         for _process in self.processes.values():
             _process.kill() # Maximum force!
@@ -103,7 +104,7 @@ class MoobiusWand:
           handle (int): The handle of the service created by the run() function.
           obj (anything picklable): The message to be sent.
 
-        No return value
+        Returns None.
 
         Example:
           >>> wand = MoobiusWand()
@@ -119,7 +120,8 @@ class MoobiusWand:
             logger.error(f"Service handle {handle} not found")
 
     async def aspell(self, handle, obj):
-        """Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = self.services[handle].queue."""
+        """Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = self.services[handle].queue.
+        Accepts the handle int and the generic pickleable object. Returns None."""
         if handle in self.services:
             try:
                 await self.services[handle].queue.coro_put(obj)

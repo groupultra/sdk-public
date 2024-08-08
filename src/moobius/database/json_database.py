@@ -2,16 +2,12 @@
 
 import json, dataclasses
 import os
-from pydoc import locate
 
-from dacite import from_dict
 from loguru import logger
 
-from moobius.utils import EnhancedJSONEncoder
-from moobius import types
+from moobius import types, utils
 from .database_interface import DatabaseInterface
 
-DTYPE = '_type' # Used to indicate the class name.
 
 class JSONDatabase(DatabaseInterface):
     """
@@ -41,7 +37,7 @@ class JSONDatabase(DatabaseInterface):
 
     def get_value(self, key):
         """
-        Gets the value (which is a dict) of a string-valued key.
+        Gets the value (which is a dict) given a string-valued key.
         Note: This "key" is different from a key to look up a CachedDict file.
         Note: This function should not be called directly.
 
@@ -54,48 +50,24 @@ class JSONDatabase(DatabaseInterface):
 
         if not os.path.exists(filename):
             return False, f'No json file found for {key}.'
-        with open(filename, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-
-            if data[DTYPE] == 'NoneType':
-                return True, None   # You can't use NoneType(None) to construct a NoneType object, so we have to return None directly
-            else:
-                class_name_fullpath = data[DTYPE]
-                data_type = locate(class_name_fullpath)
-
-                if not data_type: # Legacy backwards compat. Remove this if block after enough time has passed.
-                    data_type = locate(f'{types.__name__}.{class_name_fullpath}')
-                    if data_type:
-                        logger.warning('Legacy compat JSONDatabase type system. This warning should disappear on save+load of the database.')
-
-                if data_type:
-                    if dataclasses.is_dataclass(data_type):
-                        return True, from_dict(data_class=data_type, data=data[key])
-                    else:
-                        return True, data_type(data[key])
-                else:
-                    raise TypeError(f'Unknown type: {class_name_fullpath}')
+        return True, utils.enhanced_json_load(filename)
 
     def set_value(self, key, value):
-        """Set the value (a dict) of a key (a string). Returns (is_success, the_key).
+        """Updates and saves a cached dict, given a string-valued key and a dict-valued value. Returns (is_success, the key).
            Note: This function should not be called directly."""
         filename = os.path.join(self.path, key + '.json')
-
-        with open(filename, 'w', encoding='utf-8') as f:
-            data = {key: value, DTYPE: type(value).__module__+'.'+type(value).__name__} # Fullpath is package.module.name.
-            json.dump(data, f, indent=4, cls=EnhancedJSONEncoder, ensure_ascii=False)
-            return True, key
+        utils.enhanced_json_save(filename, value)
+        return True, key
 
     def delete_key(self, key):
-        """Delete a (string-valued) key. Returns (is_success, key)
+        """Deletes a cached dict given a key. Returns (True, the key)
            Note: This function should not be called directly."""
         filename = os.path.join(self.path, key + '.json')
         os.remove(filename)
-
         return True, key
 
     def all_keys(self):
-        """Gets all keys in the database. Returns an iterable which internally uses yield()."""
+        """Gets all the cached dicts in the database. Returns the dicts as an iterable which internally uses yield()."""
         def key_iterator():
             for filename in os.listdir(self.path):
                 if filename.endswith('.json'):

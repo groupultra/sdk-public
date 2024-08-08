@@ -1,7 +1,7 @@
 .. _moobius_types:
 
 ###################################################################################
-Module moobius.types
+moobius.types
 ###################################################################################
 
 ******************************
@@ -49,11 +49,11 @@ ButtonArgument.type: str:
 ButtonArgument.optional: Optional[bool]:
   Can the user skip it?
 
-ButtonArgument.values: Optional[list[str]]:
-  What values are available, if the type is enum. Use None if the type is str.
-
 ButtonArgument.placeholder: str:
   A hint to the user.
+
+ButtonArgument.values: Optional[list[str]] = None:
+  What values are available, if the type is enum. Use None if the type is str.
 
 ************************************
 Class BottomButton

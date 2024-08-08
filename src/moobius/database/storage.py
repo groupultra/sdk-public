@@ -7,7 +7,8 @@ from loguru import logger
 
 
 def get_engine(implementation):
-    """Returns the engine's Class. Last-minute-imports the module so that no pip package is needed for unused engines."""
+    """Given an implementation string, returns the engine's Class. 
+    Last-minute-imports the module so that no pip package is needed for unused engines."""
 
     def _hit(matches):
         for m in matches:
@@ -45,7 +46,7 @@ class CachedDict(dict):
           strict_mode=False: Whether to use strict mode.
             In strict mode, set value will raise exception if database save fails, but the value will still be set in the dict.
 
-        No return value.
+        Returns None.
 
         Example:
           Note: This should not be called directly. Users should call MoobiusStorage to initialize the database.
@@ -67,7 +68,7 @@ class CachedDict(dict):
 
     def __getitem__(self, key):
         """Overrides dict-like usages of the form: "v = d['my_key']" to query from the database.
-        Raises a KeyError if strict_mode is True and the key is not found."""
+        Raises a KeyError if strict_mode is True and the key is not found. Accepts the key and returns the value."""
         if dict.__contains__(self, key):
             return dict.__getitem__(self, key)
         else:
@@ -84,7 +85,7 @@ class CachedDict(dict):
 
     def __setitem__(self, key, value):
         """Overrides dict-like usages of the form: "d['my_key'] = v" to save to the database.
-        For a JSONDatabase, this will save the updated json to a file. Raises a KeyError if strict_mode is True and the key is not found."""
+        For a JSONDatabase, this will save the updated json to a file. Accepts the key and value. Returns None."""
         is_success, err_message = self.database.set_value(key, value)
 
         if is_success:
@@ -98,7 +99,7 @@ class CachedDict(dict):
 
     def __delitem__(self, key):
         """Overrides dict-like usages of the form: "del d['my_key']" to delete a key from the database.
-        For a JSONDatabase, this will save the updated json to a file. Raises an Exception if the deletion fails."""
+        For a JSONDatabase, this will save the updated json to a file. Accepts the key. Returns None."""
         is_success, err_message = self.database.delete_key(key)
 
         if is_success:
@@ -111,7 +112,7 @@ class CachedDict(dict):
                 dict.__delitem__(self,key)
 
     def pop(self, key, default="__unspecified__"):
-        """Overrides "v = d.pop(k)" to get and delete k from the database. Raises a key error if no default is set and the key is not in the dict."""
+        """Overrides "v = d.pop(k)" to get and delete k from the database. Accepts the key and an optional default value. Returns the value."""
         if default == "__unspecified__" and not dict.__contains__(self, key):
             raise KeyError(f'Key {key} not in dict.')
         if dict.__contains__(self, key):
@@ -122,7 +123,7 @@ class CachedDict(dict):
             return default
 
     def clear(self):
-        """Overrides "d.clear()" to clear the database."""
+        """Overrides "d.clear()" to clear the database. Returns None."""
         for k in list(self.keys()):
             self.pop(k)
 
@@ -168,8 +169,16 @@ class MoobiusStorage():
             self.add_container(**config)
 
     def put(self, attr_name, database, load=True, clear=False):
-        """Sets self.attr_name to database (a DatabaseInterface object) for later retrieval.
-           load (default True) to load the dict immediatly, clear (default False) to clear the dict and skip loading it."""
+        """
+        Sets self.attr_name to database (a DatabaseInterface object) for later retrieval. Returns None.
+        load (default True) to load the dict immediatly, clear (default False) to clear the dict and skip loading it.
+
+        Parameters:
+           attr_name: The attr name to add dynamically to self, setting it to a CachedDict.
+           database: The database.
+           load=True: Whether to load the dict in full at startup instead of gradually.
+           clear=False: Whether to clear the dict (which deletes the files).
+        """
         if attr_name in self.__dict__:
             raise Exception('Domain {n} already exists'.format(n=attr_name))
         else:
@@ -196,7 +205,7 @@ class MoobiusStorage():
           load=True: Whether to load the database when initializing the database.
           clear=False: Whether to clear the database when initializing the database.
 
-        No return value.
+        Returns None.
 
         Example:
           Note: This is a hidden function, you don't need to call it directly.

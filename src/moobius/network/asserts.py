@@ -15,7 +15,8 @@ class PlatformAssertException(Exception):
 
 
 def types_assert(ty, **kwargs):
-    """Asserts that every one of kwargs is type ty, giving an error message if there is a mismatch. Returns True."""
+    """Accepts a type. Asserts that every one of kwargs is of this type. Returns True.
+    Raises a PlatformAssertException if there is a mismatch."""
     if not check_asserts:
         return True
     for k, v in kwargs.items():
@@ -46,7 +47,8 @@ def structure_assert(gold, green, base_message, path=None):
 
     Returns: True if the assert passes.
 
-    Raises: PlatformAssertException if the assert fails, using the base_message.
+    Raises:
+      PlatformAssertException if the assert fails, using the base_message.
     """
     if not check_asserts:
         return True
@@ -98,7 +100,8 @@ def structure_assert(gold, green, base_message, path=None):
 
 
 def min_subset_dict(min_keys, dtemplate):
-    """Creates a template-matching function that will not error on missing keys, unless they are in in min_keys."""
+    """Creates a template-matching function that will not error on missing keys, unless they are in in min_keys.
+    Accepts a minimum list of keys and a template dict. Returns the matching function."""
     dtemplate = dtemplate.copy() # Not sure if necessary.
     def t_fn(d, base_message, path):
         for k in min_keys:
@@ -115,7 +118,8 @@ def min_subset_dict(min_keys, dtemplate):
 ######################### Temporary modifications (TODO: Get rid of once not working) ##########################
 
 def temp_modify(socket_request):
-    """Sometimes the request has extra stuff. This function removes it."""
+    """Sometimes the request has extra stuff. This function removes it. Somewhat deprecated.
+    Given the socket_request dict, returns the modified socket_request dict."""
     if not allow_temp_modifications:
         return socket_request
     socket_request = socket_request.copy()
@@ -138,11 +142,17 @@ def temp_modify(socket_request):
 
 ######################### Specific requests ##########################
 
+def _placecheck(x, base_message, path):
+    if type(x) in [str, type(None)]:
+        return True
+    else:
+        raise PlatformAssertException(f'Placeholder for button arg must be str or None not {type(x)}; {base_message}; where={path}')
 def _style_check(style_element, base_message, path):
-    """One element in a style vector. This is the most flexible."""
+    """Asserts element in a style vector. This is the most flexible.
+    Accepts a style_element, the base_message for debugging, and the path for debugging. Returns True if it works. Raises a PlatformAssertException if it fails."""
     template_dict = {'widget':'button1','display':'visible', 'text':'<h1>html_tags!</h1>', 'expand':True,
                      'button_id':'id', 'text':'Not sure that this is',
-                     'button_hook':{'button_id':'a.button', 'button_name':'A', 'arguments':[]}}
+                     'button_hook':{'button_id':'a.button', 'button_text':'A', 'components':[]}}
     style_element = style_element.copy()
     for ky in ['expand', 'button_id', 'text']:
         if ky in style_element and style_element[ky] is None:
@@ -150,46 +160,52 @@ def _style_check(style_element, base_message, path):
     template = min_subset_dict([], template_dict)
     return structure_assert(template, style_element, base_message, path)
 def _context_menu_item_check(cmenu_item, base_message, path):
-    if cmenu_item.get('new_window'):
-        if 'arguments' not in cmenu_item:
-            raise PlatformAssertException(f'context menu item with no arguments but a new_window specified; {base_message}; where={path}')
-        argtemplate = [min_subset_dict(['name', 'type', 'values', 'placeholder'],
-                                              {'name':'the_name', 'type':'enum', 'values':['choice1'],'placeholder':'place',
-                                               'optional':False})]
-        assert_so_far = structure_assert(argtemplate, cmenu_item['arguments'], base_message, path+['arguments'])
+    """Checks the right-click context menu.
+    Accepts a context menu element, the base_message for debugging, and the path for debugging. Returns True if it works. Raises a PlatformAssertException if it fails."""
+    if cmenu_item.get('dialog'):
+        if 'components' not in cmenu_item:
+            raise PlatformAssertException(f'context menu item with no components but a dialog specified; {base_message}; where={path}')
+        assert_so_far = structure_assert([_button_arg_assert], cmenu_item['components'], base_message, path+['components'])
     else:
         assert_so_far = True
 
-    # Check the non-argument pard
+    # Check the non-components part
     cmenu_item = cmenu_item.copy()
-    for k in ['new_window', 'arguments']:
+    for k in ['dialog', 'components']:
         if k in cmenu_item:
             del cmenu_item[k]
-    template = {'item_name':'option 1', 'item_id':'opt1','support_subtype':['txt']}
+    template = {'item_text':'option 1', 'item_id':'opt1','support_subtype':['txt']}
     return assert_so_far and structure_assert(template, cmenu_item, base_message, path)
+def _button_arg_assert(ba, base_message, path):
+    button_arg_template = min_subset_dict(['label', 'type', 'optional'], # choices is optional.
+                                                    {'label':'opt1', 'type':types.DROPDOWN, 'choices':['a'], 'placeholder':_placecheck, 'optional':False})
+    if not ba.get('choices'): # String means no need to value.
+        if ba.get('type') in [types.TEXT, types.TEXTBOX]:
+            ba = ba.copy()
+            ba['choices'] = ['nooone']
+    return structure_assert(button_arg_template, ba, base_message, path)
 def _socket_update_body_assert(b, base_message, path):
-    """Many requests are updates with a body."""
+    """Many requests are updates with a body.
+    Accepts the body, the base_message for debugging, and the path for debugging. Returns True if it works. Raises a PlatformAssertException if it fails."""
     subty = b['subtype']
     template = {'subtype':'the_subtype', 'channel_id':'1234...', 'recipients':'1234...'}
     if subty=='update_characters':
         template['content'] = {'characters': '1234... group_id'}
     elif subty=='update_buttons':
-        button_arg_template = min_subset_dict(['name', 'type', 'placeholder', 'optional'], # Values is optional.
-                                                     {'name':'opt1', 'type':'enum', 'values':['a'], 'placeholder':'in-situ', 'optional':False})
         def _each_button(x, base_message, the_path):
-            each_btn = {'button_id':'pressA', 'button_name':'press this A',
-                        'new_window':True, 'arguments':[button_arg_template], 'bottom_buttons':[{'text':'txt', 'type':'confirm'}]}
+            each_btn = {'button_id':'pressA', 'button_text':'press this A',
+                        'dialog':True, 'components':[_button_arg_assert], 'bottom_buttons':[{'text':'txt', 'type':'confirm'}]}
             if not x.get('bottom_buttons'):
-                if 'bottom_buttons' in x:
+                if 'bottom_buttons' in x: # None key.
                     x = x.copy()
                     del x['bottom_buttons']
                 del each_btn['bottom_buttons']
-            if not x.get('new_window'):
-                if 'arguments' not in x or x.get('arguments') is None: # Falsey new_window is allowed to have None or missing arguments.
-                    del each_btn['arguments']
+            if not x.get('dialog'):
+                if 'components' not in x or x.get('components') is None: # Falsey dialog is allowed to have None or missing components.
+                    del each_btn['components']
                     x = x.copy()
-                    if 'arguments' in x:
-                        del x['arguments']
+                    if 'components' in x:
+                        del x['components']
             return structure_assert(each_btn, x, base_message, the_path)
         template['content'] = [_each_button]
     elif subty=='update_channel_info':
@@ -209,7 +225,8 @@ def _socket_update_body_assert(b, base_message, path):
         raise PlatformAssertException(f'Unrecognized subtype for an update request {subty}; {base_message}.')
     return structure_assert(template, b, base_message, path)
 def _socket_message_body_assert1(b, base_message, path, is_up):
-    """All message types, including text and image messages, are supported."""
+    """All message types, including text and image messages, are supported.
+    Accepts the body, the base_message for debugging, the path for debugging, and a flag for the message bieng a message_up. Returns True if it works. Raises a PlatformAssertException if it fails."""
     subty = b['subtype']
     template = {'subtype':'the_subtype', 'channel_id':'1234...', 'recipients':'1234... group_id',
                 'timestamp':12334567, 'context':{}}
@@ -245,18 +262,21 @@ def _socket_message_body_assert1(b, base_message, path, is_up):
         raise PlatformAssertException(f'Unrecognized subtype for a message body: {subty}; {base_message}.')
     return structure_assert(template, b, base_message, path)
 def _button_click_body_assert(b, base_message, path):
-    """Some buttons have options. Some don't, so options are optional."""
+    """Some buttons have options. Some don't, so options are optional.
+    Accepts the button click body, the base_message for debugging, and the path for debugging. Returns True if it works. Raises a PlatformAssertException if it fails."""
     template = {'button_id':'button1', 'channel_id':'1234...',
-                'arguments':[{'name':'category', 'value':'A'}],
+                'components':[{'name':'category', 'value':'A'}],
                 'context':{}}
     return structure_assert(template, b, base_message, path)
 def _context_menuclick_body_assert(b, base_message, path):
-    """Right click context menu click."""
+    """Right click context menu click.
+    Accepts a context menu click body, the base_message for debugging, and the path for debugging. Returns True if it works. Raises a PlatformAssertException if it fails."""
     template = {'item_id':'item1', 'channel_id':'1234...', 'message_id':'1234...', 'message_subtype':'text/file/etc',
                 'message_content':min_subset_dict([], {'text':'text!', 'image':'url'}), 'context':{}}
     return structure_assert(template, b, base_message, path)
 def _action_body_assert(b, base_message, path):
-    """Various actions."""
+    """Various actions.
+    Accepts an action body, the base_message for debugging, and the path for debugging. Returns True if it works. Raises a PlatformAssertException if it fails."""
     subty = b['subtype']
     template = {'subtype':'the_subtype', 'channel_id':'1234...', 'context':{}}
     if subty.startswith('fetch_') or subty=='leave_channel':
@@ -268,8 +288,10 @@ def _action_body_assert(b, base_message, path):
 ######################################### The main assert function ################################
 
 def socket_assert(x):
-    """Asserts that a socket call is correct, using the type and subtype to determine the socket.
-    Note: There is no HTTPs assert fn, instead the arguments to the function are asserted."""
+    """
+    The main assert function. Asserts that a socket call is correct, using the type and subtype to determine the socket.
+    Note: There is no HTTPs assert fn, instead the arguments to the function are asserted.
+    Accepts a generic socket payload. Raises PlatformAssertException if it fails. Returns True if the assert suceeds."""
     if not check_asserts:
         return True
     if 'type' not in x:
@@ -314,6 +336,7 @@ def socket_assert(x):
     if 'body' in x:
         if 'subtype' in x['body']:
             base_message += '_'+x['body']['subtype']
+    base_message = base_message.replace('update_update', 'update') # This breaks taht body + subtype pattern.
     try:
         return structure_assert(template, x, base_message)
     except Exception as e:

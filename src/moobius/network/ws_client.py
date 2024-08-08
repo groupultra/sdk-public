@@ -11,24 +11,21 @@ import moobius.types as types
 from moobius.types import CanvasElement, ChannelInfo
 from moobius.network import asserts
 
-
-def send_tweak(the_message):
-    """A slight modification of messages."""
-    if the_message['type'] == types.MESSAGE_UP or the_message['type'] == types.MESSAGE_DOWN:
-        b = the_message['body']
+def send_tweak(message):
+    """A slight modification of messages. Given a message, returns a slightly modified message."""
+    if message['type'] == types.MESSAGE_UP or message['type'] == types.MESSAGE_DOWN:
+        b = message['body']
         if 'context' in b:
             b['context'] = {}
-    if the_message['type'] == types.MESSAGE_DOWN:
-        if 'service_id' not in the_message:
+    if message['type'] == types.MESSAGE_DOWN:
+        if 'service_id' not in message:
             raise Exception('Message_down must have service_id.')
-    return the_message
+    return message
 
 
 async def time_out_wrap(co_routine, timeout=16):
-    """
-    Sometimes the connection can hang forever.
-    Returns a co-routine that is the same as the given co_routine except that
-    await will raise an asyncio.TimeoutError if it takes too long.
+    """Sometimes the connection can hang forever. Adds a timeout that will make await raise an asyncio.TimeoutError if the function takes too long.
+    Accepts a co-routine and a timeout. Returns the co-routine with a timeout. 
     """
     return await asyncio.wait_for(co_routine, timeout=timeout)
 
@@ -84,7 +81,7 @@ class WSClient:
         await self.on_connect()
 
     async def _queue_consume(self):
-        """Consumes tasks from an internal asyncio queue."""
+        """Consumes tasks from an internal asyncio queue. Returns Never."""
         while True:
             message = await self.outbound_queue.get()
             if not self.is_connected:
@@ -100,18 +97,20 @@ class WSClient:
 
     async def send(self, message):
         """
-        Sends a dict-valued message (or JSON string) to the websocket server.
-          Adds the message to self.outbound_queue.
+        Accepts a dict-valued message (or JSON string). Adds the message to self.outbound_queue for sending to the server.
         Note: Call this and other socket functions after self.authenticate()
-        Returns None, but if the server responds to the message it will be detected in the self.recieve() loop.
+        Returns None. If the server responds to the message it will be detected in the self.recieve() loop.
         """
         if not self.outbound_queue_running: # This must be inside an async, and __init__ is not async.
             loop = asyncio.get_running_loop()
             self.outbound_queue_running = True
             loop.create_task(self._queue_consume())
         if type(message) is dict:
-            message = self.dumps(message)
-        asserts.socket_assert(json.loads(message))
+            message = self.dumps(message) # This converts dataclasses into dicts.
+        message_dict = json.loads(message)  # Go backards again.
+        asserts.socket_assert(message_dict)
+        message_dict = types._tmp_sendprepare_not_quite_upgrade(message_dict)
+        message = json.dumps(message_dict)
         await self.outbound_queue.put(message)
 
     async def receive(self):
@@ -133,8 +132,8 @@ class WSClient:
 
     async def safe_handle(self, message):
         """
-        Handles a string-valued message from the websocket server. Returns None.
-        The handle() function is defined by the user.
+        Accepts a string-valued message from the websocket server. Returns None.
+        Handles it with self.handle, which is specified on construction, catching errors.
         """
         try:
             await self.handle(message)
@@ -154,8 +153,8 @@ class WSClient:
 
     @staticmethod
     def dumps(data):
-        """A slightly better json.dumps. Takes in data and returns a JSON string."""
-        return json.dumps(data, cls=utils.EnhancedJSONEncoder, ensure_ascii=False)
+        """A slightly better json.dumps. Accepts a datastructure or dataclass and returns a JSON string."""
+        return utils.enhanced_json_save(None, data, typemark_dataclasses=False, indent=None)
 
     ########################## Authentication and join/leave #########################
 
@@ -208,7 +207,7 @@ class WSClient:
         return message
 
     async def leave_channel(self, user_id, channel_id, *, dry_run=False):
-        """Leaves the channel with channel_id, unless dry_run is True. Used by agents. Returns the message dict."""
+        """Leaves the channel with channel_id, unless dry_run is True. Used by agents. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -224,7 +223,7 @@ class WSClient:
         return message
 
     async def join_channel(self, user_id, channel_id, *, dry_run=False):
-        """Joins the channel with channel_id, unless dry_run is True. Used by agents. Returns the message dict."""
+        """Joins the channel with channel_id, unless dry_run is True. Used by agents. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -240,14 +239,14 @@ class WSClient:
         return message
 
     #################################### Updating ########################################
-    async def update_character_list(self, service_id, channel_id, characters, recipients, *, dry_run=False):
+    async def update_character_list(self, characters, service_id, channel_id, recipients, *, dry_run=False):
         """
         Updates the characters that the recipients see.
 
         Parameters:
+          characters (str): The group id to represent the characters who are updated.
           service_id (str): As always.
           channel_id (str): The channel id.
-          characters (str): The group id to represent the characters who are updated.
           recipients (str): The group id to send to.
           dry_run=False: if True don't acually send the message (messages are sent in thier JSON-strin format).
 
@@ -271,14 +270,14 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_buttons(self, service_id, channel_id, buttons, recipients, *, dry_run=False):
+    async def update_buttons(self, buttons, service_id, channel_id, recipients, *, dry_run=False):
         """
         Updates the buttons that the recipients see.
 
         Parameters:
+          buttons (list of Buttons): The buttons list to be updated.
           service_id (str): As always.
           channel_id (str): The channel id.
-          buttons (list of Buttons): The buttons list to be updated.
           recipients (str): The group id to send to.
           dry_run=False: Don't acually send anything if True.
 
@@ -294,6 +293,8 @@ class WSClient:
         """
         if not recipients:
             return None
+        if type(buttons) not in [list, tuple]:
+            buttons = [buttons]
         button_dicts = [b if type(b) is dict else dataclasses.asdict(b) for b in buttons]
         for b in button_dicts: # Not sure if this helps?
             if 'bottom_buttons' in b and not b['bottom_buttons']:
@@ -315,14 +316,14 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_context_menu(self, service_id, channel_id, menu_items, recipients, *, dry_run=False):
+    async def update_context_menu(self, menu_items, service_id, channel_id, recipients, *, dry_run=False):
         """
         Updates the right-click menu that the recipients can open on various messages.
 
         Parameters:
+          menu_items (list): List of ContextMenuElement dataclasses.
           service_id (str): As always.
           channel_id (str): The channel id.
-          menu_items (list): List of ContextMenuElement dataclasses.
 
         Returns:
           The message as a dict.
@@ -345,14 +346,14 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_style(self, service_id, channel_id, style_content, recipients, *, dry_run=False):
+    async def update_style(self, style_elements, service_id, channel_id, recipients, *, dry_run=False):
         """
         Updates the style (whehter the canvas is expanded, other look-and-feel aspects) that the recipients see.
 
         Parameters:
+          style_elements (list of dicts or StyleElement objects): The style content to be updated. Dicts are converted into 1-elemnt lists.
           service_id (str): As always.
           channel_id (str): The channel id.
-          style_content (list of dicts): The style content to be updated. TODO: List of Style classes.
           recipients (str): The group id to send to.
           dry_run=False: Don't acually send anything if True.
 
@@ -360,7 +361,7 @@ class WSClient:
           The message as a dict.
 
         Example:
-            >>> style_content = [
+            >>> style_elements = [
             >>>   {
             >>>     "widget": "channel",
             >>>     "display": "invisible",
@@ -375,10 +376,12 @@ class WSClient:
             >>>       },
             >>>     "text": "<h1>Start from here.</h1><p>This is a Button, which most channels have</p>"
             >>>   }]
-            >>> ws_client.update_style("service_id", "channel_id", style_content, ["user1", "user2"])
+            >>> ws_client.update_style("service_id", "channel_id", style_elements, ["user1", "user2"])
         """
         if not recipients:
             return None
+        if type(style_elements) not in [list, tuple]:
+            style_elements = [style_elements]
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -387,7 +390,7 @@ class WSClient:
                 "subtype": "update_style",
                 "channel_id": channel_id,
                 "recipients": recipients,
-                "content": style_content,
+                "content": style_elements,
                 "group_id": "temp",
                 "context": {}
             }
@@ -396,14 +399,14 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_channel_info(self, service_id, channel_id, channel_info, *, dry_run=False):
+    async def update_channel_info(self, channel_info, service_id, channel_id, *, dry_run=False):
         """
         Updates the channel name, description, etc for a given channel.
 
         Parameters:
+          channel_info (ChannelInfo or dict): The data of the update.
           service_id (str): As always.
           channel_id (str): The channel id.
-          channel_info (ChannelInfo or dict): The data of the update.
           dry_run=False: Don't acually send anything if True.
 
         Returns: The message as a dict.
@@ -473,7 +476,7 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update(self, service_id, target_client_id, data, *, dry_run=False):
+    async def update(self, data, target_client_id, service_id, *, dry_run=False):
         """
         A generic update function that is rarely used.
 
@@ -565,10 +568,11 @@ class WSClient:
         """
         Asks for the list of characters. The socket will send back a message with the information later.
 
-        Parameters (these are common to most fetch messages):
+        Parameters:
           user_id (str): Used in the "action" message that is sent.
           channel_id (str): Used in the body of said message.
           dry_run=False: Don't acually send anything if True.
+            These three parameters are common to most fetch messages.
 
         Returns:
           The message that was sent as a dict.
@@ -590,8 +594,7 @@ class WSClient:
         return message
 
     async def fetch_buttons(self, user_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_characters but for the buttons.
-        These functions return the sent message, the actual response will come later."""
+        """Same usage as fetch_characters but for the buttons. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -607,8 +610,7 @@ class WSClient:
         return message
 
     async def fetch_style(self, user_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_characters but for the style.
-        These functions return the sent message, the actual response will come later."""
+        """Same usage as fetch_characters but for the style. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -624,8 +626,7 @@ class WSClient:
         return message
 
     async def fetch_canvas(self, user_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_characters but for the canvas.
-        These functions return the sent message, the actual response will come later."""
+        """Same usage as fetch_characters but for the canvas. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -641,8 +642,7 @@ class WSClient:
         return message
 
     async def fetch_channel_info(self, user_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_characters but for the channel_info.
-        These functions return the sent message, the actual response will come later."""
+        """Same usage as fetch_characters but for the channel_info. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),

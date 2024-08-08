@@ -7,31 +7,17 @@ This library is the open-source SDK for building CCS apps. These apps interface 
 
 Don't worry about network configuration! The included Demo in the `public Github repo <https://github.com/groupultra/sdk-public>`_ needs nothing more than your Moobius account credentials and the ID of a Moobius channel you created in the browser.
 
+Tutorials
+=================
 
 .. toctree::
-    Tutorials
-        Don't know how to set up a service? <guide/Getting started>
-        Need to make a group chat with roles and differing message types? <guide/Group chat>
-        Did you know that this supports both *simple* and *complex* buttons? <guide/Buttons>
-        Do you favor *bots* or the easier *puppets*? <guide/Bots vs puppets>
-        Have to set up a right-click menu and canvas? <guide/Menu Canvas>
-        Want a Python dict that stores data on the disk? <guide/Using the database>
-        Once you are familair with the basics, TODO check out this fully-featured battleship game. <guide/Battleship game>
-        Important Jargon concepts are listed here <guide/Jargon>
-   moobius_quickstart
-   moobius_types
-   moobius_utils
-   moobius_core_sdk
-   moobius_core_wand
-   moobius_database_database_interface
-   moobius_database_json_database
-   moobius_database_null_database
-   moobius_database_redis_database
-   moobius_database_storage
-   moobius_network_asserts
-   moobius_network_http_api_wrapper
-   moobius_network_ws_client
+    tutorial_index
 
+Modules
+=================
+
+.. toctree::
+   module_index
 
 Videos
 ===================================================================================================
