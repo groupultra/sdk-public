@@ -1,6 +1,7 @@
 # TODO: work in progress, namely the actual game mechanics (the SDK interaction should need none or little change).
 from moobius import Moobius
-from moobius.types import ButtonClick, Button, StyleElement, CanvasElement, ButtonArgument
+from moobius.types import ButtonClick, Button, StyleElement, CanvasElement, InputComponent
+import moobius.types as types
 
 SHIPS = {'kayak':[1,1], 'Viking-boat':[2,1],
          'scout':[3,1], 'battleship':[4,1],
@@ -68,22 +69,22 @@ class BattleshipService(Moobius):
         self.games[channel_id] = {'players':{}, 'game': None}
 
     async def on_fetch_canvas(self, action):
-        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand=True)], [action.sender])
+        await self.send_update_style([StyleElement(widget="canvas", display="visible", expand=True)], action.channel_id, [action.sender])
 
     async def _update_buttons(self, channel_id, user_id):
         """Updates the buttons to match the state, and updates the canvas."""
-        buttons = [Button(button_id='new_game', button_name='new_game', button_name='New game/restart', new_window=False)]
+        buttons = [Button(button_id='new_game', button_name='new_game', button_name='New game/restart', dialog=False)]
         canvas_text = 'No active game'
         if user:= self.games[channel_id].get(user_id, None):
             canvas_text = 'Sinkage: '+user.sinkage+'\n'+'\n'.join(user.reports)
             for weapon, count in user.weapons():
                 if count>0:
-                    button_args = [ButtonArgument(name='row', type='string', optional=False, placeholder='Row'),
-                                   ButtonArgument(name='col', type='string', optional=False, placeholder='Column')]
-                    buttons.append(Button(button_id=weapon, button_name=weapon, button_name=weapon+f' ({count})', new_window=True,
-                                          arguments=button_args))
-        await self.send_update_canvas([CanvasElement(text=canvas_text)])
-        await self.send_update_buttons(channel_id, buttons, [user_id])
+                    button_args = [InputComponent(label='row', type=types.STRING, optional=False, placeholder='Row'),
+                                   InputComponent(label='col', type=types.STRING, optional=False, placeholder='Column')]
+                    buttons.append(Button(button_id=weapon, button_name=weapon, button_name=weapon+f' ({count})', dialog=True,
+                                          components=button_args))
+        await self.send_update_canvas([CanvasElement(text=canvas_text)], channel_id, [user_id])
+        await self.send_update_buttons(buttons, channel_id, [user_id])
 
     async def on_fetch_buttons(self, action):
         await self._update_buttons(action.channel_id, action.sender)
@@ -112,5 +113,5 @@ class BattleshipService(Moobius):
             await self.send_message('Game reset', button_click.channel_id, button_click.sender, [button_click.sender])
         await self._update_buttons(self, button_click.channel_id, button_click.sender)
 
-    async def one_message_up(self, the_message):
-        await self.send_message(the_message) # Ez group chat.
+    async def one_message_up(self, message):
+        await self.send_message(message) # Ez group chat.

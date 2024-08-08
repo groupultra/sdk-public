@@ -10,8 +10,8 @@ class MenuCanvasService(Moobius):
         canvas_elements = [CanvasElement(text="Some **text** here, along with an image. Try sending a message and richt-clicking on it.", path="https://www.moobius.net/images/index/indexH2.png")]
         canvas_elements.append(CanvasElement(path="https://www.moobius.net/images/index/indexBg.png"))
         canvas_elements.append(CanvasElement(text="More `text` here.\nWith multiple lines.\nSeperated by newlines."))
-        await self.send_update_canvas(action.channel_id, canvas_elements, [action.sender])
-        await self.send_update_style(action.channel_id, [StyleElement(widget="canvas", display="visible", expand=True)], [action.sender])
+        await self.send_update_canvas(canvas_elements, action.channel_id, [action.sender])
+        await self.send_update_style([StyleElement(widget="canvas", display="visible", expand=True)], action.channel_id, [action.sender])
 
     async def on_fetch_context_menu(self, action):
         elements = []
@@ -20,12 +20,12 @@ class MenuCanvasService(Moobius):
 
         for i in range(len(menu_types)):
             for j in range(3):
-                elements.append(ContextMenuElement(item_name=menu_types[i]+' item '+str(j), item_id=menu_types[i]+str(j), support_subtype=[menu_types[i]]))
-        await self.send_update_context_menu(action.channel_id, elements, [action.sender])
+                elements.append(ContextMenuElement(item_text=menu_types[i]+' item '+str(j), item_id=menu_types[i]+str(j), support_subtype=[menu_types[i]]))
+        await self.send_update_context_menu(elements, action.channel_id, [action.sender])
 
     async def on_context_menu_click(self, context_click: MenuClick):
         txt = 'Menu choice: '+context_click.item_id+' Message content: '+str(context_click.message_content)
         await self.send_message(txt, context_click.channel_id, context_click.sender, [context_click.sender])
 
-    async def on_message_up(self, the_message):
-        await self.send_message(the_message) # A trivial group chat so that messages can appear.
+    async def on_message_up(self, message):
+        await self.send_message(message) # A trivial group chat so that messages can appear.

@@ -1,26 +1,29 @@
 from moobius import Moobius
-from moobius.types import Button, ButtonClick, ButtonArgument
+from moobius.types import Button, ButtonClick, InputComponent
+from moobius import types
+
 
 class ButtonService(Moobius):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     async def on_fetch_buttons(self, action):
-        simple_button = Button(button_id='easy', button_name='Simple button.', new_window=False)
-        button_args = [ButtonArgument(name='Pick a fruit!', type='enum', optional=False, values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
-                       ButtonArgument(name='Favorite color!', type='string', optional=False, placeholder="Artsy!", values=[])]
-        complex_button = Button(button_id='hard', button_name='Pop-up button.', new_window=True, arguments=button_args)
-        await self.send_update_buttons(action.channel_id, [simple_button, complex_button], [action.sender])
+        simple_button = Button(button_id='easy', button_text='Simple button.', dialog=False)
+        button_args = [InputComponent(label='Pick a fruit!', type=types.DROPDOWN, optional=False, choices=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
+                       InputComponent(label='Favorite color!', type=types.TEXT, optional=False, placeholder="Artsy!", choices=[])]
+        complex_button = Button(button_id='hard', button_text='Pop-up button.', dialog=True, components=button_args)
+        await self.send_update_buttons([simple_button, complex_button], action.channel_id, [action.sender])
 
     async def on_button_click(self, button_click: ButtonClick):
+        print('Button click:', button_click)
         which_one = button_click.button_id
         txt = ''
         if which_one == 'easy':
             txt = 'Pressed the Simple button'
         elif which_one == 'hard':
-            for a in button_click.arguments:
-                if a.name == 'Favorite color!':
-                    txt += ' Color: '+a.value # Both kinds of arguments have a value.
-                elif a.name == 'Pick a fruit!':
-                    txt += ' Fruit: '+a.value
+            for a in button_click.components:
+                if a.label == 'Favorite color!':
+                    txt += ' Color: '+a.choice # Both kinds of arguments have a value.
+                elif a.label == 'Pick a fruit!':
+                    txt += ' Fruit: '+a.choice
         await self.send_message(txt, button_click.channel_id, button_click.sender, [button_click.sender])

@@ -7,7 +7,7 @@ from loguru import logger
 from moobius import Moobius, MoobiusStorage
 from moobius.database.storage import CachedDict
 import moobius.types as types
-from moobius.types import Button, CanvasElement, StyleElement, ContextMenuElement, MessageBody, ButtonArgument
+from moobius.types import Button, CanvasElement, StyleElement, ContextMenuElement, MessageBody, InputComponent
 
 example_socket_callback_payloads = {} # Print these out when the AI is done.
 
@@ -41,7 +41,7 @@ class TestbedService(Moobius):
             self._default_buttons = [Button(**b) for b in json.load(f)]
         self.image_show_dict = {}
 
-        _menu = lambda name, the_id, tys: ContextMenuElement(item_name=name, item_id=the_id, support_subtype=tys)
+        _menu = lambda name, the_id, tys: ContextMenuElement(item_text=name, item_id=the_id, support_subtype=tys)
         menus = [_menu('Text 1', '1', [types.TEXT]), _menu('Text 2', '2', [types.TEXT]), _menu('Text 3 popup', '3', [types.TEXT]),
                  _menu('Image 1', 'R', [types.IMAGE]), _menu('Image 2', 'G', [types.IMAGE]), _menu('Image 3 popup', 'B', [types.IMAGE]),
                  _menu('Audio 1', 'doe', [types.AUDIO]), _menu('Audio 2', 're', [types.AUDIO]), _menu('Audio 3 popup', 'mi', [types.AUDIO]),
@@ -49,11 +49,11 @@ class TestbedService(Moobius):
                  _menu('Card 1', 'Ace', [types.CARD]), _menu('Card 2', 'Jack', [types.CARD]), _menu('Card 3 popup', 'King', [types.CARD])]
         # The third option for each message type is a pop-up menu:
         for m in menus:
-            if 'popup' in m.item_name:
-                m.new_window = True
-                arg1 = ButtonArgument(name='popup', type='enum', optional=False, values=["Yes do this!", "No, don't"], placeholder='Choose an option.')
-                arg2 = ButtonArgument(name='popup2', type='enum', optional=False, values=["Si", "No"], placeholder='Choose another option.')
-                m.arguments = [arg1, arg2]
+            if 'popup' in m.item_text:
+                m.dialog = True
+                arg1 = InputComponent(label='popup', type=types.DROPDOWN, optional=False, choices=["Yes do this!", "No, don't"], placeholder='Choose an option.')
+                arg2 = InputComponent(label='popup2', type=types.DROPDOWN, optional=False, choices=["Si", "No"], placeholder='Choose another option.')
+                m.components = [arg1, arg2]
         self.context_menu_list = menus
         self.LIGHT = "light"
         self.DARK = "dark"
@@ -131,7 +131,7 @@ class TestbedService(Moobius):
         im_kys = list(self.images.keys())
         for i in range(len(im_kys)):
             if i>=2: # Test both cases.
-                self.image_paths[im_kys[i]] = await self.upload_file(self.images[im_kys[i]]) # Uploaded images.
+                self.image_paths[im_kys[i]] = await self.upload(self.images[im_kys[i]]) # Uploaded images.
             else:
                 self.image_paths[im_kys[i]] = self.images[im_kys[i]] # Local images, should auto upload once.
 
@@ -221,13 +221,13 @@ class TestbedService(Moobius):
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = []
                     await self.send_buttons_from_database(channel_id, sender)
-                    await self.send_update_style(channel_id, [StyleElement(widget=types.CANVAS, display="invisible", expand=False)], to_whom)
+                    await self.send_update_style([StyleElement(widget=types.CANVAS, display="invisible", expand=False)], channel_id, to_whom)
                 elif txt1 == "show":
                     for usr in to_whom:
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = self.default_buttons
                     await self.send_buttons_from_database(channel_id, sender)
-                    await self.send_update_style(channel_id, [StyleElement(widget=types.CANVAS, display="visible", expand=True)], to_whom)
+                    await self.send_update_style(StyleElement(widget=types.CANVAS, display="visible", expand=True), channel_id, to_whom)
                 elif txt1 == "reset":
                     for sn in range(self.MICKEY_LIMIT):
                         the_character_id = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"]
@@ -245,7 +245,7 @@ class TestbedService(Moobius):
                     for usr in to_whom:
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = self.default_buttons # Reset buttons etc.
-                    await self.send_update_buttons(channel_id, self.default_buttons, to_whom)
+                    await self.send_update_buttons(self.default_buttons, channel_id, to_whom)
                 elif txt1.split(' ')[0] == 'laser':
                     await self.send_message(f"NOTE: The Laser feature is not a standard SDK feature, it is specific to Demo.", channel_id, sender, to_whom)
                     if '>' not in txt1:
@@ -253,10 +253,10 @@ class TestbedService(Moobius):
                     else:
                         pair = [t.strip() for t in txt.split('>')]
                         the_name = ' '.join(pair[0].split(' ')[1:])
-                        the_message = pair[1]
-                        if len(the_message.strip())<2:
+                        message = pair[1]
+                        if len(message.strip())<2:
                             await self.send_message(f'The message was empty, a default message will be used.".', channel_id, sender, to_whom)
-                            the_message = 'Empty_message!'
+                            message = 'Empty_message!'
                         real_ids = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)
                         real_profiles = await self.fetch_character_profile(real_ids)
                         target_id = None
@@ -265,7 +265,7 @@ class TestbedService(Moobius):
                                 target_id = rp.character_id
                         if target_id:
                             await self.send_message(f'Sending message to name={the_name}, id={target_id}".', channel_id, sender, to_whom)
-                            await self.send_message(f'Laser message: "{the_message}".', channel_id, sender, target_id)
+                            await self.send_message(f'Laser message: "{message}".', channel_id, sender, target_id)
                         else:
                             await self.send_message(f'Cannot find character with name={the_name}".', channel_id, sender, to_whom)
                 else:
@@ -302,8 +302,8 @@ class TestbedService(Moobius):
         to_whom = await self.fetch_member_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
 
         state = the_channel.states[sender]['canvas_mode']
-        await self.send_update_canvas(channel_id, self.image_show_dict[state], to_whom)
-        await self.send_update_style(channel_id, [StyleElement(widget=types.CANVAS, display="visible", expand=True)], to_whom)
+        await self.send_update_canvas(self.image_show_dict[state], channel_id, to_whom)
+        await self.send_update_style([StyleElement(widget=types.CANVAS, display="visible", expand=True)], channel_id, to_whom)
 
     async def add_real_character(self, channel_id, character_id, intro="joined the channel!"):
         character = await self.fetch_character_profile(character_id)
@@ -315,7 +315,7 @@ class TestbedService(Moobius):
         the_channel.states[character_id] = self.default_status
 
         character_ids = list(the_channel.real_characters.keys())
-        await self.send_update_characters(channel_id, character_ids, character_ids)
+        await self.send_update_characters(character_ids, channel_id, character_ids)
         await self.send_message(f'{name} {intro} (id={character_id})', channel_id, character_id, character_ids)
 
     async def on_join_channel(self, action):
@@ -338,7 +338,7 @@ class TestbedService(Moobius):
         real_characters = (await self.get_channel(channel_id)).real_characters
         character_ids = list(real_characters.keys())
 
-        await self.send_update_characters(channel_id, character_ids, character_ids)
+        await self.send_update_characters(character_ids, channel_id, character_ids)
         await self.send_message(f'{name} left the channel!', channel_id, sender, character_ids)
 
     async def on_copy_client(self, the_copy):
@@ -363,6 +363,7 @@ class TestbedService(Moobius):
     async def on_button_click(self, button_click):
         """Called when the user presses a button (and selecting an option of a list appears). button_click is a ButtonClick object.
            This is a major switchyard which handles most of the different buttons in the demo."""
+        print("Button click:", button_click)
         example_socket_callback_payloads['on_button_click'] = button_click
         channel_id = button_click.channel_id
         button_id = button_click.button_id.lower()
@@ -373,9 +374,17 @@ class TestbedService(Moobius):
 
         redis_txt = 'not-the-Redis' if self.client_config['avoid_redis'] else 'Redis'
         value = None
+        entry_message = None # A silly enter message in button component box, and then send it as a message.
+        print("Button click:", button_click)
         if button_click.arguments:
+
             value0 = button_click.arguments[0].value
-            value = value0.lower()
+            value = value0.lower() if value0 else value0
+            if len(button_click.arguments)>1:
+                if em := button_click.arguments[1].value:
+                    entry_message = str(em)
+        if entry_message:
+            await self.send_message("Entered from a button: "+entry_message, button_click.channel_id, button_click.sender, button_click.sender)
 
         def _make_image(vignette=0.0):
             """Generates a "random" image and returns the local filepath (as a string) as well as a removal function (if the image is dynamic)."""
@@ -422,18 +431,18 @@ class TestbedService(Moobius):
             elif value == 'ImagePath'.lower():
                 file_path, rm_fn = _make_image(0.0)
                 path_obj = pathlib.Path(file_path) # Conversion to a Path makes the Moobius class recognize it as an image.
-                the_message = await self.send_message(path_obj, channel_id, who_clicked, to_whom)
+                message = await self.send_message(path_obj, channel_id, who_clicked, to_whom)
                 rm_fn()
-                await self.send_message(f'Image path in bucket: {the_message["body"]["content"]["path"]}', channel_id, who_clicked, to_whom)
+                await self.send_message(f'Image path in bucket: {message["body"]["content"]["path"]}', channel_id, who_clicked, to_whom)
             elif value == 'AudioPath'.lower():
                 await self.send_message(pathlib.Path('./resources/tiny.mp3'), channel_id, who_clicked, to_whom)
             elif value == 'FilePath'.lower():
                 await self.send_message(pathlib.Path('./resources/tiny.pdf'), channel_id, who_clicked, to_whom)
             elif value == 'ImageGivenTextPath'.lower(): # Override subtype to not send a boring text message.
                 file_path, rm_fn = _make_image(-1.0)
-                the_message = await self.send_message(file_path, channel_id, who_clicked, to_whom, subtype=types.IMAGE)
+                message = await self.send_message(file_path, channel_id, who_clicked, to_whom, subtype=types.IMAGE)
                 rm_fn()
-                await self.send_message(f'Image path in bucket: {the_message["body"]["content"]["path"]}', channel_id, who_clicked, to_whom)
+                await self.send_message(f'Image path in bucket: {message["body"]["content"]["path"]}', channel_id, who_clicked, to_whom)
             elif value == 'DownloadGivenImagePath'.lower():
                 file_path, rm_fn = _make_image(1.0)
                 await self.send_message(pathlib.Path(file_path), channel_id, who_clicked, to_whom, subtype=types.FILE)
@@ -455,7 +464,7 @@ class TestbedService(Moobius):
                 the_channel.states.save(who_clicked)
                 state = the_channel.states[who_clicked]['canvas_mode']
 
-                await self.send_update_canvas(channel_id, self.image_show_dict[state], to_whom)
+                await self.send_update_canvas(self.image_show_dict[state], channel_id, to_whom)
 
                 image_uri = self.image_paths[state] # Shows using an online image.
                 await self.send_message(image_uri, channel_id, who_clicked, to_whom, subtype=types.IMAGE)
@@ -479,10 +488,11 @@ class TestbedService(Moobius):
                 self.TMP_print_buttons = True
                 await self.send_fetch_buttons(channel_id)
             elif value == "Fancy Right Click".lower():
-                await self.send_update_context_menu(channel_id, self.context_menu_list, to_whom)
+                await self.send_update_context_menu(self.context_menu_list, channel_id, to_whom)
                 await self.send_message("Try right-clicking on a message.", channel_id, who_clicked, to_whom)
             else:
-                raise Exception(f'Strange value for button channel_btn: {value}')
+                print('THE BUTTON CLICK:', button_click)
+                raise Exception(f'Strange value for button message_btn: {value}')
         elif button_id == "money_btn".lower():
             if value == '(Print Savings)'.lower() or value == '(Donate all)'.lower():
                 if value == '(Donate all)'.lower():
@@ -565,7 +575,7 @@ class TestbedService(Moobius):
                 with open(tmp_path, 'w', encoding='utf-8') as f:
                     f.write(str(self.database_debugs)) # It's a big data dump! So it is helpful to send as an attachment.
                 path_obj = pathlib.Path(tmp_path) # Conversion to a Path makes the Moobius class recognize it as an image.
-                the_message = await self.send_message(path_obj, channel_id, who_clicked, to_whom)
+                message = await self.send_message(path_obj, channel_id, who_clicked, to_whom)
                 os.remove(tmp_path)
             elif value == "Wipe DatabaseA".lower() or value == "Wipe DatabaseB".lower():
                 two_arg_pop = value == "Wipe DatabaseB".lower()
@@ -591,9 +601,9 @@ class TestbedService(Moobius):
                 local_path = './direct_download.png'
                 if os.path.exists(local_path):
                     os.remove(local_path)
-                await self.download_file(logo_url, local_path, overwrite=True)
+                await self.download(logo_url, local_path, overwrite=True)
                 await self.send_message(f"Downloaded an image file to {os.path.realpath(local_path)}", channel_id, who_clicked, to_whom)
-                the_bytes = await self.download_file(logo_url, filepath=None) # None filename means just make bytes.
+                the_bytes = await self.download(logo_url, filepath=None) # None filename means just make bytes.
                 await self.send_message(f"Direct download to bytes (not to a file): "+str(the_bytes), channel_id, who_clicked, to_whom, len_limit=1024)
             else:
                 raise Exception(f'Strange value for button channel_btn: {value}')
@@ -628,7 +638,8 @@ class TestbedService(Moobius):
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
                     the_character_id = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"].character_id
                     await self.update_puppet(puppet_id=the_character_id, avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
-                    await self.send_message(f"Updated Mickey name and image (refresh to see).", channel_id, who_clicked, to_whom)
+                    await self.calculate_and_update_character_list_from_database(channel_id, to_whom[0])
+                    await self.send_message(f"Updated Mickey name and image.", channel_id, who_clicked, to_whom)
             elif value == "List Characters".lower():
                 char_list = await self.fetch_puppets()
 
@@ -726,12 +737,16 @@ class TestbedService(Moobius):
         else:
             logger.warning(f"Unknown button_id: {button_id}")
 
+    async def on_fetch_style(self, action):
+        txt = str(action)
+        await self.send_message('Style fetch request from you:'+txt, action.channel_id, action.sender, action.sender)
+
     async def on_context_menu_click(self, menu_click):
         """Right-click the context menu."""
         item_id = menu_click.item_id
         message_content = menu_click.message_content
         context_menu_dict = dict(zip([m.item_id for m in self.context_menu_list], self.context_menu_list))
-        txt = f'You choose "{context_menu_dict[item_id].item_name}" on message "{message_content} (this message only sent to whoever clicked); Arguments={menu_click.arguments}".'
+        txt = f'You choose "{context_menu_dict[item_id].item_text}" on message "{message_content} (this message only sent to whoever clicked); components={menu_click.arguments}".'
         await self.send_message(txt, menu_click.channel_id, menu_click.sender, menu_click.sender)
 
     async def on_spell(self, spell):
@@ -757,7 +772,7 @@ class TestbedService(Moobius):
     async def send_buttons_from_database(self, channel_id, character_id):
         """Pipes the buttons (loaded from the JSON) to self.send_update_buttons."""
         button_list = (await self.get_channel(channel_id)).buttons.get(character_id, self._default_buttons) # Contents of buttons.json.
-        await self.send_update_buttons(channel_id, button_list, [character_id])
+        await self.send_update_buttons(button_list, channel_id, character_id)
 
     async def calculate_and_update_character_list_from_database(self, channel_id, character_id):
         """Pipes all real users + the correct number of Mickeys to self.send_update_characters."""
@@ -771,4 +786,4 @@ class TestbedService(Moobius):
             key = f"{self.MICKEY}_{sn}"
             character_list.append(the_channel.puppet_characters[key].character_id)
 
-        await self.send_update_characters(channel_id, character_list, [character_id])
+        await self.send_update_characters(character_list, channel_id, [character_id])

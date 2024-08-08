@@ -69,7 +69,7 @@ class TemplateService(Moobius):
 
         for name in self.images: # Once per startup upload images.
             if name not in self.image_paths:
-                self.image_paths[name] = await self.upload_file(self.images[name])
+                self.image_paths[name] = await self.upload(self.images[name])
 
         for sn in range(self.mickey_LIMIT):
             key = f"Mickey_{sn}"
@@ -139,13 +139,13 @@ class TemplateService(Moobius):
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = []
                     await self.send_buttons_from_database(channel_id, sender)
-                    await self.send_update_style(channel_id, [StyleElement(widget=types.CANVAS, display="invisible", expand=False)], to_whom)
+                    await self.send_update_style([StyleElement(widget=types.CANVAS, display="invisible", expand=False)], channel_id, to_whom)
                 elif txt1 == "show":
                     for usr in to_whom:
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = self.default_buttons
                     await self.send_buttons_from_database(channel_id, sender)
-                    await self.send_update_style(channel_id, [StyleElement(widget=types.CANVAS, display="visible", expand=True)], to_whom)
+                    await self.send_update_style([StyleElement(widget=types.CANVAS, display="visible", expand=True)], channel_id, to_whom)
                 elif txt1 == "reset":
                     for sn in range(self.mickey_LIMIT):
                         the_character_id = the_channel.puppet_characters[f"Mickey_{sn}"].character_id
@@ -161,7 +161,7 @@ class TemplateService(Moobius):
                     for usr in to_whom:
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = self.default_buttons # Reset buttons etc.
-                    await self.send_update_buttons(channel_id, self.default_buttons, to_whom)
+                    await self.send_update_buttons(self.default_buttons, channel_id, to_whom)
                 else:
                     txt = txt+' (this message has no recipients, either it was sent to service or there is a bug).'
                     await self.send_message(txt, channel_id, sender, to_whom)
@@ -196,8 +196,8 @@ class TemplateService(Moobius):
         to_whom = await self.fetch_member_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
 
         state = the_channel.states[sender]['canvas_mode']
-        await self.send_update_canvas(channel_id, self.image_show_dict[state], to_whom)
-        await self.send_update_style(channel_id, [StyleElement(widget=types.CANVAS, display="visible", expand=True)], to_whom)
+        await self.send_update_canvas(self.image_show_dict[state], channel_id, to_whom)
+        await self.send_update_style([StyleElement(widget=types.CANVAS, display="visible", expand=True)], channel_id, to_whom)
 
     async def add_real_character(self, channel_id, character_id, intro="joined the channel!"):
         character = await self.fetch_character_profile(character_id)
@@ -209,7 +209,7 @@ class TemplateService(Moobius):
         the_channel.states[character_id] = self.default_status
 
         character_ids = list(the_channel.real_characters.keys())
-        await self.send_update_characters(channel_id, character_ids, character_ids)
+        await self.send_update_characters(character_ids, channel_id, character_ids)
         await self.send_message(f'{name} {intro} (id={character_id})', channel_id, character_id, character_ids)
 
     async def on_join_channel(self, action):
@@ -232,7 +232,7 @@ class TemplateService(Moobius):
         real_characters = (await self.get_channel(channel_id)).real_characters
         character_ids = list(real_characters.keys())
 
-        await self.send_update_characters(channel_id, character_ids, character_ids)
+        await self.send_update_characters(character_ids, channel_id, character_ids)
         await self.send_message(f'{name} left the channel!', channel_id, sender, character_ids)
 
     async def on_copy_client(self, the_copy):
@@ -322,7 +322,7 @@ class TemplateService(Moobius):
     async def send_buttons_from_database(self, channel_id, character_id):
         """Pipes the buttons (loaded from the JSON) to self.send_update_buttons."""
         button_list = (await self.get_channel(channel_id)).buttons.get(character_id, self._default_buttons) # Contents of buttons.json.
-        await self.send_update_buttons(channel_id, button_list, [character_id])
+        await self.send_update_buttons(button_list, channel_id, [character_id])
 
     async def calculate_and_update_character_list_from_database(self, channel_id, character_id):
         """Pipes all real users + the correct number of Mickeys to self.send_update_characters."""
@@ -336,4 +336,4 @@ class TemplateService(Moobius):
             key = f"Mickey_{sn}"
             character_list.append(the_channel.puppet_characters[key].character_id)
 
-        await self.send_update_characters(channel_id, character_list, [character_id])
+        await self.send_update_characters(character_list, channel_id, [character_id])

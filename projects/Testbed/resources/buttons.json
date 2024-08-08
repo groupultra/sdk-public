@@ -1,91 +1,96 @@
 [
     {
         "button_id": "message_btn",
-        "button_name": "Message!",
-        "new_window": true,
-        "arguments": [
+        "button_text": "Message!",
+        "dialog": true,
+        "components": [
             {
-                "name": "Select The Task",
-                "type": "enum",
-                "optional": false,
-                "values": ["TextMessage", "CardMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
+                "label": "Select The Task",
+                "type": "dropdown",
+                "optional": true,
+                "choices": ["TextMessage", "CardMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
                 "placeholder": "(choose)"
+            },
+            {
+                "label": "Send this message",
+                "optional": true,
+                "type":"string",
+                "placeholder": "(message text)"
             }
         ]
     },
     {
         "button_id": "channel_btn",
-        "button_name": "Channel!",
-        "new_window": true,
-        "arguments": [
+        "button_text": "Channel!",
+        "dialog": true,
+        "components": [
             {
-                "name": "Select Task",
-                "type": "enum",
+                "label": "Select Task",
+                "type": "dropdown",
                 "optional": false,
-                "values": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Test Database", "Wipe DatabaseA", "Wipe DatabaseB", "SDK direct download"],
+                "choices": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Test Database", "Wipe DatabaseA", "Wipe DatabaseB", "SDK direct download"],
                 "placeholder": "(choose)"
             }
         ]
     },
     {
         "button_id": "user_btn",
-        "button_name": "Characters!",
-        "new_window": true,
-        "arguments": [
+        "button_text": "Characters!",
+        "dialog": true,
+        "components": [
             {
-                "name": "Select task",
-                "type": "enum",
+                "label": "Select task",
+                "type": "dropdown",
                 "optional": false,
-                "values": ["Make Mickey", "Mickey Talk", "Update Mickey (not agent) name", "List Characters"],
+                "choices": ["Make Mickey", "Mickey Talk", "Update Mickey (not agent) name", "List Characters"],
                 "placeholder": "(choose)"
             }
         ]
     },
     {
         "button_id": "group_btn",
-        "button_name": "Groups!",
-        "new_window": true,
-        "arguments": [
+        "button_text": "Groups!",
+        "dialog": true,
+        "components": [
             {
-                "name": "Select Group Operation",
-                "type": "enum",
+                "label": "Select Group Operation",
+                "type": "dropdown",
                 "optional": false,
-                "values": ["List Channel Temp Groups", "List Channel Groups"],
+                "choices": ["List Channel Temp Groups", "List Channel Groups"],
                 "placeholder": "(choose)"
             }
-        ]
+        ],
+        "bottom_buttons": [{"text":"Cans-Cell", "type":"cancel"}, {"text":"Come-Fern", "type":"confirm"}]
     },
     {
         "button_id": "money_btn",
-        "button_name": "Redis-Pay",
-        "new_window": true,
-        "arguments": [
+        "button_text": "Redis-Pay",
+        "dialog": true,
+        "components": [
             {
-                "name": "currency_type",
-                "type": "enum",
+                "label": "currency_type",
+                "type": "dropdown",
                 "optional": false,
-                "values": ["(Print Savings)", "(Donate all)", "Naira", "Dollar", "Peso", "Yuan", "Euro", "Kina", "Penguin"],
-                "placeholder": "Select Currency"
+                "choices": ["(Print Savings)", "(Donate all)", "Naira", "Dollar", "Peso", "Yuan", "Euro", "Kina", "Penguin"]
             }
         ]
     },
     {
         "button_id": "database_btn",
-        "button_name": "JSON db test",
-        "new_window": true,
-        "arguments": [
+        "button_text": "JSON db test",
+        "dialog": true,
+        "components": [
             {
-                "name": "JSON DB",
-                "type": "enum",
+                "label": "JSON DB",
+                "type": "dropdown",
                 "optional": false,
-                "values": ["None", "Bool", "Int", "Float", "String", "List", "Dict", "Types Dataclass", "Custom Dataclass", "Print", "Clear", "Pop", "Del", "Reload"],
+                "choices": ["None", "Bool", "Int", "Float", "String", "List", "Dict", "Types Dataclass", "Custom Dataclass", "Print", "Clear", "Pop", "Del", "Reload"],
                 "placeholder": "Select a test"
             }
         ]
     },
     {
         "button_id": "command_btn",
-        "button_name": "Commands",
-        "new_window": false
+        "button_text": "Commands"
     }
 ]

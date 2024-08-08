@@ -42,7 +42,7 @@ class TestbedAgent(Moobius):
                 text2 = "meow"
                 button_list = [{"button_id": "keyc", "button_name": "cat talk","button_name": "Meow/Nya", "new_window": False}]
                 print('AGENT BUTTON UPDATE:', channel_id, [message_down.sender])
-                await self.send_update_buttons(channel_id, button_list, [message_down.sender]) # TODO: can buttons be updated by agent?
+                await self.send_update_buttons(button_list, channel_id, [message_down.sender]) # TODO: can buttons be updated by agent?
             elif text1 == "meow":
                 text2 = "nya"
             elif text1 == "log agent out":
@@ -72,7 +72,7 @@ class TestbedAgent(Moobius):
                     update_lines.append(k+': '+str(v))
                 show_JSON = False
                 if show_JSON:
-                    text2 = 'STR:\n'+'\n\n'.join(update_lines)+'\nJSON:\n'+json.dumps(self.most_recent_updates, indent=2, cls=utils.EnhancedJSONEncoder, ensure_ascii=False)
+                    text2 = 'STR:\n'+'\n\n'.join(update_lines)+'\nJSON:\n'+utils.enhanced_json_save(None, self.most_recent_updates, indent=2)
                 else:
                     text2 = '\n\n'.join(update_lines)
             elif text1 == 'user_info':
@@ -163,12 +163,12 @@ class TestbedAgent(Moobius):
             for channel_id in self.channel_storages.keys():
                 for button in self.channel_storages[channel_id].buttons:
                     if button['button_id'] == "key1":
-                        await self.send_button_click(channel_id, "key1", [('arg1', "Meet Tubbs")])
+                        await self.send_button_click("key1", [('arg1', "Meet Tubbs")], channel_id)
         elif text == "send_button_click_key2":
             for channel_id in self.channel_storages.keys():
                 for button in self.channel_storages[channel_id].buttons:
                     if button['button_id'] == "key2":
-                        await self.send_button_click(channel_id, "key2", [])
+                        await self.send_button_click("key2", [], channel_id)
         elif text == "nya_all":
             for channel_id in self.channel_storages.keys():
                 recipients = list(self.channel_storages[channel_id].characters.keys())

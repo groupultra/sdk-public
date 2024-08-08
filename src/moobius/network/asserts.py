@@ -180,7 +180,7 @@ def _button_arg_assert(ba, base_message, path):
     button_arg_template = min_subset_dict(['label', 'type', 'optional'], # choices is optional.
                                                     {'label':'opt1', 'type':types.DROPDOWN, 'choices':['a'], 'placeholder':_placecheck, 'optional':False})
     if not ba.get('choices'): # String means no need to value.
-        if ba.get('type') in [types.TEXT, types.TEXTBOX]:
+        if ba.get('type') in [types.TEXT, types.TEXTBOX, 'string']:
             ba = ba.copy()
             ba['choices'] = ['nooone']
     return structure_assert(button_arg_template, ba, base_message, path)

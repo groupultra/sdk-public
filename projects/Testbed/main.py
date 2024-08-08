@@ -5,7 +5,7 @@ import sys
 
 from service import TestbedService
 from agent import TestbedAgent
-from moobius import MoobiusWand
+from moobius import MoobiusWand, utils
 
 from loguru import logger
 
@@ -14,10 +14,9 @@ if __name__ == "__main__":
     if test_json_encode:
         import json, dataclasses
         from moobius import types
-        from moobius.utils import EnhancedJSONEncoder
         msg = types.MessageBody(subtype="A subtype", channel_id="e4-123", content={'a':1,'b':2}, timestamp=123,
                                 recipients=['id_1', 'id_2'], sender='Sender_id 1234', message_id='<random id>', context={})
-        msgj = json.dumps(msg, cls=EnhancedJSONEncoder, ensure_ascii=False)
+        msgj = utils.enhanced_json_save(None, msg)
         msg1 = json.loads(msgj)
         print('Object:', msg)
         print('Object dict:', dataclasses.asdict(msg))

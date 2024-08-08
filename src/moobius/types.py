@@ -1,43 +1,9 @@
 # Common datatypes are encoded as dataclasses which behave like dicts but have fixed keys.
 # In addition, string literals are encoded. This avoids "magic strings" appearing everywhere in the code.
 
-import dataclasses
+import dataclasses, time
 from dataclasses import dataclass
 from typing import Optional, Any
-
-
-def _tmp_sendprepare_not_quite_upgrade(message):
-    """For those not-quite-yet-there features, will remove. Given a message, returns the modified message."""
-    if type(message) is dict:
-        message = dict(zip(message.keys(), [_tmp_sendprepare_not_quite_upgrade(v) for v in message.values()]))
-        pairs = [['dialog', 'new_window']]
-        for new, deprecated in pairs:
-            if new in message:
-                message[deprecated] = message[new]
-        if 'type' in message and message['type'] == 'text':
-            message['type'] = "string"
-    elif type(message) in [list, tuple]:
-        message = [_tmp_sendprepare_not_quite_upgrade(m) for m in message]
-    return message
-
-
-def _tmp_recieveprepare_not_quite_upgrade(message):
-    """For those not-quite-yet-there features, will remove. Given a message, returns the modified message."""
-    if type(message) is dict:
-        message = dict(zip(message.keys(), [_tmp_recieveprepare_not_quite_upgrade(v) for v in message.values()]))
-        pairs = [['arguments', 'components'], ['new_window', 'dialog']]
-        for deprecated, new in pairs:
-            if deprecated in message:
-                message[new] = message[deprecated]
-                del message[deprecated] # Needed?
-        if set(message.keys()) == set(['name', 'value']): # Context menu fancy mode.
-            message = {'label':message['name'], 'choice':message['value']}
-        if set(message.keys()) == set(['label', 'value']): # Button fancy mode.
-            message = {'label':message['label'], 'choice':message['value']}
-    elif type(message) in [list, tuple]:
-        message = [_tmp_recieveprepare_not_quite_upgrade(m) for m in message]
-    return message
-
 
 BUTTON = "button" # Widget type, clickable button.
 CANVAS = "canvas" # Widget type, canvas. No interaction except expanding it and contracting it.
@@ -134,13 +100,13 @@ class Button:
 
 @dataclass
 @add_str_method
-class ButtonClickComponent:
+class ButtonClickArgument:
     """Describes which option users clicked on in a pop-up menu.
-    A ButtonClick will have a list of ButtonClickComponents if the button opens up a pop-up menu.
+    A ButtonClick will have a list of ButtonClickArguments if the button opens up a pop-up menu.
     Also used, uncommonly, for context-menu clicks which use pop-up submenus.
     Not used if the button does not contain a pop-up menu."""
     label: str # The InputComponent ID/label this applies to.
-    choice: str | int # What was choosen. Int for the types.DROPDOWN type, otherwise a string.
+    value: str # What was choosen.
 
 
 @dataclass
@@ -151,7 +117,7 @@ class ButtonClick:
     button_id: str # The Button ID this applies to.
     channel_id: str # What channel the user was in when the pressed the button.
     sender: str # The Character ID of who clicked the button. Can be a real user or an agent.
-    components: list[ButtonClickComponent] # What settings the user chosse (for buttons that open a pop-up menu).
+    arguments: list[ButtonClickArgument] # What settings the user chosse (for buttons that open a pop-up menu).
     recipients: list[str] # Rarely used.
     bottom_button_id:Optional[str] = None # For buttons that appear at the bottom.
     context:Optional[dict] = None # Rarely used metadata.
@@ -195,7 +161,7 @@ class MenuClick:
     sender: str # The Character ID of the user or agent who clicked the message.
     recipients: list[str] # Rarely used.
     context:Optional[dict]=None # Metadata rarely used.
-    components: Optional[list[ButtonClickComponent]] = None # What sub-menu settings, if the menu element clicked on has a sub-menu.
+    arguments: Optional[list[ButtonClickArgument]] = None # What sub-menu settings, if the menu element clicked on has a sub-menu.
 
 
 @dataclass

@@ -11,15 +11,15 @@ class DbExampleService(Moobius):
     async def on_fetch_canvas(self, action):
         await self.send_message('Try sending some messages!', action.channel_id, action.sender, [action.sender])
 
-    async def on_message_up(self, the_message):
-        c_id = the_message.channel_id; sender = the_message.sender
+    async def on_message_up(self, message):
+        c_id = message.channel_id; sender = message.sender
 
         default_stats = {'str':1, 'dex':1, 'int':1}
         stats = self.channel_storages[c_id].stats.get(sender, default_stats)
 
         report = ''
-        if the_message.subtype == 'text':
-            txt = the_message.content.text.lower().strip()
+        if message.subtype == 'text':
+            txt = message.content.text.lower().strip()
             for k in default_stats.keys():
                 if txt == k:
                     stats[k] += 1; report = f'{k.upper()} increased to {stats[k]}'

@@ -109,7 +109,6 @@ class WSClient:
             message = self.dumps(message) # This converts dataclasses into dicts.
         message_dict = json.loads(message)  # Go backards again.
         asserts.socket_assert(message_dict)
-        message_dict = types._tmp_sendprepare_not_quite_upgrade(message_dict)
         message = json.dumps(message_dict)
         await self.outbound_queue.put(message)
 

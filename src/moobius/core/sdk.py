@@ -21,7 +21,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, InputComponent, ButtonClickComponent, Payload, MenuClick, Update, UpdateElement, Copy, Character, ChannelInfo, CanvasElement, StyleElement, ContextMenuElement
+from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, InputComponent, ButtonClickArgument, Payload, MenuClick, Update, UpdateElement, Copy, Character, ChannelInfo, CanvasElement, StyleElement, ContextMenuElement
 from moobius.database.storage import MoobiusStorage
 from moobius import utils, types
 from loguru import logger
@@ -577,7 +577,7 @@ class Moobius:
             button_id=button_id,
             channel_id=channel_id,
             sender=self.client_id,
-            components=[ButtonClickComponent(name=arg[0], value=arg[1]) for arg in button_args],
+            components=[ButtonClickArgument(name=arg[0], value=arg[1]) for arg in button_args],
             context={}
         )
         await self.send("button_click", button_click_instance)
@@ -691,7 +691,6 @@ class Moobius:
         """
 
         payload_data = json.loads(payload)
-        payload_data = types._tmp_recieveprepare_not_quite_upgrade(payload_data)
         if 'message' in payload_data:
             if payload_data['message'].lower().strip() == 'Internal server error'.lower():
                 raise Exception('Received an internal server error from the Websocket.')

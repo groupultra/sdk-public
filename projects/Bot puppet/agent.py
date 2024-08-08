@@ -9,5 +9,5 @@ class BotAgent(Moobius):
         """Called after successful connection to Platform websocket and Agent login success."""
         await self.agent_join_service_channels('./config/service.json') # Log into the default set of channels if not already.
 
-    async def on_message_down(self, the_message):
-        await self.send_message('The agent got this message: '+str(the_message), the_message.channel_id, self.client_id, [the_message.sender])
+    async def on_message_down(self, message):
+        await self.send_message('The agent got this message: '+str(message), message.channel_id, self.client_id, [message.sender])
