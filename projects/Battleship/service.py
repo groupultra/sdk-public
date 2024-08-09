@@ -1,6 +1,6 @@
 # TODO: work in progress, namely the actual game mechanics (the SDK interaction should need none or little change).
 from moobius import Moobius
-from moobius.types import ButtonClick, Button, StyleElement, CanvasElement, InputComponent
+from moobius.types import ButtonClick, Button, StyleItem, CanvasItem, InputComponent
 import moobius.types as types
 
 SHIPS = {'kayak':[1,1], 'Viking-boat':[2,1],
@@ -69,7 +69,7 @@ class BattleshipService(Moobius):
         self.games[channel_id] = {'players':{}, 'game': None}
 
     async def on_fetch_canvas(self, action):
-        await self.send_update_style([StyleElement(widget="canvas", display="visible", expand=True)], action.channel_id, [action.sender])
+        await self.send_style([StyleItem(widget="canvas", display="visible", expand=True)], action.channel_id, [action.sender])
 
     async def _update_buttons(self, channel_id, user_id):
         """Updates the buttons to match the state, and updates the canvas."""
@@ -83,8 +83,8 @@ class BattleshipService(Moobius):
                                    InputComponent(label='col', type=types.STRING, optional=False, placeholder='Column')]
                     buttons.append(Button(button_id=weapon, button_name=weapon, button_name=weapon+f' ({count})', dialog=True,
                                           components=button_args))
-        await self.send_update_canvas([CanvasElement(text=canvas_text)], channel_id, [user_id])
-        await self.send_update_buttons(buttons, channel_id, [user_id])
+        await self.send_canvas([CanvasItem(text=canvas_text)], channel_id, [user_id])
+        await self.send_buttons(buttons, channel_id, [user_id])
 
     async def on_fetch_buttons(self, action):
         await self._update_buttons(action.channel_id, action.sender)

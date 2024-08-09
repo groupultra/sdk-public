@@ -37,7 +37,7 @@ def _recursive_dataclass(data):
 
 def _recursive_undataclass(data, typemark_dataclasses):
     """The inverse function, converts dataclasses back into dicts.
-    Accepts the dataclassed data. Returns the non-dataclassed data."""
+    Accepts the dataclassed data and whether to mark dataclasses in a special way so they are known as such. Returns the non-dataclassed data."""
     if dataclasses.is_dataclass(data):
         if typemark_dataclasses:
             dtype = type(data).__module__+'.'+type(data).__name__
@@ -55,8 +55,15 @@ def _recursive_undataclass(data, typemark_dataclasses):
         return data
 
 
+def assert_strs(*strs):
+    """Given a list. Returns True. Raises an Excpetion if the assert fails."""
+    for i, s in enumerate(strs):
+        if type(s) is not str:
+            raise Exception(f"The {i}th element is not a str")
+
+
 def enhanced_json_load(filename):
-    """Loads JSON from the disk, given the filename or bytes."""
+    """Loads JSON from the disk, given the filename or bytes. Returns the possibly-nested datastructure which may have Dataclasses."""
     if hasattr(filename, 'read'):
         data = filename.read()
     elif type(filename) is str:

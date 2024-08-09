@@ -13,7 +13,7 @@ class PuppetService(Moobius):
 
     async def _update_char_list(self, action, all=False):
         ids = await self.fetch_member_ids(action.channel_id, False)+[await self._get_puppet_id()]
-        await self.send_update_characters(character_ids=ids, channel_id=action.channel_id, recipients=[ids] if all else [action.sender])
+        await self.send_characters(character_ids=ids, channel_id=action.channel_id, recipients=[ids] if all else [action.sender])
 
     async def on_fetch_canvas(self, action):
         await self.send_message('Try sending messages to the other characters in this chat!', action.channel_id, action.sender, [action.sender])

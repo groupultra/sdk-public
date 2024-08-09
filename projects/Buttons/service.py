@@ -1,6 +1,6 @@
 from moobius import Moobius
-from moobius.types import Button, ButtonClick, InputComponent
-from moobius import types
+from moobius.types import *
+import moobius.types as types
 
 
 class ButtonService(Moobius):
@@ -8,11 +8,17 @@ class ButtonService(Moobius):
         super().__init__(**kwargs)
 
     async def on_fetch_buttons(self, action):
-        simple_button = Button(button_id='easy', button_text='Simple button.', dialog=False)
-        button_args = [InputComponent(label='Pick a fruit!', type=types.DROPDOWN, optional=False, choices=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
-                       InputComponent(label='Favorite color!', type=types.TEXT, optional=False, placeholder="Artsy!", choices=[])]
-        complex_button = Button(button_id='hard', button_text='Pop-up button.', dialog=True, components=button_args)
-        await self.send_update_buttons([simple_button, complex_button], action.channel_id, [action.sender])
+        simple_button = Button(button_id='easy', button_text='Simple button.')
+        pieces = [InputComponent(label='Pick a fruit!', type=types.DROPDOWN, optional=False, choices=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
+                  InputComponent(label='Favorite color!', type=types.TEXT, optional=False, placeholder="Artsy!", choices=[])]
+        dialog = Dialog("options", components=pieces)
+        complex_button = Button(button_id='hard', button_text='Pop-up button.', dialog=dialog)
+
+        b0 = BottomButton(id="b0", submit=False, text='Dont send the click')
+        b1 = BottomButton(id="b1", submit=True, text='Send it!')
+        dialog1 = Dialog("options", components=[], bottom_buttons=[b0, b1])
+        bottom_button = Button(button_id='bottom', button_text='Bottom button.', dialog=dialog1)
+        await self.send_buttons([simple_button, complex_button, bottom_button], action.channel_id, [action.sender])
 
     async def on_button_click(self, button_click: ButtonClick):
         print('Button click:', button_click)
@@ -21,9 +27,9 @@ class ButtonService(Moobius):
         if which_one == 'easy':
             txt = 'Pressed the Simple button'
         elif which_one == 'hard':
-            for a in button_click.components:
-                if a.label == 'Favorite color!':
-                    txt += ' Color: '+a.choice # Both kinds of arguments have a value.
-                elif a.label == 'Pick a fruit!':
-                    txt += ' Fruit: '+a.choice
+            txt = 'Pressed a fancy button choices:'
+            for a in button_click.arguments:
+                txt = txt+' '+a
+        elif which_one == 'bottom':
+            txt = "Bottom button: "+str(button_click)
         await self.send_message(txt, button_click.channel_id, button_click.sender, [button_click.sender])

@@ -2,92 +2,104 @@
     {
         "button_id": "message_btn",
         "button_text": "Message!",
-        "dialog": true,
-        "components": [
-            {
-                "label": "Select The Task",
-                "type": "dropdown",
-                "optional": true,
-                "choices": ["TextMessage", "CardMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
-                "placeholder": "(choose)"
-            },
-            {
-                "label": "Send this message",
-                "optional": true,
-                "type":"string",
-                "placeholder": "(message text)"
-            }
-        ]
+        "dialog": {
+            "title":"Message-related tests",
+            "components":[
+                {
+                    "label": "Select The Task",
+                    "type": "dropdown",
+                    "optional": true,
+                    "choices": ["TextMessage", "CardMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
+                    "placeholder": "(choose)"
+                },
+                {
+                    "label": "Send this message",
+                    "optional": true,
+                    "type":"text",
+                    "placeholder": "(message text)"
+                }
+            ]
+        }
     },
     {
         "button_id": "channel_btn",
         "button_text": "Channel!",
-        "dialog": true,
-        "components": [
-            {
-                "label": "Select Task",
-                "type": "dropdown",
-                "optional": false,
-                "choices": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Test Database", "Wipe DatabaseA", "Wipe DatabaseB", "SDK direct download"],
-                "placeholder": "(choose)"
-            }
-        ]
+        "dialog": {
+            "title":"Channel-related tests",
+            "components":[
+                {
+                    "label": "Select Task",
+                    "type": "dropdown",
+                    "optional": false,
+                    "choices": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Test Database", "Wipe DatabaseA", "Wipe DatabaseB", "SDK direct download"],
+                    "placeholder": "(choose)"
+                }
+            ]
+        }
     },
     {
         "button_id": "user_btn",
         "button_text": "Characters!",
-        "dialog": true,
-        "components": [
-            {
-                "label": "Select task",
-                "type": "dropdown",
-                "optional": false,
-                "choices": ["Make Mickey", "Mickey Talk", "Update Mickey (not agent) name", "List Characters"],
-                "placeholder": "(choose)"
-            }
-        ]
+        "dialog": {
+            "title":"Message-related tests",
+            "components":[
+                {
+                    "label": "Select task",
+                    "type": "dropdown",
+                    "optional": false,
+                    "choices": ["Make Mickey", "Mickey Talk", "Update Mickey (not agent) name", "List Characters"],
+                    "placeholder": "(choose)"
+                }
+            ]
+        }
     },
     {
         "button_id": "group_btn",
         "button_text": "Groups!",
-        "dialog": true,
-        "components": [
-            {
-                "label": "Select Group Operation",
-                "type": "dropdown",
-                "optional": false,
-                "choices": ["List Channel Temp Groups", "List Channel Groups"],
-                "placeholder": "(choose)"
-            }
-        ],
-        "bottom_buttons": [{"text":"Cans-Cell", "type":"cancel"}, {"text":"Come-Fern", "type":"confirm"}]
+        "dialog": {
+                "title":"Message-related tests",
+                "components":[
+                {
+                    "label": "Select Group Operation",
+                    "type": "dropdown",
+                    "optional": false,
+                    "choices": ["List Channel Temp Groups", "List Channel Groups"],
+                    "placeholder": "(choose)"
+                }
+            ],
+            "bottom_buttons": [{"text":"Cans-Cell", "submit":false, "id":"Cancel"}, {"text":"Come-Fern", "submit":true, "id":"Confirm"}]
+        }
     },
     {
         "button_id": "money_btn",
         "button_text": "Redis-Pay",
-        "dialog": true,
-        "components": [
-            {
-                "label": "currency_type",
-                "type": "dropdown",
-                "optional": false,
-                "choices": ["(Print Savings)", "(Donate all)", "Naira", "Dollar", "Peso", "Yuan", "Euro", "Kina", "Penguin"]
-            }
-        ]
+        "dialog": {
+            "title":"Message-related tests",
+            "components":[
+                {
+                    "label": "currency_type",
+                    "type": "dropdown",
+                    "optional": false,
+                    "choices": ["(Print Savings)", "(Donate all)", "Naira", "Dollar", "Peso", "Yuan", "Euro", "Kina", "Penguin"]
+                }
+            ]
+        }
     },
     {
         "button_id": "database_btn",
         "button_text": "JSON db test",
-        "dialog": true,
-        "components": [
-            {
-                "label": "JSON DB",
-                "type": "dropdown",
-                "optional": false,
-                "choices": ["None", "Bool", "Int", "Float", "String", "List", "Dict", "Types Dataclass", "Custom Dataclass", "Print", "Clear", "Pop", "Del", "Reload"],
-                "placeholder": "Select a test"
-            }
-        ]
+        "dialog": {
+            "title":"Message-related tests",
+            "components":[
+                {
+                    "label": "JSON DB",
+                    "type": "dropdown",
+                    "optional": false,
+                    "choices": ["None", "Bool", "Int", "Float", "String", "List", "Dict", "Types Dataclass", "Custom Dataclass", "Print", "Clear", "Pop", "Del", "Reload"],
+                    "placeholder": "Select a test"
+                }
+            ]
+        }
     },
     {
         "button_id": "command_btn",

@@ -8,19 +8,20 @@ from loguru import logger
 
 import moobius.utils as utils
 import moobius.types as types
-from moobius.types import CanvasElement, ChannelInfo
-from moobius.network import asserts
+from moobius.types import *
 
-def send_tweak(message):
-    """A slight modification of messages. Given a message, returns a slightly modified message."""
-    if message['type'] == types.MESSAGE_UP or message['type'] == types.MESSAGE_DOWN:
-        b = message['body']
-        if 'context' in b:
-            b['context'] = {}
-    if message['type'] == types.MESSAGE_DOWN:
-        if 'service_id' not in message:
-            raise Exception('Message_down must have service_id.')
-    return message
+
+def asserted_dataclass_asdict(x, the_class):
+    """Converts to a dict while asserting the dataclass type is properly-formatted.
+    Raises an Exception if it cannot be converted into the specified format dataclass."""
+    if type(x) is dict:
+        # TODO: enforce type: print("Fields:", types.Button.__dataclass_fields__)
+        #  default=dataclasses._MISSING_TYPE means manditory
+        #  name=name; type=str, typing.Optional[moobius.types.Dialog], etc.
+        x1 = the_class(**x)
+    elif type(x) is the_class:
+        return dataclasses.asdict(x)
+    return x
 
 
 async def time_out_wrap(co_routine, timeout=16):
@@ -107,9 +108,8 @@ class WSClient:
             loop.create_task(self._queue_consume())
         if type(message) is dict:
             message = self.dumps(message) # This converts dataclasses into dicts.
-        message_dict = json.loads(message)  # Go backards again.
-        asserts.socket_assert(message_dict)
-        message = json.dumps(message_dict)
+        elif type(message) is not str:
+            raise Exception("must send a string or dict-valued message into ws_client.send")
         await self.outbound_queue.put(message)
 
     async def receive(self):
@@ -170,6 +170,7 @@ class WSClient:
 
         Returns:
           The message as a dict."""
+        utils.assert_strs(service_id, access_token)
         message = {
             "type": "service_login",
             "request_id": str(uuid.uuid4()),
@@ -194,6 +195,7 @@ class WSClient:
 
         Returns: The message as a dict.
         """
+        utils.assert_strs(access_token)
         message = {
             "type": "user_login",
             "request_id": str(uuid.uuid4()),
@@ -207,6 +209,7 @@ class WSClient:
 
     async def leave_channel(self, user_id, channel_id, *, dry_run=False):
         """Leaves the channel with channel_id, unless dry_run is True. Used by agents. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
+        utils.assert_strs(user_id, channel_id)
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -223,6 +226,7 @@ class WSClient:
 
     async def join_channel(self, user_id, channel_id, *, dry_run=False):
         """Joins the channel with channel_id, unless dry_run is True. Used by agents. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
+        utils.assert_strs(user_id, channel_id)
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -254,6 +258,7 @@ class WSClient:
         """
         if not recipients:
             return None
+        utils.assert_strs(characters, service_id, channel_id, recipients)
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -294,6 +299,8 @@ class WSClient:
             return None
         if type(buttons) not in [list, tuple]:
             buttons = [buttons]
+        utils.assert_strs(service_id, channel_id, recipients)
+        buttons = [asserted_dataclass_asdict(b, Button) for b in buttons]
         button_dicts = [b if type(b) is dict else dataclasses.asdict(b) for b in buttons]
         for b in button_dicts: # Not sure if this helps?
             if 'bottom_buttons' in b and not b['bottom_buttons']:
@@ -315,12 +322,12 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_context_menu(self, menu_items, service_id, channel_id, recipients, *, dry_run=False):
+    async def update_menu(self, menu_items, service_id, channel_id, recipients, *, dry_run=False):
         """
         Updates the right-click menu that the recipients can open on various messages.
 
         Parameters:
-          menu_items (list): List of ContextMenuElement dataclasses.
+          menu_items (list): List of MenuItem dataclasses.
           service_id (str): As always.
           channel_id (str): The channel id.
 
@@ -329,28 +336,31 @@ class WSClient:
         """
         if not recipients:
             return None
+        utils.assert_strs(service_id, channel_id, recipients)
+        menu_items = [asserted_dataclass_asdict(item, MenuItem) for item in menu_items]
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
             "service_id": service_id,
             "body": {
-                "subtype": "update_context_menu",
+                "subtype": "update_menu",
                 "channel_id": channel_id,
                 "recipients": recipients,
-                "content": [dataclasses.asdict(item) for item in menu_items],
+                "content": menu_items,
                 "context": {}
             }
         }
+        message = types._send_tmp_convert('send_menu', message)
         if not dry_run:
             await self.send(message)
         return message
 
-    async def update_style(self, style_elements, service_id, channel_id, recipients, *, dry_run=False):
+    async def update_style(self, style_items, service_id, channel_id, recipients, *, dry_run=False):
         """
-        Updates the style (whehter the canvas is expanded, other look-and-feel aspects) that the recipients see.
+        Updates the style (whether the canvas is expanded, other look-and-feel aspects) that the recipients see.
 
         Parameters:
-          style_elements (list of dicts or StyleElement objects): The style content to be updated. Dicts are converted into 1-elemnt lists.
+          style_items (list of dicts or StyleItem objects): The style content to be updated. Dicts are converted into 1-elemnt lists.
           service_id (str): As always.
           channel_id (str): The channel id.
           recipients (str): The group id to send to.
@@ -360,7 +370,7 @@ class WSClient:
           The message as a dict.
 
         Example:
-            >>> style_elements = [
+            >>> style_items = [
             >>>   {
             >>>     "widget": "channel",
             >>>     "display": "invisible",
@@ -375,12 +385,14 @@ class WSClient:
             >>>       },
             >>>     "text": "<h1>Start from here.</h1><p>This is a Button, which most channels have</p>"
             >>>   }]
-            >>> ws_client.update_style("service_id", "channel_id", style_elements, ["user1", "user2"])
+            >>> ws_client.update_style("service_id", "channel_id", style_items, ["user1", "user2"])
         """
         if not recipients:
             return None
-        if type(style_elements) not in [list, tuple]:
-            style_elements = [style_elements]
+        if type(style_items) not in [list, tuple]:
+            style_items = [style_items]
+        utils.assert_strs(service_id, channel_id, recipients)
+        style_items = [asserted_dataclass_asdict(item, StyleItem) for item in style_items]
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -389,7 +401,7 @@ class WSClient:
                 "subtype": "update_style",
                 "channel_id": channel_id,
                 "recipients": recipients,
-                "content": style_elements,
+                "content": style_items,
                 "group_id": "temp",
                 "context": {}
             }
@@ -413,8 +425,8 @@ class WSClient:
         Example:
           >>> ws_client.update_channel_info("service_id", "channel_id", {"name": "new_channel_name"})
         """
-        if type(channel_info) is ChannelInfo:
-            channel_info = dataclasses.asdict(channel_info)
+        channel_info = asserted_dataclass_asdict(channel_info, ChannelInfo)
+        utils.assert_strs(service_id, channel_id)
         channel_info['context'] = {'channel_description': channel_info['channel_description'],
                                    'channel_type': channel_info['channel_type']}
         message = {
@@ -429,14 +441,14 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def update_canvas(self, service_id, channel_id, canvas_elements, recipients, *, dry_run=False):
+    async def update_canvas(self, service_id, channel_id, canvas_items, recipients, *, dry_run=False):
         """
         Updates the canvas that the recipients see.
 
         Parameters:
           service_id (str): As always.
           channel_id (str): The channel id.
-          canvas_elements (dict or CanvasElement; or a list therof): The elements to push to the canvas.
+          canvas_items (dict or CanvasItem; or a list therof): The elements to push to the canvas.
           recipients(list): The recipients character_ids who see the update.
           dry_run=False: Don't acually send anything if True.
 
@@ -444,20 +456,23 @@ class WSClient:
           The message as a dict.
 
         Example:
-          >>> canvas1 = CanvasElement(path="image/url", text="the_text")
-          >>> canvas2 = CanvasElement(text="the_text2")
+          >>> canvas1 = CanvasItem(path="image/url", text="the_text")
+          >>> canvas2 = CanvasItem(text="the_text2")
           >>> ws_client.update_canvas("service_id", "channel_id", [canvas1, canvas2], ["user1", "user2"])
         """
         if not recipients:
             return None
-        if type(canvas_elements) is dict or type (canvas_elements) is CanvasElement:
-            canvas_elements = [canvas_elements] # Should be a list of items not the item itself.
-        for i in range(len(canvas_elements)):
-            if type(canvas_elements[i]) is CanvasElement:
-                canvas_elements[i] = dataclasses.asdict(canvas_elements[i])
-                for k in list(canvas_elements[i].keys()):
-                    if canvas_elements[i][k] is None:
-                        del canvas_elements[i][k]
+        if type(canvas_items) is dict or type (canvas_items) is CanvasItem:
+            canvas_items = [canvas_items] # Should be a list of items not the item itself.
+        utils.assert_strs(service_id, channel_id, recipients)
+        canvas_items = [asserted_dataclass_asdict(item, CanvasItem) for item in canvas_items]
+
+        for i in range(len(canvas_items)):
+            if type(canvas_items[i]) is CanvasItem:
+                canvas_items[i] = dataclasses.asdict(canvas_items[i])
+                for k in list(canvas_items[i].keys()):
+                    if canvas_items[i][k] is None:
+                        del canvas_items[i][k]
         message = {
             "type": "update",
             "request_id": str(uuid.uuid4()),
@@ -466,7 +481,7 @@ class WSClient:
                 "subtype": "update_canvas",
                 "channel_id": channel_id,
                 "recipients": recipients,
-                "content": canvas_elements,
+                "content": canvas_items,
                 "group_id": "temp",
                 "context": {}
             }
@@ -493,6 +508,8 @@ class WSClient:
             "service_id": service_id,
             "body": data
         }
+        utils.assert_strs(service_id, target_client_id)
+
         if not dry_run:
             await self.send(message)
         return message
@@ -514,6 +531,8 @@ class WSClient:
         """
         if not recipients:
             return None
+        utils.assert_strs(user_id, service_id, channel_id, recipients, subtype)
+        content = asserted_dataclass_asdict(content, MessageContent)
         message = {
             "type": "message_up",
             "request_id": str(uuid.uuid4()),
@@ -521,7 +540,7 @@ class WSClient:
             "body": {
                 "subtype": subtype,
                 "channel_id": channel_id,
-                "content": content if type(content) is dict else dataclasses.asdict(content), # TODO: function to make vanilla dicts.
+                "content": content,
                 "recipients": recipients,
                 "timestamp": int(time.time() * 1000),
                 "context": {}
@@ -530,7 +549,6 @@ class WSClient:
         for k in list(message['body']['content'].keys()): # Makes the messages cleaner, if nothing else.
             if message['body']['content'][k] is None:
                 del message['body']['content'][k]
-        send_tweak(message)
         if not dry_run:
             await self.send(message)
         return message
@@ -553,11 +571,12 @@ class WSClient:
         """
         if not recipients:
             return None
+        utils.assert_strs(user_id, service_id, channel_id, recipients, subtype)
+        content = asserted_dataclass_asdict(content, MessageContent)
         message = await self.message_up(user_id, service_id, channel_id, recipients, subtype, content, dry_run=True)
         message['type'] = types.MESSAGE_DOWN
         message['body']['sender'] = sender
         del message['user_id'] # Only used for message_up.
-        send_tweak(message)
         if not dry_run:
             await self.send(message)
         return message
@@ -576,6 +595,7 @@ class WSClient:
         Returns:
           The message that was sent as a dict.
         """
+        utils.assert_strs(user_id, channel_id)
         message = {
             "type": "action",
             "request_id": str(uuid.uuid4()),
@@ -604,6 +624,7 @@ class WSClient:
                 "context": {}
             }
         }
+        utils.assert_strs(user_id, channel_id)
         if not dry_run:
             await self.send(message)
         return message
@@ -620,6 +641,7 @@ class WSClient:
                 "context": {}
             }
         }
+        utils.assert_strs(user_id, channel_id)
         if not dry_run:
             await self.send(message)
         return message
@@ -636,6 +658,7 @@ class WSClient:
                 "context": {}
             }
         }
+        utils.assert_strs(user_id, channel_id)
         if not dry_run:
             await self.send(message)
         return message
@@ -652,6 +675,7 @@ class WSClient:
                 "context": {}
             }
         }
+        utils.assert_strs(user_id, channel_id)
         if not dry_run:
             await self.send(message)
         return message

@@ -42,7 +42,7 @@ class TestbedAgent(Moobius):
                 text2 = "meow"
                 button_list = [{"button_id": "keyc", "button_name": "cat talk","button_name": "Meow/Nya", "new_window": False}]
                 print('AGENT BUTTON UPDATE:', channel_id, [message_down.sender])
-                await self.send_update_buttons(button_list, channel_id, [message_down.sender]) # TODO: can buttons be updated by agent?
+                await self.send_buttons(button_list, channel_id, [message_down.sender]) # TODO: can buttons be updated by agent?
             elif text1 == "meow":
                 text2 = "nya"
             elif text1 == "log agent out":
@@ -129,8 +129,8 @@ class TestbedAgent(Moobius):
     async def on_fetch_channel_info(self, update):
         self.most_recent_updates['on_fetch_channel_info'] = update
 
-    async def on_update_context_menu(self, update):
-        self.most_recent_updates['on_update_context_menu'] = update
+    async def on_update_menu(self, update):
+        self.most_recent_updates['on_update_menu'] = update
 
     ###########################################################################################################
 

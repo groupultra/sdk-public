@@ -7,7 +7,7 @@ from loguru import logger
 from moobius import Moobius, MoobiusStorage
 from moobius.database.storage import CachedDict
 import moobius.types as types
-from moobius.types import Button, CanvasElement, StyleElement, ContextMenuElement, MessageBody, InputComponent
+from moobius.types import Button, CanvasItem, StyleItem, MenuItem, MessageBody, InputComponent, Dialog
 
 example_socket_callback_payloads = {} # Print these out when the AI is done.
 
@@ -41,7 +41,7 @@ class TestbedService(Moobius):
             self._default_buttons = [Button(**b) for b in json.load(f)]
         self.image_show_dict = {}
 
-        _menu = lambda name, the_id, tys: ContextMenuElement(item_text=name, item_id=the_id, support_subtype=tys)
+        _menu = lambda name, the_id, tys: MenuItem(item_text=name, item_id=the_id, message_subtypes=tys)
         menus = [_menu('Text 1', '1', [types.TEXT]), _menu('Text 2', '2', [types.TEXT]), _menu('Text 3 popup', '3', [types.TEXT]),
                  _menu('Image 1', 'R', [types.IMAGE]), _menu('Image 2', 'G', [types.IMAGE]), _menu('Image 3 popup', 'B', [types.IMAGE]),
                  _menu('Audio 1', 'doe', [types.AUDIO]), _menu('Audio 2', 're', [types.AUDIO]), _menu('Audio 3 popup', 'mi', [types.AUDIO]),
@@ -50,11 +50,10 @@ class TestbedService(Moobius):
         # The third option for each message type is a pop-up menu:
         for m in menus:
             if 'popup' in m.item_text:
-                m.dialog = True
                 arg1 = InputComponent(label='popup', type=types.DROPDOWN, optional=False, choices=["Yes do this!", "No, don't"], placeholder='Choose an option.')
                 arg2 = InputComponent(label='popup2', type=types.DROPDOWN, optional=False, choices=["Si", "No"], placeholder='Choose another option.')
-                m.components = [arg1, arg2]
-        self.context_menu_list = menus
+                m.dialog = Dialog(title="Choose within the menu", components=[arg1, arg2])
+        self.menu_list = menus
         self.LIGHT = "light"
         self.DARK = "dark"
         self.MICKEY = "Mickey"
@@ -150,8 +149,8 @@ class TestbedService(Moobius):
         )
 
         self.image_show_dict = {
-            self.LIGHT: CanvasElement(path=self.image_paths[self.LIGHT], text="Let There Be Light!"),
-            self.DARK: [CanvasElement(path=self.image_paths[self.DARK], text="Let There Be Dark!"), CanvasElement(path=self.image_paths[self.DARK], text="Let There Be Dark Again!")]
+            self.LIGHT: CanvasItem(path=self.image_paths[self.LIGHT], text="Let There Be Light!"),
+            self.DARK: [CanvasItem(path=self.image_paths[self.DARK], text="Let There Be Dark!"), CanvasItem(path=self.image_paths[self.DARK], text="Let There Be Dark Again!")]
         }
 
         return the_channel
@@ -221,13 +220,13 @@ class TestbedService(Moobius):
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = []
                     await self.send_buttons_from_database(channel_id, sender)
-                    await self.send_update_style([StyleElement(widget=types.CANVAS, display="invisible", expand=False)], channel_id, to_whom)
+                    await self.send_style([StyleItem(widget=types.CANVAS, display="invisible", expand=False)], channel_id, to_whom)
                 elif txt1 == "show":
                     for usr in to_whom:
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = self.default_buttons
                     await self.send_buttons_from_database(channel_id, sender)
-                    await self.send_update_style(StyleElement(widget=types.CANVAS, display="visible", expand=True), channel_id, to_whom)
+                    await self.send_style(StyleItem(widget=types.CANVAS, display="visible", expand=True), channel_id, to_whom)
                 elif txt1 == "reset":
                     for sn in range(self.MICKEY_LIMIT):
                         the_character_id = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"]
@@ -245,7 +244,7 @@ class TestbedService(Moobius):
                     for usr in to_whom:
                         if usr in the_channel.buttons:
                             the_channel.buttons[sender] = self.default_buttons # Reset buttons etc.
-                    await self.send_update_buttons(self.default_buttons, channel_id, to_whom)
+                    await self.send_buttons(self.default_buttons, channel_id, to_whom)
                 elif txt1.split(' ')[0] == 'laser':
                     await self.send_message(f"NOTE: The Laser feature is not a standard SDK feature, it is specific to Demo.", channel_id, sender, to_whom)
                     if '>' not in txt1:
@@ -294,7 +293,7 @@ class TestbedService(Moobius):
         example_socket_callback_payloads['on_fetch_channel_info'] = action
 
     async def on_fetch_canvas(self, action):
-        """Pipes self.image_show_dict from channel.states into self.send_update_canvas."""
+        """Pipes self.image_show_dict from channel.states into self.send_canvas."""
         example_socket_callback_payloads['on_fetch_canvas'] = action
         channel_id = action.channel_id
         sender = action.sender
@@ -302,8 +301,8 @@ class TestbedService(Moobius):
         to_whom = await self.fetch_member_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
 
         state = the_channel.states[sender]['canvas_mode']
-        await self.send_update_canvas(self.image_show_dict[state], channel_id, to_whom)
-        await self.send_update_style([StyleElement(widget=types.CANVAS, display="visible", expand=True)], channel_id, to_whom)
+        await self.send_canvas(self.image_show_dict[state], channel_id, to_whom)
+        await self.send_style([StyleItem(widget=types.CANVAS, display="visible", expand=True)], channel_id, to_whom)
 
     async def add_real_character(self, channel_id, character_id, intro="joined the channel!"):
         character = await self.fetch_character_profile(character_id)
@@ -315,18 +314,18 @@ class TestbedService(Moobius):
         the_channel.states[character_id] = self.default_status
 
         character_ids = list(the_channel.real_characters.keys())
-        await self.send_update_characters(character_ids, channel_id, character_ids)
+        await self.send_characters(character_ids, channel_id, character_ids)
         await self.send_message(f'{name} {intro} (id={character_id})', channel_id, character_id, character_ids)
 
     async def on_join_channel(self, action):
-        """Most join handlers, as this one does, will send_update_characters with the new character added and send a "user joined!" message."""
+        """Most join handlers, as this one does, will send_characters with the new character added and send a "user joined!" message."""
         example_socket_callback_payloads['on_join_channel'] = action
         sender_id = action.sender
         channel_id = action.channel_id
         await self.add_real_character(channel_id, sender_id, intro="joined the channel!")
 
     async def on_leave_channel(self, action):
-        """Most leave handlers, as this one does, will send_update_characters with the character removed and maybe send a "user left!" message."""
+        """Most leave handlers, as this one does, will send_characters with the character removed and maybe send a "user left!" message."""
         example_socket_callback_payloads['on_leave_channel'] = action
         sender = action.sender
         channel_id = action.channel_id
@@ -338,7 +337,7 @@ class TestbedService(Moobius):
         real_characters = (await self.get_channel(channel_id)).real_characters
         character_ids = list(real_characters.keys())
 
-        await self.send_update_characters(character_ids, channel_id, character_ids)
+        await self.send_characters(character_ids, channel_id, character_ids)
         await self.send_message(f'{name} left the channel!', channel_id, sender, character_ids)
 
     async def on_copy_client(self, the_copy):
@@ -378,10 +377,10 @@ class TestbedService(Moobius):
         print("Button click:", button_click)
         if button_click.arguments:
 
-            value0 = button_click.arguments[0].value
+            value0 = button_click.arguments[0]
             value = value0.lower() if value0 else value0
             if len(button_click.arguments)>1:
-                if em := button_click.arguments[1].value:
+                if em := button_click.arguments[1]:
                     entry_message = str(em)
         if entry_message:
             await self.send_message("Entered from a button: "+entry_message, button_click.channel_id, button_click.sender, button_click.sender)
@@ -464,7 +463,7 @@ class TestbedService(Moobius):
                 the_channel.states.save(who_clicked)
                 state = the_channel.states[who_clicked]['canvas_mode']
 
-                await self.send_update_canvas(self.image_show_dict[state], channel_id, to_whom)
+                await self.send_canvas(self.image_show_dict[state], channel_id, to_whom)
 
                 image_uri = self.image_paths[state] # Shows using an online image.
                 await self.send_message(image_uri, channel_id, who_clicked, to_whom, subtype=types.IMAGE)
@@ -488,7 +487,7 @@ class TestbedService(Moobius):
                 self.TMP_print_buttons = True
                 await self.send_fetch_buttons(channel_id)
             elif value == "Fancy Right Click".lower():
-                await self.send_update_context_menu(self.context_menu_list, channel_id, to_whom)
+                await self.send_menu(self.menu_list, channel_id, to_whom)
                 await self.send_message("Try right-clicking on a message.", channel_id, who_clicked, to_whom)
             else:
                 print('THE BUTTON CLICK:', button_click)
@@ -741,12 +740,12 @@ class TestbedService(Moobius):
         txt = str(action)
         await self.send_message('Style fetch request from you:'+txt, action.channel_id, action.sender, action.sender)
 
-    async def on_context_menu_click(self, menu_click):
+    async def on_menu_item_click(self, menu_click):
         """Right-click the context menu."""
         item_id = menu_click.item_id
         message_content = menu_click.message_content
-        context_menu_dict = dict(zip([m.item_id for m in self.context_menu_list], self.context_menu_list))
-        txt = f'You choose "{context_menu_dict[item_id].item_text}" on message "{message_content} (this message only sent to whoever clicked); components={menu_click.arguments}".'
+        menu_dict = dict(zip([m.item_id for m in self.menu_list], self.menu_list))
+        txt = f'You choose "{menu_dict[item_id].item_text}" on message "{message_content} (this message only sent to whoever clicked); components={menu_click.arguments}".'
         await self.send_message(txt, menu_click.channel_id, menu_click.sender, menu_click.sender)
 
     async def on_spell(self, spell):
@@ -770,12 +769,12 @@ class TestbedService(Moobius):
     ########################### helper functions #####################################
 
     async def send_buttons_from_database(self, channel_id, character_id):
-        """Pipes the buttons (loaded from the JSON) to self.send_update_buttons."""
+        """Pipes the buttons (loaded from the JSON) to self.send_buttons."""
         button_list = (await self.get_channel(channel_id)).buttons.get(character_id, self._default_buttons) # Contents of buttons.json.
-        await self.send_update_buttons(button_list, channel_id, character_id)
+        await self.send_buttons(button_list, channel_id, character_id)
 
     async def calculate_and_update_character_list_from_database(self, channel_id, character_id):
-        """Pipes all real users + the correct number of Mickeys to self.send_update_characters."""
+        """Pipes all real users + the correct number of Mickeys to self.send_characters."""
         the_channel = await self.get_channel(channel_id)
         real_characters = the_channel.real_characters
         character_list = list(real_characters.keys())
@@ -786,4 +785,4 @@ class TestbedService(Moobius):
             key = f"{self.MICKEY}_{sn}"
             character_list.append(the_channel.puppet_characters[key].character_id)
 
-        await self.send_update_characters(character_list, channel_id, [character_id])
+        await self.send_characters(character_list, channel_id, [character_id])

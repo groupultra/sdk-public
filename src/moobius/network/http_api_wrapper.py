@@ -7,7 +7,6 @@ from loguru import logger
 from dacite import from_dict
 from moobius import utils
 from moobius.types import Character, Group, UserInfo, MessageBody
-from moobius.network import asserts
 # TODO: refresh
 _URL2example_response = {} # Debug tool that allows inspecting example responses.
 
@@ -239,8 +238,7 @@ class HTTPAPIWrapper:
         It works for both member_ids and puppet_ids."""
         is_list = type(character_id) not in [str, Character]
         character_id = utils.to_char_id_list(character_id)
-        for cid in character_id:
-            asserts.types_assert(str, character_id_element=cid)
+        utils.assert_strs(*character_id)
         response_dict = await self.checked_post(url=self.http_server_uri + "/character/fetch_profile", the_request={"character_list": character_id}, requests_kwargs={'headers':self.headers}, good_message=None, bad_message="Error fetching user profile", raise_errors=True)
         characters = [self._xtract_character(d) for d in response_dict['data']]
         return characters if is_list else characters[0]
@@ -260,7 +258,7 @@ class HTTPAPIWrapper:
         Raises:
           An Exception (empty list) if raise_empty_list_err is True and the list is empty.
         """
-        asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
+        utils.assert_strs(channel_id, service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
@@ -291,7 +289,7 @@ class HTTPAPIWrapper:
 
     async def fetch_puppets(self, service_id):
         """Given the service ID returns a list of Character objects bound to this service."""
-        asserts.types_assert(str, service_id=service_id)
+        utils.assert_strs(service_id)
         m0 = "Successfully fetched character list"
         mr = "Error fetching character list"
         worked = False
@@ -339,7 +337,7 @@ class HTTPAPIWrapper:
         """
         avatar = await self.convert_to_url(avatar)
         the_request={"avatar": avatar, 'description':description, 'name':name}
-        asserts.types_assert(str, avatar=avatar, description=description, name=name)
+        utils.assert_strs(avatar, description, name)
         response_dict = await self.checked_post(url=self.http_server_uri + f"/user/info", the_request=the_request, requests_kwargs={'headers':self.headers}, good_message="Successfully updated user info", bad_message="Error updating user info", raise_errors=True)
         return response_dict.get('data')
 
@@ -348,7 +346,7 @@ class HTTPAPIWrapper:
     async def create_service(self, description):
         """Accepts the description string. Creates and returns the string-valued service_id.
         Called once by the Moobius class if there is no service specified."""
-        asserts.types_assert(str, description=description)
+        utils.assert_strs(description)
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/create", the_request={"description": description}, requests_kwargs={'headers':self.headers}, good_message="Successfully created service!", bad_message="Error creating service", raise_errors=True)
         return response_dict.get('data').get('service_id')
 
@@ -377,7 +375,7 @@ class HTTPAPIWrapper:
                    "name": name,
                    "avatar": avatar,
                    "description": description}}
-        asserts.types_assert(str, service_id=service_id, avatar=avatar, description=description, name=name)
+        utils.assert_strs(service_id, avatar, description, name)
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/character/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message="Successfully created character", bad_message="Error creating character", raise_errors=True)
         character = self._xtract_character(response_dict['data'])
         return character
@@ -399,7 +397,7 @@ class HTTPAPIWrapper:
 
         if type(character_id) is Character:
             character_id = character_id.character_id
-        asserts.types_assert(str, service_id=service_id, character_id=character_id, description=description, name=name, avatar=avatar)
+        utils.assert_strs(service_id, character_id, description, name, avatar)
         the_request = {"service_id": service_id, 'character_id':character_id, 'context': {'avatar':avatar, 'description':description, 'name':name}}
         response_dict = await self.checked_post(url=self.http_server_uri + f"/service/character/update", the_request=the_request, requests_kwargs={'headers':self.headers}, good_message="Successfully updated character info", bad_message="Error updating character info", raise_errors=True)
         return response_dict.get('data')
@@ -409,7 +407,7 @@ class HTTPAPIWrapper:
     async def create_channel(self, channel_name, channel_desc):
         """Creates a channel given a string-valued channel name and description. Returns the channel_id.
         Example ID: "13e44ea3-b559-45af-9106-6aa92501d4ed"."""
-        asserts.types_assert(str, channel_name=channel_name, channel_desc=channel_desc)
+        utils.assert_strs(channel_name, channel_desc)
         jsonr = {"channel_name": channel_name, 'context':{'channel_description':channel_desc}}
         response_dict = await self.checked_post(url=self.http_server_uri + "/channel/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully created channel {channel_name}.", bad_message=f"Error creating channel {channel_name}", raise_errors=True)
         return response_dict['data']['channel_id']
@@ -417,7 +415,7 @@ class HTTPAPIWrapper:
     async def bind_service_to_channel(self, service_id, channel_id):
         """Binds a service to a channel given the service and channel IDs.
         This function is unusual in that it returns whether it was sucessful rather than raising errors if it fails."""
-        asserts.types_assert(str, service_id=service_id, channel_id=channel_id)
+        utils.assert_strs(service_id, channel_id)
         jsonr = {"channel_id": channel_id, "service_id": service_id}
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/bind", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully binded service {service_id} to channel {channel_id}.", bad_message=f"Error binding service {service_id} to channel {channel_id}", raise_errors=False)
 
@@ -429,7 +427,7 @@ class HTTPAPIWrapper:
 
     async def unbind_service_from_channel(self, service_id, channel_id):
         """Unbinds a service to a channel given the service and channel IDs. Returns None."""
-        asserts.types_assert(str, service_id=service_id, channel_id=channel_id)
+        utils.assert_strs(service_id, channel_id)
         jsonr = {"channel_id": channel_id,"service_id": service_id}
         await self.checked_post(url=self.http_server_uri + "/service/unbind", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully unbound service {service_id} from channel {channel_id}", bad_message=f"Error unbinding service {service_id} from channel {channel_id}", raise_errors=True)
 
@@ -444,7 +442,7 @@ class HTTPAPIWrapper:
 
         Returns None.
         """
-        asserts.types_assert(str, channel_name=channel_name, channel_id=channel_id, channel_desc=channel_desc)
+        utils.assert_strs(channel_name, channel_id, channel_desc)
         jsonr = {"channel_id": channel_id, "channel_name": channel_name, "context":{"channel_description":channel_desc}}
         await self.checked_post(url=self.http_server_uri + "/channel/update", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully updated channel {channel_id}", bad_message=f"Error updating channel {channel_id}", raise_errors=True)
 
@@ -481,7 +479,7 @@ class HTTPAPIWrapper:
         """
         if type(limit) is not str:
             limit = str(limit)
-        asserts.types_assert(str, channel_id=channel_id, limit=limit, before=before)
+        utils.assert_strs(channel_id, limit, before)
         params = {'channel_id':channel_id, 'limit':limit, 'before':before}
         rkwargs = {'params':params, 'headers':self.headers}
         jsonr = {"limit": limit} # Not where to put the limit, so it is put in both places.
@@ -501,7 +499,7 @@ class HTTPAPIWrapper:
     async def _upload_extension(self, extension):
         """Gets the upload URL and needed fields for uploading a file given a string-valued extension.
         Returns (upload_url or None, upload_fields)."""
-        asserts.types_assert(str, extension=extension)
+        utils.assert_strs(extension)
         requests_kwargs = {'params':{"extension": extension}, 'headers':self.headers}
         response_dict = await self.checked_get(url=self.http_server_uri + "/file/upload", the_request=None, requests_kwargs=requests_kwargs, good_message="Successfully fetched upload url!", bad_message="Error fetching upload url", raise_errors=True)
 
@@ -526,7 +524,7 @@ class HTTPAPIWrapper:
         """
         if type(upload_fields) is not dict:
             raise Exception('Upload fields must be a dict, and one that comes from _upload_extension')
-        asserts.types_assert(str, upload_url=upload_url, file_path=file_path)
+        utils.assert_strs(upload_url, file_path)
         with open(file_path, 'rb') as f:
             files = {'file': (file_path, f)}
             full_url = upload_url + upload_fields.get("key")
@@ -639,7 +637,7 @@ class HTTPAPIWrapper:
 
     async def fetch_channel_group_dict(self, channel_id, service_id):
         """Similar to fetch_member_ids. Accepts the channel_id and service_id. returns a dict from each group_id to all characters."""
-        asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
+        utils.assert_strs(channel_id, service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
@@ -653,7 +651,7 @@ class HTTPAPIWrapper:
 
     async def fetch_channel_group_list(self, channel_id, service_id):
         """Similar to fetch_channel_group_dict. Accepts the channel_id and service_id. Returns the raw data."""
-        asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
+        utils.assert_strs(channel_id, service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
@@ -673,8 +671,7 @@ class HTTPAPIWrapper:
           The group_id string.
         """
         character_ids = utils.to_char_id_list(character_ids) # Should not be necessary since this function is an internal function.
-        asserts.types_assert(str, channel_id=channel_id, group_name=group_name)
-        asserts.structure_assert(['the_id'], character_ids, 'Create channel group characters')
+        utils.assert_strs(*([channel_id, group_name]+character_ids))
         jsonr = {"channel_id": channel_id, "group_name":group_name, "characters": character_ids}
         response_dict = await self.checked_post(url=self.http_server_uri + "/user/group/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message="Successfully created channel group {group_name}!", bad_message="Error creating channel group {group_name}", raise_errors=True)
         return from_dict(data_class=Group, data={'group_id': response_dict['data']['group_id'], 'character_ids':character_ids})
@@ -687,7 +684,7 @@ class HTTPAPIWrapper:
         """
         if not group_id or group_id in ['None', 'null', 'none', 'Null', 'false', 'False']:
             return []
-        asserts.types_assert(str, group_id=group_id)
+        utils.assert_strs(group_id)
         use_questionmark = True
         if use_questionmark:
             response_dict = await self.checked_get(url=self.http_server_uri + f"/service/group?group_id={group_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched service group roster!", bad_message="Error fetching service group roster", raise_errors=True)
@@ -712,7 +709,7 @@ class HTTPAPIWrapper:
 
         Returns the character_id list.
         """
-        asserts.types_assert(str, channel_id=channel_id, sender_id=sender_id, group_id=group_id)
+        utils.assert_strs(channel_id, sender_id, group_id)
         use_questionmark = True
         if use_questionmark:
             response_dict = await self.checked_get(url=self.http_server_uri + f"/user/group?group_id={group_id}&channel_id={channel_id}&user_id={sender_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched channel group roster!", bad_message="Error fetching channel group roster", raise_errors=True)
@@ -738,7 +735,7 @@ class HTTPAPIWrapper:
           A Group object.
         """
         character_ids = utils.to_char_id_list(character_ids) # Should not be necessary since this function is an internal function.
-        asserts.structure_assert(['the_id'], character_ids, 'Create service group characters')
+        utils.assert_strs(*character_ids)
         jsonr = {"group_id": "", "characters": character_ids}
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/group/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message="Successfully created service group!", bad_message="Error creating service group", raise_errors=True)
         group_id = response_dict['data']
@@ -774,7 +771,7 @@ class HTTPAPIWrapper:
 
     async def fetch_channel_temp_group(self, channel_id, service_id):
         """Like fetch_channel_group_list but for TEMP groups. Given the channel_id and service_id, returns the list of groups."""
-        asserts.types_assert(str, channel_id=channel_id, service_id=service_id)
+        utils.assert_strs(channel_id, service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 

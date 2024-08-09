@@ -95,7 +95,7 @@ class DemoAgent(Moobius):
     async def on_fetch_channel_info(self, update):
         pass
 
-    async def on_update_context_menu(self, update):
+    async def on_update_menu(self, update):
         pass
 
     ###########################################################################################################
