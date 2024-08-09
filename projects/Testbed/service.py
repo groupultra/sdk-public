@@ -740,12 +740,13 @@ class TestbedService(Moobius):
         txt = str(action)
         await self.send_message('Style fetch request from you:'+txt, action.channel_id, action.sender, action.sender)
 
-    async def on_menu_item_click(self, menu_click):
+    async def on_menu_item_click(self, menu_click:types.MenuItemClick):
         """Right-click the context menu."""
-        item_id = menu_click.item_id
+        print('Menu item click:', menu_click)
+        item_id = menu_click.menu_item_id
         message_content = menu_click.message_content
-        menu_dict = dict(zip([m.item_id for m in self.menu_list], self.menu_list))
-        txt = f'You choose "{menu_dict[item_id].item_text}" on message "{message_content} (this message only sent to whoever clicked); components={menu_click.arguments}".'
+        menu_dict = dict(zip([m.menu_item_id for m in self.menu_list], self.menu_list))
+        txt = f'You choose "{menu_dict[item_id].menu_item_id}" on message "{message_content} (this message only sent to whoever clicked); components={menu_click.arguments}".'
         await self.send_message(txt, menu_click.channel_id, menu_click.sender, menu_click.sender)
 
     async def on_spell(self, spell):

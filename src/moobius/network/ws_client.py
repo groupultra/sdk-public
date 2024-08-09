@@ -350,7 +350,6 @@ class WSClient:
                 "context": {}
             }
         }
-        message = types._send_tmp_convert('send_menu', message)
         if not dry_run:
             await self.send(message)
         return message

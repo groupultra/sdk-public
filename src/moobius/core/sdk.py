@@ -595,16 +595,16 @@ class Moobius:
             await self.http_api.bind_service_to_channel(self.client_id, channel_id)  # may already be binded to the service itself
         return channel_id
 
-    async def send_canvas(self, canvas_elements, channel_id, recipients):
+    async def send_canvas(self, canvas_items, channel_id, recipients):
         """Updates the canvas given a list of CanvasItems (which have text and/or images), a channel_id, and the recipients.
         Returns the message."""
-        if type(canvas_elements) is dict or type (canvas_elements) is CanvasItem:
-            canvas_elements = [canvas_elements]
-        canvas_elements = [dataclasses.replace(elem) for elem in canvas_elements]
-        for elem in canvas_elements:
+        if type(canvas_items) is dict or type (canvas_items) is CanvasItem:
+            canvas_items = [canvas_items]
+        canvas_items = [dataclasses.replace(elem) for elem in canvas_items]
+        for elem in canvas_items:
             if elem.path:
                 elem.path = await self.http_api.convert_to_url(elem.path)
-        return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_elements, await self._update_rec(recipients, True))
+        return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_items, await self._update_rec(recipients, True))
 
 
     ################################## Single-line functions #######################################
@@ -652,8 +652,8 @@ class Moobius:
     async def send_characters(self, character_ids, channel_id, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(await self._update_rec(character_ids, True), self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_channel_info(self, channel_info, channel_id): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(channel_info, self.client_id, channel_id)
     async def send_buttons(self, buttons, channel_id, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(buttons, self.client_id, channel_id, await self._update_rec(recipients, True))
-    async def send_menu(self, menu_elements, channel_id, recipients): """Calls self.ws_client.update_menu using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_menu(menu_elements, self.client_id, channel_id, await self._update_rec(recipients, True))
-    async def send_style(self, style_elements, channel_id, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(style_elements, self.client_id, channel_id, await self._update_rec(recipients, True))
+    async def send_menu(self, menu_items, channel_id, recipients): """Calls self.ws_client.update_menu using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_menu(menu_items, self.client_id, channel_id, await self._update_rec(recipients, True))
+    async def send_style(self, style_items, channel_id, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(style_items, self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_fetch_characters(self, channel_id): """Calls self.ws_client.fetch_characters using self.client_id."""; return await self.ws_client.fetch_characters(self.client_id, channel_id)
     async def send_fetch_buttons(self, channel_id): """Calls self.ws_client.fetch_buttons using self.client_id."""; return await self.ws_client.fetch_buttons(self.client_id, channel_id)
     async def send_fetch_style(self, channel_id): """Calls self.ws_client.fetch_style using self.client_id."""; return await self.ws_client.fetch_style(self.client_id, channel_id)
@@ -745,7 +745,7 @@ class Moobius:
         if 'type' in payload_data:
             if 'sender' not in payload_body and payload_body.get('context',{}).get('sender'):
                 payload_body['sender'] = payload_body['context']['sender'] # Need a 'sender' key to make it a MessageBody or ButtonClick dataclass.
-            if payload_data['type'] == types.MENU_CLICK:
+            if payload_data['type'] == types.MENU_ITEM_CLICK:
                 if 'message_id' not in payload_data['body']: # Need a 'message_id' key to make it a MenuItemClick.
                     payload_data['body']['message_id'] = ""
             payload = from_dict(data_class=Payload, data=payload_data) # Brittle type inference.
@@ -802,7 +802,8 @@ class Moobius:
             elif payload.type == types.BUTTON_CLICK:
                 payload.body = types._recv_tmp_convert('on_button_click', payload.body)
                 await self.on_button_click(payload.body)
-            elif payload.type == types.MENU_CLICK:
+            elif payload.type == types.MENU_ITEM_CLICK:
+                payload.body = types._recv_tmp_convert('on_menu_item_click', payload.body)
                 await self.on_menu_item_click(payload.body)
             elif payload.type == types.COPY:
                 await self.on_copy_client(payload.body)
@@ -891,7 +892,7 @@ class Moobius:
         """
         logger.debug(f"MessageUp received: {message}")
 
-    async def on_fetch_buttons(self, action: Action):
+    async def on_fetch_buttons(self, fetch: Action):
         """
         This callback accepts the request for the list of buttons from the user. Returns None.
         This and other "on_fetch_xyz" functions are commonly overriden to call "send_xyz" with the needed material.
@@ -900,7 +901,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_buttons")
 
-    async def on_fetch_style(self, action: Action):
+    async def on_fetch_style(self, fetch: Action):
         """
         This callback accepts the request for the style from the user. Returns None.
         This and other "on_fetch_xyz" functions are commonly overriden to call "send_xyz" with the needed material.
@@ -909,7 +910,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_styles")
 
-    async def on_fetch_characters(self, action: Action):
+    async def on_fetch_characters(self, fetch: Action):
         """
         This callback accepts the request for the list of characters from the user.
         This tells them who they will be able to see and send messages to. Returns None.
@@ -918,7 +919,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_puppets")
 
-    async def on_fetch_canvas(self, action: Action):
+    async def on_fetch_canvas(self, fetch: Action):
         """
         This callback accepts the request for the canvas from the user. Returns None.
         Example Action object:
@@ -926,7 +927,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_canvas")
 
-    async def on_fetch_menu(self, action: Action):
+    async def on_fetch_menu(self, fetch: Action):
         """
         This callback accepts the request for the context menu from the user. Returns None.
         Example Action object:
@@ -934,7 +935,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_menu")
 
-    async def on_fetch_channel_info(self, action: Action):
+    async def on_fetch_channel_info(self, fetch: Action):
         """
         This callback accepts the request for channel's metadata from the user. Returns None.
         Example Action object:
@@ -967,20 +968,20 @@ class Moobius:
         >>> moobius.Action(subtype="leave_channel", channel_id=<channel id>, sender=<user id>, context={})"""
         logger.debug("on_action leave_channel")
 
-    async def on_button_click(self, button_click: ButtonClick):
+    async def on_button_click(self, action: ButtonClick):
         """
         Handles a button click from a user. Accepts the user's ButtonClick. Returns None.
         Example ButtonClick object:
         >>> moobius.ButtonClick(button_id="the_big_red_button", channel_id=<channel id>, sender=<user id>, components=[], context={})
         """
-        logger.debug(f"Button call received: {button_click}")
+        logger.debug(f"Button call received: {action}")
 
-    async def on_menu_item_click(self, menu_click: MenuItemClick):
+    async def on_menu_item_click(self, action: MenuItemClick):
         """Handles a context menu right click from a user. Accepts the user's MenuItemClick. Returns None.
         Example MenuItemClick object:
         >>> MenuItemClick(item_id=1, message_id=<id>, message_subtypes=text, message_content={'text': 'Click on this message.'}, channel_id=<channel_id>, context={}, recipients=[])
         """
-        logger.debug(f"Right-click call received: {menu_click}")
+        logger.debug(f"Right-click call received: {action}")
 
     async def on_unknown_payload(self, payload: Payload):
         """A catch-all for handling unknown Payloads. Accepts a Payload that has not been recognized by the other handlers. Returns None."""

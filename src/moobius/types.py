@@ -13,7 +13,7 @@ UPDATE = "update" # A type of websocket payload, an update.
 COPY = "copy" # A type of websocket payload, for compying a message. Used internally.
 ROGER = "roger" # A type of websocket payload, similar to COPY.
 BUTTON_CLICK = "button_click" # A type of websocket payload, sending a button click.
-MENU_CLICK = "menu_click" # A type of websocket payload, sending a menu click.
+MENU_ITEM_CLICK = "menu_click" # A type of websocket payload, sending a menu click.
 MESSAGE_UP = "message_up" # A type of websocket payload, sending a message to the service.
 MESSAGE_DOWN = "message_down" # A type of websocket payload, recieving a message from the service.
 FETCH_CHARACTERS = "fetch_characters" # A subtype of an action payload, requesting the characters.
@@ -49,14 +49,7 @@ AUDIO_EXTS = {'.wav', '.mp3', '.mp4', '.mp5'} # Audio format extensions used to 
 
 
 def _send_tmp_convert(f_name, x):
-    if f_name == 'send_menu':
-        menuitems = x['body']['content']
-        for m in menuitems:
-            continue # None of these work...
-            m['message_subtype'] = m['support_subtype'] = m['support_subtypes'] = m['message_subtypes']
-            m['text'] = m['item_text']
-            m['name'] = m['item_text']
-            m['label'] = m['item_text']
+    # So far nothing.
     return x
 
 
@@ -65,6 +58,10 @@ def _recv_tmp_convert(f_name, x):
         if type(x) is dict:
             x['arguments'] = [a['value'] for a in x['arguments']]
             return ButtonClick(**x)
+    if f_name == 'on_menu_item_click':
+        if type(x) is dict:
+            x['arguments'] = [a['value'] for a in x['arguments']]
+            return MenuItemClick(**x)
     return x
 
 
@@ -111,8 +108,8 @@ class BottomButton:
 @dataclass
 @add_str_method
 class Dialog:
-    title:str # The title on top of the dialog box.
-    components: list[InputComponent] # Each one is a place where the user selects or enters something.
+    title:str='Dialog' # The title on top of the dialog box.
+    components: Optional[list[InputComponent]]=None # Each one is a place where the user selects or enters something.
     bottom_buttons: Optional[list[BottomButton]]=None # Bottom buttons.
 
 
@@ -169,7 +166,7 @@ class MessageContent:
 @add_str_method
 class MenuItemClick:
     """A description of a menu right-click. Includes a "copy" of the message that was clicked on."""
-    item_id: str # The MenuItem ID that this click applies to.
+    menu_item_id: str # The MenuItem ID that this click applies to.
     message_id: str # The platform-generated ID of which message was clicked on (rarely used).
     message_subtype: str # The kind of message clicked on, 'text', 'image', 'audio', 'file', or 'card'.
     message_content: MessageContent # The content of the message that was clicked on.
@@ -177,7 +174,7 @@ class MenuItemClick:
     sender: str # The Character ID of the user or agent who clicked the message.
     recipients: list[str] # Rarely used.
     arguments: list[str] # What sub-menu settings, if the menu element clicked on has a sub-menu.
-    labels: list[str] # A reminder of what each argument means (if there are arguments, empty list otherwise).
+    bottom_button_id: Optional[str]=None # For the bottom buttons, if there is a dialog and it has any.
     context:Optional[dict]=None # Metadata rarely used.
 
 
