@@ -41,7 +41,7 @@ class TestbedService(Moobius):
             self._default_buttons = [Button(**b) for b in json.load(f)]
         self.image_show_dict = {}
 
-        _menu = lambda name, the_id, tys: MenuItem(item_text=name, item_id=the_id, message_subtypes=tys)
+        _menu = lambda name, the_id, tys: MenuItem(menu_item_text=name, menu_item_id=the_id, message_subtypes=tys)
         menus = [_menu('Text 1', '1', [types.TEXT]), _menu('Text 2', '2', [types.TEXT]), _menu('Text 3 popup', '3', [types.TEXT]),
                  _menu('Image 1', 'R', [types.IMAGE]), _menu('Image 2', 'G', [types.IMAGE]), _menu('Image 3 popup', 'B', [types.IMAGE]),
                  _menu('Audio 1', 'doe', [types.AUDIO]), _menu('Audio 2', 're', [types.AUDIO]), _menu('Audio 3 popup', 'mi', [types.AUDIO]),
@@ -49,7 +49,7 @@ class TestbedService(Moobius):
                  _menu('Card 1', 'Ace', [types.CARD]), _menu('Card 2', 'Jack', [types.CARD]), _menu('Card 3 popup', 'King', [types.CARD])]
         # The third option for each message type is a pop-up menu:
         for m in menus:
-            if 'popup' in m.item_text:
+            if 'popup' in m.menu_item_text:
                 arg1 = InputComponent(label='popup', type=types.DROPDOWN, optional=False, choices=["Yes do this!", "No, don't"], placeholder='Choose an option.')
                 arg2 = InputComponent(label='popup2', type=types.DROPDOWN, optional=False, choices=["Si", "No"], placeholder='Choose another option.')
                 m.dialog = Dialog(title="Choose within the menu", components=[arg1, arg2])

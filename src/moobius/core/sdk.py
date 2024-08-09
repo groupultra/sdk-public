@@ -566,7 +566,7 @@ class Moobius:
 
         Parameters:
           button_id (str): Which button.
-          button_args (list of k-v pairs, not a dict): What about said button should be fetched?
+          button_args (list of str): What about said button should be fetched?
           channel_id (str): Which channel.
 
         Returns None.
@@ -575,7 +575,7 @@ class Moobius:
             button_id=button_id,
             channel_id=channel_id,
             sender=self.client_id,
-            components=[ButtonClickArgument(name=arg[0], value=arg[1]) for arg in button_args],
+            arguments=[str(arg) for arg in button_args],
             context={}
         )
         await self.send("button_click", button_click_instance)

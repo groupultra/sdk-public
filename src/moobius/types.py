@@ -145,8 +145,8 @@ class ButtonClick:
 @add_str_method
 class MenuItem:
     """One element of a right-click menu. The full menu is described by a list of these elements."""
-    item_id: str # The app-specified ID of the Item.
-    item_text: str # What text to show in the browser.
+    menu_item_id: str # The app-specified ID of the Item.
+    menu_item_text: str # What text to show in the browser.
     message_subtypes: list[str] # What message types will open the menu. ["text","file", etc].
     dialog: Optional[Dialog] = None # If this menu item opens up a dialog box when clicked.
 
