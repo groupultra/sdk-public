@@ -1,7 +1,7 @@
 # **The main Moobius module**
 # Handles channel and database initialization.
 # Wraps the two platform APIs (HTTP and Socket) together.
-# Supports both bieng a service and bieng an agent (a bot).
+# Supports user mode which allows it to act like a user.
 # And much, much more.
 # Override the Moobius class to implement your service.
 
@@ -21,7 +21,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageContent, MessageBody, Action, Button, ButtonClick, InputComponent, Payload, MenuItemClick, Update, UpdateItem, Copy, Character, ChannelInfo, CanvasItem, StyleItem, MenuItem
+from moobius.types import MessageContent, MessageBody, ActionBody, Button, ButtonClick, InputComponent, Payload, MenuItemClick, UpdateBody, UpdateItem, CopyBody, Character, ChannelInfo, CanvasItem, StyleItem, MenuItem
 from moobius.database.storage import MoobiusStorage
 from moobius import utils, types
 from loguru import logger
@@ -53,7 +53,7 @@ class ServiceGroupLib():
         Parameters:
           http_api: The http_api client in Moobius
           character_ids: List of ids. If a string, treated as a one element list.
-          is_message_down: True = message_down (a message sent from the service), False = message_up (a message sent from an agent).
+          is_message_down: True = message_down (a message sent from the service), False = message_up (a message sent from a user).
           channel_id=None: If None and the conversion still needs to happen it will raise an Exception.
 
         Returns: The group id.
@@ -90,21 +90,19 @@ class Moobius:
 
     ############################ Startup functions ########################################
 
-    def __init__(self, config_path, db_config_path=None, is_agent=False, **kwargs):
+    def __init__(self, config_path, db_config_path=None, service_mode=True, **kwargs):
         """
-        Initializes a service or agent object.
+        Initializes a service object, can do so in "user mode" where it acts like a user.
 
         Parameters:
-          config_path: The path of the agent or service config file.
+          config_path: The path of the service config file.
             Can instead be a dict of the actual config, so that no file is loaded.
           db_config_path=None: The optional path of the database config file.
             Can also be a dict instead of a file.
-          is_agent=False: True for an agent, False for a service.
-            Agents are bots which simulate users and are limited to what a user can see.
-            Both auth with user credentials, but there are slight differences under the hood.
+          service_mode=True: True is the default for services. False is "user_mode" where we can simulate bieng an end-user.
 
         Example:
-          >>> service = SDK(config_path="./config/service.json", db_config_path="./config/database.json", is_agent=False)
+          >>> service = SDK(config_path="./config/service.json", db_config_path="./config/database.json", service_mode=True)
         """
         # Default logging settings:
         self.log_level = kwargs.get("terminal_log_level", "INFO")
@@ -129,7 +127,7 @@ class Moobius:
         utils.set_terminal_logger_level(self.log_level)
 
         self.config_path = config_path
-        self.is_agent = is_agent
+        self.service_mode = service_mode
 
         if type(config_path) is dict:
             logger.info('Be careful to keep the secrets in your service config safe!')
@@ -156,9 +154,9 @@ class Moobius:
         email = self.config["email"]
         password = self.config["password"]
         the_id = self.config.get("service_id", "")
-        if the_id != '' and the_id and self.is_agent:
-            raise Exception('Agents cannot have a "service_id" in there JSON config.')
-        if not self.is_agent:
+        if the_id != '' and the_id and not self.service_mode:
+            raise Exception('User-mode services cannot have a "service_id" in thier JSON config.')
+        if self.service_mode:
             self.client_id = self.config.get("service_id", "")
 
         self._channels = [] # Generally filled up when initializing a channel.
@@ -166,8 +164,7 @@ class Moobius:
         self.group_lib = ServiceGroupLib()
 
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
-        # TODO: Is it easier just to pass in the socket.send_agent_login function rather than self.send_agent_login?
-        self.ws_client = WSClient(ws_server_uri, on_connect=self.send_agent_login if self.is_agent else self.send_service_login, handle=self.handle_received_payload)
+        self.ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login if self.service_mode else self.send_user_login, handle=self.handle_received_payload)
 
         self.queue = aioprocessing.AioQueue()
 
@@ -182,7 +179,7 @@ class Moobius:
 
     async def start(self):
         """
-        Starts the service/agent and calls start() fns are called with wand.run. There are 6 steps:
+        Starts the service and calls start() fns are called with wand.run. There are 6 steps:
           1. Authenticate.
           2. Connect to the websocket server.
           3. Bind the service to the channels, if a service. If there is no service_id in the config file, create a new service and update the config file.
@@ -194,21 +191,13 @@ class Moobius:
         """
         utils.set_terminal_logger_level(self.log_level)
 
-        logger.debug("Starting agent..." if self.is_agent else "Starting service...")
+        logger.debug("Starting service..." if self.service_mode else "Starting user-mode client...")
 
         await self.authenticate()
         await self.ws_client.connect()
         logger.debug("Connected to websocket server.")
 
-        if self.is_agent:
-            async def _get_agent_info():
-                if not self.is_agent:
-                    raise Exception('Not an agent.')
-                agent_info = await self.http_api.fetch_user_info()
-                self.client_id = agent_info.user_id
-            await _get_agent_info()
-            await self.send_agent_login()
-        else:
+        if self.service_mode:
             if not self.client_id:
                 logger.debug('No service_id in config file. Will create a new service.')
                 self.client_id = await self.http_api.create_service(description="Generated by MoobiusService")
@@ -284,12 +273,20 @@ class Moobius:
                         await self.initialize_channel(c_id) # This channel was not initialized in the main "initialize channels" for loop because it is not in self._channels.
                     else:
                         logger.info(f'Extra channel bound to this service on startup will NOT be initialized (self.init_all_channels is False): {c_id}')
+        else:
+            async def _get_user_info():
+                if self.service_mode:
+                    raise Exception('Not in user mode.')
+                user_info = await self.http_api.fetch_user_info()
+                self.client_id = user_info.user_id
+            await _get_user_info()
+            await self.send_user_login()
 
         # Schedulers cannot be serialized so that you have to initialize it here
         self.scheduler = AsyncIOScheduler()
 
         # The details of access_token and refresh_token are managed by self.http_api
-        self.scheduler.add_job(self.refresh, 'interval', seconds=self.refresh_interval)
+        self.scheduler.add_job(self.refresh_http, 'interval', seconds=self.refresh_interval)
         self.scheduler.add_job(self.authenticate, 'interval', seconds=self.authenticate_interval)
         self.scheduler.add_job(self.send_heartbeat, 'interval', seconds=self.heartbeat_interval)
 
@@ -308,10 +305,10 @@ class Moobius:
 
         await asyncio.gather(self.ws_client.receive(), self.listen_loop())
 
-    async def agent_join_service_channels(self, service_config_fname):
-        """Joins service channels given a service config dict or JSON filename. Returns None"""
-        if not self.is_agent:
-            logger.warning('Called agent_join_service_channels when not an agent.')
+    async def user_join_service_channels(self, service_config_fname):
+        """Joins service channels given a service config dict or JSON filename (use in user mode). Returns None"""
+        if self.service_mode:
+            logger.warning('Called user_join_service_channels when not in user mode.')
         if type(service_config_fname) is dict:
             s_config = service_config_fname
         else:
@@ -319,9 +316,9 @@ class Moobius:
                 s_config = json.load(f_obj)
             channels = s_config.get('channels', [])
         if len(channels)==0:
-            logger.warning('No channels for Agent to join.')
+            logger.warning('No channels for the user mode service to join.')
         else:
-            logger.info(f'Agent joining Service default channels (if not already joined). Will not join to any extra channels: {channels}')
+            logger.info(f'User mode joining Service default channels (if not already joined). Will not join to any extra channels: {channels}')
 
         try:
             ch1 = await self.http_api.this_user_channels()
@@ -339,9 +336,9 @@ class Moobius:
                     if type(chars) is not list or self.client_id not in chars:
                         await self.send_join_channel(channel_id)
                     else:
-                        logger.info(f'Agent already in channel {channel_id}, no need to join.')
+                        logger.info(f'User-mode service already in channel {channel_id}, no need to join.')
                 except Exception as e:
-                    logger.warning(f'Agent error joining channel: {e}')
+                    logger.warning(f'User-mode service error joining channel: {e}')
 
     ################################## Query functions #######################################
 
@@ -373,12 +370,12 @@ class Moobius:
 
         This list includes:
           Real members (ids for a particular user-channel combination) who joined the channel with the given channel_id.
-          Puppet characters that have been created by this service; puppet characters are not bound to any channel.
+          Agent characters that have been created by this service; agent characters are not bound to any channel.
         """
         member_ids = await self.fetch_member_ids(channel_id, False)
         member_profiles = await self.fetch_character_profile(member_ids)
-        puppet_profiles = await self.fetch_puppets()
-        return member_profiles + puppet_profiles
+        agent_profiles = await self.fetch_agents()
+        return member_profiles + agent_profiles
 
     ################################## Actuators #######################################
 
@@ -404,7 +401,7 @@ class Moobius:
 
     async def send_message(self, message, channel_id=None, sender=None, recipients=None, subtype=None, len_limit=None, file_display_name=None):
         """
-        Sends a message. Used by both servies and agents. This function is very flexible. Returns None.
+        Sends a message down (or up if in user-mode). This function is very flexible. Returns None.
 
         Parameters:
           message: The message to send.
@@ -483,18 +480,18 @@ class Moobius:
             message['recipients'] = recipients
 
         if message.get('recipients'):
-            message['recipients'] = await self._update_rec(message['recipients'], not self.is_agent, message.get('channel_id'))
-            if not self.is_agent:
+            message['recipients'] = await self._update_rec(message['recipients'], self.service_mode, message.get('channel_id'))
+            if self.service_mode:
                 message['sender'] = message['sender'] or 'no_sender'
             if len_limit and message['content'].text:
                 message['content'].text = self.limit_len(message['content'].text, len_limit)
 
-            if self.is_agent:
+            if self.service_mode:
+                return await self.ws_client.message_down(self.client_id, self.client_id,  **message)
+            else:
                 if 'sender' in message:
                     del message['sender'] # Message up messages have no sender, for some reason.
                 return await self.ws_client.message_up(self.client_id, self.client_id, **message)
-            else:
-                return await self.ws_client.message_down(self.client_id, self.client_id,  **message)
         else:
             logger.warning('Empty or None recipients, no message will be sent.')
 
@@ -562,7 +559,7 @@ class Moobius:
 
     async def send_button_click(self, button_id, button_args, channel_id):
         """
-        Used by agents to send a button click.
+        Used in user-mode to send a button click.
 
         Parameters:
           button_id (str): Which button.
@@ -583,7 +580,7 @@ class Moobius:
     async def send_heartbeat(self):
         """Sends a heartbeat to the server. Returns None."""
         await self.ws_client.heartbeat()
-        if not self.is_agent: # 95% sure this extra line is just there because no one wanted to remove it.
+        if self.service_mode: # 95% sure this extra line is just there because no one wanted to remove it.
             await self.ws_client.heartbeat()
 
     async def create_channel(self, channel_name, channel_desc, bind=True):
@@ -616,22 +613,22 @@ class Moobius:
         """
         return await self.group_lib.convert_list(self.http_api, recipients, is_m_down, channel_id)
 
-    async def refresh(self): """Calls self.http_api.refresh."""; return await self.http_api.refresh()
+    async def refresh_http(self): """Calls self.http_api.refresh."""; return await self.http_api.refresh()
     async def authenticate(self): """Calls self.http_api.authenticate."""; return await self.http_api.authenticate()
     async def sign_up(self): """Calls self.http_api.sign_up."""; return await self.http_api.sign_up()
     async def sign_out(self): """Calls self.http_api.sign_out."""; return await self.http_api.sign_out()
     async def update_current_user(self, avatar, description, name): """Calls self.http_api.update_current_user."""; return await self.http_api.update_current_user(avatar, description, name)
-    async def update_puppet(self, puppet_id, avatar, description, name): """Calls self.http_api.update_puppet using self.client_id."""; return await self.http_api.update_puppet(self.client_id, puppet_id, avatar, description, name)
+    async def update_agent(self, agent_id, avatar, description, name): """Calls self.http_api.update_agent using self.client_id."""; return await self.http_api.update_agent(self.client_id, agent_id, avatar, description, name)
     async def update_channel(self, channel_id, channel_name, channel_desc): """Calls self.http_api.update_channel."""; return await self.http_api.update_channel(channel_id, channel_name, channel_desc)
     async def bind_service_to_channel(self, channel_id): """Calls self.http_api.bind_service_to_channel"""; return await self.http_api.bind_service_to_channel(self.client_id, channel_id)
     async def unbind_service_from_channel(self, channel_id): """Calls self.http_api.unbind_service_from_channel"""; return await self.http_api.unbind_service_from_channel(self.client_id, channel_id)
-    async def create_puppet(self, name, avatar=None, description="No description"): """Calls self.http_api.create_puppet using self.create_puppet."""; return await self.http_api.create_puppet(self.client_id, name, avatar, description)
+    async def create_agent(self, name, avatar=None, description="No description"): """Calls self.http_api.create_agent using self.create_agent."""; return await self.http_api.create_agent(self.client_id, name, avatar, description)
     async def fetch_popular_channels(self): """Calls self.http_api.fetch_popular_channels."""; return await self.http_api.fetch_popular_channels()
     async def fetch_channel_list(self): """Calls self.http_api.fetch_channel_list."""; return await self.http_api.fetch_channel_list()
     async def fetch_member_ids(self, channel_id, raise_empty_list_err=False): """Calls self.http_api.fetch_member_ids using self.client_id."""; return await self.http_api.fetch_member_ids(channel_id, self.client_id, raise_empty_list_err=raise_empty_list_err)
     async def fetch_character_profile(self, character_id): """Calls self.http_api.fetch_character_profile"""; return await self.http_api.fetch_character_profile(character_id)
     async def fetch_service_id_list(self): """Calls self.http_api.fetch_service_id_list"""; return await self.http_api.fetch_service_id_list()
-    async def fetch_puppets(self): """Calls self.http_api.fetch_puppets using self.client_id."""; return await self.http_api.fetch_puppets(self.client_id)
+    async def fetch_agents(self): """Calls self.http_api.fetch_agents using self.client_id."""; return await self.http_api.fetch_agents(self.client_id)
     async def upload(self, filepath): """Calls self.http_api.upload. Note that uploads happen automatically for any function that accepts a filepath/url when given a local path."""; return await self.http_api.upload(filepath)
     async def download(self, source, full_path=None, auto_dir=None, overwrite=True, bytes=False, headers=None): """Calls self.http_api.download."""; return await self.http_api.download(source, full_path, auto_dir, overwrite, bytes, headers)
     async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
@@ -646,21 +643,17 @@ class Moobius:
     async def fetch_user_from_group(self, user_id, channel_id, group_id): """Calls self.http_api.fetch_user_from_group."""; return await self.http_api.fetch_user_from_group(user_id, channel_id, group_id)
     async def fetch_target_group(self, user_id, channel_id, group_id): """Calls self.http_api.fetch_target_group."""; return await self.http_api.fetch_target_group(user_id, channel_id, group_id)
 
-    async def send_agent_login(self): """Calls self.ws_client.agent_login using self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.agent_login(self.http_api.access_token)
-    async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token; one of the agent vs service differences."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
+    async def send_user_login(self): """Calls self.ws_client.user_login using self.http_api.access_token; Use for user mode."""; return await self.ws_client.user_login(self.http_api.access_token)
+    async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
     async def send_update(self, data, target_client_id): """Calls self.ws_client.update"""; return await self.ws_client.update(data, self.client_id, target_client_id)
     async def send_characters(self, character_ids, channel_id, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(await self._update_rec(character_ids, True), self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_channel_info(self, channel_info, channel_id): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(channel_info, self.client_id, channel_id)
     async def send_buttons(self, buttons, channel_id, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(buttons, self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_menu(self, menu_items, channel_id, recipients): """Calls self.ws_client.update_menu using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_menu(menu_items, self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_style(self, style_items, channel_id, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(style_items, self.client_id, channel_id, await self._update_rec(recipients, True))
-    async def send_fetch_characters(self, channel_id): """Calls self.ws_client.fetch_characters using self.client_id."""; return await self.ws_client.fetch_characters(self.client_id, channel_id)
-    async def send_fetch_buttons(self, channel_id): """Calls self.ws_client.fetch_buttons using self.client_id."""; return await self.ws_client.fetch_buttons(self.client_id, channel_id)
-    async def send_fetch_style(self, channel_id): """Calls self.ws_client.fetch_style using self.client_id."""; return await self.ws_client.fetch_style(self.client_id, channel_id)
-    async def send_fetch_canvas(self, channel_id): """Calls self.ws_client.fetch_canvas using self.client_id."""; return await self.ws_client.fetch_canvas(self.client_id, channel_id)
-    async def send_fetch_channel_info(self, channel_id): """Calls self.ws_client.fetch_channel_info using self.client_id."""; return await self.ws_client.fetch_channel_info(self.client_id, channel_id)
-    async def send_join_channel(self, channel_id): """Calls self.ws_client.join_channel using self.client_id. Used by agents."""; return await self.ws_client.join_channel(self.client_id, channel_id)
-    async def send_leave_channel(self, channel_id): """Calls self.ws_client.leave_channel using self.client_id. Used by agents."""; return await self.ws_client.leave_channel(self.client_id, channel_id)
+    async def refresh_socket(self, channel_id): """Calls self.ws_client.refresh using self.client_id."""; return await self.ws_client.refresh(self.client_id, channel_id)
+    async def send_join_channel(self, channel_id): """Calls self.ws_client.join_channel using self.client_id. Use for user mode."""; return await self.ws_client.join_channel(self.client_id, channel_id)
+    async def send_leave_channel(self, channel_id): """Calls self.ws_client.leave_channel using self.client_id. Used for user mode."""; return await self.ws_client.leave_channel(self.client_id, channel_id)
 
     ################################## Callback switchyards #######################################
 
@@ -793,7 +786,7 @@ class Moobius:
                                 recipients = f'WARNING: empty list for group_id {r_group}'
                         except Exception as e:
                             recipients = [f"ERROR getting character_ids for group_id: {r_group}"]
-                update = Update(**{**payload.body, **{'content':content, 'recipients':recipients}})
+                update = UpdateBody(**{**payload.body, **{'content':content, 'recipients':recipients}})
                 await self.on_update(update)
             elif payload.type == types.MESSAGE_UP:
                 await self.on_message_up(payload.body)
@@ -813,7 +806,7 @@ class Moobius:
         else:
             logger.error(f"Unknown payload without type: {payload_data}")
 
-    async def on_action(self, action: Action):
+    async def on_action(self, action: ActionBody):
         """
         Accepts an Action object from a user. Returns None.
         Calls the corresponding method to handle different subtypes of action.
@@ -821,9 +814,6 @@ class Moobius:
           on_fetch_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
         """
         if action.subtype == types.FETCH_CHARACTERS:
-            if hasattr(self, 'on_fetch_puppets'):
-                logger.warning('on_fetch_puppets is deprecated, replace with on_fetch_characters')
-                await self.on_fetch_puppets(action)
             await self.on_fetch_characters(action)
         elif action.subtype == types.FETCH_BUTTONS:
             await self.on_fetch_buttons(action)
@@ -842,8 +832,8 @@ class Moobius:
         else:
             logger.error(f"Unknown action subtype: {action.subtype}")
 
-    async def on_update(self, update: Update):
-        """Accepts an Update object from the socket. Dispatches it to one of various callbacks. Agent function.
+    async def on_update(self, update: UpdateBody):
+        """Accepts an Update object from the socket. Dispatches it to one of various callbacks. Use for user mode.
            It is recommended to overload the invididual callbacks instead of this function. Returns None."""
         if update.subtype == types.UPDATE_CHARACTERS:
             await self.on_update_characters(update)
@@ -892,7 +882,7 @@ class Moobius:
         """
         logger.debug(f"MessageUp received: {message}")
 
-    async def on_fetch_buttons(self, fetch: Action):
+    async def on_fetch_buttons(self, fetch: ActionBody):
         """
         This callback accepts the request for the list of buttons from the user. Returns None.
         This and other "on_fetch_xyz" functions are commonly overriden to call "send_xyz" with the needed material.
@@ -901,7 +891,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_buttons")
 
-    async def on_fetch_style(self, fetch: Action):
+    async def on_fetch_style(self, fetch: ActionBody):
         """
         This callback accepts the request for the style from the user. Returns None.
         This and other "on_fetch_xyz" functions are commonly overriden to call "send_xyz" with the needed material.
@@ -910,16 +900,16 @@ class Moobius:
         """
         logger.debug("on_action fetch_styles")
 
-    async def on_fetch_characters(self, fetch: Action):
+    async def on_fetch_characters(self, fetch: ActionBody):
         """
         This callback accepts the request for the list of characters from the user.
         This tells them who they will be able to see and send messages to. Returns None.
         Example Action object:
         >>> moobius.Action(subtype="fetch_characters", channel_id=<channel id>, sender=<user id>, context={}).
         """
-        logger.debug("on_action fetch_puppets")
+        logger.debug("on_action fetch_agents")
 
-    async def on_fetch_canvas(self, fetch: Action):
+    async def on_fetch_canvas(self, fetch: ActionBody):
         """
         This callback accepts the request for the canvas from the user. Returns None.
         Example Action object:
@@ -927,7 +917,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_canvas")
 
-    async def on_fetch_menu(self, fetch: Action):
+    async def on_fetch_menu(self, fetch: ActionBody):
         """
         This callback accepts the request for the context menu from the user. Returns None.
         Example Action object:
@@ -935,7 +925,7 @@ class Moobius:
         """
         logger.debug("on_action fetch_menu")
 
-    async def on_fetch_channel_info(self, fetch: Action):
+    async def on_fetch_channel_info(self, fetch: ActionBody):
         """
         This callback accepts the request for channel's metadata from the user. Returns None.
         Example Action object:
@@ -943,16 +933,16 @@ class Moobius:
         """
         logger.debug("on_action fetch_channel_info")
 
-    async def on_copy_client(self, copy: Copy):
+    async def on_copy_client(self, copy: CopyBody):
         """
         This callback accepts a "Copy" request from the user. Returns None.
         Example Copy object:
         >>> moobius.Copy(request_id=<id>, origin_type=message_down, status=True, context={'message': 'Message received'})"""
-        if not self.is_agent and not copy.status:
+        if self.service_mode and not copy.status:
             await self.send_service_login()
         logger.debug("on_copy_client")
 
-    async def on_join_channel(self, action: Action):
+    async def on_join_channel(self, action: ActionBody):
         """
         This callback happens when the user joins a channel. Accepts an Action object. Returns None.
         Commonly used to inform everyone about this new user and update everyone's character list.
@@ -960,7 +950,7 @@ class Moobius:
         >>> moobius.Action(subtype="join_channel", channel_id=<channel id>, sender=<user id>, context={})"""
         logger.debug("on_action join_channel")
 
-    async def on_leave_channel(self, action: Action):
+    async def on_leave_channel(self, action: ActionBody):
         """
         Called when the user leaves a channel. Accepts an Action object. Returns None.
         Commonly used to update everyone's character list.
@@ -987,41 +977,41 @@ class Moobius:
         """A catch-all for handling unknown Payloads. Accepts a Payload that has not been recognized by the other handlers. Returns None."""
         pass
 
-    ############################## Agent-specific simple callbacks (also commonly overridden) #######################################
+    ############################## User mode-specific simple callbacks (also commonly overridden) #######################################
 
     async def on_message_down(self, message: MessageBody):
         """Callback when the user recieves a message. Accepts the service's MessageBody.
-           Agent function. Returns None."""
+           Use for user mode. Returns None."""
         logger.debug(f"MessageDown received: {message}")
 
-    async def on_update_characters(self, update: Update):
+    async def on_update_characters(self, update: UpdateBody):
         """Callback when the user recieves the character list. Accepts the service's Update. One of the multiple update callbacks. Returns None.
-           Agent function."""
+           Use for user mode."""
         logger.debug("on_update_character_list")
 
-    async def on_update_channel_info(self, update: Update):
+    async def on_update_channel_info(self, update: UpdateBody):
         """Callback when the user recieves the channel info. Accepts the service's Update. One of the multiple update callbacks. Returns None.
-           Agent function."""
+           Use for user mode."""
         logger.debug("on_update_channel_info")
 
-    async def on_update_canvas(self, update: Update):
+    async def on_update_canvas(self, update: UpdateBody):
         """Callback when the user recieves the canvas content. Accepts the service's Update. One of the multiple update callbacks. Returns None.
-           Agent function."""
+           Use for user mode."""
         logger.debug("on_update_canvas")
 
-    async def on_update_buttons(self, update: Update):
+    async def on_update_buttons(self, update: UpdateBody):
         """Callback when the user recieves the buttons. Accepts the service's Update. One of the multiple update callbacks. Returns None.
-           Agent function."""
+           Use for user mode."""
         logger.debug("on_update_buttons")
 
-    async def on_update_style(self, update: Update):
+    async def on_update_style(self, update: UpdateBody):
         """Callback when the user recieves the style info (look and feel). Accepts the service's Update. One of the multiple update callbacks. Returns None.
-           Agent function."""
+           Use for user mode."""
         logger.debug("on_update_style")
 
-    async def on_update_menu(self, update: Update):
+    async def on_update_menu(self, update: UpdateBody):
         """Callback when the user recieves the context menu info. Accepts the service's Update. One of the multiple update callbacks. Returns None.
-           Agent function."""
+           Use for user mode."""
         logger.debug("update_menu")
 
     #######################################################################################################################
@@ -1032,17 +1022,17 @@ class Moobius:
         ws_server_uri = self.config["ws_server_uri"]
         email = self.config["email"]
         num_channels = len(self._channels)
-        agsv = 'Agent' if self.is_agent else 'Service'
+        agsv = 'Service' if self.service_mode else 'User-mode'
         return f'moobius.SDK({agsv}; config=config={fname}, http_server_uri={http_server_uri}, ws_server_uri={ws_server_uri}, ws={ws_server_uri}, email={email}, password=****, num_channels={num_channels})'
     def __repr__(self):
         return self.__str__()
 
 ###################################################### Deprecated functions ###########################################
-deprecated_functions = {'create_character':'create_puppet',
+deprecated_functions = {'create_character':'create_agent',
                         'fetch_real_character_ids':'fetch_member_ids',
-                        'update_character':'update_puppet',
+                        'update_character':'update_agent',
                         'fetch_member_profile':'fetch_character_profile',
-                        'fetch_service_characters':'fetch_puppets',
+                        'fetch_service_characters':'fetch_agents',
                         'send_character_list':'send_characters',
                         'upload_file':'upload', 'download_file':'download'}
 

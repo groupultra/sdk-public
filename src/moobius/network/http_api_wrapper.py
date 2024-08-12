@@ -235,7 +235,7 @@ class HTTPAPIWrapper:
 
     async def fetch_character_profile(self, character_id):
         """Given a string-valued (or list-valued) character_id returns a Character object (or list therof),
-        It works for both member_ids and puppet_ids."""
+        It works for both member_ids and agent_ids."""
         is_list = type(character_id) not in [str, Character]
         character_id = utils.to_char_id_list(character_id)
         utils.assert_strs(*character_id)
@@ -249,7 +249,7 @@ class HTTPAPIWrapper:
 
         Parameters:
           channel_id (str): The channel ID.
-          service_id (str): The service/client/agent ID.
+          service_id (str): The service/client/user ID.
           raise_empty_list_err=False: Raises an Exception if the list is empty.
 
         Returns:
@@ -287,8 +287,8 @@ class HTTPAPIWrapper:
         else:
             raise Exception(f"Empty character_list error, channel_id: {channel_id}, service_id: {service_id}.")
 
-    async def fetch_puppets(self, service_id):
-        """Given the service ID returns a list of Character objects bound to this service."""
+    async def fetch_agents(self, service_id):
+        """Given the service ID returns a list of non-user Character objects bound to this service."""
         utils.assert_strs(service_id)
         m0 = "Successfully fetched character list"
         mr = "Error fetching character list"
@@ -318,7 +318,7 @@ class HTTPAPIWrapper:
         return [self._xtract_character(d) for d in charlist]
 
     async def fetch_user_info(self):
-        """Returns the UserInfo of the user logged in as, containing thier name, avatar, etc. Used by agents."""
+        """Returns the UserInfo of the user logged in as, containing thier name, avatar, etc. Used by user mode."""
         response_dict = await self.checked_get(url=self.http_server_uri + f"/user/info", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched user info", bad_message="Error getting user info", raise_errors=True)
         idict = response_dict.get('data')
         email_verified = idict.get('email_verified') # Sometimes this is unfilled.
@@ -326,7 +326,7 @@ class HTTPAPIWrapper:
                         email=idict['email'], email_verified=email_verified, user_id=idict['user_id'], system_context=idict['system_context'])
 
     async def update_current_user(self, avatar, description, name):
-        """Updates the user info. Used by agents.
+        """Updates the user info. Used by user mode.
 
            Parameters:
              avatar: Link to image or local filepath to upload.
@@ -355,7 +355,7 @@ class HTTPAPIWrapper:
         response_dict = await self.checked_get(url=self.http_server_uri + "/service/list", the_request=None, requests_kwargs={'headers':self.headers}, good_message=None, bad_message='Error getting service list', raise_errors=True)
         return response_dict.get('data')
 
-    async def create_puppet(self, service_id, name, avatar, description):
+    async def create_agent(self, service_id, name, avatar, description):
         """
         Creates a character with a given name, avatar, and description.
         The created user will be bound to the given service.
@@ -380,7 +380,7 @@ class HTTPAPIWrapper:
         character = self._xtract_character(response_dict['data'])
         return character
 
-    async def update_puppet(self, service_id, character_id, avatar, description, name):
+    async def update_agent(self, service_id, character_id, avatar, description, name):
         """Updates the characters name, avatar, etc for a FAKE user, for real users use update_current_user.
 
            Parameters:

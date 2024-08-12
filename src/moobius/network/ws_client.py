@@ -12,8 +12,19 @@ from moobius.types import *
 
 
 def asserted_dataclass_asdict(x, the_class):
-    """Converts to a dict while asserting the dataclass type is properly-formatted.
-    Raises an Exception if it cannot be converted into the specified format dataclass."""
+    """
+    Asserts that the input is the correct dataclass or is a dict which matches to a dataclsss.
+
+    Parameters:
+      x: The input dict or dataclass.
+      the_class: The class to match to, such as types.Button
+
+    Returns:
+      The modified value of x, as a dict.
+
+    Raises:
+      An Exception if there is a mismatch in the formatting.
+    """
     if type(x) is dict:
         # TODO: enforce type: print("Fields:", types.Button.__dataclass_fields__)
         #  default=dataclasses._MISSING_TYPE means manditory
@@ -21,6 +32,8 @@ def asserted_dataclass_asdict(x, the_class):
         x1 = the_class(**x)
     elif type(x) is the_class:
         return dataclasses.asdict(x)
+    else:
+        raise Exception(f'Wrong format for conversion to dataclass {the_class}')
     return x
 
 
@@ -60,7 +73,7 @@ class WSClient:
         self.ws_server_uri = ws_server_uri
         async def _default_on_connect(self): logger.info(f"Connected to {self.ws_server_uri}")
         async def _default_handle(self, message): logger.debug(f"{message}")
-        self.on_connect = on_connect or _default_on_connect # THe SDK sets on_connect to self.service or self.agent login.
+        self.on_connect = on_connect or _default_on_connect # THe SDK sets on_connect to service or user login.
         self.handle = handle or _default_handle
         self.outbound_queue = asyncio.Queue()
         self.outbound_queue_running = False
@@ -183,10 +196,10 @@ class WSClient:
             await self.send(message)
         return message
 
-    async def agent_login(self, access_token, *, dry_run=False):
+    async def user_login(self, access_token, *, dry_run=False):
         """
-        Logs-in agents.
-        Every 2h AWS will force-disconnect, so it is a good idea to send agent_login on connect.
+        Logs-in a user.
+        Every 2h AWS will force-disconnect, so it is a good idea to send this on connect.
 
         Parameters:
           access_token: Used in the user_login message that is sent.
@@ -203,12 +216,12 @@ class WSClient:
             "access_token": access_token
         }
         if not dry_run:
-            logger.info("agent_login payload, should show up as another log in a second or so")
+            logger.info("user_login payload, should show up as another log in a second or so")
             await self.send(message)
         return message
 
     async def leave_channel(self, user_id, channel_id, *, dry_run=False):
-        """Leaves the channel with channel_id, unless dry_run is True. Used by agents. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
+        """A user leaves the channel with channel_id, unless dry_run is True. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
         utils.assert_strs(user_id, channel_id)
         message = {
             "type": "action",
@@ -225,7 +238,7 @@ class WSClient:
         return message
 
     async def join_channel(self, user_id, channel_id, *, dry_run=False):
-        """Joins the channel with channel_id, unless dry_run is True. Used by agents. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
+        """A user joins the channel with channel_id, unless dry_run is True. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
         utils.assert_strs(user_id, channel_id)
         message = {
             "type": "action",
@@ -264,7 +277,7 @@ class WSClient:
             "request_id": str(uuid.uuid4()),
             "service_id": service_id,
             "body": {
-                "subtype": "update_characters",
+                "subtype": types.UPDATE_CHARACTERS,
                 "channel_id": channel_id,
                 "recipients": recipients,
                 "content":{"characters": characters}
@@ -310,7 +323,7 @@ class WSClient:
             "request_id": str(uuid.uuid4()),
             "service_id": service_id,
             "body": {
-                "subtype": "update_buttons",
+                "subtype": types.UPDATE_BUTTONS,
                 "channel_id": channel_id,
                 "recipients": recipients,
                 "content": button_dicts,
@@ -343,7 +356,7 @@ class WSClient:
             "request_id": str(uuid.uuid4()),
             "service_id": service_id,
             "body": {
-                "subtype": "update_menu",
+                "subtype": types.UPDATE_MENU,
                 "channel_id": channel_id,
                 "recipients": recipients,
                 "content": menu_items,
@@ -397,7 +410,7 @@ class WSClient:
             "request_id": str(uuid.uuid4()),
             "service_id": service_id,
             "body": {
-                "subtype": "update_style",
+                "subtype": types.UPDATE_STYLE,
                 "channel_id": channel_id,
                 "recipients": recipients,
                 "content": style_items,
@@ -430,7 +443,7 @@ class WSClient:
                                    'channel_type': channel_info['channel_type']}
         message = {
             "type": "update",
-            "subtype": "channel_info",
+            "subtype": types.UPDATE_CHANNEL_INFO,
             "channel_id": channel_id,
             "request_id": str(uuid.uuid4()),
             "service_id": service_id,
@@ -477,7 +490,7 @@ class WSClient:
             "request_id": str(uuid.uuid4()),
             "service_id": service_id,
             "body": {
-                "subtype": "update_canvas",
+                "subtype": types.UPDATE_CANVAS,
                 "channel_id": channel_id,
                 "recipients": recipients,
                 "content": canvas_items,
@@ -516,10 +529,10 @@ class WSClient:
     ########################## Sending messages ###################################
     async def message_up(self, user_id, service_id, channel_id, recipients, subtype, content, *, dry_run=False):
         """
-        Used by agents to send messages.
+        Used by users to send messages.
 
         Parameters:
-          user_id (str): An agent id generally.
+          user_id (str): An enduser id generally.
           channel_id (str): Which channel to broadcast the message in.
           recipients (str): The group id to send to.
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
@@ -557,7 +570,7 @@ class WSClient:
         Sends a message to the recipients.
 
         Parameters:
-          user_id (str): An agent id generally.
+          user_id (str): An service id generally.
           channel_id (str): Which channel to broadcast the message in.
           recipients (str): The group id to send to.
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
@@ -580,10 +593,10 @@ class WSClient:
             await self.send(message)
         return message
 
-    ######################### Fetching data ############################
-    async def fetch_characters(self, user_id, channel_id, *, dry_run=False):
+    ######################### Refresh ############################
+    async def refresh(self, user_id, channel_id, *, dry_run=False):
         """
-        Asks for the list of characters. The socket will send back a message with the information later.
+        Refreshes everything the user can see. The socket will send back messages with the information later.
 
         Parameters:
           user_id (str): Used in the "action" message that is sent.
@@ -600,82 +613,13 @@ class WSClient:
             "request_id": str(uuid.uuid4()),
             "user_id": user_id,
             "body": {
-                "subtype": "fetch_characters",
+                "subtype": types.REFRESH,
                 "channel_id": channel_id,
                 "context": {}
             }
         }
-        logger.warning('Not sure if websocket fetch_characters will work, but there is an HTTP API version to fetch groups and each group comes with its own list of characters.')
         if not dry_run:
-            logger.info("send_fetch_characters", channel_id)
-            await self.send(message)
-        return message
-
-    async def fetch_buttons(self, user_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_characters but for the buttons. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
-        message = {
-            "type": "action",
-            "request_id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "body": {
-                "subtype": "fetch_buttons",
-                "channel_id": channel_id,
-                "context": {}
-            }
-        }
-        utils.assert_strs(user_id, channel_id)
-        if not dry_run:
-            await self.send(message)
-        return message
-
-    async def fetch_style(self, user_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_characters but for the style. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
-        message = {
-            "type": "action",
-            "request_id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "body": {
-                "subtype": "fetch_style",
-                "channel_id": channel_id,
-                "context": {}
-            }
-        }
-        utils.assert_strs(user_id, channel_id)
-        if not dry_run:
-            await self.send(message)
-        return message
-
-    async def fetch_canvas(self, user_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_characters but for the canvas. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
-        message = {
-            "type": "action",
-            "request_id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "body": {
-                "subtype": "fetch_canvas",
-                "channel_id": channel_id,
-                "context": {}
-            }
-        }
-        utils.assert_strs(user_id, channel_id)
-        if not dry_run:
-            await self.send(message)
-        return message
-
-    async def fetch_channel_info(self, user_id, channel_id, *, dry_run=False):
-        """Same usage as fetch_characters but for the channel_info. Accepts the user_id, the channel_id, and whether to dry_run. Returns the message sent."""
-        message = {
-            "type": "action",
-            "request_id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "body": {
-                "subtype": "fetch_channel_info",
-                "channel_id": channel_id,
-                "context": {}
-            }
-        }
-        utils.assert_strs(user_id, channel_id)
-        if not dry_run:
+            logger.info("socket refresh", channel_id)
             await self.send(message)
         return message
 

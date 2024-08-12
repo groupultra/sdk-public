@@ -129,7 +129,7 @@ def save(fname, x):
 
 
 def _get_boxes():
-    """Returns an empty dict if there are no boxes choosen."""
+    """Gets the value in each GUI box. Returns an empty dict if it is not the GUI mode."""
     out = {}
     for k, v in boxes.items():
         out[k] = v.get()
@@ -137,17 +137,42 @@ def _get_boxes():
 
 
 def submit(out):
-    """Saves the CCS files (code and config) to a folder given a configuration dict with all the settings. Returns sys.exit()"""
-    out = {**out, **_get_boxes()}
+    """Saves the CCS files (code and config) to a folder given a configuration dict with all the settings. Returns sys.exit().
+    Calling this function will read the current gui state."""
+    box_values = _get_boxes()
+    use_gui = len(box_values)>0
+    out = {**out, **box_values}
 
-    #out['password'] = <secret> # Used for making videos, hardcode and *do not* git save just to make the video.
+    while True:
+        the_folder = os.path.realpath(out['folder'].replace('~', os.path.expanduser("~"))).replace('\\','/')
+        if os.path.exists(the_folder) and os.listdir(the_folder):
+            if use_gui:
+                from tkinter import messagebox
+                gui_response=messagebox.askquestion('Folder not empty', f'{the_folder} already has files in it. Overwrite?').lower().strip()
+                if gui_response == "yes":
+                    break
+                else:
+                    return # Don't do anything.
+            else:
+                confirm = input('The folder {the_folder} is not empty. Press y to confirm. Press n to cancel and quit. Or type in another folder name:').strip()
+                if confirm.lower() == 'y':
+                    break
+                elif confirm.lower() == 'n':
+                    sys.exit(1)
+                elif confirm:
+                    out['folder'] = confirm
+        else:
+            break
+    #out['email'] = "<email>"; out['password'] = "<secret>"" # Used for making videos, hardcode and *do not* git save just to make the video.
 
-    if 'email' in out and 'password' in out:
+    if not out.get('email'):
+        out['email'] = input('Enter account email, or press enter to skip:').strip()
+    if not out.get('password'):
+        out['password'] = input('Enter account password, or press enter to skip:').strip()
+
+    if out.get('email') and out.get('password'):
         if not out.get('channels') and not out.get('service_id'): #Create a channel.
             out['service_id'], out['channels'] = create_channel(out['email'], out['password'], out['url'])
-
-    the_folder = os.path.realpath(out['folder'].replace('~', os.path.expanduser("~"))).replace('\\','/')
-    print('Values choosen:', out)
 
     service_template['channels'] = out['channels'].strip().replace(',', ' ').replace('  ',' ').split(' ')
     print('Channels:', service_template['channels'])
@@ -184,7 +209,7 @@ cur_row = 1
 def make_box(root, name, detailed_name, default, options=None):
     """
     Makes a box for GUI usage. None options means fill in. Returns ttk.Combobox object.
-    
+
     Parameters:
       root: Tk.root
       name: The box name.
@@ -255,8 +280,7 @@ Less common arguments:
             sys.exit()
 
     print('Quickstart!')
-    #print('Sys args:', sys.argv)
-    defaults = {'channels':'', 'email':'<name@site.com>', 'password':'<secret>', 'template':'Zero',
+    defaults = {'channels':'', 'email':'', 'password':'', 'template':'Zero',
                 'service_id':'', 'others':'include', 'url':'moobius.net/', 'others':'include',
                 'folder':'.', 'gui':False}
 

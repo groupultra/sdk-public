@@ -24,13 +24,14 @@ FETCH_MENU = "fetch_menu"  # A subtype of an action payload, requesting the righ
 FETCH_CHANNEL_INFO = "fetch_channel_info" # A subtype of an action payload, requesting the 
 JOIN_CHANNEL = "join_channel" # A subtype of an action payload, the user pastes in the ID and joins.
 LEAVE_CHANNEL = "leave_channel" # A subtype of an action payload, the user presses the leave channel button.
+REFRESH = "refresh"
 HEARTBEAT = "heartbeat" # A subtype of an action payload, that is called periodically.
-UPDATE_CHARACTERS = "update_characters" # A subtype of the update payload, an update to the characters.
-UPDATE_CHANNEL_INFO = "update_channel_info" # A subtype of the update payload, an Update for the channel name, description, etc.
-UPDATE_CANVAS = "update_canvas" # A subtype of the update payload, an Update for the canvas.
-UPDATE_BUTTONS = "update_buttons" # A subtype of the update payload, an Update for the buttons.
-UPDATE_STYLE = "update_style" # A subtype of the update payload, an Update for the style.
-UPDATE_MENU = "update_menu" # An Update for the right-click menu.
+UPDATE_CHARACTERS = "characters" # A subtype of the update payload, an update to the characters.
+UPDATE_CHANNEL_INFO = "channel_info" # A subtype of the update payload, an Update for the channel name, description, etc.
+UPDATE_CANVAS = "canvas" # A subtype of the update payload, an Update for the canvas.
+UPDATE_BUTTONS = "buttons" # A subtype of the update payload, an Update for the buttons.
+UPDATE_STYLE = "style" # A subtype of the update payload, an Update for the style.
+UPDATE_MENU = "menu" # An Update for the right-click menu.
 USER_LOGIN = "user_login" # A subtype of the update payload, an Update for logging in.
 SERVICE_LOGIN = "service_login" # A subtype of the update payload, an Update for logging in.
 TEXT = "text" # A message subtype, a simple string.
@@ -49,11 +50,13 @@ AUDIO_EXTS = {'.wav', '.mp3', '.mp4', '.mp5'} # Audio format extensions used to 
 
 
 def _send_tmp_convert(f_name, x):
+    """Tmp useless function. Accepts the request_name, and a dict x. Returns x."""
     # So far nothing.
     return x
 
 
 def _recv_tmp_convert(f_name, x):
+    """Tmp function. Accepts the request_name, and a dict x. Returns the modified x."""
     if f_name == 'on_button_click':
         if type(x) is dict:
             x['arguments'] = [a['value'] for a in x['arguments']]
@@ -61,7 +64,10 @@ def _recv_tmp_convert(f_name, x):
     if f_name == 'on_menu_item_click':
         if type(x) is dict:
             x['arguments'] = [a['value'] for a in x['arguments']]
-            return MenuItemClick(**x)
+            out = MenuItemClick(**x)
+            if type(out.message_content) is dict:
+                out.message_content = MessageContent(**out.message_content)
+            return out
     return x
 
 
@@ -212,19 +218,18 @@ class MessageBody:
     content: MessageContent # The content of the message.
     timestamp: int # When the message was sent.
     recipients: list[str] # The Character IDs of who the message was sent to.
-    sender: str # The Character ID of who sent the message.
+    sender: str # The Character ID of who sent the message. Removed in the Aug 2024 change I think.
     message_id: str | None # The platform-generated ID of the message itself. Rarely used.
     context:Optional[dict]=None # Metadata that is rarely used.
 
 
 @dataclass
 @add_str_method
-class Action:
+class ActionBody:
     """A description of a generic task performed by a user. Actions with different subtypes are routed to different callbacks."""
     subtype: str # The subtype of the action. Used internally to route the action to the correct callback function.
-    channel_id: str # The Channel ID of the channel the action is in.
-    sender: str # The Character ID of who did the action.
-    context: Optional[dict] = None # Rarely used metadata.
+    request_id: str
+    user_id: str # The user who sent the action.
 
 
 @dataclass
@@ -239,11 +244,11 @@ class ChannelInfo:
 
 @dataclass
 @add_str_method
-class Copy:
+class CopyBody:
     """Used internally for the on_copy_client() callback. Most CCS apps do not need to override the callback."""
     request_id: str # Just a platform-generated ID to differentiate different copies.
     origin_type: str # What kind of data this copy comes from.
-    status: bool # Rarely used.
+    status: bool # Rarely used. Usually True.
     context:Optional[dict]=None # Rarely used metadata.
 
 
@@ -254,7 +259,7 @@ class Payload:
     type: str # The kind of payload, used internally to route the payload to the correct callback function.
     request_id: Optional[str] # A platform-generated ID to differentiate payloads.
     user_id: Optional[str] # The Character ID of who dispatched this payload.
-    body: MessageBody | ButtonClick | Action | Copy | MenuItemClick | Any # The body of the payload.
+    body: MessageBody | ButtonClick | ActionBody | CopyBody | MenuItemClick | Any # The body of the payload.
 
 
 @dataclass
@@ -294,7 +299,7 @@ class UpdateItem:
 
 @dataclass
 @add_str_method
-class Update:
+class UpdateBody:
     """
     A description of an update. Includes update elements as well as who sees the update.
     Used for on_update_xyz callbacks. Not used for the send_update functions.
