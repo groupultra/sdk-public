@@ -6,14 +6,13 @@ class MenuCanvasService(Moobius):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    async def on_fetch_canvas(self, action):
+    async def on_refresh(self, action):
         canvas_elements = [CanvasItem(text="Some **text** here, along with an image. Try sending a message and richt-clicking on it.", path="https://www.moobius.net/images/index/indexH2.png")]
         canvas_elements.append(CanvasItem(path="https://www.moobius.net/images/index/indexBg.png"))
         canvas_elements.append(CanvasItem(text="More `text` here.\nWith multiple lines.\nSeperated by newlines."))
         await self.send_canvas(canvas_elements, action.channel_id, [action.sender])
         await self.send_style([StyleItem(widget="canvas", display="visible", expand=True)], action.channel_id, [action.sender])
 
-    async def on_fetch_menu(self, action):
         elements = []
         menu_types = [types.TEXT, types.IMAGE, types.AUDIO, types.FILE, types.CARD]
         await self.send_message('types supported: '+str(menu_types), action.channel_id, action.sender, [action.sender])

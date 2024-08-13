@@ -21,7 +21,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageContent, MessageBody, ActionBody, Button, ButtonClick, InputComponent, Payload, MenuItemClick, UpdateBody, UpdateItem, CopyBody, Character, ChannelInfo, CanvasItem, StyleItem, MenuItem
+from moobius.types import MessageContent, MessageBody, ActionBody, Button, ButtonClick, InputComponent, Payload, MenuItemClick, UpdateBody, UpdateItem, CopyBody, Character, ChannelInfo, CanvasItem, StyleItem, MenuItem, RefreshBody
 from moobius.database.storage import MoobiusStorage
 from moobius import utils, types
 from loguru import logger
@@ -254,7 +254,7 @@ class Moobius:
                 groupid2ids = await self.http_api.fetch_channel_group_dict(channel_id, self.client_id)
                 logger.info(f'The channel {channel_id} has groups {groupid2ids}, adding these to self.group_lib.')
                 self.group_lib.id2ids_mdown = {**self.group_lib.id2ids_mdown, **groupid2ids}
-                await self.initialize_channel(channel_id)
+                await self.on_channel_init(channel_id)
                 self._channels.append(channel_id)
 
             if len(self._channels) == 0:
@@ -270,7 +270,7 @@ class Moobius:
                 if c_id not in self._channels:
                     if self.init_all_channels:
                         logger.info(f'Extra channel bound to this service on startup will be initialized  (self.init_all_channels is True): {c_id}')
-                        await self.initialize_channel(c_id) # This channel was not initialized in the main "initialize channels" for loop because it is not in self._channels.
+                        await self.on_channel_init(c_id) # This channel was not initialized in the main "initialize channels" for loop because it is not in self._channels.
                     else:
                         logger.info(f'Extra channel bound to this service on startup will NOT be initialized (self.init_all_channels is False): {c_id}')
         else:
@@ -286,7 +286,7 @@ class Moobius:
         self.scheduler = AsyncIOScheduler()
 
         # The details of access_token and refresh_token are managed by self.http_api
-        self.scheduler.add_job(self.refresh_http, 'interval', seconds=self.refresh_interval)
+        self.scheduler.add_job(self.refresh_authentication, 'interval', seconds=self.refresh_interval)
         self.scheduler.add_job(self.authenticate, 'interval', seconds=self.authenticate_interval)
         self.scheduler.add_job(self.send_heartbeat, 'interval', seconds=self.heartbeat_interval)
 
@@ -301,7 +301,7 @@ class Moobius:
         await self.on_start()
         logger.debug("on_start() finished.")
 
-        self.scheduler.add_job(self.checkin, 'interval', seconds=self.checkin_interval) # This check-in must be after on_start()
+        self.scheduler.add_job(self._on_checkin, 'interval', seconds=self.checkin_interval) # This check-in must be after on_start()
 
         await asyncio.gather(self.ws_client.receive(), self.listen_loop())
 
@@ -497,7 +497,7 @@ class Moobius:
 
     async def send(self, payload_type, payload_body):
         """
-        Sends any kind of payload. Example payload types:
+        Sends any kind of payload to the websocket. Example payload types:
           message_down, update, update_characters, update_channel_info, update_canvas, update_buttons, update_style, and heartbeat.
         Rarely used except internally, but provides the most flexibility for those special occasions.
 
@@ -557,32 +557,6 @@ class Moobius:
             payload_dict['service_id'] = self.client_id
         await self.ws_client.send(payload_dict)
 
-    async def send_button_click(self, button_id, button_args, channel_id):
-        """
-        Used in user-mode to send a button click.
-
-        Parameters:
-          button_id (str): Which button.
-          button_args (list of str): What about said button should be fetched?
-          channel_id (str): Which channel.
-
-        Returns None.
-        """
-        button_click_instance = ButtonClick(
-            button_id=button_id,
-            channel_id=channel_id,
-            sender=self.client_id,
-            arguments=[str(arg) for arg in button_args],
-            context={}
-        )
-        await self.send("button_click", button_click_instance)
-
-    async def send_heartbeat(self):
-        """Sends a heartbeat to the server. Returns None."""
-        await self.ws_client.heartbeat()
-        if self.service_mode: # 95% sure this extra line is just there because no one wanted to remove it.
-            await self.ws_client.heartbeat()
-
     async def create_channel(self, channel_name, channel_desc, bind=True):
         """Creates a channel given the channel name, the channel description, and whether to bind to the new channel.
            By default bind is True, which means the service connects itself to the channel.
@@ -603,6 +577,24 @@ class Moobius:
                 elem.path = await self.http_api.convert_to_url(elem.path)
         return await self.ws_client.update_canvas(self.client_id, channel_id, canvas_items, await self._update_rec(recipients, True))
 
+    async def send_heartbeat(self):
+        """Sends a heartbeat to the server. Returns None."""
+        await self.ws_client.heartbeat()
+        if self.service_mode: # 95% sure this extra line is just there because no one wanted to remove it.
+            await self.ws_client.heartbeat()
+
+    async def send_refresh(self, channel_id):
+        """Sends a refresh given a channel_id. Returns the message sent. A user function."""
+        if self.service_mode:
+            logger.warning('This is a user function')
+        return await self.ws_client.refresh_as_user(self.client_id, channel_id)
+
+    async def do_channel_sync(self, channel_id):
+        """Sends a refresh request "from" each user in this channel, which will refresh thier views.
+        Accepts the channel id. returns None."""
+        member_ids = await self.fetch_member_ids(channel_id)
+        tasks = [self.ws_client.refresh_as_user(user_id, channel_id) for user_id in member_ids]
+        await asyncio.gather(*tasks)
 
     ################################## Single-line functions #######################################
     async def _update_rec(self, recipients, is_m_down, channel_id=None):
@@ -613,7 +605,7 @@ class Moobius:
         """
         return await self.group_lib.convert_list(self.http_api, recipients, is_m_down, channel_id)
 
-    async def refresh_http(self): """Calls self.http_api.refresh."""; return await self.http_api.refresh()
+    async def refresh_authentication(self): """Calls self.http_api.refresh."""; return await self.http_api.refresh()
     async def authenticate(self): """Calls self.http_api.authenticate."""; return await self.http_api.authenticate()
     async def sign_up(self): """Calls self.http_api.sign_up."""; return await self.http_api.sign_up()
     async def sign_out(self): """Calls self.http_api.sign_out."""; return await self.http_api.sign_out()
@@ -629,9 +621,10 @@ class Moobius:
     async def fetch_character_profile(self, character_id): """Calls self.http_api.fetch_character_profile"""; return await self.http_api.fetch_character_profile(character_id)
     async def fetch_service_id_list(self): """Calls self.http_api.fetch_service_id_list"""; return await self.http_api.fetch_service_id_list()
     async def fetch_agents(self): """Calls self.http_api.fetch_agents using self.client_id."""; return await self.http_api.fetch_agents(self.client_id)
+    async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
     async def upload(self, filepath): """Calls self.http_api.upload. Note that uploads happen automatically for any function that accepts a filepath/url when given a local path."""; return await self.http_api.upload(filepath)
     async def download(self, source, full_path=None, auto_dir=None, overwrite=True, bytes=False, headers=None): """Calls self.http_api.download."""; return await self.http_api.download(source, full_path, auto_dir, overwrite, bytes, headers)
-    async def fetch_message_history(self, channel_id, limit=1024, before="null"): """Calls self.http_api.fetch_message_history."""; return await self.http_api.fetch_message_history(channel_id, limit, before)
+
     async def create_channel_group(self, channel_id, group_name, members): """Calls self.http_api.create_channel_group."""; return await self.http_api.create_channel_group(channel_id, group_name, members)
     async def create_service_group(self, group_id, members): """Calls self.http_api.create_service_group."""; return await self.http_api.create_service_group(group_id, members)
     async def character_ids_of_channel_group(self, sender_id, channel_id, group_id): """Calls self.http_api.character_ids_of_channel_group"""; return await self.http_api.character_ids_of_channel_group(sender_id, channel_id, group_id)
@@ -651,16 +644,18 @@ class Moobius:
     async def send_buttons(self, buttons, channel_id, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(buttons, self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_menu(self, menu_items, channel_id, recipients): """Calls self.ws_client.update_menu using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_menu(menu_items, self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_style(self, style_items, channel_id, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(style_items, self.client_id, channel_id, await self._update_rec(recipients, True))
-    async def refresh_socket(self, channel_id): """Calls self.ws_client.refresh using self.client_id."""; return await self.ws_client.refresh(self.client_id, channel_id)
+
     async def send_join_channel(self, channel_id): """Calls self.ws_client.join_channel using self.client_id. Use for user mode."""; return await self.ws_client.join_channel(self.client_id, channel_id)
     async def send_leave_channel(self, channel_id): """Calls self.ws_client.leave_channel using self.client_id. Used for user mode."""; return await self.ws_client.leave_channel(self.client_id, channel_id)
+    async def send_button_click(self, button_id, bottom_button_id, button_args, channel_id): """Calls self.ws_client.send_button_click using self.client_id. Used for user mode."""; await self.ws_client.send_button_click(button_id, bottom_button_id, button_args, channel_id, self.client_id, dry_run=False)
+    async def send_menu_item_click(self, menu_item_id, bottom_button_id, button_args, the_message, channel_id): """Calls self.ws_client.send_menu_item_click using self.client_id. Used for user mode."""; await self.ws_client.send_menu_item_click(menu_item_id, bottom_button_id, button_args, the_message, channel_id, self.client_id, dry_run=False)
 
     ################################## Callback switchyards #######################################
 
-    async def checkin(self):
+    async def _on_checkin(self):
         """Called as a rate task, used to resync users, etc. Only called after on_start(). Returns None."""
         for channel_id in self._channels:
-            await self.checkin_channel(channel_id)
+            await self.do_channel_sync(channel_id)
 
     @logger.catch
     async def listen_loop(self):
@@ -736,11 +731,6 @@ class Moobius:
             payload_body['recipients'] = await _group2ids(rec_group)
 
         if 'type' in payload_data:
-            if 'sender' not in payload_body and payload_body.get('context',{}).get('sender'):
-                payload_body['sender'] = payload_body['context']['sender'] # Need a 'sender' key to make it a MessageBody or ButtonClick dataclass.
-            if payload_data['type'] == types.MENU_ITEM_CLICK:
-                if 'message_id' not in payload_data['body']: # Need a 'message_id' key to make it a MenuItemClick.
-                    payload_data['body']['message_id'] = ""
             payload = from_dict(data_class=Payload, data=payload_data) # Brittle type inference.
             if payload.type == types.MESSAGE_DOWN:
                 await self.on_message_down(payload.body)
@@ -800,6 +790,8 @@ class Moobius:
                 await self.on_menu_item_click(payload.body)
             elif payload.type == types.COPY:
                 await self.on_copy_client(payload.body)
+            elif payload.type == types.REFRESH:
+                await self.on_refresh(payload.body)
             else:
                 logger.warning(f"Unknown payload received: {payload}; DATA: {payload_data}")
                 await self.on_unknown_payload(payload)
@@ -813,22 +805,10 @@ class Moobius:
         Example methods called:
           on_fetch_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
         """
-        if action.subtype == types.FETCH_CHARACTERS:
-            await self.on_fetch_characters(action)
-        elif action.subtype == types.FETCH_BUTTONS:
-            await self.on_fetch_buttons(action)
-        elif action.subtype == types.FETCH_STYLE:
-            await self.on_fetch_style(action)
-        elif action.subtype == types.FETCH_CANVAS:
-            await self.on_fetch_canvas(action)
-        elif action.subtype == types.JOIN_CHANNEL:
+        if action.subtype == types.JOIN_CHANNEL:
             await self.on_join_channel(action)
         elif action.subtype == types.LEAVE_CHANNEL:
             await self.on_leave_channel(action)
-        elif action.subtype == types.FETCH_MENU:
-            await self.on_fetch_menu(action)
-        elif action.subtype == types.FETCH_CHANNEL_INFO:
-            await self.on_fetch_channel_info(action)
         else:
             logger.error(f"Unknown action subtype: {action.subtype}")
 
@@ -856,17 +836,16 @@ class Moobius:
         """Called when the service is initialized. Returns None"""
         logger.debug("Service started. Override this method to perform initialization tasks.")
 
-    async def initialize_channel(self, channel_id):
-        """Called once per channel on startup. Accepts the channel ID. Returns None.
-        By default, if self.db_config has been set, a MoobiusStorage is created in self.channel_storages"""
+    async def on_channel_init(self, channel_id):
+        """
+        Called once per channel on startup. Accepts the channel ID. Returns None.
+        By default, if self.db_config has been set, a MoobiusStorage is created in self.channel_storages.
+        Also does a channel sync by default.
+        """
         if self.db_config: # Optional storage.
             self.channel_storages[channel_id] = MoobiusStorage(self.client_id, channel_id, self.db_config)
+        await self.do_channel_sync(channel_id)
         logger.debug('Initalized channel.')
-
-    async def checkin_channel(self, channel_id):
-        """A "wellness check" which is called on startup, on reconnect, and as a periodic "check-in". Accepts the channel ID. Returns None."""
-        if channel_id == self._channels[0]:
-            logger.info('checkin_channel not overriden, occasional desyncs are possible.')
 
     async def on_spell(self, obj):
         """Called when a "spell" from the wand is received, which can be any object but is often a string. Accepts whatever the wand sent this process. Returns None."""
@@ -882,57 +861,6 @@ class Moobius:
         """
         logger.debug(f"MessageUp received: {message}")
 
-    async def on_fetch_buttons(self, fetch: ActionBody):
-        """
-        This callback accepts the request for the list of buttons from the user. Returns None.
-        This and other "on_fetch_xyz" functions are commonly overriden to call "send_xyz" with the needed material.
-        Example Action object:
-        >>> moobius.Action(subtype="fetch_buttons", channel_id=<channel id>, sender=<user id>, context={})
-        """
-        logger.debug("on_action fetch_buttons")
-
-    async def on_fetch_style(self, fetch: ActionBody):
-        """
-        This callback accepts the request for the style from the user. Returns None.
-        This and other "on_fetch_xyz" functions are commonly overriden to call "send_xyz" with the needed material.
-        Example Action object:
-        >>> moobius.Action(subtype="fetch_style", channel_id=<channel id>, sender=<user id>, context={})
-        """
-        logger.debug("on_action fetch_styles")
-
-    async def on_fetch_characters(self, fetch: ActionBody):
-        """
-        This callback accepts the request for the list of characters from the user.
-        This tells them who they will be able to see and send messages to. Returns None.
-        Example Action object:
-        >>> moobius.Action(subtype="fetch_characters", channel_id=<channel id>, sender=<user id>, context={}).
-        """
-        logger.debug("on_action fetch_agents")
-
-    async def on_fetch_canvas(self, fetch: ActionBody):
-        """
-        This callback accepts the request for the canvas from the user. Returns None.
-        Example Action object:
-        >>> moobius.Action(subtype="fetch_canvas", channel_id=<channel id>, sender=<user id>, context={})
-        """
-        logger.debug("on_action fetch_canvas")
-
-    async def on_fetch_menu(self, fetch: ActionBody):
-        """
-        This callback accepts the request for the context menu from the user. Returns None.
-        Example Action object:
-        >>> moobius.Action(subtype="fetch_menu", channel_id=<channel id>, sender=<user id>, context={})
-        """
-        logger.debug("on_action fetch_menu")
-
-    async def on_fetch_channel_info(self, fetch: ActionBody):
-        """
-        This callback accepts the request for channel's metadata from the user. Returns None.
-        Example Action object:
-        >>> moobius.Action(subtype="fetch_channel_info", channel_id=<channel id>, sender=<user id>, context={})
-        """
-        logger.debug("on_action fetch_channel_info")
-
     async def on_copy_client(self, copy: CopyBody):
         """
         This callback accepts a "Copy" request from the user. Returns None.
@@ -941,6 +869,13 @@ class Moobius:
         if self.service_mode and not copy.status:
             await self.send_service_login()
         logger.debug("on_copy_client")
+
+    async def on_refresh(self, refresh: RefreshBody):
+        """
+        This callback accepts a "Copy" request from the user. Returns None.
+        Example RefreshObject object:
+        >>> moobius.RefreshBody(channel_id=<channel_id>, context={})"""
+        logger.debug("on_refresh")
 
     async def on_join_channel(self, action: ActionBody):
         """

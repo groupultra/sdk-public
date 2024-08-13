@@ -73,7 +73,7 @@ It's common to make one MoobiusStorage per channel.
 
 To do so, a db conf file such as "config/db.json" can be created and passed in as the "db_config" kwarg for the Moobius constructor.
 
-If such a config is specified, "service.channel_storages" is automatically populated during "initialize_channel".
+If such a config is specified, "service.channel_storages" is automatically populated during "do_channel_init".
 
 Setting the storages up this way moves configuration parameters outside of the core service Python code and can make the code cleaner.
 

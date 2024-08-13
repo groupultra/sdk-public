@@ -106,7 +106,7 @@ class TestbedService(Moobius):
                     v.pop(k1)
                 self.database_debugs[channel_id]['cached_dict_keys_ALLPOP_test'][k] = dict(zip(v.keys(), v.values()))
 
-    async def initialize_channel(self, channel_id):
+    async def on_channel_init(self, channel_id):
         """Initalizes the channel (given by channel_id) with the images and real and puppet characters.
            All of this is stored in a MoobiusStorage object."""
         self.populate_debug_storage(channel_id)
@@ -140,11 +140,11 @@ class TestbedService(Moobius):
             if key not in the_channel.puppet_characters:
                 image_path = self.image_paths[self.MICKEY]
 
-                the_channel.puppet_characters[key] = await self.create_puppet(
+                the_channel.puppet_characters[key] = await self.create_agent(
                     f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
                 )
 
-        the_channel.puppet_characters[self.WAND] = await self.create_puppet(
+        the_channel.puppet_characters[self.WAND] = await self.create_agent(
             self.WAND, self.images[self.WAND], f'I am {self.WAND}!' # Use images instead of image paths for a different option (testing rigor).
         )
 
@@ -158,7 +158,7 @@ class TestbedService(Moobius):
     async def get_channel(self, channel_id):
         """Prevents KeyErrors by creating new channel databases if they don't exist yet."""
         if channel_id not in self.channel_storages:
-            await self.initialize_channel(channel_id)
+            await self.on_channel_init(channel_id)
         return self.channel_storages[channel_id]
 
     async def on_start(self):
@@ -232,7 +232,7 @@ class TestbedService(Moobius):
                         the_character_id = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"]
                         if sn>1:
                             the_character_id = the_character_id.character_id # Should work with both IDs and the Character objects.
-                        await self.update_puppet(puppet_id=the_character_id, avatar=self.image_paths[self.MICKEY], description='Mickey reset!', name=f'Mickey {sn}')
+                        await self.update_agent(agent_id=the_character_id, avatar=self.image_paths[self.MICKEY], description='Mickey reset!', name=f'Mickey {sn}')
 
                     for usr in to_whom:
                         if usr in the_channel.states:
@@ -274,12 +274,9 @@ class TestbedService(Moobius):
             await self.send_message(message_up) # This is so that everyone can see the message you sent.
         example_socket_callback_payloads['on_message_up'] = message_up
 
-    async def on_fetch_characters(self, action):
-        example_socket_callback_payloads['on_fetch_characters'] = action
+    async def on_refresh(self, action):
         await self.calculate_and_update_character_list_from_database(action.channel_id, action.sender)
 
-    async def on_fetch_buttons(self, action):
-        example_socket_callback_payloads['on_fetch_buttons'] = action
         sender = action.sender
         to_whom = await self.fetch_member_ids(action.channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
         if hasattr(self, 'TMP_print_buttons') and getattr(self, 'TMP_print_buttons'): # Set to True to indicate an extra call to print the buttons.
@@ -289,12 +286,6 @@ class TestbedService(Moobius):
         else:
             await self.send_buttons_from_database(action.channel_id, sender)
 
-    async def on_fetch_channel_info(self, action):
-        example_socket_callback_payloads['on_fetch_channel_info'] = action
-
-    async def on_fetch_canvas(self, action):
-        """Pipes self.image_show_dict from channel.states into self.send_canvas."""
-        example_socket_callback_payloads['on_fetch_canvas'] = action
         channel_id = action.channel_id
         sender = action.sender
         the_channel = await self.get_channel(channel_id)
@@ -519,7 +510,7 @@ class TestbedService(Moobius):
             if value == "New Channel".lower():
                 channel_name = '>>Demo TEMP channel'+str(len(extra_channel_ids))
                 new_channel_id = await self.create_channel(channel_name, 'Channel created by the GUI.')
-                await self.initialize_channel(new_channel_id) # Prevents KeyErrors.
+                await self.on_channel_init(new_channel_id) # Prevents KeyErrors.
                 self.xtra_channels[new_channel_id] = 'A channel'
                 await self.send_message(f"New channel created, refresh and it should appear on the left bar: {channel_name} ({new_channel_id})", channel_id, who_clicked, to_whom)
             elif value == "Ping Channels".lower():
@@ -636,11 +627,11 @@ class TestbedService(Moobius):
                 else:
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
                     the_character_id = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"].character_id
-                    await self.update_puppet(puppet_id=the_character_id, avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
+                    await self.update_agent(agent_id=the_character_id, avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
                     await self.calculate_and_update_character_list_from_database(channel_id, to_whom[0])
                     await self.send_message(f"Updated Mickey name and image.", channel_id, who_clicked, to_whom)
             elif value == "List Characters".lower():
-                char_list = await self.fetch_puppets()
+                char_list = await self.fetch_agents()
 
                 await self.send_message(f"Puppet id list:\n {pprint.pformat(char_list)}", channel_id, who_clicked, to_whom, len_limit=4096)
                 real_ids = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)
@@ -735,10 +726,6 @@ class TestbedService(Moobius):
             await self.send_message(f"Commands (some must be sent to all 'all' some to 'service'):\n{cmds}", channel_id, who_clicked, to_whom)
         else:
             logger.warning(f"Unknown button_id: {button_id}")
-
-    async def on_fetch_style(self, action):
-        txt = str(action)
-        await self.send_message('Style fetch request from you:'+txt, action.channel_id, action.sender, action.sender)
 
     async def on_menu_item_click(self, menu_click:types.MenuItemClick):
         """Right-click the context menu."""

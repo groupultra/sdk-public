@@ -49,7 +49,7 @@ class TemplateService(Moobius):
     def default_buttons(self):
         return copy.deepcopy(self._default_buttons)
 
-    async def initialize_channel(self, channel_id):
+    async def on_channel_init(self, channel_id):
         """Initalizes the channel (given by channel_id) with the images and real and puppet characters.
            All of this is stored in a MoobiusStorage object."""
 
@@ -76,11 +76,11 @@ class TemplateService(Moobius):
 
             if key not in the_channel.puppet_characters:
                 image_path = self.image_paths["Mickey"]
-                the_channel.puppet_characters[key] = await self.create_puppet(
+                the_channel.puppet_characters[key] = await self.create_agent(
                     f'Mickey {sn}', image_path, f'I am Mickey {sn}!'
                 )
 
-        the_channel.puppet_characters["wand"] = await self.create_puppet(
+        the_channel.puppet_characters["wand"] = await self.create_agent(
             "wand", self.image_paths["wand"], f'I am Wand!'
         )
 
@@ -97,7 +97,7 @@ class TemplateService(Moobius):
     async def get_channel(self, channel_id):
         """Prevents KeyErrors by creating new channel databases if they don't exist yet."""
         if channel_id not in self.channel_storages:
-            await self.initialize_channel(channel_id)
+            await self.on_channel_init(channel_id)
         return self.channel_storages[channel_id]
 
     async def on_start(self):
@@ -149,7 +149,7 @@ class TemplateService(Moobius):
                 elif txt1 == "reset":
                     for sn in range(self.mickey_LIMIT):
                         the_character_id = the_channel.puppet_characters[f"Mickey_{sn}"].character_id
-                        await self.update_puppet(puppet_id=the_character_id, avatar=self.image_paths["Mickey"], description='Mickey reset!', name=f'Mickey {sn}')
+                        await self.update_agent(agent_id=the_character_id, avatar=self.image_paths["Mickey"], description='Mickey reset!', name=f'Mickey {sn}')
 
                     for usr in to_whom:
                         if usr in the_channel.states:
@@ -169,12 +169,8 @@ class TemplateService(Moobius):
             await self.send_message(message_up) # This is so that everyone can see the message you sent.
         example_socket_callback_payloads['on_message_up'] = message_up
 
-    async def on_fetch_characters(self, action):
-        example_socket_callback_payloads['on_fetch_characters'] = action
+    async def on_refresh(self, action):
         await self.calculate_and_update_character_list_from_database(action.channel_id, action.sender)
-
-    async def on_fetch_buttons(self, action):
-        example_socket_callback_payloads['on_fetch_buttons'] = action
         sender = action.sender
         to_whom = await self.fetch_member_ids(action.channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
         if hasattr(self, 'TMP_print_buttons') and getattr(self, 'TMP_print_buttons'): # Set to True to indicate an extra call to print the buttons.
@@ -184,12 +180,6 @@ class TemplateService(Moobius):
         else:
             await self.send_buttons_from_database(action.channel_id, sender)
 
-    async def on_fetch_channel_info(self, action):
-        example_socket_callback_payloads['on_fetch_channel_info'] = action
-
-    async def on_fetch_canvas(self, action):
-        """Pipes self.image_show_dict from channel.states into self.send_canvas."""
-        example_socket_callback_payloads['on_fetch_canvas'] = action
         channel_id = action.channel_id
         sender = action.sender
         the_channel = await self.get_channel(channel_id)

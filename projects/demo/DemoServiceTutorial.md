@@ -216,7 +216,7 @@ if recipients:
         await self.send_message(message_up)
 ```
 
-## Overriding self.on_fetch_service_characters(action) and self.on_fetch_buttons(action)
+## Overriding self.on_refresh(action)
 
 It is important to keep the database up-to-date with the buttons.
 First define the function that does so:
@@ -242,18 +242,10 @@ async def send_buttons_from_database(self, channel_id, character_id): # Doesn't 
     button_list = self.channels[channel_id].buttons.get(character_id, self._default_buttons)
     await self.send_update_buttons(channel_id, button_list, [character_id])
 
-async def on_fetch_service_characters(self, action):
+async def on_refresh(self, action):
     await self.calculate_and_update_character_list_from_database(action.channel_id, action.sender)
-
-async def on_fetch_buttons(self, action):
     await self.send_buttons_from_database(action.channel_id, action.sender)
-```
 
-## Overriding self.on_fetch_canvas(action)
-This is an excellent time to set up the widgets by using the parent **self.send_update_style()**
-
-```
-async def on_fetch_canvas(self, action):
     channel_id = action.channel_id
     sender = action.sender
     channel = self.channels[channel_id]
@@ -361,15 +353,12 @@ Most callbacks do nothing and are designed to be overriden. However, a few have 
 This is a switchyard method that calls other callbacks such as "on_message_up" dependent on the type of the payload. It rarely needs to be overriden.
 
 **async def on_action(self, action: Action)**
-This is another switchyard method but it can be useful to override, such is in the *mahjong* demo. It calls functions such as "on_fetch_buttons", "on_join_channel" dependent on *action.subtype*.
+This is another switchyard method but it can be useful to override, such is in the *mahjong* demo. It calls functions such as "on_refresh", "on_join_channel" dependent on *action.subtype*.
 
 **async def on_copy_client(self, copy: Copy)**
 Will call self.send_service_login() if copy.status is invalid. Generally not useful to override.
 
 ## Other service methods not overriden nor used by Demo (except for debug info):
-
-**async def on_fetch_channel_info(self, action)**
-This method is uncommon to override.
 
 **async def on_unknown_payload(self, payload: Payload)**
 This is used as a catchall in the handle_received_payload switchyard and is uncommon to override.

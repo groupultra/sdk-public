@@ -14,14 +14,16 @@ _send_tmp_convert
 ---------------------------------------------------------------------------------------------------------------------
 _send_tmp_convert(f_name, x)
 
-Tmp useless function..
+
+Tmp function which makes small changes to a couple kinds of outbound payloads..
   Parameters:
-    f_name: The request_name,.
-    x: The  dict x.
+    f_name: Request_name,.
+    x: A dict x.
   Returns:
     The x.
   Raises:
     (this function does not raise any notable errors)
+
 
 .. _moobius.types._recv_tmp_convert:
 
@@ -29,14 +31,16 @@ _recv_tmp_convert
 ---------------------------------------------------------------------------------------------------------------------
 _recv_tmp_convert(f_name, x)
 
-Tmp function..
+
+Tmp function which makes small changes to couple kinds of inbound payloads..
   Parameters:
-    f_name: The request_name,.
-    x: The  dict x.
+    f_name: Request_name,.
+    x: A dict x.
   Returns:
     The modified x.
   Raises:
     (this function does not raise any notable errors)
+
 
 .. _moobius.types.add_str_method:
 
@@ -44,15 +48,17 @@ add_str_method
 ---------------------------------------------------------------------------------------------------------------------
 add_str_method(cls)
 
+
 Decorator function to make __str__ return the following format:
 "Foo(bar=1, baz='two', etc)"; only the non-default or specified fields are included.
 This works.
   Parameters:
-    cls: The class to decorate.
+    cls: Class to decorate.
   Returns:
     The decorated function.
   Raises:
     (this function does not raise any notable errors)
+
 
 ************************************
 Class InputComponent
@@ -273,7 +279,7 @@ MenuItemClick.message_subtype: str:
   The kind of message clicked on, 'text', 'image', 'audio', 'file', or 'card'.
 
 MenuItemClick.message_content: MessageContent:
-  The content of the message that was clicked on.
+  The content of the message that was clicked on (note that messages don't have a message content field, they have a content field instead, which is different from this).
 
 MenuItemClick.channel_id: str:
   The channel the user was in when they clicked the message.
@@ -463,6 +469,25 @@ CopyBody.context: Optional[dict] = None:
   Rarely used metadata.
 
 ************************************
+Class RefreshBody
+************************************
+
+A refresh from the user's browser.
+
+
+
+Class attributes
+--------------------
+
+
+
+RefreshBody.channel_id: str:
+  The Channel ID of this channel.
+
+RefreshBody.context: Optional[dict] = None:
+  Rarely used metadata.
+
+************************************
 Class Payload
 ************************************
 
@@ -484,7 +509,7 @@ Payload.request_id: Optional[str]:
 Payload.user_id: Optional[str]:
   The Character ID of who dispatched this payload.
 
-Payload.body: MessageBody | ButtonClick | ActionBody | CopyBody | MenuItemClick | Any:
+Payload.body: MessageBody | ButtonClick | ActionBody | CopyBody | MenuItemClick | RefreshBody | Any:
   The body of the payload.
 
 ************************************

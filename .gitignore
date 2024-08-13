@@ -5,6 +5,7 @@ projects/*/json_db/
 projects/*/logs/
 projects/*/config/service.json
 projects/*/config/agent.json
+projects/*/config/user.json
 projects/*/temp/
 
 .idea/

@@ -13,7 +13,7 @@ UPDATE = "update" # A type of websocket payload, an update.
 COPY = "copy" # A type of websocket payload, for compying a message. Used internally.
 ROGER = "roger" # A type of websocket payload, similar to COPY.
 BUTTON_CLICK = "button_click" # A type of websocket payload, sending a button click.
-MENU_ITEM_CLICK = "menu_click" # A type of websocket payload, sending a menu click.
+MENU_ITEM_CLICK = "menu_item_click" # A type of websocket payload, sending a menu click.
 MESSAGE_UP = "message_up" # A type of websocket payload, sending a message to the service.
 MESSAGE_DOWN = "message_down" # A type of websocket payload, recieving a message from the service.
 FETCH_CHARACTERS = "fetch_characters" # A subtype of an action payload, requesting the characters.
@@ -50,13 +50,19 @@ AUDIO_EXTS = {'.wav', '.mp3', '.mp4', '.mp5'} # Audio format extensions used to 
 
 
 def _send_tmp_convert(f_name, x):
-    """Tmp useless function. Accepts the request_name, and a dict x. Returns x."""
-    # So far nothing.
+    """Tmp function which makes small changes to a couple kinds of outbound payloads. Accepts the request_name, and a dict x. Returns x."""
+    if f_name == 'on_button_click' or f_name == 'on_menu_click':
+        args1 = []
+        for a in x['body']['arguments']:
+            if type(a) in [str, int, float]:
+                a = {'label':'...', 'value':a}
+            args1.append(a)
+        x['body']['argumnets'] = args1
     return x
 
 
 def _recv_tmp_convert(f_name, x):
-    """Tmp function. Accepts the request_name, and a dict x. Returns the modified x."""
+    """Tmp function which makes small changes to couple kinds of inbound payloads. Accepts the request_name, and a dict x. Returns the modified x."""
     if f_name == 'on_button_click':
         if type(x) is dict:
             x['arguments'] = [a['value'] for a in x['arguments']]
@@ -175,7 +181,7 @@ class MenuItemClick:
     menu_item_id: str # The MenuItem ID that this click applies to.
     message_id: str # The platform-generated ID of which message was clicked on (rarely used).
     message_subtype: str # The kind of message clicked on, 'text', 'image', 'audio', 'file', or 'card'.
-    message_content: MessageContent # The content of the message that was clicked on.
+    message_content: MessageContent # The content of the message that was clicked on (note that messages don't have a message content field, they have a content field instead, which is different from this).
     channel_id: str # The channel the user was in when they clicked the message.
     sender: str # The Character ID of the user or agent who clicked the message.
     recipients: list[str] # Rarely used.
@@ -254,12 +260,20 @@ class CopyBody:
 
 @dataclass
 @add_str_method
+class RefreshBody:
+    """A refresh from the user's browser."""
+    channel_id: str # The Channel ID of this channel.
+    context:Optional[dict]=None # Rarely used metadata.
+
+
+@dataclass
+@add_str_method
 class Payload:
     """A description of a payload received from the websocket. Used internally by the Moobius.handle_received_payload function."""
     type: str # The kind of payload, used internally to route the payload to the correct callback function.
     request_id: Optional[str] # A platform-generated ID to differentiate payloads.
     user_id: Optional[str] # The Character ID of who dispatched this payload.
-    body: MessageBody | ButtonClick | ActionBody | CopyBody | MenuItemClick | Any # The body of the payload.
+    body: MessageBody | ButtonClick | ActionBody | CopyBody | MenuItemClick | RefreshBody | Any # The body of the payload.
 
 
 @dataclass

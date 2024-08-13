@@ -10,8 +10,5 @@ if __name__ == "__main__":
         TemplateService,
         config_path="config/service.json",
         db_config_path="config/db.json",
-        log_file="logs/service.log",
-        error_log_file="logs/error.log",
-        terminal_log_level="INFO",
-        is_agent=False, # It defaults to False anyway.
+        log_settings="config/log_settings.json",
         background=True)

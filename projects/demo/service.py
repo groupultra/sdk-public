@@ -61,7 +61,7 @@ class DemoService(Moobius):
     def default_buttons(self):
         return copy.deepcopy(self._default_buttons)
 
-    async def initialize_channel(self, channel_id):
+    async def on_channel_init(self, channel_id):
         """Initalizes the channel (given by channel_id) with the images and real and puppet characters.
            All of this is stored in a MoobiusStorage object."""
 
@@ -91,11 +91,11 @@ class DemoService(Moobius):
             if key not in the_channel.puppet_characters:
                 image_path = self.image_paths[self.MICKEY]
 
-                the_channel.puppet_characters[key] = await self.create_puppet(
+                the_channel.puppet_characters[key] = await self.create_agent(
                     f'{self.MICKEY} {sn}', image_path, f'I am {self.MICKEY} {sn}!'
                 )
 
-        the_channel.puppet_characters[self.WAND] = await self.create_puppet(
+        the_channel.puppet_characters[self.WAND] = await self.create_agent(
             self.WAND, self.image_paths[self.WAND], f'I am {self.WAND}!'
         )
 
@@ -112,7 +112,7 @@ class DemoService(Moobius):
     async def get_channel(self, channel_id):
         """Prevents KeyErrors by creating new channel databases if they don't exist yet."""
         if channel_id not in self.channel_storages:
-            await self.initialize_channel(channel_id)
+            await self.on_channel_init(channel_id)
         return self.channel_storages[channel_id]
 
     async def on_message_down(self, message_down):
@@ -159,7 +159,7 @@ class DemoService(Moobius):
                 elif txt1 == "reset":
                     for sn in range(self.MICKEY_LIMIT):
                         the_character_id = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"].character_id
-                        await self.update_puppet(puppet_id=the_character_id, avatar=self.image_paths[self.MICKEY], description='Mickey reset!', name=f'Mickey {sn}')
+                        await self.update_agent(agent_id=the_character_id, avatar=self.image_paths[self.MICKEY], description='Mickey reset!', name=f'Mickey {sn}')
 
                     for usr in to_whom:
                         if usr in the_channel.states:
@@ -178,16 +178,11 @@ class DemoService(Moobius):
         else:
             await self.send_message(message_up) # This is so that everyone can see the message you sent.
 
-    async def on_fetch_characters(self, action):
+    async def on_refresh(self, action):
         await self.calculate_and_update_character_list_from_database(action.channel_id, action.sender)
 
-    async def on_fetch_buttons(self, action):
         await self.send_buttons_from_database(action.channel_id, action.sender)
 
-    async def on_fetch_channel_info(self, action):
-        pass
-
-    async def on_fetch_canvas(self, action):
         """Pipes self.image_show_dict from channel.states into self.send_canvas."""
         channel_id = action.channel_id
         sender = action.sender
@@ -336,7 +331,7 @@ class DemoService(Moobius):
             if value == "New Channel".lower():
                 channel_name = '>>Demo TEMP channel'+str(len(extra_channel_ids))
                 new_channel_id = await self.create_channel(channel_name, 'Channel created by the GUI.')
-                await self.initialize_channel(new_channel_id) # Prevents KeyErrors.
+                await self.on_channel_init(new_channel_id) # Prevents KeyErrors.
                 self.xtra_channels[new_channel_id] = 'A channel'
                 await self.send_message(f"New channel created, refresh and it should appear on the left bar: {channel_name} ({new_channel_id})", channel_id, who_clicked, to_whom)
             elif value == "Ping Channels".lower():
@@ -416,10 +411,10 @@ class DemoService(Moobius):
                 else:
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
                     the_character_id = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"].character_id
-                    await self.update_puppet(puppet_id=the_character_id, avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
+                    await self.update_agent(agent_id=the_character_id, avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
                     await self.send_message(f"Updated Mickey name and image (refresh to see).", channel_id, who_clicked, to_whom)
             elif value == "List Characters".lower():
-                char_list = await self.fetch_puppets()
+                char_list = await self.fetch_agents()
 
                 await self.send_message(f"Puppet id list:\n {pprint.pformat(char_list)}", channel_id, who_clicked, to_whom, len_limit=4096)
                 real_ids = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)

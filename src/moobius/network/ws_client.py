@@ -593,8 +593,94 @@ class WSClient:
             await self.send(message)
         return message
 
+    ############################# Sending UI interactions ###################################
+    async def send_button_click(self, button_id, bottom_button_id, button_args, channel_id, user_id, *, dry_run=False):
+        """
+        Sends a button click as a user.
+
+        Parameters:
+          button_id: The button's ID.
+          bottom_button_id: The bottom button, set to "confirm" if there is no bottom button.
+          button_args: What arguments (if any) were selected on the button (use an empty list of there are none).
+          channel_id: The id of the channel the user pressed the button in.
+          user_id: The ID of the (user mode) service.
+          dry_run = False: Don't actually send anything if True.
+
+        Returns:
+          The message sent as a dict.
+        """
+        utils.assert_strs(button_id, bottom_button_id, user_id, channel_id)
+        if button_args in [None, False]:
+            button_args = []
+        message = {"user_id": user_id,
+                   "type": "action",
+                   "request_id": str(uuid.uuid4()),
+                   "body": {
+                       "subtype": "button_click",
+                       "button_id": button_id,
+                       "channel_id": channel_id,
+                   "arguments": [button_args],
+                   "bottom_button_id": bottom_button_id,
+                   "context": {}}}
+        message = types._send_tmp_convert('send_button_click', message)
+        if not dry_run:
+            await self.send(message)
+        return message
+
+    async def send_menu_item_click(self, menu_item_id, bottom_button_id, button_args, the_message, channel_id, user_id, *, dry_run=False):
+        """
+        Sends a menu item click as a user.
+
+        Parameters:
+          menu_item_id: The menu item's ID.
+          bottom_button_id: The bottom button, set to "confirm" if there is no bottom button.
+          button_args: What arguments (if any) were selected on the menu item's dialog (use an empty list of there are none).
+          the_message: Can be a string-valued message_id, or a full message body. If a full message the subtype and content will be filled in.
+          channel_id: The id of the channel the user pressed the button in.
+          user_id: The ID of the (user mode) service.
+          dry_run = False: Don't actually send anything if True.
+
+        Returns:
+          The message sent as a dict.
+        """
+        utils.assert_strs(menu_item_id, bottom_button_id, user_id, channel_id)
+        if button_args in [None, False]:
+            button_args = []
+        if type(the_message) is types.MessageBody:
+            the_message = dataclass.asdict(the_message)
+        if type(the_message) is dict:
+            the_id = the_message['message_id']
+            the_subtype = the_message['message_subtype']
+            the_content = the_message['content']
+        else:
+            utils.assert_strs(the_message)
+            the_id = the_message
+            the_content = {}
+            the_subtype = '<unknown>'
+
+        message = {
+                    "user_id": user_id,
+                    "type": "action",
+                    "request_id": str(uuid.uuid4()),
+                    "body": {
+                        "subtype": types.MENU_ITEM_CLICK,
+                        "menu_item_id": menu_item_id,
+                        "channel_id": channel_id,
+                        "message_id": the_id,
+                        "message_subtype": the_subtype,
+                        "message_content": the_content,
+                        "arguments": [button_args],
+                        "bottom_button_id": bottom_button_id,
+                        "context": {}
+                    }
+                 }
+        message = types._send_tmp_convert('send_menu_item_click', message)
+        if not dry_run:
+            await self.send(message)
+        return message
+
     ######################### Refresh ############################
-    async def refresh(self, user_id, channel_id, *, dry_run=False):
+    async def refresh_as_user(self, user_id, channel_id, *, dry_run=False):
         """
         Refreshes everything the user can see. The socket will send back messages with the information later.
 

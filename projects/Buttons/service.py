@@ -7,7 +7,7 @@ class ButtonService(Moobius):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    async def on_fetch_buttons(self, action):
+    async def on_refresh(self, action):
         simple_button = Button(button_id='easy', button_text='Simple button.')
         pieces = [InputComponent(label='Pick a fruit!', type=types.DROPDOWN, optional=False, choices=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
                   InputComponent(label='Favorite color!', type=types.TEXT, optional=False, placeholder="Artsy!", choices=[])]

@@ -4,7 +4,7 @@ import asyncio
 import sys
 
 from service import TestbedService
-from agent import TestbedAgent
+from niceuser import TestbedUser
 from moobius import MoobiusWand, utils
 
 from loguru import logger
@@ -33,23 +33,20 @@ if __name__ == "__main__":
         config_path="config/service.json",
         db_config_path="config/db.json",
         log_settings="config/log_settings.json",
-        is_agent=False, # It defaults to False anyway.
         background=True)
 
-    do_agent = True
-    if do_agent:
-        agent_handle = wand.run(
-            TestbedAgent,
-            log_file="logs/agent.log",
-            error_log_file="logs/agent_error.log",
-            terminal_log_level="DEBUG",
-            config_path="config/agent.json",
-            db_config_path="config/agent_db.json",
-            is_agent=True,
+    include_user = True
+    if include_user:
+        user_handle = wand.run(
+            TestbedUser,
+            log_settings="config/log_settings.json",
+            config_path="config/user.json",
+            db_config_path="config/user_db.json",
+            service_mode=False,
             background=True)
 
     else:
-        agent_handle = None
+        user_handle = None
         logger.warning('Agent has been DISABLED this run (debugging).')
 
     do_simple_spells = True
@@ -68,18 +65,18 @@ if __name__ == "__main__":
         wand.spell(handle,['OVERFLOW' * 10000, 1]) # Only the first BOMB (10000) will pass. Subsequent ones will cause the websocket to disconnect. This message will NOT go through.
         asyncio.run(wand.aspell(handle,['SURVIVED!', 1])) # There is an automatic reconnection mechanism. This will still work
 
-        if agent_handle:
-            wand.spell(agent_handle, "meow")
-            wand.spell(agent_handle, "nya")
-            wand.spell(agent_handle, "send_fetch_characters") # Agent spells expect a single string.
-            wand.spell(agent_handle, "send_fetch_buttons")
-            wand.spell(agent_handle, "nya_all")
-            wand.spell(agent_handle, "send_fetch_canvas")
-            wand.spell(agent_handle, "send_fetch_channel_info")
-            wand.spell(agent_handle, "send_button_click_key1")
-            wand.spell(agent_handle, "send_button_click_key2")
-            wand.spell(agent_handle, "send_leave_channel")
-            wand.spell(agent_handle, "send_join_channel")
+        if user_handle:
+            wand.spell(user_handle, "meow")
+            wand.spell(user_handle, "nya")
+            wand.spell(user_handle, "send_fetch_characters") # Agent spells expect a single string.
+            wand.spell(user_handle, "send_fetch_buttons")
+            wand.spell(user_handle, "nya_all")
+            wand.spell(user_handle, "send_fetch_canvas")
+            wand.spell(user_handle, "send_fetch_channel_info")
+            wand.spell(user_handle, "send_button_click_key1")
+            wand.spell(user_handle, "send_button_click_key2")
+            wand.spell(user_handle, "send_leave_channel")
+            wand.spell(user_handle, "send_join_channel")
 
         logger.info('Test finished. If you see this, it means the service is still running.')
     else:

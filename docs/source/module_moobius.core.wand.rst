@@ -14,14 +14,16 @@ sigint_handler
 ---------------------------------------------------------------------------------------------------------------------
 sigint_handler(signal, frame)
 
+
 Exits using a special error code that the parent process will recognize as a "Ctrl+C" interrupt..
   Parameters:
-    signal: The integer signal.
-    frame: The stack frame.
+    signal: Integer signal.
+    frame: Stack frame.
   Returns:
     The os._exit.
   Raises:
     (this function does not raise any notable errors)
+
 
 ************************************
 Class MoobiusWand
@@ -43,13 +45,15 @@ MoobiusWand.__init__
 ---------------------------------------------------------------------------------------------------------------------
 MoobiusWand.__init__(self)
 
+
 Initialize an "empty" MoobiusWand object.
   Parameters:
-    (No parameters in this class constructor)
+    (this class constructor accepts no arguments)
   Returns:
     (Class constructors have no explicit return value)
   Raises:
     (this function does not raise any notable errors)
+
 
 .. _moobius.core.wand.MoobiusWand.run_job:
 
@@ -57,13 +61,15 @@ MoobiusWand.run_job
 ---------------------------------------------------------------------------------------------------------------------
 MoobiusWand.run_job(service)
 
+
 Runs service.start(), which blocks in an infinite loop, using asyncio.
   Parameters:
-    service: The Moobius service.
+    service: Moobius service.
   Returns:
     The Never.
   Raises:
     (this function does not raise any notable errors)
+
 
 .. _moobius.core.wand.MoobiusWand.run:
 
@@ -71,13 +77,15 @@ MoobiusWand.run
 ---------------------------------------------------------------------------------------------------------------------
 MoobiusWand.run(self, cls, background, \*kwargs)
 
+
 Starts a service or agent, either on the same process in a blocking infinite loop or on another process.
   Parameters:
-    cls: The  subclass of the Moobius class but NOT an instance.
-    background=False: The If True, runs on another Process.
-    **kwargs: The Kwargs passed to the constructor of cls.
+    cls: A subclass of the Moobius class but NOT an instance.
+    background=False: If True, runs on another Process.
+    **kwargs: Kwargs passed to the constructor of cls.
   Returns:
     The None.
+    
     Example:
       >>> wand = MoobiusWand()
       >>> handle = wand.run(
@@ -91,20 +99,23 @@ Starts a service or agent, either on the same process in a blocking infinite loo
   Raises:
     (this function does not raise any notable errors)
 
+
 .. _moobius.core.wand.MoobiusWand.stop_all:
 
 MoobiusWand.stop_all
 ---------------------------------------------------------------------------------------------------------------------
 MoobiusWand.stop_all(self, force_exit)
 
+
 Stops all processes using the_process.kill()..
 Also stops the asyncio event loop.
   Parameters:
-    force_exit: The n option to force-quit.
+    force_exit: N option to force-quit.
   Returns:
     The exit.
   Raises:
     (this function does not raise any notable errors)
+
 
 .. _moobius.core.wand.MoobiusWand.spell:
 
@@ -112,12 +123,14 @@ MoobiusWand.spell
 ---------------------------------------------------------------------------------------------------------------------
 MoobiusWand.spell(self, handle, obj)
 
+
 Sends a message to a service by putting to it's aioprocessing.AioQueue().
   Parameters:
     handle (int): The handle of the service created by the run() function.
     obj (anything picklable): The message to be sent.
   Returns:
     The None.
+    
     Example:
       >>> wand = MoobiusWand()
       >>> handle = wand.run(...)
@@ -125,20 +138,23 @@ Sends a message to a service by putting to it's aioprocessing.AioQueue().
   Raises:
     (this function does not raise any notable errors)
 
+
 .. _moobius.core.wand.MoobiusWand.aspell:
 
 MoobiusWand.aspell
 ---------------------------------------------------------------------------------------------------------------------
 MoobiusWand.aspell(self, handle, obj)
 
+
 Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = self.services[handle].queue..
   Parameters:
-    handle: The handle int.
+    handle: Handle int.
     obj: The generic pickleable object.
   Returns:
     The None.
   Raises:
     (this function does not raise any notable errors)
+
 
 .. _moobius.core.wand.MoobiusWand.__str__:
 
@@ -146,13 +162,15 @@ MoobiusWand.__str__
 ---------------------------------------------------------------------------------------------------------------------
 MoobiusWand.__str__(self)
 
+
 The string output function for debugging.
   Parameters:
-    (No parameters in this class constructor)
+    (this class constructor accepts no arguments)
   Returns:
     The  easy-to-read string summary.
   Raises:
     (this function does not raise any notable errors)
+
 
 .. _moobius.core.wand.MoobiusWand.__repr__:
 
@@ -160,13 +178,15 @@ MoobiusWand.__repr__
 ---------------------------------------------------------------------------------------------------------------------
 MoobiusWand.__repr__(self)
 
+
 The string output function for debugging.
   Parameters:
-    (No parameters in this class constructor)
+    (this class constructor accepts no arguments)
   Returns:
     The  easy-to-read string summary.
   Raises:
     (this function does not raise any notable errors)
+
 
 Class attributes
 --------------------

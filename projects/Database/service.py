@@ -5,10 +5,10 @@ class DbExampleService(Moobius):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    async def initialize_channel(self, channel_id):
+    async def on_channel_init(self, channel_id):
         self.channel_storages[channel_id] = MoobiusStorage(self.client_id, channel_id, self.db_config)
 
-    async def on_fetch_canvas(self, action):
+    async def on_refresh(self, action):
         await self.send_message('Try sending some messages!', action.channel_id, action.sender, [action.sender])
 
     async def on_message_up(self, message):
