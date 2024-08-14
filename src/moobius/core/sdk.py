@@ -21,7 +21,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from moobius.network.ws_client import WSClient
 import moobius.network.ws_client as ws_client
 from moobius.network.http_api_wrapper import HTTPAPIWrapper
-from moobius.types import MessageContent, MessageBody, ActionBody, Button, ButtonClick, InputComponent, Payload, MenuItemClick, UpdateBody, UpdateItem, CopyBody, Character, ChannelInfo, CanvasItem, StyleItem, MenuItem, RefreshBody
+from moobius.types import MessageContent, MessageBody, Button, ButtonClick, InputComponent, Payload, MenuItemClick, UpdateBody, UpdateItem, CopyBody, Character, ChannelInfo, CanvasItem, StyleItem, MenuItem, RefreshBody, JoinBody, LeaveBody
 from moobius.database.storage import MoobiusStorage
 from moobius import utils, types
 from loguru import logger
@@ -164,7 +164,7 @@ class Moobius:
         self.group_lib = ServiceGroupLib()
 
         self.http_api = HTTPAPIWrapper(http_server_uri, email, password)
-        self.ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login if self.service_mode else self.send_user_login, handle=self.handle_received_payload)
+        self.ws_client = WSClient(ws_server_uri, on_connect=self.send_service_login if self.service_mode else self.send_user_login, handle=self.handle_received_payload, report_str='' if self.service_mode else ' (user-mode)')
 
         self.queue = aioprocessing.AioQueue()
 
@@ -498,7 +498,7 @@ class Moobius:
     async def send(self, payload_type, payload_body):
         """
         Sends any kind of payload to the websocket. Example payload types:
-          message_down, update, update_characters, update_channel_info, update_canvas, update_buttons, update_style, and heartbeat.
+          message_down, update, update_characters, update_canvas, update_buttons, update_style, and heartbeat.
         Rarely used except internally, but provides the most flexibility for those special occasions.
 
         Parameters:
@@ -640,7 +640,6 @@ class Moobius:
     async def send_service_login(self): """Calls self.ws_client.service_login using self.client_id and self.http_api.access_token."""; return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
     async def send_update(self, data, target_client_id): """Calls self.ws_client.update"""; return await self.ws_client.update(data, self.client_id, target_client_id)
     async def send_characters(self, character_ids, channel_id, recipients): """Calls self.ws_client.update_character_list using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_character_list(await self._update_rec(character_ids, True), self.client_id, channel_id, await self._update_rec(recipients, True))
-    async def send_channel_info(self, channel_info, channel_id): """Calls self.ws_client.update_channel_info using self.client_id."""; return await self.ws_client.update_channel_info(channel_info, self.client_id, channel_id)
     async def send_buttons(self, buttons, channel_id, recipients): """Calls self.ws_client.update_buttons using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_buttons(buttons, self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_menu(self, menu_items, channel_id, recipients): """Calls self.ws_client.update_menu using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_menu(menu_items, self.client_id, channel_id, await self._update_rec(recipients, True))
     async def send_style(self, style_items, channel_id, recipients): """Calls self.ws_client.update_style using self.client_id. Converts recipients to a group_id if a list."""; return await self.ws_client.update_style(style_items, self.client_id, channel_id, await self._update_rec(recipients, True))
@@ -724,9 +723,7 @@ class Moobius:
                 raise Exception("Must have content.")
             payload_body['content']['characters'] = await _group2ids(payload_body['content']['characters'])
 
-        if 'recipients' not in payload_body:
-            payload_body['recipients'] = []
-        else:
+        if 'recipients' in payload_body:
             rec_group = payload_body['recipients']
             payload_body['recipients'] = await _group2ids(rec_group)
 
@@ -781,16 +778,10 @@ class Moobius:
             elif payload.type == types.MESSAGE_UP:
                 await self.on_message_up(payload.body)
             elif payload.type == types.ACTION:
-                await self.on_action(payload.body)
-            elif payload.type == types.BUTTON_CLICK:
-                payload.body = types._recv_tmp_convert('on_button_click', payload.body)
-                await self.on_button_click(payload.body)
-            elif payload.type == types.MENU_ITEM_CLICK:
-                payload.body = types._recv_tmp_convert('on_menu_item_click', payload.body)
-                await self.on_menu_item_click(payload.body)
+                await self.on_action(payload_body)
             elif payload.type == types.COPY:
                 await self.on_copy_client(payload.body)
-            elif payload.type == types.REFRESH:
+            elif payload.type == types.REFRESH: # TODO: Not used, actions actions with refresh. But will direct refresh be the future in the platform?
                 await self.on_refresh(payload.body)
             else:
                 logger.warning(f"Unknown payload received: {payload}; DATA: {payload_data}")
@@ -798,19 +789,29 @@ class Moobius:
         else:
             logger.error(f"Unknown payload without type: {payload_data}")
 
-    async def on_action(self, action: ActionBody):
+    async def on_action(self, action_data):
         """
-        Accepts an Action object from a user. Returns None.
+        Accepts an action object, as a dict, from a user. Returns None.
         Calls the corresponding method to handle different subtypes of action.
         Example methods called:
-          on_fetch_characters(), on_fetch_buttons(), on_fetch_canvas(), on_join_channel(), on_leave_channel(), on_fetch_channel_info()
+          on_button_click(), on_join_channel()
         """
-        if action.subtype == types.JOIN_CHANNEL:
-            await self.on_join_channel(action)
-        elif action.subtype == types.LEAVE_CHANNEL:
-            await self.on_leave_channel(action)
+        # Note: putting dataclass constructors here, instead of attempting to do it all at once, makes it much easier to debug.
+        subtype = action_data['subtype']
+        if subtype == types.JOIN_CHANNEL:
+            await self.on_join_channel(JoinBody(**action_data))
+        elif subtype == types.LEAVE_CHANNEL:
+            await self.on_leave_channel(LeaveBody(**action_data))
+        elif subtype == types.BUTTON_CLICK:
+            action_data = types._recv_tmp_convert('on_button_click', action_data)
+            await self.on_button_click(ButtonClick(**action_data))
+        elif subtype == types.MENU_ITEM_CLICK:
+            action_data = types._recv_tmp_convert('on_menu_item_click', action_data)
+            await self.on_menu_item_click(MenuItemClick(**action_data))
+        elif subtype == types.REFRESH:
+            await self.on_refresh(RefreshBody(**action_data))
         else:
-            logger.error(f"Unknown action subtype: {action.subtype}")
+            logger.error(f"Unknown action subtype: {subtype}")
 
     async def on_update(self, update: UpdateBody):
         """Accepts an Update object from the socket. Dispatches it to one of various callbacks. Use for user mode.
@@ -877,7 +878,7 @@ class Moobius:
         >>> moobius.RefreshBody(channel_id=<channel_id>, context={})"""
         logger.debug("on_refresh")
 
-    async def on_join_channel(self, action: ActionBody):
+    async def on_join_channel(self, action):
         """
         This callback happens when the user joins a channel. Accepts an Action object. Returns None.
         Commonly used to inform everyone about this new user and update everyone's character list.
@@ -885,7 +886,7 @@ class Moobius:
         >>> moobius.Action(subtype="join_channel", channel_id=<channel id>, sender=<user id>, context={})"""
         logger.debug("on_action join_channel")
 
-    async def on_leave_channel(self, action: ActionBody):
+    async def on_leave_channel(self, action):
         """
         Called when the user leaves a channel. Accepts an Action object. Returns None.
         Commonly used to update everyone's character list.

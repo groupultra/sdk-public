@@ -22,8 +22,8 @@ FETCH_CANVAS = "fetch_canvas" # A subtype of an action payload, requesting the c
 FETCH_STYLE = "fetch_style" # A subtype of an action payload, requesting the style.
 FETCH_MENU = "fetch_menu"  # A subtype of an action payload, requesting the right-click menu.
 FETCH_CHANNEL_INFO = "fetch_channel_info" # A subtype of an action payload, requesting the 
-JOIN_CHANNEL = "join_channel" # A subtype of an action payload, the user pastes in the ID and joins.
-LEAVE_CHANNEL = "leave_channel" # A subtype of an action payload, the user presses the leave channel button.
+JOIN_CHANNEL = "join" # A subtype of an action payload, the user pastes in the ID and joins.
+LEAVE_CHANNEL = "leave" # A subtype of an action payload, the user presses the leave channel button.
 REFRESH = "refresh"
 HEARTBEAT = "heartbeat" # A subtype of an action payload, that is called periodically.
 UPDATE_CHARACTERS = "characters" # A subtype of the update payload, an update to the characters.
@@ -61,20 +61,17 @@ def _send_tmp_convert(f_name, x):
     return x
 
 
-def _recv_tmp_convert(f_name, x):
+def _recv_tmp_convert(f_name, the_data):
     """Tmp function which makes small changes to couple kinds of inbound payloads. Accepts the request_name, and a dict x. Returns the modified x."""
-    if f_name == 'on_button_click':
-        if type(x) is dict:
-            x['arguments'] = [a['value'] for a in x['arguments']]
-            return ButtonClick(**x)
+    if f_name in ['on_button_click', 'on_menu_item_click']:
+        args1 = []
+        for a in the_data.get('arguments', []):
+            args1.append(a if type(a) is str else a['value'])
+        the_data['arguments'] = args1
     if f_name == 'on_menu_item_click':
-        if type(x) is dict:
-            x['arguments'] = [a['value'] for a in x['arguments']]
-            out = MenuItemClick(**x)
-            if type(out.message_content) is dict:
-                out.message_content = MessageContent(**out.message_content)
-            return out
-    return x
+        if 'message_id' not in the_data:
+            the_data['message_id'] = '<unspecified message id>'
+    return the_data
 
 
 def add_str_method(cls):
@@ -142,8 +139,8 @@ class ButtonClick:
     button_id: str # The Button ID this applies to.
     channel_id: str # What channel the user was in when the pressed the button.
     sender: str # The Character ID of who clicked the button. Can be a real user or an agent.
-    arguments: list[str] # What settings the user chosse (for buttons that open a pop-up menu).
-    recipients: list[str] # Rarely used.
+    arguments: Optional[list[str]]=None # What settings the user choose (for buttons that open a pop-up menu).
+    subtype: Optional[str]=BUTTON_CLICK # Identifies it as a button click.
     labels: Optional[list[str]]=None # A reminder of what each argument means.
     bottom_button_id:Optional[str] = None # For buttons that appear at the bottom.
     context:Optional[dict] = None # Rarely used metadata.
@@ -184,10 +181,10 @@ class MenuItemClick:
     message_content: MessageContent # The content of the message that was clicked on (note that messages don't have a message content field, they have a content field instead, which is different from this).
     channel_id: str # The channel the user was in when they clicked the message.
     sender: str # The Character ID of the user or agent who clicked the message.
-    recipients: list[str] # Rarely used.
-    arguments: list[str] # What sub-menu settings, if the menu element clicked on has a sub-menu.
+    arguments: Optional[list[str]]=None # What sub-menu settings, if the menu element clicked on has a sub-menu.
     bottom_button_id: Optional[str]=None # For the bottom buttons, if there is a dialog and it has any.
     context:Optional[dict]=None # Metadata rarely used.
+    subtype:Optional[str]=MENU_ITEM_CLICK # Identifies it as a menu item click.
 
 
 @dataclass
@@ -229,13 +226,13 @@ class MessageBody:
     context:Optional[dict]=None # Metadata that is rarely used.
 
 
-@dataclass
-@add_str_method
-class ActionBody:
-    """A description of a generic task performed by a user. Actions with different subtypes are routed to different callbacks."""
-    subtype: str # The subtype of the action. Used internally to route the action to the correct callback function.
-    request_id: str
-    user_id: str # The user who sent the action.
+#@dataclass
+#@add_str_method
+#class ActionBody:
+#    """A description of a generic task performed by a user. Actions with different subtypes are routed to different callbacks."""
+#    subtype: str # The subtype of the action. Used internally to route the action to the correct callback function.
+#    request_id: str
+#    user_id: str # The user who sent the action.
 
 
 @dataclass
@@ -263,6 +260,28 @@ class CopyBody:
 class RefreshBody:
     """A refresh from the user's browser."""
     channel_id: str # The Channel ID of this channel.
+    sender: str # Whose browser sent the refresh.
+    subtype:Optional[str]=REFRESH # Identifies it as a refresh.
+    context:Optional[dict]=None # Rarely used metadata.
+
+
+@dataclass
+@add_str_method
+class JoinBody:
+    """An action body for joining a channel."""
+    channel_id: str # The Channel ID of th joined channel.
+    sender: str # Whose browser sent the join command.
+    subtype:Optional[str]=JOIN_CHANNEL # Identifies it as a join channel.
+    context:Optional[dict]=None # Rarely used metadata.
+
+
+@dataclass
+@add_str_method
+class LeaveBody:
+    """An action body for leaving a channel."""
+    channel_id: str # The Channel ID of th joined channel.
+    sender: str # Whose browser sent the join command.
+    subtype:Optional[str]=LEAVE_CHANNEL # Identifies it as a leave channel.
     context:Optional[dict]=None # Rarely used metadata.
 
 
@@ -273,7 +292,7 @@ class Payload:
     type: str # The kind of payload, used internally to route the payload to the correct callback function.
     request_id: Optional[str] # A platform-generated ID to differentiate payloads.
     user_id: Optional[str] # The Character ID of who dispatched this payload.
-    body: MessageBody | ButtonClick | ActionBody | CopyBody | MenuItemClick | RefreshBody | Any # The body of the payload.
+    body: MessageBody | ButtonClick | CopyBody | MenuItemClick | RefreshBody | Any # The body of the payload.
 
 
 @dataclass

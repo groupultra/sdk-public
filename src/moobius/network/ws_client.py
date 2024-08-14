@@ -52,7 +52,7 @@ class WSClient:
     """
 
     ############################## Standard socket interaction ########################
-    def __init__(self, ws_server_uri, on_connect=None, handle=None):
+    def __init__(self, ws_server_uri, on_connect=None, handle=None, report_str=None):
         """
         Initializes a WSClient object.
 
@@ -79,6 +79,7 @@ class WSClient:
         self.outbound_queue_running = False
         self.timeout = 16 # Connection and socket sending timeout (seems to hang every so often).
         self.is_connected = False # Flag to indicate if the service is connected. Can only consume from the queue if connected.
+        self.report_str = report_str if report_str else '' # Debug information, such is user vs service mode.
 
     async def connect(self): # Called from sdk.start() and from other functions when trying to reconnect.
         """Connects to the websocket server. Call after self.authenticate(). Returns None.
@@ -102,7 +103,7 @@ class WSClient:
                 await self.connect() # This will likely fill the queue more.
             try:
                 await time_out_wrap(self.websocket.send(message), self.timeout)
-                logger.opt(colors=True).info(f"<fg 128,0,240>{str(message).replace('<', '&lt;').replace('>', '&gt;')}</>")
+                logger.opt(colors=True).info(f"<fg 128,0,240>Sent to socket{self.report_str}: {str(message).replace('<', '&lt;').replace('>', '&gt;')}</>")
             except Exception as e:
                 logger.warning(f'Failed to send data, the connection seems to be lost: {e}; {type(e)}.')
                 self.is_connected = False # No longer connected!
@@ -136,7 +137,7 @@ class WSClient:
                 await self.connect()
             try:
                 message = await time_out_wrap(self.websocket.recv(), 256) # BIG timeout so heartbeats can have time.
-                logger.opt(colors=True).info(f"<yellow>{str(message).replace('<', '&lt;').replace('>', '&gt;')}</yellow>")
+                logger.opt(colors=True).info(f"<yellow>{self.report_str} {str(message).replace('<', '&lt;').replace('>', '&gt;')}</yellow>")
                 asyncio.create_task(self.safe_handle(message))
             except Exception as e:
                 logger.warning(f"WSClient.receive() failed; the connection seems to be no longer: {e}; {type(e)}")

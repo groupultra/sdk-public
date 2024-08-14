@@ -1,9 +1,10 @@
 # __init__.py
 
+import importlib
+
 from moobius.core.sdk import Moobius
 from moobius.core.wand import MoobiusWand
 from moobius.database.storage import MoobiusStorage
-#from moobius import types as Moobius
 
 import sys
 if sys.argv[0] == '-m': # Quickstart option.

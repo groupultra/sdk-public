@@ -1,6 +1,6 @@
 [project]
 name = "moobius"
-version = "1.4.7"
+version = "1.4.14"
 authors = [
   { name="Kevin Kostlan", email="sdk@moobius.app"},
 ]
@@ -22,6 +22,9 @@ dependencies = [
 "websockets>=12.0",
 "loguru>=0.7.2",
 ]
+
+[project.scripts]
+moobius = "moobius.quickstart:save_starter_ccs"
 
 [project.urls]
 Homepage = "https://github.com/groupultra/sdk-public"
