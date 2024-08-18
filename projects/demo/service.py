@@ -16,8 +16,7 @@ class DemoService(Moobius):
         with open('./config/client.json') as f: # Demo-specific config.
             self.client_config = json.load(f)
 
-        initialize_all_bound_channels = self.client_config['load_xtra_channels_on_start']
-        super().__init__(initialize_all_bound_channels=initialize_all_bound_channels, **kwargs)
+        super().__init__(**kwargs)
 
         with open('resources/buttons.json', 'r') as f:
             self._default_buttons = [Button(**b) for b in json.load(f)]
@@ -258,7 +257,7 @@ class DemoService(Moobius):
             value = value0.lower()
 
         def _make_image(vignette=0.0):
-            """Generates a "random" image and returns the local filepath (as a string) as well as a removal function (if the image is dynamic)."""
+            """Generates a "random" image and returns the local file_path (as a string) as well as a removal function (if the image is dynamic)."""
             dyn_mode = False
             try:
                 from PIL import Image
@@ -405,7 +404,7 @@ class DemoService(Moobius):
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
                     talker = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"].character_id
                     await self.send_message(f"Mickey {sn} Here! Mickeys are stored in JSON db.", channel_id, talker, to_whom)
-            elif value == "Update Mickey (not agent) name".lower():
+            elif value == "update mickey (not user) name".lower():
                 if the_channel.states[who_clicked]['mickey_num'] == 0:
                     await self.send_message("Please Create Mickey First!", channel_id, who_clicked, to_whom)
                 else:

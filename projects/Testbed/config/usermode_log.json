@@ -1,0 +1,7 @@
+{
+    "log_level":"DEBUG",
+    "log_retention":"7 days",
+    "terminal_log_level":"INFO",
+    "log_file":"logs/user.log",
+    "error_log_file":"logs/usererror.log"
+}

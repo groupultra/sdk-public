@@ -76,8 +76,8 @@ class BattleshipService(Moobius):
             canvas_text = 'Sinkage: '+user.sinkage+'\n'+'\n'.join(user.reports)
             for weapon, count in user.weapons():
                 if count>0:
-                    button_args = [InputComponent(label='row', type=types.STRING, optional=False, placeholder='Row'),
-                                   InputComponent(label='col', type=types.STRING, optional=False, placeholder='Column')]
+                    button_args = [InputComponent(label='row', type=types.STRING, required=False, placeholder='Row'),
+                                   InputComponent(label='col', type=types.STRING, required=False, placeholder='Column')]
                     buttons.append(Button(button_id=weapon, button_name=weapon, button_name=weapon+f' ({count})', dialog=True,
                                           components=button_args))
         await self.send_canvas([CanvasItem(text=canvas_text)], channel_id, [user_id])

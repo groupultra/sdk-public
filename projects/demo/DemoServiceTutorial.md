@@ -319,7 +319,7 @@ async def on_spell(self, spell):
 ## Overriding self.on_button_click(button_click)
 *Button calls* encode button presses, etc and dispatched when a given client-side wigit is used used.
 button_click.button_id gives the id of the wigit.
-button_click.Arguments is a list of arguments, an example argument, which happens when the user selects the "create new Mickey" character option is: "ButtonClickArgument(name='magic_type', value='Mickey')". Arguments encode which choice of a drop-down menu was used.
+button_click.Arguments is a list of arguments, an example argument, which happens when the user selects the "create new Mickey" character option is: "ClickArgument(name='magic_type', value='Mickey')". Arguments encode which choice of a drop-down menu was used.
 
 The resulting function is a siwthyard that handels different buttons:
 ```

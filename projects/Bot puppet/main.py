@@ -8,15 +8,16 @@ if __name__ == "__main__":
 
     handle = wand.run(
         PuppetService,
-        config_path="config/service.json",
-        db_config_path="config/db.json",
-        log_settings="config/log_settings.json",
+        service_config="config/service.json",
+        db_config="config/db.json",
+        log_config="config/log.json",
+        account_config="config/account.json",
         background=True)
 
     agent_handle = wand.run(
         Bot,
-        log_settings="config/log_settings.json",
-        config_path="config/bot.json",
-        db_config_path="config/bot_db.json",
-        is_agent=True,
+        service_config="config/usermode_service.json",
+        db_config="config/usermode_db.json",
+        log_config="config/usermode_log.json",
+        account_config="config/usermode_account.json",
         background=True)

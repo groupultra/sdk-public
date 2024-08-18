@@ -7,6 +7,9 @@ projects/*/config/service.json
 projects/*/config/agent.json
 projects/*/config/user.json
 projects/*/config/account.json
+projects/*/config/service.json
+projects/*/config/usermode_account.json
+projects/*/config/usermode_service.json
 projects/*/temp/
 
 .idea/

@@ -28,10 +28,9 @@ class TestbedService(Moobius):
             is_windows = (sys.platform.lower() in ['win', 'win32', 'win64', 'windows', 'windoze'])
             self.client_config['avoid_redis'] = (self.client_config['avoid_redis_on_windows'] if is_windows else self.client_config['avoid_redis_on_linux'])
 
-        initialize_all_bound_channels = self.client_config['load_xtra_channels_on_start']
-        super().__init__(initialize_all_bound_channels=initialize_all_bound_channels, **kwargs)
+        super().__init__(**kwargs)
 
-        for c in self.db_config:
+        for c in self.config['db_config']:
             if 'redis' in c['implementation'].lower():
                 if self.client_config['avoid_redis']:
                     logger.warning('WARNING: No Redis this demo b/c avoid_redis is True, using JSON instead for: '+ str(c))
@@ -50,8 +49,8 @@ class TestbedService(Moobius):
         # The third option for each message type is a pop-up menu:
         for m in menus:
             if 'popup' in m.menu_item_text:
-                arg1 = InputComponent(label='popup', type=types.DROPDOWN, optional=False, choices=["Yes do this!", "No, don't"], placeholder='Choose an option.')
-                arg2 = InputComponent(label='popup2', type=types.DROPDOWN, optional=False, choices=["Si", "No"], placeholder='Choose another option.')
+                arg1 = InputComponent(label='popup', type=types.DROPDOWN, required=False, choices=["Yes do this!", "No, don't"], placeholder='Choose an option.')
+                arg2 = InputComponent(label='popup2', type=types.DROPDOWN, required=True, choices=["Si", "No"], placeholder='Choose another option.')
                 m.dialog = Dialog(title="Choose within the menu", components=[arg1, arg2])
         self.menu_list = menus
         self.LIGHT = "light"
@@ -89,14 +88,14 @@ class TestbedService(Moobius):
         """Debug to make sure that CachedDict is working correctly."""
         # Debug feature to test MoobiusStorage objects:
         _DEBUG = 'testbed_debug_'+channel_id
-        debug_channel = MoobiusStorage(self.client_id, _DEBUG, db_config=self.db_config)
+        debug_channel = MoobiusStorage(self.client_id, _DEBUG, db_config=self.config['db_config'])
         self.database_debugs[channel_id] = {'cached_dict_keys_no_load_test':{}, 'cached_dict_keys_YES_load_test':{},
                                             'cached_dict_keys_ALLPOP_test':{}}
         for k, v in debug_channel.__dict__.items():
             if type(v) is CachedDict:
                 self.database_debugs[channel_id]['cached_dict_keys_no_load_test'][k] = dict(zip(v.keys(), v.values()))
 
-        debug_channel = MoobiusStorage(self.client_id, _DEBUG, db_config=self.db_config)
+        debug_channel = MoobiusStorage(self.client_id, _DEBUG, db_config=self.config['db_config'])
         for k, v in debug_channel.__dict__.items():
             if type(v) is CachedDict:
                 v.load()
@@ -111,8 +110,8 @@ class TestbedService(Moobius):
            All of this is stored in a MoobiusStorage object."""
         self.populate_debug_storage(channel_id)
 
-        the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.db_config)
-        self.channel_storages[channel_id] = the_channel
+        the_channel = MoobiusStorage(self.client_id, channel_id, db_config=self.config['db_config'])
+        self.channels[channel_id] = the_channel
 
         member_ids = await self.fetch_member_ids(channel_id, raise_empty_list_err=False)
 
@@ -157,9 +156,9 @@ class TestbedService(Moobius):
 
     async def get_channel(self, channel_id):
         """Prevents KeyErrors by creating new channel databases if they don't exist yet."""
-        if channel_id not in self.channel_storages:
+        if channel_id not in self.channels or not self.channels[channel_id]:
             await self.on_channel_init(channel_id)
-        return self.channel_storages[channel_id]
+        return self.channels[channel_id]
 
     async def on_start(self):
         """Called after successful connection to websocket server and service login success.
@@ -168,7 +167,7 @@ class TestbedService(Moobius):
 
     async def rate_task(self):
         """Sends a check-in message to each channel."""
-        for c_id in self.channel_storages.keys():
+        for c_id in self.channels.keys():
             the_channel = await self.get_channel(c_id)
             recipients = list(the_channel.real_characters.keys())
             talker = the_channel.puppet_characters[self.WAND].character_id
@@ -185,7 +184,7 @@ class TestbedService(Moobius):
 
     async def on_message_up(self, message_up):
         """Runs various commands, such as resetting when the user types in "reset".
-           (Agent-related commands are found in the agent.py instead of here)."""
+           (user-related commands are found in the user.py instead of here)."""
         if not isinstance(message_up, MessageBody): # DEBUG testing.
             print('Unrecognized message up:', message_up)
             raise Exception(f'message_up is a {type(message_up)}, not a {MessageBody} see above.')
@@ -274,24 +273,25 @@ class TestbedService(Moobius):
             await self.send_message(message_up) # This is so that everyone can see the message you sent.
         example_socket_callback_payloads['on_message_up'] = message_up
 
-    async def on_refresh(self, action):
-        await self.calculate_and_update_character_list_from_database(action.channel_id, action.sender)
+    async def do_channel_sync(self, channel_id):
+        """Sends a refresh request "from" each user in this channel, which will refresh thier views.
+        Accepts the channel id. returns None."""
+        await asyncio.gather([self.do_member_sync(channel_id, m) for m in await self.fetch_member_ids(channel_id)])
 
-        sender = action.sender
-        to_whom = await self.fetch_member_ids(action.channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
+    async def do_member_sync(self, channel_id, member_id):
+        await self.calculate_and_update_character_list_from_database(channel_id, member_id)
+
+        to_whom = await self.fetch_member_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [member_id]
         if hasattr(self, 'TMP_print_buttons') and getattr(self, 'TMP_print_buttons'): # Set to True to indicate an extra call to print the buttons.
             self.TMP_print_buttons = False
-            channel_id = action.channel_id
-            await self.send_message(f"Fetch button action\n: {action}.", channel_id, sender, to_whom)
+            await self.send_message(f"Fetch button action\n: {member_id}.", channel_id, member_id, to_whom)
         else:
-            await self.send_buttons_from_database(action.channel_id, sender)
+            await self.send_buttons_from_database(channel_id, member_id)
 
-        channel_id = action.channel_id
-        sender = action.sender
         the_channel = await self.get_channel(channel_id)
-        to_whom = await self.fetch_member_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [sender]
+        to_whom = await self.fetch_member_ids(channel_id, raise_empty_list_err=False) if self.client_config['show_us_all'] else [member_id]
 
-        state = the_channel.states[sender]['canvas_mode']
+        state = the_channel.states[member_id]['canvas_mode']
         await self.send_canvas(self.image_show_dict[state], channel_id, to_whom)
         await self.send_style([StyleItem(widget=types.CANVAS, display="visible", expand=True)], channel_id, to_whom)
 
@@ -308,28 +308,25 @@ class TestbedService(Moobius):
         await self.send_characters(character_ids, channel_id, character_ids)
         await self.send_message(f'{name} {intro} (id={character_id})', channel_id, character_id, character_ids)
 
-    async def on_join_channel(self, action):
+    async def on_join(self, action):
         """Most join handlers, as this one does, will send_characters with the new character added and send a "user joined!" message."""
-        example_socket_callback_payloads['on_join_channel'] = action
-        sender_id = action.sender
-        channel_id = action.channel_id
-        await self.add_real_character(channel_id, sender_id, intro="joined the channel!")
+        await self.add_real_character(action.channel_id, action.sender, intro="joined the channel!")
 
-    async def on_leave_channel(self, action):
+    async def on_leave(self, action):
         """Most leave handlers, as this one does, will send_characters with the character removed and maybe send a "user left!" message."""
-        example_socket_callback_payloads['on_leave_channel'] = action
-        sender = action.sender
+
+        member_id = action.sender
         channel_id = action.channel_id
-        character = (await self.get_channel(action.channel_id)).real_characters.pop(sender, None)
-        (await self.get_channel(channel_id)).states.pop(sender, None)
-        (await self.get_channel(channel_id)).buttons.pop(sender, None)
+        character = (await self.get_channel(channel_id)).real_characters.pop(member_id, None)
+        (await self.get_channel(channel_id)).states.pop(member_id, None)
+        (await self.get_channel(channel_id)).buttons.pop(member_id, None)
         name = character.name
 
         real_characters = (await self.get_channel(channel_id)).real_characters
         character_ids = list(real_characters.keys())
 
         await self.send_characters(character_ids, channel_id, character_ids)
-        await self.send_message(f'{name} left the channel!', channel_id, sender, character_ids)
+        await self.send_message(f'{name} left the channel!', channel_id, member_id, character_ids)
 
     async def on_copy_client(self, the_copy):
         await super().on_copy_client(the_copy) # One of the few callbacks to have an action.
@@ -368,16 +365,16 @@ class TestbedService(Moobius):
         print("Button click:", button_click)
         if button_click.arguments:
 
-            value0 = button_click.arguments[0]
+            value0 = button_click.arguments[0].value
             value = value0.lower() if value0 else value0
             if len(button_click.arguments)>1:
-                if em := button_click.arguments[1]:
+                if em := button_click.arguments[1].value:
                     entry_message = str(em)
         if entry_message:
             await self.send_message("Entered from a button: "+entry_message, button_click.channel_id, button_click.sender, button_click.sender)
 
         def _make_image(vignette=0.0):
-            """Generates a "random" image and returns the local filepath (as a string) as well as a removal function (if the image is dynamic)."""
+            """Generates a "random" image and returns the local file_path (as a string) as well as a removal function (if the image is dynamic)."""
             dyn_mode = False
             try:
                 from PIL import Image
@@ -426,7 +423,7 @@ class TestbedService(Moobius):
                 await self.send_message(f'Image path in bucket: {message["body"]["content"]["path"]}', channel_id, who_clicked, to_whom)
             elif value == 'AudioPath'.lower():
                 await self.send_message(pathlib.Path('./resources/tiny.mp3'), channel_id, who_clicked, to_whom)
-            elif value == 'FilePath'.lower():
+            elif value == 'file_path'.lower():
                 await self.send_message(pathlib.Path('./resources/tiny.pdf'), channel_id, who_clicked, to_whom)
             elif value == 'ImageGivenTextPath'.lower(): # Override subtype to not send a boring text message.
                 file_path, rm_fn = _make_image(-1.0)
@@ -528,15 +525,15 @@ class TestbedService(Moobius):
                 for c_id in channel_ids:
                          if c_id in self.config["channels"]:
                              continue # Do not leave the core channels.
-                         if c_id in self.channel_storages:
-                             del self.channel_storages[c_id]
+                         if c_id in self.channels:
+                             del self.channels[c_id]
                          left_channels.append(c_id)
                 await self.send_message(f"Will try to leave these channels:\n{left_channels}.", channel_id, who_clicked, to_whom)
                 sucessfully_left = []
                 for c_id in left_channels:
                     success = False
                     try:
-                        await self.send_leave_channel(c_id) # This is for the Agent, not the Service.
+                        await self.send_leave_channel(c_id) # This is for the User mode, not the Service.
                         success = True
                     except Exception as e:
                         logger.warning(f'Send_leave_channel failed for {c_id}: {e}.')
@@ -569,9 +566,9 @@ class TestbedService(Moobius):
                 os.remove(tmp_path)
             elif value == "Wipe DatabaseA".lower() or value == "Wipe DatabaseB".lower():
                 two_arg_pop = value == "Wipe DatabaseB".lower()
-                await self.send_message(f"WARNING: This may crash the Demo. Wiping {list(self.channel_storages.keys())}. {'Two arg pop.' if two_arg_pop else 'One arg pop.'}", channel_id, who_clicked, to_whom)
+                await self.send_message(f"WARNING: This may crash the Demo. Wiping {list(self.channels.keys())}. {'Two arg pop.' if two_arg_pop else 'One arg pop.'}", channel_id, who_clicked, to_whom)
                 n_keys_popped = 0
-                for channel_store in self.channel_storages.values():
+                for channel_store in self.channels.values():
                     for k, v in channel_store.__dict__.items():
                         if type(v) is CachedDict:
                             for k1 in list(v.keys()):
@@ -582,7 +579,7 @@ class TestbedService(Moobius):
                                     v.pop(k1)
                             if two_arg_pop:
                                 v.pop('non_exist_key', 'should_not_error_when_default_is_provided')
-                await self.send_message(f"Cleared these, total popped keys {n_keys_popped}; channels {list(self.channel_storages.values())}, these folders should have no .json files in them.", channel_id, who_clicked, to_whom)
+                await self.send_message(f"Cleared these, total popped keys {n_keys_popped}; channels {list(self.channels.values())}, these folders should have no .json files in them.", channel_id, who_clicked, to_whom)
                 await self.send_message(f"Blocking sleep 32 seconds, to give a time window within which no new database entries will be saved.", channel_id, who_clicked, to_whom)
                 time.sleep(32)
                 await self.send_message(f"Done with blocking sleep.", channel_id, who_clicked, to_whom)
@@ -591,9 +588,9 @@ class TestbedService(Moobius):
                 local_path = './direct_download.png'
                 if os.path.exists(local_path):
                     os.remove(local_path)
-                await self.download(logo_url, local_path, overwrite=True)
-                await self.send_message(f"Downloaded an image file to {os.path.realpath(local_path)}", channel_id, who_clicked, to_whom)
-                the_bytes = await self.download(logo_url, filepath=None) # None filename means just make bytes.
+                local_path1 = await self.download(logo_url, local_path, overwrite=True)
+                await self.send_message(f"Downloaded an image file to {os.path.realpath(local_path)} reported as {local_path1}.", channel_id, who_clicked, to_whom)
+                the_bytes = await self.download(logo_url, file_path=None) # None filename means just make bytes.
                 await self.send_message(f"Direct download to bytes (not to a file): "+str(the_bytes), channel_id, who_clicked, to_whom, len_limit=1024)
             else:
                 raise Exception(f'Strange value for button channel_btn: {value}')
@@ -604,8 +601,6 @@ class TestbedService(Moobius):
             image_list = [self.image_paths[x] for x in [self.LIGHT, self.DARK, self.WAND]]
             image_path = image_list[self.n_usr_update%len(image_list)] # Cycle through non-mickey images.
 
-            #with open('config/agent.json','r') as f_obj:
-            #    agent_config = json.load(f_obj)
             if value == 'Make Mickey'.lower():
                 if the_channel.states[who_clicked]['mickey_num'] >= self.MICKEY_LIMIT:
                     await self.send_message("You have reached the limit of Mickey!", channel_id, who_clicked, to_whom)
@@ -621,7 +616,7 @@ class TestbedService(Moobius):
                     sn = the_channel.states[who_clicked]['mickey_num'] - 1
                     talker = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"].character_id
                     await self.send_message(f"Mickey {sn} Here! Mickeys are stored in JSON db.", channel_id, talker, to_whom)
-            elif value == "Update Mickey (not agent) name".lower():
+            elif value == "Update Mickey (not user) name".lower():
                 if the_channel.states[who_clicked]['mickey_num'] == 0:
                     await self.send_message("Please Create Mickey First!", channel_id, who_clicked, to_whom)
                 else:
@@ -629,7 +624,7 @@ class TestbedService(Moobius):
                     the_character_id = the_channel.puppet_characters[f"{self.MICKEY}_{sn}"].character_id
                     await self.update_agent(agent_id=the_character_id, avatar=image_path, description='Mickey updated name!', name=f'Update Mickey Nick {self.n_usr_update}')
                     await self.calculate_and_update_character_list_from_database(channel_id, to_whom[0])
-                    await self.send_message(f"Updated Mickey name and image.", channel_id, who_clicked, to_whom)
+                    await self.send_message(f"Updated Mickey name and image (may need a refresh).", channel_id, who_clicked, to_whom)
             elif value == "List Characters".lower():
                 char_list = await self.fetch_agents()
 
@@ -710,14 +705,14 @@ class TestbedService(Moobius):
         elif button_id == "command_btn".lower():
             cmds = """
 "moobius": Print "Moobius is Great".
-"meow": Have the Agent print nya.
+"meow": Have the other user print nya.
 "API": Print one API command per unique socket API call received.
-"log agent out": Log out agent, will re-auth next session (the agent may log in again immediatly!).
-"agent info": See printout of agent info.
-"rename agent foo": Set agent name to foo (need to refresh).
-"channel_groups": Have the Agent print channel groups. The Agent is auth'ed with a different servic_id than the Service.
-"show_updates": Have the Agent print the most recent update of each kind of update it recieved.
-"user_info": Have the Agent print thier own user info.
+"log user out": Log out user, will re-auth next session (the user may log in again immediatly!).
+"user info": See printout of user info.
+"rename user foo": Set user name to foo (need to refresh).
+"channel_groups": Have the user print channel groups. The user is auth'ed with a different servic_id than the Service.
+"show_updates": Have the user print the most recent update of each kind of update it recieved.
+"user_info": Have the user print thier own user info.
 "show" (send to service): Show buttons and canvas.
 "hide" (send to service): Hide buttons and canvas.
 "reset" (send to service): Reset mickeys and refresh buttons.
@@ -733,7 +728,7 @@ class TestbedService(Moobius):
         item_id = menu_click.menu_item_id
         message_content = menu_click.message_content
         menu_dict = dict(zip([m.menu_item_id for m in self.menu_list], self.menu_list))
-        txt = f'You choose "{menu_dict[item_id].menu_item_id}" on message "{message_content} (this message only sent to whoever clicked); components={menu_click.arguments}".'
+        txt = f'You choose "{menu_dict[item_id].menu_item_id}" on message "{message_content} (this message only sent to whoever clicked); arguments={menu_click.arguments}".'
         await self.send_message(txt, menu_click.channel_id, menu_click.sender, menu_click.sender)
 
     async def on_spell(self, spell):
@@ -748,7 +743,7 @@ class TestbedService(Moobius):
 
         text = f"WAND: {content * times}"
 
-        for channel_id in self.channel_storages.keys():
+        for channel_id in self.channels.keys():
             the_channel = await self.get_channel(channel_id)
             recipients = list(the_channel.real_characters.keys())
             talker = the_channel.puppet_characters[self.WAND].character_id

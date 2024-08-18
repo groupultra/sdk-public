@@ -7,8 +7,9 @@ if __name__ == "__main__":
 
     handle = wand.run(
         GroupService,
-        config_path="config/service.json",
-        db_config_path="config/db.json",
-        log_settings="config/log_settings.json",
+        service_config="config/service.json",
+        db_config="config/db.json",
+        log_config="config/log.json",
+        account_config="config/account.json",
         background=True)
 

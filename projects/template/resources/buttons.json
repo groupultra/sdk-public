@@ -7,7 +7,7 @@
             {
                 "name": "Select Task",
                 "type": "enum",
-                "optional": false,
+                "required": true,
                 "values": ["Text", "Image"],
                 "placeholder": "(choose)"
             }
@@ -21,7 +21,7 @@
             {
                 "name": "Select task",
                 "type": "enum",
-                "optional": false,
+                "required": true,
                 "values": ["Make Mickey", "Mickey Talk"],
                 "placeholder": "(choose)"
             }

@@ -9,8 +9,13 @@ from moobius import MoobiusWand, utils
 
 from loguru import logger
 
+# Debug testing levels:
+include_user = True
+do_simple_spells = False
+test_json_encode = False
+
+
 if __name__ == "__main__":
-    test_json_encode = False
     if test_json_encode:
         import json, dataclasses
         from moobius import types
@@ -28,28 +33,16 @@ if __name__ == "__main__":
 
     wand = MoobiusWand()
 
-    handle = wand.run(
-        TestbedService,
-        config_path="config/service.json",
-        db_config_path="config/db.json",
-        log_settings="config/log_settings.json",
-        background=True)
+    handle = wand.run(TestbedService, account_config='config/account.json', service_config='config/service.json', db_config='config/db.json', log_config='config/log.json',
+                      background=True)
 
-    include_user = True
     if include_user:
-        user_handle = wand.run(
-            TestbedUser,
-            log_settings="config/log_settings.json",
-            config_path="config/user.json",
-            db_config_path="config/user_db.json",
-            service_mode=False,
+        user_handle = wand.run(TestbedUser, account_config='config/usermode_account.json', service_config='config/usermode_service.json', db_config='config/usermode_db.json', log_config='config/usermode_log.json',
             background=True)
-
     else:
         user_handle = None
         logger.warning('Agent has been DISABLED this run (debugging).')
 
-    do_simple_spells = True
     if do_simple_spells:
         for i in range(3):
             time.sleep(8)

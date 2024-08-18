@@ -19,11 +19,11 @@ class MenuCanvasService(Moobius):
 
         for i in range(len(menu_types)):
             for j in range(3):
-                elements.append(MenuItem(item_text=menu_types[i]+' item '+str(j), item_id=menu_types[i]+str(j), message_subtypes=[menu_types[i]]))
+                elements.append(MenuItem(menu_item_text=menu_types[i]+' item '+str(j), menu_item_id=menu_types[i]+str(j), message_subtypes=[menu_types[i]]))
         await self.send_menu(elements, action.channel_id, [action.sender])
 
     async def on_menu_item_click(self, context_click: MenuItemClick):
-        txt = 'Menu choice: '+context_click.item_id+' Message content: '+str(context_click.message_content)
+        txt = 'Menu choice: '+context_click.menu_item_id+' Message content: '+str(context_click.message_content)
         await self.send_message(txt, context_click.channel_id, context_click.sender, [context_click.sender])
 
     async def on_message_up(self, message):

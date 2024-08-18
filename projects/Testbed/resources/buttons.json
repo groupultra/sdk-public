@@ -8,13 +8,13 @@
                 {
                     "label": "Select The Task",
                     "type": "dropdown",
-                    "optional": true,
-                    "choices": ["TextMessage", "CardMessage", "ImagePath", "AudioPath", "FilePath", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
+                    "required": false,
+                    "choices": ["TextMessage", "CardMessage", "ImagePath", "AudioPath", "file_path", "ImageGivenTextPath", "DownloadGivenImagePath", "DownloadGivenImagePathWithRename", "EmptyRecip", "Swap Canvas", "Test Socket Asserts", "Fetch Chat History", "Fetch Buttons", "Fancy Right Click"],
                     "placeholder": "(choose)"
                 },
                 {
                     "label": "Send this message",
-                    "optional": true,
+                    "required": false,
                     "type":"text",
                     "placeholder": "(message text)"
                 }
@@ -30,7 +30,7 @@
                 {
                     "label": "Select Task",
                     "type": "dropdown",
-                    "optional": false,
+                    "required": true,
                     "choices": ["New Channel", "Ping Channels", "Leave Extra Channels", "List Bound Channels", "Fetch Channel List", "Update Extra Channels", "Test Database", "Wipe DatabaseA", "Wipe DatabaseB", "SDK direct download"],
                     "placeholder": "(choose)"
                 }
@@ -46,8 +46,8 @@
                 {
                     "label": "Select task",
                     "type": "dropdown",
-                    "optional": false,
-                    "choices": ["Make Mickey", "Mickey Talk", "Update Mickey (not agent) name", "List Characters"],
+                    "required": true,
+                    "choices": ["Make Mickey", "Mickey Talk", "update mickey (not user) name", "List Characters"],
                     "placeholder": "(choose)"
                 }
             ]
@@ -62,7 +62,7 @@
                 {
                     "label": "Select Group Operation",
                     "type": "dropdown",
-                    "optional": false,
+                    "required": true,
                     "choices": ["List Channel Temp Groups", "List Channel Groups"],
                     "placeholder": "(choose)"
                 }
@@ -79,7 +79,7 @@
                 {
                     "label": "currency_type",
                     "type": "dropdown",
-                    "optional": false,
+                    "required": true,
                     "choices": ["(Print Savings)", "(Donate all)", "Naira", "Dollar", "Peso", "Yuan", "Euro", "Kina", "Penguin"]
                 }
             ]
@@ -94,7 +94,7 @@
                 {
                     "label": "JSON DB",
                     "type": "dropdown",
-                    "optional": false,
+                    "required": true,
                     "choices": ["None", "Bool", "Int", "Float", "String", "List", "Dict", "Types Dataclass", "Custom Dataclass", "Print", "Clear", "Pop", "Del", "Reload"],
                     "placeholder": "Select a test"
                 }

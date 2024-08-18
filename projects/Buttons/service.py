@@ -9,8 +9,8 @@ class ButtonService(Moobius):
 
     async def on_refresh(self, action):
         simple_button = Button(button_id='easy', button_text='Simple button.')
-        pieces = [InputComponent(label='Pick a fruit!', type=types.DROPDOWN, optional=False, choices=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
-                  InputComponent(label='Favorite color!', type=types.TEXT, optional=False, placeholder="Artsy!", choices=[])]
+        pieces = [InputComponent(label='Pick a fruit!', type=types.DROPDOWN, required=False, choices=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
+                  InputComponent(label='Favorite color!', type=types.TEXT, required=False, placeholder="Artsy!", choices=[])]
         dialog = Dialog("options", components=pieces)
         complex_button = Button(button_id='hard', button_text='Pop-up button.', dialog=dialog)
 
@@ -32,4 +32,5 @@ class ButtonService(Moobius):
                 txt = txt+' '+a
         elif which_one == 'bottom':
             txt = "Bottom button: "+str(button_click)
+
         await self.send_message(txt, button_click.channel_id, button_click.sender, [button_click.sender])

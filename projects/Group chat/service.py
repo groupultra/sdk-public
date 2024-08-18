@@ -10,7 +10,7 @@ class GroupService(Moobius):
     async def on_refresh(self, action):
         ids = ['default', 'quiet', 'vip']
         names = ['Default mode', 'Hear nothing mode', 'VIP mode']
-        buttons = [Button(button_id=ids[i], button_name=names[i], dialog=False) for i in range(len(ids))]
+        buttons = [Button(button_id=ids[i], button_text=names[i], dialog=False) for i in range(len(ids))]
         await self.send_buttons(buttons, action.channel_id, [action.sender])
         await self._update_char_list(action, all=False)
 
@@ -23,7 +23,7 @@ class GroupService(Moobius):
 
     async def _update_char_list(self, action, all=False):
         ids = await self.fetch_member_ids(action.channel_id, False)
-        await self.send_characters(character_ids=ids, channel_id=action.channel_id, recipients=[ids] if all else [action.sender])
+        await self.send_characters(characters=ids, channel_id=action.channel_id, recipients=[ids] if all else [action.sender])
 
     async def on_join_channel(self, action):
         await self._update_char_list(action, all=True)

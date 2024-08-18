@@ -1,6 +1,0 @@
-{
-    "http_server_uri": "https://api.moobius.net/",
-    "ws_server_uri": "wss://ws.moobius.net/",
-    "email": "<user account email>",
-    "password": "<user account password>"
-}

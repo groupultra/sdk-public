@@ -7,7 +7,7 @@
             {
                 "name": "Select Task",
                 "type": "enum",
-                "optional": false,
+                "required": true,
                 "values": ["Text", "Image", "Audio", "File", "Card", "Swap Canvas", "Fancy Right Click"],
                 "placeholder": "(choose)"
             }
@@ -21,7 +21,7 @@
             {
                 "name": "Select Task",
                 "type": "enum",
-                "optional": false,
+                "required": true,
                 "values": ["New Channel", "Ping Channels", "List Bound Channels", "List All Channels", "Update Extra Channels"],
                 "placeholder": "(choose)"
             }
@@ -35,8 +35,8 @@
             {
                 "name": "Select task",
                 "type": "enum",
-                "optional": false,
-                "values": ["Make Mickey", "Mickey Talk", "Update Mickey (not agent) name", "List Characters"],
+                "required": true,
+                "values": ["Make Mickey", "Mickey Talk", "update mickey (not user) name", "List Characters"],
                 "placeholder": "(choose)"
             }
         ]
