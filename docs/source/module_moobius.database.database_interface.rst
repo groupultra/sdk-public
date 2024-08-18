@@ -36,8 +36,6 @@ The "implementation" sets the engine to be used by CachedDict.
 
 DatabaseInterface.__init__
 ---------------------------------------------------------------------------------------------------------------------
-DatabaseInterface.__init__(self, domain, \*kwargs)
-
 
 Creates the database itself..
 
@@ -45,110 +43,156 @@ The string-valued `domain` parameteras is used to prevent collisions: different 
 Internally, differnt domains become different tables in the same database or different folders in the same file system.
 Currently, the MoobiusStorage names it's domains in a dot-seperated way:
 >>> <service_id>.channel_<channel_id>.<name in db_config>.
-  Parameters:
-    domain: Domain.
-  Returns:
-    (Class constructors have no explicit return value)
-  Raises:
-    (this function does not raise any notable errors)
 
+* Signature
+
+    * DatabaseInterface.__init__(self, domain, kwargs)
+
+* Parameters
+
+    * domain: Domain.
+    
+    * kwargs='': Implementation-dependent **kwargs.
+
+* Returns
+
+  * (Class constructors have no explicit return value)
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 .. _moobius.database.database_interface.DatabaseInterface.get_value:
 
 DatabaseInterface.get_value
 ---------------------------------------------------------------------------------------------------------------------
-DatabaseInterface.get_value(self, key)
 
+* Signature
 
+    * DatabaseInterface.get_value(self, key)
 
-  Parameters:
-    key: Key.
-  Returns:
-    The  tuple of (is_success, value).
-  Raises:
-    (this function does not raise any notable errors)
+* Parameters
 
+    * key: Key.
+
+* Returns
+
+  * The  tuple of (is_success, value).
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 .. _moobius.database.database_interface.DatabaseInterface.set_value:
 
 DatabaseInterface.set_value
 ---------------------------------------------------------------------------------------------------------------------
-DatabaseInterface.set_value(self, key, value)
 
+* Signature
 
+    * DatabaseInterface.set_value(self, key, value)
 
-  Parameters:
-    key: Key.
-    value: Value.
-  Returns:
-    The  tuple of (is_success=True, key) or (is_success=False, err_message).
-  Raises:
-    (this function does not raise any notable errors)
+* Parameters
 
+    * key: Key.
+    
+    * value: Value.
+
+* Returns
+
+  * The  tuple of (is_success=True, key) or (is_success=False, err_message).
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 .. _moobius.database.database_interface.DatabaseInterface.delete_key:
 
 DatabaseInterface.delete_key
 ---------------------------------------------------------------------------------------------------------------------
-DatabaseInterface.delete_key(self, key)
 
+* Signature
 
+    * DatabaseInterface.delete_key(self, key)
 
-  Parameters:
-    key: Key.
-  Returns:
-    The  tuple of (is_success=True, key) or (is_success=False, err_message).
-  Raises:
-    (this function does not raise any notable errors)
+* Parameters
 
+    * key: Key.
+
+* Returns
+
+  * The  tuple of (is_success=True, key) or (is_success=False, err_message).
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 .. _moobius.database.database_interface.DatabaseInterface.all_keys:
 
 DatabaseInterface.all_keys
 ---------------------------------------------------------------------------------------------------------------------
-DatabaseInterface.all_keys(self)
 
+* Signature
 
+    * DatabaseInterface.all_keys(self)
 
-  Parameters:
-    (this class constructor accepts no arguments)
-  Returns:
-    The  iterable of all keys, the details of which depend on the implementation.
-  Raises:
-    (this function does not raise any notable errors)
+* Parameters
 
+    * (this class constructor accepts no arguments)
+
+* Returns
+
+  * The  iterable of all keys, the details of which depend on the implementation.
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 .. _moobius.database.database_interface.DatabaseInterface.__str__:
 
 DatabaseInterface.__str__
 ---------------------------------------------------------------------------------------------------------------------
-DatabaseInterface.__str__(self)
-
 
 The string output function for debugging.
-  Parameters:
-    (this class constructor accepts no arguments)
-  Returns:
-    The  easy-to-read string summary.
-  Raises:
-    (this function does not raise any notable errors)
 
+* Signature
+
+    * DatabaseInterface.__str__(self)
+
+* Parameters
+
+    * (this class constructor accepts no arguments)
+
+* Returns
+
+  * The  easy-to-read string summary.
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 .. _moobius.database.database_interface.DatabaseInterface.__repr__:
 
 DatabaseInterface.__repr__
 ---------------------------------------------------------------------------------------------------------------------
-DatabaseInterface.__repr__(self)
-
 
 The string output function for debugging.
-  Parameters:
-    (this class constructor accepts no arguments)
-  Returns:
-    The  easy-to-read string summary.
-  Raises:
-    (this function does not raise any notable errors)
 
+* Signature
+
+    * DatabaseInterface.__repr__(self)
+
+* Parameters
+
+    * (this class constructor accepts no arguments)
+
+* Returns
+
+  * The  easy-to-read string summary.
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 Class attributes
 --------------------

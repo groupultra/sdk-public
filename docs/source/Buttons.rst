@@ -24,10 +24,10 @@ but the other opens up a pop-up menu when pressed:
 
 .. code-block:: Python
 
-    async def on_fetch_buttons(self, action):
+    async def on_refresh(self, action):
         simple_button = Button(button_id='easy', button_name='Simple button.', new_window=False)
-        button_args = [ButtonArgument(name='Pick a fruit!', type='enum', optional=False, values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
-                        ButtonArgument(name='Favorite color!', type='string', optional=False, placeholder="Artsy!", values=[])]
+        button_args = [ButtonArgument(name='Pick a fruit!', type='enum', values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
+                        ButtonArgument(name='Favorite color!', type='string', placeholder="Artsy!", values=[])]
         complex_button = Button(button_id='hard', button_name='Pop-up button.', new_window=True, arguments=button_args)
         await self.send_update_buttons([simple_button, complex_button], action.channel_id, [action.sender])
 
@@ -69,8 +69,8 @@ The parameter `new_window` has to be True and a list of ButtonArgument objects p
 
 .. code-block:: Python
 
-    button_args = [ButtonArgument(name='Pick a fruit!', type='enum', optional=False, values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
-                    ButtonArgument(name='Favorite color!', type='string', optional=False, placeholder="Artsy!", values=[])]
+    button_args = [ButtonArgument(name='Pick a fruit!', type='enum', values=['Apple', 'Banana', 'Coconut'], placeholder="Tasty!"),
+                    ButtonArgument(name='Favorite color!', type='string', placeholder="Artsy!", values=[])]
     complex_button = Button(button_id='hard', button_name='hard', button_name='Pop-up button.', new_window=True, arguments=button_args)
 
 

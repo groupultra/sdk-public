@@ -8,57 +8,55 @@ moobius.types
 Module-level functions
 ******************************
 
-.. _moobius.types._send_tmp_convert:
-
-_send_tmp_convert
----------------------------------------------------------------------------------------------------------------------
-_send_tmp_convert(f_name, x)
-
-
-Tmp function which makes small changes to a couple kinds of outbound payloads..
-  Parameters:
-    f_name: Request_name,.
-    x: A dict x.
-  Returns:
-    The x.
-  Raises:
-    (this function does not raise any notable errors)
-
-
 .. _moobius.types._recv_tmp_convert:
 
 _recv_tmp_convert
 ---------------------------------------------------------------------------------------------------------------------
-_recv_tmp_convert(f_name, x)
-
 
 Tmp function which makes small changes to couple kinds of inbound payloads..
-  Parameters:
-    f_name: Request_name,.
-    x: A dict x.
-  Returns:
-    The modified x.
-  Raises:
-    (this function does not raise any notable errors)
 
+* Signature
+
+    * _recv_tmp_convert(f_name, the_data)
+
+* Parameters
+
+    * f_name: Request_name,.
+    
+    * the_data: A dict x.
+
+* Returns
+
+  * The modified x.
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 .. _moobius.types.add_str_method:
 
 add_str_method
 ---------------------------------------------------------------------------------------------------------------------
-add_str_method(cls)
-
 
 Decorator function to make __str__ return the following format:
 "Foo(bar=1, baz='two', etc)"; only the non-default or specified fields are included.
 This works.
-  Parameters:
-    cls: Class to decorate.
-  Returns:
-    The decorated function.
-  Raises:
-    (this function does not raise any notable errors)
 
+* Signature
+
+    * add_str_method(cls)
+
+* Parameters
+
+    * cls: Class to decorate.
+
+* Returns
+
+  * The decorated function.
+
+* Raises
+
+  * (this function does not raise any notable errors)
 
 ************************************
 Class InputComponent
@@ -80,8 +78,8 @@ InputComponent.label: str:
 InputComponent.type: str:
   What kind of box the user sees; types.TEXT | types.DROPDOWN | types.TEXTBOX
 
-InputComponent.optional: Optional[bool]:
-  Can the user skip it?
+InputComponent.required: Optional[bool]:
+  Is the user forced to use it?
 
 InputComponent.placeholder: Optional[str] = None:
   A hint to the user.
@@ -156,6 +154,28 @@ Button.dialog: Optional[Dialog] = None:
   If the button opens up a dialog box
 
 ************************************
+Class ClickArgument
+************************************
+
+A button click argument.
+
+
+
+Class attributes
+--------------------
+
+
+
+ClickArgument.label: str:
+  A reminder of what label was clicked on.
+
+ClickArgument.value: str:
+  The value clicked on.
+
+ClickArgument.filename: Optional[str] = None:
+  A filename associated with the argument's label.
+
+************************************
 Class ButtonClick
 ************************************
 
@@ -178,11 +198,13 @@ ButtonClick.channel_id: str:
 ButtonClick.sender: str:
   The Character ID of who clicked the button. Can be a real user or an agent.
 
-ButtonClick.arguments: list[str]:
-  What settings the user chosse (for buttons that open a pop-up menu).
+ButtonClick.arguments: Optional[list[ClickArgument]] = None:
+  What settings the user choose (for buttons that open a pop-up menu).
 
-ButtonClick.recipients: list[str]:
-  Rarely used.
+ButtonClick.subtype: Optional[str] = BUTTON_CLICK:
+  Identifies it as a button click.
+
+ButtonClick.BUTTON_CLICK
 
 ButtonClick.labels: Optional[list[str]] = None:
   A reminder of what each argument means.
@@ -195,6 +217,31 @@ ButtonClick.context: Optional[dict] = None:
 
 ButtonClick.button_type: Optional[str] = None:
   What kind of button was pressed (rarely used).
+
+************************************
+Class ActionBody
+************************************
+
+<no class docstring>
+
+
+
+Class attributes
+--------------------
+
+
+
+ActionBody.subtype: str:
+  Subtypes are 'join', 'leave', etc.
+
+ActionBody.channel_id: str:
+  The channel that the user performed the action in.
+
+ActionBody.sender: str:
+  The user id.
+
+ActionBody.context: Optional[dict] = None:
+  Rarely used metadata.
 
 ************************************
 Class MenuItem
@@ -272,9 +319,6 @@ Class attributes
 MenuItemClick.menu_item_id: str:
   The MenuItem ID that this click applies to.
 
-MenuItemClick.message_id: str:
-  The platform-generated ID of which message was clicked on (rarely used).
-
 MenuItemClick.message_subtype: str:
   The kind of message clicked on, 'text', 'image', 'audio', 'file', or 'card'.
 
@@ -287,10 +331,10 @@ MenuItemClick.channel_id: str:
 MenuItemClick.sender: str:
   The Character ID of the user or agent who clicked the message.
 
-MenuItemClick.recipients: list[str]:
-  Rarely used.
+MenuItemClick.message_id: Optional[str] = None:
+  The platform-generated ID of which message was clicked on (rarely used).
 
-MenuItemClick.arguments: list[str]:
+MenuItemClick.arguments: Optional[list[str]] = None:
   What sub-menu settings, if the menu element clicked on has a sub-menu.
 
 MenuItemClick.bottom_button_id: Optional[str] = None:
@@ -298,6 +342,11 @@ MenuItemClick.bottom_button_id: Optional[str] = None:
 
 MenuItemClick.context: Optional[dict] = None:
   Metadata rarely used.
+
+MenuItemClick.subtype: Optional[str] = MENU_ITEM_CLICK:
+  Identifies it as a menu item click.
+
+MenuItemClick.MENU_ITEM_CLICK
 
 ************************************
 Class CanvasItem
@@ -397,28 +446,6 @@ MessageBody.context: Optional[dict] = None:
   Metadata that is rarely used.
 
 ************************************
-Class ActionBody
-************************************
-
-A description of a generic task performed by a user. Actions with different subtypes are routed to different callbacks.
-
-
-
-Class attributes
---------------------
-
-
-
-ActionBody.subtype: str:
-  The subtype of the action. Used internally to route the action to the correct callback function.
-
-ActionBody.request_id: str:
-  request_id: str
-
-ActionBody.user_id: str:
-  The user who sent the action.
-
-************************************
 Class ChannelInfo
 ************************************
 
@@ -469,25 +496,6 @@ CopyBody.context: Optional[dict] = None:
   Rarely used metadata.
 
 ************************************
-Class RefreshBody
-************************************
-
-A refresh from the user's browser.
-
-
-
-Class attributes
---------------------
-
-
-
-RefreshBody.channel_id: str:
-  The Channel ID of this channel.
-
-RefreshBody.context: Optional[dict] = None:
-  Rarely used metadata.
-
-************************************
 Class Payload
 ************************************
 
@@ -509,7 +517,7 @@ Payload.request_id: Optional[str]:
 Payload.user_id: Optional[str]:
   The Character ID of who dispatched this payload.
 
-Payload.body: MessageBody | ButtonClick | ActionBody | CopyBody | MenuItemClick | RefreshBody | Any:
+Payload.body: MessageBody | ButtonClick | CopyBody | MenuItemClick | Any:
   The body of the payload.
 
 ************************************

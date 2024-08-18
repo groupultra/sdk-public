@@ -21,7 +21,7 @@ This example creates a simple canvase with three elements:
 
 .. code-block:: Python
 
-    async def on_fetch_canvas(self, action):
+    async def on_refresh(self, action):
         canvas_elements = [CanvasElement(text="Some **text** here, along with an image", path="https://www.moobius.net/images/index/indexH2.png")]
         canvas_elements.append(CanvasElement(path="https://www.moobius.net/images/index/indexBg.png"))
         canvas_elements.append(CanvasElement(text="More `text` here.\nWith multiple lines.\nSeperated by newlines."))
@@ -47,15 +47,15 @@ This example will respond differently to each message type:
 
 .. code-block:: Python
 
-    async def on_fetch_context_menu(self, action):
-    elements = []
-    menu_types = [types.TEXT, types.IMAGE, types.AUDIO, types.FILE, types.CARD]
-    await self.send_message('types supported: '+str(menu_types), action.channel_id, action.sender, [action.sender])
+    async def on_refresh(self, action):
+        elements = []
+        menu_types = [types.TEXT, types.IMAGE, types.AUDIO, types.FILE, types.CARD]
+        await self.send_message('types supported: '+str(menu_types), action.channel_id, action.sender, [action.sender])
 
-    for i in range(len(menu_types)):
-        for j in range(3):
-            elements.append(ContextMenuElement(item_name=menu_types[i]+' item '+str(j), item_id=menu_types[i]+str(j), support_subtype=[menu_types[i]]))
-    await self.send_update_context_menu(elements, action.channel_id, [action.sender])
+        for i in range(len(menu_types)):
+            for j in range(3):
+                elements.append(ContextMenuElement(item_name=menu_types[i]+' item '+str(j), item_id=menu_types[i]+str(j), support_subtype=[menu_types[i]]))
+        await self.send_update_context_menu(elements, action.channel_id, [action.sender])
 
 To respond to the message, use the on_context_menu_click callback:
 
@@ -69,7 +69,7 @@ There is also a way to put pop-up input argumnets inside the menu option using t
 
 .. code-block:: Python
 
-    menu_element.arguments = [ButtonArgument(name='popup', type='string', optional=True, values=None, placeholder='Write the input as a string.')]
+    menu_element.arguments = [ButtonArgument(name='popup', type='string', values=None, placeholder='Write the input as a string.')]
 
 
 Demo code

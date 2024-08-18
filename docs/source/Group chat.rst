@@ -21,7 +21,7 @@ This example implementation first makes a function that queries and updates the 
 
     async def _update_char_list(self, action, all=False):
         ids = await self.fetch_member_ids(action.channel_id, False)
-        await self.send_update_characters(character_ids=ids, channel_id=action.channel_id, recipients=[ids] if all else [action.sender])
+        await self.send_characters(characters=ids, channel_id=action.channel_id, recipients=[ids] if all else [action.sender])
 
 There are three cases for which the user list needs to be sent out:
 * A user joins.
@@ -35,7 +35,7 @@ This example code handles all three cases:
     async def on_join_channel(self, action):
         await self._update_char_list(action, all=True)
 
-    async def on_fetch_characters(self, action):
+    async def on_refresh(self, action):
         await self._update_char_list(action, all=False)
 
     async def on_leave_channel(self, action):
