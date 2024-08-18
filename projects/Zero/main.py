@@ -7,8 +7,9 @@ if __name__ == "__main__":
 
     handle = wand.run(
         ZeroService,
-        config_path="config/service.json",
+        service_config_path="config/service.json",
         db_config_path="config/db.json",
-        log_settings="config/log_settings.json",
+        log_config_path="config/log.json",
+        account_config_path="config/account.json",
         background=True)
 
