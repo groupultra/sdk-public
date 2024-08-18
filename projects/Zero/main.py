@@ -4,12 +4,11 @@ from moobius import MoobiusWand
 if __name__ == "__main__":
 
     wand = MoobiusWand()
-
     handle = wand.run(
         ZeroService,
-        service_config_path="config/service.json",
-        db_config_path="config/db.json",
-        log_config_path="config/log.json",
-        account_config_path="config/account.json",
+        service_config="config/service.json",
+        db_config="config/db.json",
+        log_config="config/log.json",
+        account_config="config/account.json",
         background=True)
 
