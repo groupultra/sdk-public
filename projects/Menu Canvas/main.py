@@ -5,9 +5,4 @@ if __name__ == "__main__":
 
     wand = MoobiusWand()
 
-    handle = wand.run(
-        MenuCanvasService,
-        config_path="config/service.json",
-        db_config_path="config/db.json",
-        log_settings="config/log_settings.json",
-        background=True)
+    handle = wand.run(MenuCanvasService, config="config.json", background=True)

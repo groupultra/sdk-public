@@ -1,0 +1,6 @@
+{
+    "account_config": "config/serviceA/account.json",
+    "db_config": "config/serviceA/db.json",
+    "service_config": "config/serviceA/service.json",
+    "log_config": "config/serviceA/log.json"
+}

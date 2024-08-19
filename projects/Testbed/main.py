@@ -10,9 +10,10 @@ from moobius import MoobiusWand, utils
 from loguru import logger
 
 # Debug testing levels:
-include_user = True
+include_user = True # usermode.
 do_simple_spells = False
 test_json_encode = False
+config_mode = 'A' # ['A', 'B', or 'C'] test different modes. A = standard. B = all mashed up. C = individual files specified.
 
 
 if __name__ == "__main__":
@@ -33,12 +34,15 @@ if __name__ == "__main__":
 
     wand = MoobiusWand()
 
-    handle = wand.run(TestbedService, account_config='config/account.json', service_config='config/service.json', db_config='config/db.json', log_config='config/log.json',
-                      background=True)
+    if config_mode == 'A':
+        handle = wand.run(TestbedService, config='config/serviceA/config.json', background=True)
+    elif config_mode == 'B':
+        handle = wand.run(TestbedService, config='config/serviceB/config.json', background=True)
+    elif config_mode == 'C':
+        handle = wand.run(TestbedService, db_config='config/serviceA/db.json', service_config='config/serviceA/service.json', account_config='config/serviceA/account.json', log_config='config/serviceA/log.json', background=True)
 
     if include_user:
-        user_handle = wand.run(TestbedUser, account_config='config/usermode_account.json', service_config='config/usermode_service.json', db_config='config/usermode_db.json', log_config='config/usermode_log.json',
-            background=True)
+        user_handle = wand.run(TestbedUser, config='config/user/usermode_config.json', background=True)
     else:
         user_handle = None
         logger.warning('Agent has been DISABLED this run (debugging).')
