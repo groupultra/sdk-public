@@ -4,7 +4,7 @@ import copy
 from datetime import datetime
 
 from loguru import logger
-from moobius import Moobius, MoobiusStorage
+from moobius import Moobius, MoobiusStorage, MoobiusWand
 from moobius.database.storage import CachedDict
 import moobius.types as types
 from moobius.types import Button, CanvasItem, StyleItem, MenuItem
@@ -121,8 +121,7 @@ class DemoService(Moobius):
         pass
 
     async def on_message_up(self, message_up):
-        """Runs various commands, such as resetting when the user types in "reset".
-           (Agent-related commands are found in the agent.py instead of here)."""
+        """Runs various commands, such as resetting when the user types in "reset"."""
         channel_id = message_up.channel_id
         recipients = message_up.recipients
         sender = message_up.sender
@@ -423,10 +422,6 @@ class DemoService(Moobius):
                 raise Exception(f'Strange value for button user_btn: {value}')
         elif button_id == "command_btn".lower():
             cmds = """
-"meow": Have the Agent print nya.
-"agent info": See printout of agent info.
-"rename agent foo": Set agent name to foo (need to refresh).
-"user_info": Have the Agent print thier own user info.
 "show" (send to service): Show buttons and canvas.
 "hide" (send to service): Hide buttons and canvas.
 "reset" (send to service): Reset mickeys and refresh buttons.
@@ -481,3 +476,7 @@ class DemoService(Moobius):
             character_list.append(the_channel.puppet_characters[key].character_id)
 
         await self.send_characters(character_list, channel_id, [character_id])
+
+
+if __name__ == "__main__":
+    MoobiusWand().run(DemoService, config='config/config.json')

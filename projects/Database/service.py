@@ -1,4 +1,4 @@
-from moobius import Moobius, MoobiusStorage
+from moobius import Moobius, MoobiusStorage, MoobiusWand
 from moobius.types import MessageBody
 
 class DbExampleService(Moobius):
@@ -29,3 +29,6 @@ class DbExampleService(Moobius):
             report = 'Send text messages to boost your stats.'
         self.channel_storages[c_id].stats[sender] = stats # Important! This reassign keeps it loaded.
         await self.send_message(report, c_id, sender, [sender])
+
+if __name__ == "__main__":
+    MoobiusWand().run(DbExampleService, config='config/config.json')

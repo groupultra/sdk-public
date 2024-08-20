@@ -2,7 +2,7 @@
 import json, redis
 from .database_interface import DatabaseInterface
 
-from moobius import utils
+from moobius import json_utils
 
 from loguru import logger
 
@@ -13,7 +13,7 @@ class RedisDatabase(DatabaseInterface):
     """The redis database make use of a redis.Redis(...) server (Redis servers are set to localhost:6379 by default).
     By default uses the domains's hash code to differentiate different domains, unless a user-supplied "db" value is given."""
     def __init__(self, domain='', host="localhost", port=6379, db=None, password="", **kwargs):
-        """Accepts the domain, the host, the port, the db, the password. Also optional kwargs."""
+        """Accepts the domain, the host, the port, the db, the password, and ignores the extra kwargs."""
         super().__init__(domain, **kwargs)
         logger.info(f'Redis initialized on {host} port {port}')
         if db is None:
@@ -24,7 +24,7 @@ class RedisDatabase(DatabaseInterface):
         """Accepts a key. Returns (sucess, the value)."""
         if self.redis.exists(key):
             balue = self.redis.get(key)
-            return True, utils.enhanced_json_load(balue)
+            return True, json_utils.enhanced_json_load(balue)
         return False, f'Key {key} does not exist'
 
     def set_value(self, key, value) -> (bool, any):

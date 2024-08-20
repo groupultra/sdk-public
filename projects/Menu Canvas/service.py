@@ -1,6 +1,7 @@
-from moobius import Moobius
+from moobius import Moobius, MoobiusWand
 from moobius.types import CanvasItem, MenuItemClick, StyleItem, MenuItem
 import moobius.types as types
+
 
 class MenuCanvasService(Moobius):
     def __init__(self, **kwargs):
@@ -28,3 +29,6 @@ class MenuCanvasService(Moobius):
 
     async def on_message_up(self, message):
         await self.send_message(message) # A trivial group chat so that messages can appear.
+
+if __name__ == "__main__":
+    MoobiusWand().run(MenuCanvasService, config='config/config.json')

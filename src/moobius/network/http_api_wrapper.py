@@ -5,10 +5,28 @@ import json, os, io, hashlib, datetime, random
 import aiohttp
 from loguru import logger
 from dacite import from_dict
-from moobius import utils
+from moobius import types
 from moobius.types import Character, Group, UserInfo, MessageBody
 # TODO: refresh
 _URL2example_response = {} # Debug tool that allows inspecting example responses.
+
+
+def summarize_html(html_str):
+    """
+    Creates a summary given an html_string.
+    Converts HTML to an easier-for-a-human format by cutting out some of the more common tags. Far from perfect.
+    Returns the summary as a string.
+    """
+    rs = [r'<div>\d+<\/div *>', r'<div class *= *"[a-zA-Z0-9]*">', r'<span class *= *"[a-zA-Z0-9]*">']
+    for tag in ['div', 'li', 'head', 'body', 'pre', 'span']:
+        rs.append(f'<{tag} *>')
+        rs.append(f'</{tag} *>')
+    for r in rs:
+        html_str = re.sub(r, "", html_str)
+    html_str = html_str.replace('\r\n','\n').replace('\t','  ')
+    while '  ' in html_str or '\n\n' in html_str or '\n ' in html_str:
+        html_str = html_str.replace('\n\n\n\n\n\n\n\n\n','\n').replace('\n\n','\n').replace('         ',' ').replace('  ',' ').replace('\n ','\n')
+    return html_str.strip()
 
 
 async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_errors=True):
@@ -19,7 +37,7 @@ async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_erro
       url (str): https://...
       is_post (bool): False for GET, True for POST.
       requests_kwargs=None: These are fed into the requests/session get/post function.
-      raise_json_decode_errors=True
+      raise_json_decode_errors=True: Raise errors parsing the JSON that the request sends back, otherwise return the error as a dict.
 
     Returns: A dict which is the json.loads() of the return.
       Error condition if JSON decoding fails:
@@ -45,7 +63,7 @@ async def get_or_post(url, is_post, requests_kwargs=None, raise_json_decode_erro
                     if len(response_txt)<384:
                         raise Exception(f'JSON cannot decode: {response_txt}')
                     elif '<div' in response_txt or 'div>' in response_txt: # HTML when it should be JSON.
-                        summary_txt = utils.summarize_html(response_txt)
+                        summary_txt = summarize_html(response_txt)
                         raise Exception(f'JSON cannot decode long HTML stuff, here is a summary: {summary_txt}')
                     else:
                         raise Exception(f'JSON cannot decode long string: {response_txt[0:384]}...')
@@ -215,7 +233,7 @@ class HTTPAPIWrapper:
         logger.info(f"Signed out.")
 
     async def refresh(self):
-        """Refreshes the access token, returning it."""
+        """Refreshes the access token. Returns the new token."""
         response_dict = await self.checked_post(url=self.http_server_uri + "/auth/refresh", the_request={"username": self.username, "refresh_token": self.refresh_token}, requests_kwargs=None, good_message=None, bad_message="Error during refresh", raise_errors=True)
         self.access_token = response_dict.get('data').get('AuthenticationResult').get('AccessToken')
         logger.info(f"Refreshed access token: {self.access_token}")
@@ -237,8 +255,8 @@ class HTTPAPIWrapper:
         """Given a string-valued (or list-valued) character_id returns a Character object (or list therof),
         It works for both member_ids and agent_ids."""
         is_list = type(character_id) not in [str, Character]
-        character_id = utils.to_char_id_list(character_id)
-        utils.assert_strs(*character_id)
+        character_id = types.to_char_id_list(character_id)
+        types.assert_strs(*character_id)
         response_dict = await self.checked_post(url=self.http_server_uri + "/character/fetch_profile", the_request={"character_list": character_id}, requests_kwargs={'headers':self.headers}, good_message=None, bad_message="Error fetching user profile", raise_errors=True)
         characters = [self._xtract_character(d) for d in response_dict['data']]
         return characters if is_list else characters[0]
@@ -258,7 +276,7 @@ class HTTPAPIWrapper:
         Raises:
           An Exception (empty list) if raise_empty_list_err is True and the list is empty.
         """
-        utils.assert_strs(channel_id, service_id)
+        types.assert_strs(channel_id, service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
@@ -289,7 +307,7 @@ class HTTPAPIWrapper:
 
     async def fetch_agents(self, service_id):
         """Given the service ID returns a list of non-user Character objects bound to this service."""
-        utils.assert_strs(service_id)
+        types.assert_strs(service_id)
         m0 = "Successfully fetched character list"
         mr = "Error fetching character list"
         worked = False
@@ -329,7 +347,7 @@ class HTTPAPIWrapper:
         """Updates the user info. Used by user mode.
 
            Parameters:
-             avatar: Link to image or local filepath to upload.
+             avatar: Link to image or local file_path to upload.
              description: Of the user.
              name: The name that shows in chat.
 
@@ -337,7 +355,7 @@ class HTTPAPIWrapper:
         """
         avatar = await self.convert_to_url(avatar)
         the_request={"avatar": avatar, 'description':description, 'name':name}
-        utils.assert_strs(avatar, description, name)
+        types.assert_strs(avatar, description, name)
         response_dict = await self.checked_post(url=self.http_server_uri + f"/user/info", the_request=the_request, requests_kwargs={'headers':self.headers}, good_message="Successfully updated user info", bad_message="Error updating user info", raise_errors=True)
         return response_dict.get('data')
 
@@ -346,7 +364,7 @@ class HTTPAPIWrapper:
     async def create_service(self, description):
         """Accepts the description string. Creates and returns the string-valued service_id.
         Called once by the Moobius class if there is no service specified."""
-        utils.assert_strs(description)
+        types.assert_strs(description)
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/create", the_request={"description": description}, requests_kwargs={'headers':self.headers}, good_message="Successfully created service!", bad_message="Error creating service", raise_errors=True)
         return response_dict.get('data').get('service_id')
 
@@ -375,7 +393,7 @@ class HTTPAPIWrapper:
                    "name": name,
                    "avatar": avatar,
                    "description": description}}
-        utils.assert_strs(service_id, avatar, description, name)
+        types.assert_strs(service_id, avatar, description, name)
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/character/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message="Successfully created character", bad_message="Error creating character", raise_errors=True)
         character = self._xtract_character(response_dict['data'])
         return character
@@ -386,7 +404,7 @@ class HTTPAPIWrapper:
            Parameters:
              service_id (str): Which service holds the user.
              agent_id (str): Who to update. Can also be a Character object. Cannot be a list.
-             avatar (str): A link to user's image or a local filepath to upload.
+             avatar (str): A link to user's image or a local file_path to upload.
              description (str): The description of user.
              name (str): The name that will show in chat.
 
@@ -397,7 +415,7 @@ class HTTPAPIWrapper:
 
         if type(agent_id) is Character:
             agent_id = agent_id.character_id
-        utils.assert_strs(service_id, agent_id, description, name, avatar)
+        types.assert_strs(service_id, agent_id, description, name, avatar)
         the_request = {"service_id": service_id, 'character_id':agent_id, 'context': {'avatar':avatar, 'description':description, 'name':name}}
         response_dict = await self.checked_post(url=self.http_server_uri + f"/service/character/update", the_request=the_request, requests_kwargs={'headers':self.headers}, good_message="Successfully updated character info", bad_message="Error updating character info", raise_errors=True)
         return response_dict.get('data')
@@ -407,7 +425,7 @@ class HTTPAPIWrapper:
     async def create_channel(self, channel_name, channel_desc):
         """Creates a channel given a string-valued channel name and description. Returns the channel_id.
         Example ID: "13e44ea3-b559-45af-9106-6aa92501d4ed"."""
-        utils.assert_strs(channel_name, channel_desc)
+        types.assert_strs(channel_name, channel_desc)
         jsonr = {"channel_name": channel_name, 'context':{'channel_description':channel_desc}}
         response_dict = await self.checked_post(url=self.http_server_uri + "/channel/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully created channel {channel_name}.", bad_message=f"Error creating channel {channel_name}", raise_errors=True)
         return response_dict['data']['channel_id']
@@ -415,7 +433,7 @@ class HTTPAPIWrapper:
     async def bind_service_to_channel(self, service_id, channel_id):
         """Binds a service to a channel given the service and channel IDs.
         This function is unusual in that it returns whether it was sucessful rather than raising errors if it fails."""
-        utils.assert_strs(service_id, channel_id)
+        types.assert_strs(service_id, channel_id)
         jsonr = {"channel_id": channel_id, "service_id": service_id}
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/bind", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully binded service {service_id} to channel {channel_id}.", bad_message=f"Error binding service {service_id} to channel {channel_id}", raise_errors=False)
 
@@ -427,7 +445,7 @@ class HTTPAPIWrapper:
 
     async def unbind_service_from_channel(self, service_id, channel_id):
         """Unbinds a service to a channel given the service and channel IDs. Returns None."""
-        utils.assert_strs(service_id, channel_id)
+        types.assert_strs(service_id, channel_id)
         jsonr = {"channel_id": channel_id,"service_id": service_id}
         await self.checked_post(url=self.http_server_uri + "/service/unbind", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully unbound service {service_id} from channel {channel_id}", bad_message=f"Error unbinding service {service_id} from channel {channel_id}", raise_errors=True)
 
@@ -442,7 +460,7 @@ class HTTPAPIWrapper:
 
         Returns None.
         """
-        utils.assert_strs(channel_name, channel_id, channel_desc)
+        types.assert_strs(channel_name, channel_id, channel_desc)
         jsonr = {"channel_id": channel_id, "channel_name": channel_name, "context":{"channel_description":channel_desc}}
         await self.checked_post(url=self.http_server_uri + "/channel/update", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message=f"Successfully updated channel {channel_id}", bad_message=f"Error updating channel {channel_id}", raise_errors=True)
 
@@ -479,7 +497,7 @@ class HTTPAPIWrapper:
         """
         if type(limit) is not str:
             limit = str(limit)
-        utils.assert_strs(channel_id, limit, before)
+        types.assert_strs(channel_id, limit, before)
         params = {'channel_id':channel_id, 'limit':limit, 'before':before}
         rkwargs = {'params':params, 'headers':self.headers}
         jsonr = {"limit": limit} # Not where to put the limit, so it is put in both places.
@@ -499,7 +517,7 @@ class HTTPAPIWrapper:
     async def _upload_extension(self, extension):
         """Gets the upload URL and needed fields for uploading a file given a string-valued extension.
         Returns (upload_url or None, upload_fields)."""
-        utils.assert_strs(extension)
+        types.assert_strs(extension)
         requests_kwargs = {'params':{"extension": extension}, 'headers':self.headers}
         response_dict = await self.checked_get(url=self.http_server_uri + "/file/upload", the_request=None, requests_kwargs=requests_kwargs, good_message="Successfully fetched upload url!", bad_message="Error fetching upload url", raise_errors=True)
 
@@ -524,7 +542,7 @@ class HTTPAPIWrapper:
         """
         if type(upload_fields) is not dict:
             raise Exception('Upload fields must be a dict, and one that comes from _upload_extension')
-        utils.assert_strs(upload_url, file_path)
+        types.assert_strs(upload_url, file_path)
         with open(file_path, 'rb') as f:
             files = {'file': (file_path, f)}
             full_url = upload_url + upload_fields.get("key")
@@ -555,7 +573,7 @@ class HTTPAPIWrapper:
         """Accepts a file_path. Uploads and returns the bucket's url. Idempotent: If given a URL will just return the URL.
         Empty, False, or None strings are converted to a default URL."""
         if not file_path:
-            return "https://gba-moobius.s3.us-east-2.amazonaws.com/LogoLight.jpg"
+            return f"https://{types.S3BUCKET}.amazonaws.com/LogoLight.jpg"
         if 'https://' in file_path or 'http://' in file_path or 'ftp://' in file_path or 'ftps://' in file_path:
             return file_path
         elif not os.path.exists(file_path):
@@ -568,16 +586,16 @@ class HTTPAPIWrapper:
                 self.filehash2URL[the_hash] = await self.upload(file_path)
             return self.filehash2URL[the_hash]
 
-    async def download(self, source, full_path=None, auto_dir=None, overwrite=None, bytes=None, headers=None):
+    async def download(self, source, file_path=None, auto_dir=None, overwrite=None, bytes=None, headers=None):
         """
         Downloads a file from a url or other source to a local filename, automatically creating dirs if need be.
 
         Parameters:
           url: The url to download the file from.
-          full_path=None: The filepath to download to.
+          file_path=None: The file_path to download to.
             None will create a file based on the timestamp + random numbers.
             If no extension is specified, will infer the extension from the url if one exists.
-          auto_dir=None: If no full_path is specified, a folder must be choosen.
+          auto_dir=None: If no file_path is specified, a folder must be choosen.
             Defaults to './downloads'.
           overwrite=None:
             Allow overwriting pre-existing files. If False, will raise an Exception on name collision.
@@ -588,8 +606,9 @@ class HTTPAPIWrapper:
             Can set to "self" to use the same auth headers that this instance is using.
 
         Returns:
-          The bytes if bytes=True.
+          The full filepath if bytes if false, otherwise the file's content bytes if bytes=True.
         """
+        full_path = file_path
         if headers is None: # These buckets are public so no need to upload.
             headers = {}
         if headers == 'self':
@@ -632,12 +651,13 @@ class HTTPAPIWrapper:
                                 fd.write(chunk)
                 else:
                     raise Exception(f'Cannot download file: {resp}')
+        return full_path
 
     ############################# Groups ############################
 
     async def fetch_channel_group_dict(self, channel_id, service_id):
         """Similar to fetch_member_ids. Accepts the channel_id and service_id. returns a dict from each group_id to all characters."""
-        utils.assert_strs(channel_id, service_id)
+        types.assert_strs(channel_id, service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
@@ -651,30 +671,30 @@ class HTTPAPIWrapper:
 
     async def fetch_channel_group_list(self, channel_id, service_id):
         """Similar to fetch_channel_group_dict. Accepts the channel_id and service_id. Returns the raw data."""
-        utils.assert_strs(channel_id, service_id)
+        types.assert_strs(channel_id, service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
         response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/list", the_request=None, requests_kwargs=rkwargs, good_message="Successfully fetched channel group list", bad_message="Error fetching channel group list", raise_errors=True)
         return response_dict['data']
 
-    async def create_channel_group(self, channel_id, group_name, character_ids):
+    async def create_channel_group(self, channel_id, group_name, members):
         """
         Creates a channel group.
 
         Parameters:
           channel_id (str): The id of the group leader?
           group_name (str): What to call it.
-          characters (list): A list of channel_id strings that will be inside the group.
+          members (list): A list of character_id strings that will be inside the group.
 
         Returns:
           The group_id string.
         """
-        character_ids = utils.to_char_id_list(character_ids) # Should not be necessary since this function is an internal function.
-        utils.assert_strs(*([channel_id, group_name]+character_ids))
-        jsonr = {"channel_id": channel_id, "group_name":group_name, "characters": character_ids}
+        members = types.to_char_id_list(members) # Should not be necessary since this function is an internal function.
+        types.assert_strs(*([channel_id, group_name]+members))
+        jsonr = {"channel_id": channel_id, "group_name":group_name, "characters": members}
         response_dict = await self.checked_post(url=self.http_server_uri + "/user/group/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message="Successfully created channel group {group_name}!", bad_message="Error creating channel group {group_name}", raise_errors=True)
-        return from_dict(data_class=Group, data={'group_id': response_dict['data']['group_id'], 'character_ids':character_ids})
+        return from_dict(data_class=Group, data={'group_id': response_dict['data']['group_id'], 'character_ids':members})
 
     async def character_ids_of_service_group(self, group_id):
         """
@@ -684,7 +704,7 @@ class HTTPAPIWrapper:
         """
         if not group_id or group_id in ['None', 'null', 'none', 'Null', 'false', 'False']:
             return []
-        utils.assert_strs(group_id)
+        types.assert_strs(group_id)
         use_questionmark = True
         if use_questionmark:
             response_dict = await self.checked_get(url=self.http_server_uri + f"/service/group?group_id={group_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched service group roster!", bad_message="Error fetching service group roster", raise_errors=True)
@@ -709,7 +729,7 @@ class HTTPAPIWrapper:
 
         Returns the character_id list.
         """
-        utils.assert_strs(channel_id, sender_id, group_id)
+        types.assert_strs(channel_id, sender_id, group_id)
         use_questionmark = True
         if use_questionmark:
             response_dict = await self.checked_get(url=self.http_server_uri + f"/user/group?group_id={group_id}&channel_id={channel_id}&user_id={sender_id}", the_request=None, requests_kwargs={'headers':self.headers}, good_message="Successfully fetched channel group roster!", bad_message="Error fetching channel group roster", raise_errors=True)
@@ -722,26 +742,25 @@ class HTTPAPIWrapper:
             return []
         return response_dict['data']['characters']
 
-    async def create_service_group(self, character_ids):
+    async def create_service_group(self, members):
         """
         Creates a group containing the list of characters_ids and returns this Group object.
         This group can then be used in send_message_down payloads.
 
         Parameters:
-          group_name (str): What to call it.
-          character_ids (list): A list of character_id strings or Characters that will be inside the group.
+          members (list): A list of character_id strings or Characters that will be inside the group.
 
         Returns:
           A Group object.
         """
-        character_ids = utils.to_char_id_list(character_ids) # Should not be necessary since this function is an internal function.
-        utils.assert_strs(*character_ids)
-        jsonr = {"group_id": "", "characters": character_ids}
+        members = types.to_char_id_list(members) # Should not be necessary since this function is an internal function.
+        types.assert_strs(*members)
+        jsonr = {"group_id": "", "characters": members}
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/group/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message="Successfully created service group!", bad_message="Error creating service group", raise_errors=True)
         group_id = response_dict['data']
         if type(group_id) is not str:
             raise Exception('The group id returned was not a string.')
-        group = from_dict(data_class=Group, data={'group_id': group_id, 'character_ids':character_ids})
+        group = from_dict(data_class=Group, data={'group_id': group_id, 'character_ids':members})
         return group
 
     async def update_channel_group(self, channel_id, group_id, members):
@@ -754,6 +773,9 @@ class HTTPAPIWrapper:
           members (list): A list of character_id strings that will be inside the group.
 
         Returns None.
+
+        Raises:
+            An Exception because it is unused, unimplemented, and may be removed.
         """
         raise Exception('Unknown if this function is needed.')
 
@@ -766,12 +788,15 @@ class HTTPAPIWrapper:
           members (list): A list of character_id strings that will be inside the group.
 
         Returns None.
+
+        Raises:
+            An Exception because it is unused, unimplemented, and may be removed.
         """
         raise Exception('Unknown if this function is needed.')
 
     async def fetch_channel_temp_group(self, channel_id, service_id):
         """Like fetch_channel_group_list but for TEMP groups. Given the channel_id and service_id, returns the list of groups."""
-        utils.assert_strs(channel_id, service_id)
+        types.assert_strs(channel_id, service_id)
         params = {"channel_id": channel_id, "service_id": service_id}
         rkwargs = {'params':params, 'headers':self.headers}
 
@@ -790,6 +815,9 @@ class HTTPAPIWrapper:
 
         Returns:
             The user profile Character object.
+
+        Raises:
+            An Exception because it is unused, unimplemented, and may be removed.
         """
         raise Exception('http_api_wrapper.fetch_user_from_group has not yet been implemented.')
 
@@ -798,12 +826,16 @@ class HTTPAPIWrapper:
         Not yet implemented!
         Fetches info about the group.
 
-          Parameters:
-            user_id (str), channel_id (str): why needed?
+        Parameters:
+            user_id (str): The user id of the user bieng fetched (is this needed?)
+            channel_id (str): The channel_id of the channel bieng fetched.
             group_id (str): Which group to fetch.
 
-          Returns:
+        Returns:
             The data-dict data.
+
+        Raises:
+            An Exception because it is unused, unimplemented, and may be removed.
         """
         raise Exception('http_api_wrapper.fetch_target_group has not yet been implemented.')
 

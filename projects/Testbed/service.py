@@ -273,7 +273,7 @@ class TestbedService(Moobius):
             await self.send_message(message_up) # This is so that everyone can see the message you sent.
         example_socket_callback_payloads['on_message_up'] = message_up
 
-    async def do_channel_sync(self, channel_id):
+    async def on_channel_checkin(self, channel_id):
         """Sends a refresh request "from" each user in this channel, which will refresh thier views.
         Accepts the channel id. returns None."""
         await asyncio.gather([self.do_member_sync(channel_id, m) for m in await self.fetch_member_ids(channel_id)])

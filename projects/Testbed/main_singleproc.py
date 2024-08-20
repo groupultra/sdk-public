@@ -5,7 +5,7 @@ import sys
 
 from service import TestbedService
 from agent import TestbedAgent
-from moobius import MoobiusWand, utils
+from moobius import MoobiusWand
 from threading import Thread
 
 from loguru import logger

@@ -4,7 +4,7 @@ import copy
 from datetime import datetime
 
 from loguru import logger
-from moobius import Moobius, MoobiusStorage
+from moobius import Moobius, MoobiusStorage, MoobiusWand
 from moobius.database.storage import CachedDict
 import moobius.types as types
 from moobius.types import Button, CanvasItem, StyleItem, MenuItem
@@ -327,3 +327,7 @@ class TemplateService(Moobius):
             character_list.append(the_channel.puppet_characters[key].character_id)
 
         await self.send_characters(character_list, channel_id, [character_id])
+
+
+if __name__ == "__main__":
+    MoobiusWand().run(TemplateService, config='config/config.json')

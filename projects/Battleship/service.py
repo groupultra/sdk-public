@@ -2,6 +2,7 @@
 from moobius import Moobius
 from moobius.types import ButtonClick, Button, StyleItem, CanvasItem, InputComponent
 import moobius.types as types
+from moobius import MoobiusWand
 
 SHIPS = {'kayak':[1,1], 'Viking-boat':[2,1],
          'scout':[3,1], 'battleship':[4,1],
@@ -113,3 +114,7 @@ class BattleshipService(Moobius):
 
     async def one_message_up(self, message):
         await self.send_message(message) # Ez group chat.
+
+
+if __name__ == "__main__":
+    MoobiusWand().run(BattleshipService, config='config/config.json')

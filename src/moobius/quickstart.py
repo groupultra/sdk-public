@@ -1,37 +1,42 @@
 # This module makes it very easy to gwet started with your own service.
 # There is an optional GUI mode as well.
-# Run "python -m moobius -help" to learn more.
-"""
-pip install moobius
-python -m moobius channels=1234abcd... email=foo@bar.com password=password folder=~/my_moobius template=Buttons
-echo "Done!"
-"""
-# GUI (specifying cmds is possible as well as shown in this example):
-"""
-pip install moobius
-python -m moobius gui email=foo@bar.com
-echo "Done!"
-"""
+# Run "moobius -help" to learn more.
 
 import requests, json, os, sys, shlex, asyncio
 import platform, subprocess
-from moobius import types, Moobius
+from loguru import logger
+from moobius import types
 
 
 service_template = {
-    "http_server_uri": "https://api.moobius.net/",
-    "ws_server_uri": "wss://ws.moobius.net/",
-    "email": "email",
-    "password": "password",
+    "http_server_uri": "https://api.moobius.ai/",
+    "ws_server_uri": "wss://ws.moobius.ai/",
     "service_id": "",
     "channels": [],
     "others": "include"
 }
-agent_template = {
-    "http_server_uri": "https://api.moobius.net/",
-    "ws_server_uri": "wss://ws.moobius.net/",
-    "email": "<agent email>",
-    "password": "<agent password>"
+account_template = {
+    "email": "email",
+    "password": "password",
+}
+usermode_service_template = {
+    "http_server_uri": "https://api.moobius.ai/",
+    "ws_server_uri": "wss://ws.moobius.ai/",
+}
+log_template = {
+    "log_level":"INFO",
+    "terminal_log_level":"INFO",
+    "error_log_level":"WARNING",
+    "log_retention":"7 days",
+    "log_file":"logs/service.log",
+    "error_log_file":"logs/error.log"
+}
+db_template = {}
+global_config = {
+    "account_config": "config/account.json",
+    "db_config": "config/db.json",
+    "service_config": "config/service.json",
+    "log_config": "config/log.json"
 }
 
 download_failed_defaults = {'main.py':
@@ -45,29 +50,24 @@ if __name__ == "__main__":
 
     handle = wand.run(
         MyService,
-        config_path="config/service.json",
-        db_config_path="config/db.json",
-        log_file="logs/service.log",
-        error_log_file="logs/error.log",
-        terminal_log_level="INFO",
-        is_agent=False,
+        account_config="config/account.json",
+        service_config="config/service.json",
+        db_config="config/db.json"
+        log_config:"config/log.json",
         background=True)
                             '''.strip(),
-'readme.md':'This needs a more detailed description.',
+'readme.md':'This needs a more detailed description...',
 'service.py':'''
 from moobius import Moobius
 
 
 class MyService(Moobius):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
+    pass
     # Put your code here.
 '''.strip(),
 'config/db.json':'[]'}
 
 boxes = {}
-
 
 def open_folder_in_explorer(folder_path):
     """Lets the user select a folder given a default folder to pick. This is used for gui-mode only. Returns None."""
@@ -103,13 +103,22 @@ def create_channel(email, password, url):
     ws_server_uri = "wss://ws."+url
 
     channel_name = 'starting_channel'
-    config_path = {'http_server_uri':http_server_uri, 'ws_server_uri':ws_server_uri, 'email':email, 'password':password,
-                   'service_id':'', 'channels':[], 'others':'include'}
+    service_config = {'http_server_uri':http_server_uri, 'ws_server_uri':ws_server_uri, 
+                      'service_id':'', 'channels':[], 'others':'include', 'no_warn_cannot_save_service_id':True}
+    account_config = {'email':email, 'password':password}
     print('Creating channel...', end='', flush=True)
-    service = Moobius(config_path=config_path, db_config_path={}, is_agent=False)
 
-    asyncio.run(service.start())
-    service_id = service.client_id
+    from moobius import Moobius # Bury it here so that it can be imported from moobius without issues with circular dependencies.
+    service = Moobius(service_config=service_config, account_config=account_config)
+
+    try: # Avoids a spurious error message. https://stackoverflow.com/questions/45600579/asyncio-event-loop-is-closed-when-getting-loop
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    except:
+        pass
+
+    asyncio.run(service.authenticate())
+    asyncio.run(service.ws_client.connect()) # These two must be useful.
+    service_id = asyncio.run(service.create_new_service())
     new_channel_id = asyncio.run(service.create_channel(channel_name, 'Channel created by the GUI.'))
     if not service_id:
         raise Exception('None service id bug.')
@@ -154,7 +163,7 @@ def submit(out):
                 else:
                     return # Don't do anything.
             else:
-                confirm = input('The folder {the_folder} is not empty. Press y to confirm. Press n to cancel and quit. Or type in another folder name:').strip()
+                confirm = input(f'The folder {the_folder} is not empty. Press y to confirm. Press n to cancel and quit. Or type in another folder name:').strip()
                 if confirm.lower() == 'y':
                     break
                 elif confirm.lower() == 'n':
@@ -165,10 +174,14 @@ def submit(out):
             break
     #out['email'] = "<email>"; out['password'] = "<secret>"" # Used for making videos, hardcode and *do not* git save just to make the video.
 
-    if not out.get('email'):
+    if not out.get('email') and not use_gui:
         out['email'] = input('Enter account email, or press enter to skip:').strip()
-    if not out.get('password'):
+    elif not out.get('email'):
+        out['email'] = ''
+    if not out.get('password') and not use_gui:
         out['password'] = input('Enter account password, or press enter to skip:').strip()
+    elif not out.get('password'):
+        out['password'] = ''
 
     if out.get('email') and out.get('password'):
         if not out.get('channels') and not out.get('service_id'): #Create a channel.
@@ -176,17 +189,21 @@ def submit(out):
 
     service_template['channels'] = out['channels'].strip().replace(',', ' ').replace('  ',' ').split(' ')
     print('Channels:', service_template['channels'])
-    for k in ['email', 'password', 'service_id', 'others']:
+    for k in ['service_id', 'others']:
         service_template[k] = out[k]
     service_template['http_server_uri'] = "https://api."+out['url']
     service_template['ws_server_uri'] = "wss://ws."+out['url']
+    for k in ['email', 'password']:
+        account_template[k] = out[k]
 
     # URL fun:
     base_url = "https://raw.githubusercontent.com/groupultra/sdk-public/main/projects/"+out['template']+'/'
-    kys = ['main.py', 'readme.md', 'service.py', 'config/db.json', 'config/service.json']
-    non_requests = {'config/service.json':service_template, 'config/agent.json':agent_template}
+    kys = ['readme.md', 'service.py', 'config/db.json', 'config/service.json', 'config/account.json', 'config/log.json', 'config/config.json']
+    non_requests = {'config/service.json':service_template, 'config/account.json':account_template, 'config/log.json':log_template,
+                    'config/usermode_service.json':service_template, 'config/usermode_account.json':account_template, 'config/usermode_log.json':log_template,
+                    'config/config.json':global_config}
     if out['template'] == 'Bot puppet':
-        kys.extend(['agent.py','config/agent.json', 'config/agent_db.json'])
+        kys.extend(['user.py','config/usermode_service.json', 'config/usermode_account.json', 'config/usermode_db.json', 'config/usermode_log.json', 'main.py'])
     for ky in kys:
         x = non_requests.get(ky, None)
         if not x:
@@ -253,7 +270,7 @@ def save_starter_ccs():
 
     # Help mode:
     for ai in sys.argv[1:]:
-        if ai.lower()=='-h' or ai.lower()=='-help':
+        if ai.lower()=='-h' or ai.lower()=='-help' or ai.lower()=='--h' or ai.lower()=='--help':
             help_msg = '''
 Usage: python -m moobius [-h] [-g] [-c] [-e email] [-p ****] [-d directory] [-t template] [-o include] [-url url]
 Creates a template service in a given folder to make it easier to get started.
@@ -281,7 +298,7 @@ Less common arguments:
 
     print('Quickstart!')
     defaults = {'channels':'', 'email':'', 'password':'', 'template':'Zero',
-                'service_id':'', 'others':'include', 'url':'moobius.net/', 'others':'include',
+                'service_id':'', 'others':'include', 'url':'moobius.link/', 'others':'include',
                 'folder':'.', 'gui':False}
 
     opts = {}
@@ -333,7 +350,7 @@ Less common arguments:
         make_box(root, "email", "Account email/username", total_opts['email'], None)
         make_box(root, "password", "Account password (.gitignore!)", total_opts['password'], None)
         make_box(root, "template", "Choose a starting point", total_opts['template'], ["Zero", "Bot puppet", "Buttons", "Database", "Demo", "Group chat", "Menu Canvas", "Battleship"])
-        make_box(root, "url", "(Advanced) choose URL", total_opts['url'], ['moobius.net/', 'moobius.link/', 'moobius.app/'])
+        make_box(root, "url", "(Advanced) choose URL", total_opts['url'], ['moobius.ai/', 'moobius.link/'])
         make_box(root, "service_id", "(Advanced) Reuse old service_id", total_opts['service_id'])
         make_box(root, "others", "(Advanced) Orphan channels", total_opts['others'], [types.INCLUDE, types.IGNORE, types.UNBIND])
         folder_box = make_box(root, "folder", "Output folder", total_opts['folder'])
@@ -356,3 +373,121 @@ Less common arguments:
     else:
         submit(total_opts)
 
+
+# This is not used by the quickstart itself, but is instead another way to fill in channels when running the moobius class.
+def maybe_make_template_files(args):
+    # TODO: Update this to the latest version.
+    """
+    Makes template files if there is a need to do so, based on args and sys.argv.
+    Called by wand.run() before initializing the Moobius class if it doesn't have any templates.
+
+    Which files are created:
+      A template main.py python file which calls Wand.run:
+        Only created if the file does not exist AND "make_main main.py" (or "make_main foo.py", etc) is in the system args.
+      A sample config.py:
+        Only created if "config_path" is in args (or system args) AND the file does not exist.
+        This requires user information:
+          email: If no system arg "email my@email.com" or "username my@email.com" is specified, prompts for one with input().
+          password: If no system arg "password my_sec**t_pword", prompts for one.
+          channels: If no system arg "channels abc... def..." to specify one or more channels, prompts for one or more.
+        Note: if the user gives an empty response to input(), a nonfunctional default is used, which can be filled in later.
+
+    Unittests to run in a python prompt in an empty folder:
+      >>> # Make a main.py file:
+      >>> import sys; sys.argv = '_ make_main main.py'.split(' '); import moobius;
+      >>> # Prompt the user for credentials and put these in the service.json (NOTE: will generate an error b/c None class):
+      >>> import sys; from moobius import MoobiusWand; MoobiusWand().run(None, config_path="config/service.json")
+      >>> # Provide credentials, making a service.json with no user input (NOTE: will generate an error b/c None class):
+      >>> import sys; sys.argv = '_ email abc@123.com password IAmSecret channels abc-123 def-4561111111111111111111'.split(' '); from moobius import MoobiusWand; MoobiusWand().run(0, config_path="config/service.json")
+      >>> # Provide agent credentials. There is no need to provide a channel id (NOTE: will generate an error b/c None class).
+      >>> import sys; sys.argv = '_ email abc@123.com password IAmSecret'.split(' '); from moobius import MoobiusWand; MoobiusWand().run(0, config_path="config/agent.json", is_agent=True)
+
+    Parameters:
+      args: The list of args.
+
+    Returns:
+      None
+    """
+
+    main_py = '''
+from service import MyService as TheService # TODO: replace "from service import MyService" with the actual path to your class that inherits Moobius.
+from moobius import MoobiusWand
+if __name__ == "__main__":
+    wand = MoobiusWand()
+
+    handle = wand.run(
+        TheService,
+        log_file="logs/service.log",
+        error_log_file="logs/error.log",
+        terminal_log_level="INFO",
+        config_path="config/service.json", # Default service. Necessary to avoid hard-coding credentials.
+        db_config_path="config/db.json", # Commonly used, but not strictly necessary.
+        is_agent=False, # Make this True to run an Agent instead (agents also need thier own config_path).
+        background=True)
+'''
+
+    template_service = {
+        "http_server_uri": "https://api.moobius.net/",
+        "ws_server_uri": "wss://ws.moobius.net/",
+        "email": "<email>",
+        "password": "<password>",
+        "service_id": "", # This is filled automatically.
+        "channels": ["<Channel id 0>", "<Optional Channel id 1>", "..."],
+        "others": "include"}
+
+    template_agent = {
+        "http_server_uri": "https://api.moobius.net/",
+        "ws_server_uri": "wss://ws.moobius.net/",
+        "email": "<email>",
+        "password": "<password>"}
+
+    is_agent = args.get('is_agent')
+    template = template_agent if is_agent else template_service
+
+    # Parse system args:
+    args = args.copy()
+    for i in range(len(sys.argv)):
+        l = sys.argv[i].lower().replace('-','_')
+        if l in ['email', 'user', 'username']:
+            args['email'] = sys.argv[i+1]
+        if l in ['password', 'passphrase']:
+            args['password'] = sys.argv[i+1]
+        if l in ['config_file', 'config_path']:
+            args['config_path'] = sys.argv[i+1]
+        if l == 'channels':
+            args['channels'] = []
+            for j in range(i+1, len(sys.argv)):
+                aj = sys.argv[j]
+                if j==i+1 or ('-' in aj and set(aj).issubset('0123456789abcdef-') and len(aj)>24):
+                    args['channels'].append(aj)
+        if l in ['make_main', 'makemain']:
+            args['make_main'] = sys.argv[i+1]
+
+    if 'make_main' in args:
+        fname = os.path.realpath(args['make_main']).replace('\\','/')
+        if not fname.lower().endswith('.py'):
+            fname = fname+'.py'
+        if not os.path.exists(fname):
+            logger.info(f'Creating template main file: {fname}')
+            os.makedirs(os.path.split(fname)[0], exist_ok=True)
+            with open(fname,'w', encoding='utf-8') as f:
+                f.write(main_py)
+    if 'config_path' in args:
+        fname = os.path.realpath(args['config_path']).replace('\\','/')
+        if not fname.lower().endswith('.json'):
+            fname = fname+'.json'
+        if not os.path.exists(fname):
+            logger.info(f'Creating config file: {fname}')
+            for field in ['email', 'password'] + ([] if is_agent else ['channels']):
+                if field not in args:
+                    args[field] = input(f'Input {field} for creating a config file:').strip()
+                    if not args[field]:
+                        logger.info('No input {field} supplied, a default will be used.')
+                        args[field] = f'<{field}>'
+                    if field=='channels': # Allow inputing multible channels.
+                        args['channels'] = list(args['channels'].split(' '))
+                template[field] = args[field]
+
+            os.makedirs(os.path.split(fname)[0], exist_ok=True)
+            with open(fname,'w', encoding='utf-8') as f:
+                f.write(json.dumps(template, indent=4, ensure_ascii=False))

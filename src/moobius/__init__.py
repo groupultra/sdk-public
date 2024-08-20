@@ -1,7 +1,5 @@
 # __init__.py
 
-import importlib
-
 from moobius.core.sdk import Moobius
 from moobius.core.wand import MoobiusWand
 from moobius.database.storage import MoobiusStorage

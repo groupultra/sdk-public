@@ -5,7 +5,7 @@ import os
 
 from loguru import logger
 
-from moobius import types, utils
+from moobius import types, json_utils
 from .database_interface import DatabaseInterface
 
 
@@ -13,7 +13,7 @@ class JSONDatabase(DatabaseInterface):
     """
     JSONDatabase simply stores information as JSON strings in a list of files.
     Each domain, key combination is stored as one file.
-    Dataclass objects can be seralized as wll.
+    Dataclass objects can be seralized as well.
     """
     def __init__(self, domain='', root_dir='', **kwargs):
         """
@@ -24,6 +24,7 @@ class JSONDatabase(DatabaseInterface):
             The name of the database directory. Will be automatically added in the add_container() function in MoobiusStorage.
           root_dir: str
             The root directory of the all the database files.
+          **kwargs: Ignored for this implementation.
 
         Example:
           Note: This should not be called directly. Users should config the database in the config file, and call MoobiusStorage to initialize the database.
@@ -50,13 +51,13 @@ class JSONDatabase(DatabaseInterface):
 
         if not os.path.exists(filename):
             return False, f'No json file found for {key}.'
-        return True, utils.enhanced_json_load(filename)
+        return True, json_utils.enhanced_json_load(filename)
 
     def set_value(self, key, value):
         """Updates and saves a cached dict, given a string-valued key and a dict-valued value. Returns (is_success, the key).
            Note: This function should not be called directly."""
         filename = os.path.join(self.path, key + '.json')
-        utils.enhanced_json_save(filename, value)
+        json_utils.enhanced_json_save(filename, value)
         return True, key
 
     def delete_key(self, key):

@@ -8,7 +8,7 @@ import service
 from dacite import from_dict
 from loguru import logger
 from moobius.types import MessageBody
-from moobius import Moobius, MoobiusStorage, utils, types
+from moobius import Moobius, MoobiusStorage, types
 
 
 class TestbedUser(Moobius):
@@ -59,9 +59,9 @@ class TestbedUser(Moobius):
                 glist_temp = await self.fetch_channel_temp_group(channel_id)
                 glist = await self.fetch_channel_group_list(channel_id)
                 gdict = await self.http_api.fetch_channel_group_dict(channel_id, self.client_id)
-                text2A = self.limit_len(f"Channel group list (this time from the user):\n{pprint.pformat(glist)}", 4096)
-                text2B = self.limit_len(f"Channel group TEMP list (this time from the user):\n{pprint.pformat(glist_temp)}", 4096)
-                text2C = self.limit_len(f"Channel group, dict form from User (used internally):\n{pprint.pformat(gdict)}", 4096)
+                text2A = types.limit_len(f"Channel group list (this time from the user):\n{pprint.pformat(glist)}", 4096)
+                text2B = types.limit_len(f"Channel group TEMP list (this time from the user):\n{pprint.pformat(glist_temp)}", 4096)
+                text2C = types.limit_len(f"Channel group, dict form from User (used internally):\n{pprint.pformat(gdict)}", 4096)
                 text2 = '\n\n'.join([text2A,text2B,text2C])
             elif text1 == 'show_updates':
                 update_lines = []

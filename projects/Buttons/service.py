@@ -1,4 +1,4 @@
-from moobius import Moobius
+from moobius import Moobius, MoobiusWand
 from moobius.types import *
 import moobius.types as types
 
@@ -34,3 +34,7 @@ class ButtonService(Moobius):
             txt = "Bottom button: "+str(button_click)
 
         await self.send_message(txt, button_click.channel_id, button_click.sender, [button_click.sender])
+
+
+if __name__ == "__main__":
+    MoobiusWand().run(ButtonService, config='config/config.json')

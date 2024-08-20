@@ -4,7 +4,7 @@ from multiprocessing import Process
 import time, signal, sys, asyncio, os
 
 from loguru import logger
-from moobius import utils
+from moobius import quickstart
 
 KEYBOARDEXIT = 1324 # The child process exits.
 
@@ -67,7 +67,7 @@ class MoobiusWand:
           >>>     db_config_path="config/db.json",
           >>>     background=True)
         """
-        utils.maybe_make_template_files(kwargs)
+        quickstart.maybe_make_template_files(kwargs)
 
         service = cls(**kwargs)
 

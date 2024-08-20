@@ -147,14 +147,13 @@ class MoobiusStorage():
         Parameters:
           service_id (str): The id of the service.
           channel_id (str): The id of the channel.
-          db_config(list): The config of the databases, should be a list of config dicts.
-            Dict keys of each element:
-              implementation (str): The type of the database.
-              load (bool): Whether to load the database when initializing the database.
-              clear (bool): Whether to clear the database when initializing the database.
-              name (str): The name of the json database.
-              settings (dict): Misc settings such as Redis port, etc.
-              root_dir (str): The root directory of the all the json files.
+          db_config (list): The config of the databases, should be a list of config dicts.
+              implementation (str) = the type of the database.
+              load (bool) = whether to load the database when initializing the database.
+              clear (bool) = whether to clear the database when initializing the database.
+              name (str) = the name of the json database.
+              settings (dict) = misc settings such as Redis port, etc.
+              root_dir (str) = the root directory of the all the json files.
 
         Example:
           >>> storage = MoobiusStorage(service_id='1', channel_id='1', db_config=[{'implementation': 'json', 'load': True, 'clear': False, 'name': 'character', 'settings': {'root_dir': 'data'}}])

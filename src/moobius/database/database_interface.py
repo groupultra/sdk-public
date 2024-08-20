@@ -25,7 +25,7 @@ class DatabaseInterface(ABC):
     @abstractmethod
     def __init__(self, domain='', **kwargs):
         """
-        Creates the database itself. Accepts the domain.
+        Creates the database itself. Accepts the domain and implementation-dependent **kwargs.
 
         The string-valued `domain` parameteras is used to prevent collisions: different domains with the same key are different database entries.
         Internally, differnt domains become different tables in the same database or different folders in the same file system.

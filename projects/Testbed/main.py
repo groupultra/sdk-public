@@ -5,7 +5,7 @@ import sys
 
 from service import TestbedService
 from niceuser import TestbedUser
-from moobius import MoobiusWand, utils
+from moobius import MoobiusWand, json_utils
 
 from loguru import logger
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         from moobius import types
         msg = types.MessageBody(subtype="A subtype", channel_id="e4-123", content={'a':1,'b':2}, timestamp=123,
                                 recipients=['id_1', 'id_2'], sender='Sender_id 1234', message_id='<random id>', context={})
-        msgj = utils.enhanced_json_save(None, msg)
+        msgj = json_utils.enhanced_json_save(None, msg)
         msg1 = json.loads(msgj)
         print('Object:', msg)
         print('Object dict:', dataclasses.asdict(msg))
