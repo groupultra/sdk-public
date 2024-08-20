@@ -32,36 +32,6 @@ The Moobius (service) class, on initialization, create one MoobiusStorage object
 Each MoobiusStorage object creates one CachedDict per element in the db-config list, using the "name" to dynamically generate an attribute.
 The "implementation" sets the engine to be used by CachedDict.
 
-.. _moobius.database.database_interface.DatabaseInterface.__init__:
-
-DatabaseInterface.__init__
----------------------------------------------------------------------------------------------------------------------
-
-Creates the database itself..
-
-The string-valued `domain` parameteras is used to prevent collisions: different domains with the same key are different database entries.
-Internally, differnt domains become different tables in the same database or different folders in the same file system.
-Currently, the MoobiusStorage names it's domains in a dot-seperated way:
->>> <service_id>.channel_<channel_id>.<name in db_config>.
-
-* Signature
-
-    * DatabaseInterface.__init__(self, domain, kwargs)
-
-* Parameters
-
-    * domain: Domain.
-    
-    * kwargs='': Implementation-dependent **kwargs.
-
-* Returns
-
-  * (Class constructors have no explicit return value)
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
 .. _moobius.database.database_interface.DatabaseInterface.get_value:
 
 DatabaseInterface.get_value
@@ -148,53 +118,15 @@ DatabaseInterface.all_keys
 
   * (this function does not raise any notable errors)
 
-.. _moobius.database.database_interface.DatabaseInterface.__str__:
-
-DatabaseInterface.__str__
----------------------------------------------------------------------------------------------------------------------
-
-The string output function for debugging.
-
-* Signature
-
-    * DatabaseInterface.__str__(self)
-
-* Parameters
-
-    * (this class constructor accepts no arguments)
-
-* Returns
-
-  * The  easy-to-read string summary.
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
-.. _moobius.database.database_interface.DatabaseInterface.__repr__:
-
-DatabaseInterface.__repr__
----------------------------------------------------------------------------------------------------------------------
-
-The string output function for debugging.
-
-* Signature
-
-    * DatabaseInterface.__repr__(self)
-
-* Parameters
-
-    * (this class constructor accepts no arguments)
-
-* Returns
-
-  * The  easy-to-read string summary.
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
 Class attributes
 --------------------
 
-DatabaseInterface.ABC
+DatabaseInterface.ABC 
+
+**********************
+Internals
+**********************
+.. toctree::
+   :maxdepth: 2
+
+   moobius.database.database_interface_internal_attrs <moobius.database.database_interface_internal_attrs>

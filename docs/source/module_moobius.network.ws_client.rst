@@ -66,45 +66,6 @@ WSClient is a websocket client that has a wide variety of Moobius-specific funct
 It contains the standard socket functions such as on_connect(), send(), and receive() and is more robust:
 it has a queuing system and will automatically reconnect.
 
-.. _moobius.network.ws_client.WSClient.__init__:
-
-WSClient.__init__
----------------------------------------------------------------------------------------------------------------------
-
-Initializes a WSClient object.
-
-* Signature
-
-    * WSClient.__init__(self, ws_server_uri, on_connect, handle, report_str)
-
-* Parameters
-
-    * ws_server_uri: Str
-        The URI of the websocket server.
-    
-    * on_connect=None: Function
-        The function to be called when the websocket is connected.
-    
-    * handle=None: Function
-        The function to be called when a message is received.
-    
-    * report_str=None: Str
-        The string printed with each printout (generally user mode vs service mode).
-
-* Returns
-
-  * (Class constructors have no explicit return value)
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
-* Example
-
-    >>> ws_client = WSClient("ws://localhost:8765", on_connect=on_connect, handle=handle)
-      >>> await self.authenticate()
-      >>> await self.ws_client.connect()
-
 .. _moobius.network.ws_client.WSClient.connect:
 
 WSClient.connect
@@ -124,29 +85,6 @@ Keeps trying if it fails!.
 * Returns
 
   * The None.
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
-.. _moobius.network.ws_client.WSClient._queue_consume:
-
-WSClient._queue_consume
----------------------------------------------------------------------------------------------------------------------
-
-Consumes tasks from an internal asyncio queue.
-
-* Signature
-
-    * WSClient._queue_consume(self)
-
-* Parameters
-
-    * (this class constructor accepts no arguments)
-
-* Returns
-
-  * The Never.
 
 * Raises
 
@@ -638,7 +576,7 @@ Used by users to send messages.
 
 * Signature
 
-    * WSClient.message_up(self, user_id, service_id, channel_id, recipients, subtype, content, dry_run)
+    * WSClient.message_up(self, user_id, service_id, channel_id, recipients, subtype, content, context, dry_run)
 
 * Parameters
 
@@ -654,7 +592,9 @@ Used by users to send messages.
     
     * content: What is inside the message['body']['content'] JSON.
     
-    * dry_run: Don't actually send anything if True.
+    * context: Don't actually send anything if True.
+    
+    * dry_run=None: Optional metadata.
 
 * Returns
 
@@ -673,7 +613,7 @@ Sends a message to the recipients.
 
 * Signature
 
-    * WSClient.message_down(self, user_id, service_id, channel_id, recipients, subtype, content, sender, dry_run)
+    * WSClient.message_down(self, user_id, service_id, channel_id, recipients, subtype, content, sender, context, dry_run)
 
 * Parameters
 
@@ -691,7 +631,9 @@ Sends a message to the recipients.
     
     * sender: The sender ID of the message, which determines who the chat shows the message as sent by.
     
-    * dry_run: Don't actually send anything if True.
+    * context: Don't actually send anything if True.
+    
+    * dry_run=None: Optional metadata.
 
 * Returns
 
@@ -797,53 +739,15 @@ Refreshes everything the user can see. The socket will send back messages with t
 
   * (this function does not raise any notable errors)
 
-.. _moobius.network.ws_client.WSClient.__str__:
-
-WSClient.__str__
----------------------------------------------------------------------------------------------------------------------
-
-The string output function for debugging.
-
-* Signature
-
-    * WSClient.__str__(self)
-
-* Parameters
-
-    * (this class constructor accepts no arguments)
-
-* Returns
-
-  * The  easy-to-read string summary.
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
-.. _moobius.network.ws_client.WSClient.__repr__:
-
-WSClient.__repr__
----------------------------------------------------------------------------------------------------------------------
-
-The string output function for debugging.
-
-* Signature
-
-    * WSClient.__repr__(self)
-
-* Parameters
-
-    * (this class constructor accepts no arguments)
-
-* Returns
-
-  * The  easy-to-read string summary.
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
 Class attributes
 --------------------
 
 
+
+**********************
+Internals
+**********************
+.. toctree::
+   :maxdepth: 2
+
+   moobius.network.ws_client_internal_attrs <moobius.network.ws_client_internal_attrs>

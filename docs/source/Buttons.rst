@@ -39,6 +39,7 @@ The ButtonClick tells us who sent it and information about what was pressed as w
 This example uses the `button_click.sender` to send a confirmation message back to the user who pressed the button.
 
 .. code-block:: Python
+
     async def on_button_click(self, button_click: ButtonClick):
         which_one = button_click.button_id
         txt = ''

@@ -14,8 +14,8 @@ Table of contents
 .. toctree::
    :maxdepth: 2
 
-   tutorials <tutorials>
-   modules <modules>
+   Tutorials <Tutorials>
+   Modules <Modules>
 
 Videos
 ===================================================================================================

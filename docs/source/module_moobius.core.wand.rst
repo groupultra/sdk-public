@@ -47,29 +47,6 @@ The typical use-case and suggested file paths:
   >>>                   is_agent=False, background=True)
   >>> wand.spell(handle, xyz_message) # Use to send data to the service.
 
-.. _moobius.core.wand.MoobiusWand.__init__:
-
-MoobiusWand.__init__
----------------------------------------------------------------------------------------------------------------------
-
-Initialize an "empty" MoobiusWand object.
-
-* Signature
-
-    * MoobiusWand.__init__(self)
-
-* Parameters
-
-    * (this class constructor accepts no arguments)
-
-* Returns
-
-  * (Class constructors have no explicit return value)
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
 .. _moobius.core.wand.MoobiusWand.run_job:
 
 MoobiusWand.run_job
@@ -212,53 +189,15 @@ Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = s
 
   * (this function does not raise any notable errors)
 
-.. _moobius.core.wand.MoobiusWand.__str__:
-
-MoobiusWand.__str__
----------------------------------------------------------------------------------------------------------------------
-
-The string output function for debugging.
-
-* Signature
-
-    * MoobiusWand.__str__(self)
-
-* Parameters
-
-    * (this class constructor accepts no arguments)
-
-* Returns
-
-  * The  easy-to-read string summary.
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
-.. _moobius.core.wand.MoobiusWand.__repr__:
-
-MoobiusWand.__repr__
----------------------------------------------------------------------------------------------------------------------
-
-The string output function for debugging.
-
-* Signature
-
-    * MoobiusWand.__repr__(self)
-
-* Parameters
-
-    * (this class constructor accepts no arguments)
-
-* Returns
-
-  * The  easy-to-read string summary.
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
 Class attributes
 --------------------
 
 
+
+**********************
+Internals
+**********************
+.. toctree::
+   :maxdepth: 2
+
+   moobius.core.wand_internal_attrs <moobius.core.wand_internal_attrs>

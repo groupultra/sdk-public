@@ -8,31 +8,6 @@ moobius.types
 Module-level functions
 ******************************
 
-.. _moobius.types._recv_tmp_convert:
-
-_recv_tmp_convert
----------------------------------------------------------------------------------------------------------------------
-
-Tmp function which makes small changes to couple kinds of inbound payloads..
-
-* Signature
-
-    * _recv_tmp_convert(f_name, the_data)
-
-* Parameters
-
-    * f_name: Request_name,.
-    
-    * the_data: A dict x.
-
-* Returns
-
-  * The modified x.
-
-* Raises
-
-  * (this function does not raise any notable errors)
-
 .. _moobius.types.add_str_method:
 
 add_str_method
@@ -58,6 +33,194 @@ This works.
 
   * (this function does not raise any notable errors)
 
+.. _moobius.types.recv_tmp_convert:
+
+recv_tmp_convert
+---------------------------------------------------------------------------------------------------------------------
+
+Tmp function which makes small changes to couple kinds of inbound payloads..
+
+* Signature
+
+    * recv_tmp_convert(f_name, the_data)
+
+* Parameters
+
+    * f_name: Request_name,.
+    
+    * the_data: A dict x.
+
+* Returns
+
+  * The modified x.
+
+* Raises
+
+  * (this function does not raise any notable errors)
+
+.. _moobius.types.assert_strs:
+
+assert_strs
+---------------------------------------------------------------------------------------------------------------------
+
+Given a list.
+
+* Signature
+
+    * assert_strs()
+
+* Parameters
+
+    * (this function accepts no arguments)
+
+* Returns
+
+  * The True. Raises an Excpetion if the assert fails.
+
+* Raises
+
+  * (this function does not raise any notable errors)
+
+.. _moobius.types.limit_len:
+
+limit_len
+---------------------------------------------------------------------------------------------------------------------
+
+* Signature
+
+    * limit_len(txt, n)
+
+* Parameters
+
+    * txt: Text.
+    
+    * n: The maximum length,.
+
+* Returns
+
+  * The  string with a limited length.
+  If the string is shortened "...<number of> chars" will be shown at the end.
+
+* Raises
+
+  * (this function does not raise any notable errors)
+
+.. _moobius.types.to_char_id_list:
+
+to_char_id_list
+---------------------------------------------------------------------------------------------------------------------
+
+Converts the input to a list of character_ids, designed to accept a wide range of inputs.
+
+* Signature
+
+    * to_char_id_list(c)
+
+* Parameters
+
+    * c: This can be one of many things:
+        A Character (returns it's id as one-element list).
+        A string (assumes it's an id wraps it into a one element list).
+        A list of Characters (extracts the ids).
+        A list of strings (returns a copy of the list).
+        A mixed character and string list.
+
+* Returns
+
+  * The list of character ids.
+
+* Raises
+
+  * (this function does not raise any notable errors)
+
+.. _moobius.types.normalize_message:
+
+normalize_message
+---------------------------------------------------------------------------------------------------------------------
+
+Normalizes a message to a format that the websocket client understands. See sdk.send_message() for more details.
+This function is usually used internally..
+
+* Signature
+
+    * normalize_message(message, channel_id, sender, recipients, subtype, len_limit, file_display_name, context)
+
+* Parameters
+
+    * message: Message.
+    
+    * channel_id=None: A channel_id.
+    
+    * sender=None: A sender.
+    
+    * recipients=None: The recipients.
+    
+    * subtype=None: A subtype.
+    
+    * len_limit=None: The len_limit.
+    
+    * file_display_name=None: A file_display_name.
+    
+    * context=None: The context.
+
+* Returns
+
+  * The  normalized message as a dict but with a MessageContent inside of it.
+
+* Raises
+
+  * (this function does not raise any notable errors)
+
+.. _moobius.types.as_update_body:
+
+as_update_body
+---------------------------------------------------------------------------------------------------------------------
+
+* Signature
+
+    * as_update_body(payload_body)
+
+* Parameters
+
+    * payload_body: Payload body.
+
+* Returns
+
+  * The UpdateBody version of it.
+
+* Raises
+
+  * (this function does not raise any notable errors)
+
+.. _moobius.types.payload_as_dict:
+
+payload_as_dict
+---------------------------------------------------------------------------------------------------------------------
+
+Converts a payload to a dict..
+
+* Signature
+
+    * payload_as_dict(payload_type, payload_body, client_id, the_uuid)
+
+* Parameters
+
+    * payload_type: Payload type.
+    
+    * payload_body: The Payload object or dict-valued payload.
+    
+    * client_id: The client/service id.
+    
+    * the_uuid: Any unique uuid.
+
+* Returns
+
+  * The payload as a dict.
+
+* Raises
+
+  * (this function does not raise any notable errors)
+
 ************************************
 Class InputComponent
 ************************************
@@ -78,7 +241,7 @@ InputComponent.label: str:
 InputComponent.type: str:
   What kind of box the user sees; types.TEXT | types.DROPDOWN | types.TEXTBOX
 
-InputComponent.required: Optional[bool]:
+InputComponent.required: Optional[bool] = False:
   Is the user forced to use it?
 
 InputComponent.placeholder: Optional[str] = None:
@@ -204,7 +367,7 @@ ButtonClick.arguments: Optional[list[ClickArgument]] = None:
 ButtonClick.subtype: Optional[str] = BUTTON_CLICK:
   Identifies it as a button click.
 
-ButtonClick.BUTTON_CLICK
+ButtonClick.BUTTON_CLICK 
 
 ButtonClick.labels: Optional[list[str]] = None:
   A reminder of what each argument means.
@@ -346,7 +509,7 @@ MenuItemClick.context: Optional[dict] = None:
 MenuItemClick.subtype: Optional[str] = MENU_ITEM_CLICK:
   Identifies it as a menu item click.
 
-MenuItemClick.MENU_ITEM_CLICK
+MenuItemClick.MENU_ITEM_CLICK 
 
 ************************************
 Class CanvasItem
@@ -675,3 +838,11 @@ UserInfo.user_id: str:
 
 UserInfo.system_context: Optional[dict] = None:
   Rarely-used metadata.
+
+**********************
+Internals
+**********************
+.. toctree::
+   :maxdepth: 2
+
+   moobius.types_internal_attrs <moobius.types_internal_attrs>
