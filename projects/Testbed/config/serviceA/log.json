@@ -1,7 +1,0 @@
-{
-    "log_level":"DEBUG",
-    "terminal_log_level":"INFO",
-    "log_retention":"7 days",
-    "log_file":"logs/service.log",
-    "error_log_file":"logs/error.log"
-}

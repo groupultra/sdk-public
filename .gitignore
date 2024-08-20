@@ -11,6 +11,7 @@ projects/*/config/service.json
 projects/*/config/usermode_account.json
 projects/*/config/usermode_service.json
 projects/*/temp/
+Read_the_docs_AUTOgen/*
 
 .idea/
 /venv/

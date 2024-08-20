@@ -14,7 +14,9 @@ Module-level functions
 Class Moobius
 ************************************
 
-<no class docstring>
+This is the main core class of Moobius. CCS services inherit this class.
+This is a big switchyard for handling HTTP, the Websocket, and sending callbacks back to the CCS app.
+This has a complex lifecycle with server initialization steps, etc.
 
 .. _moobius.core.sdk.Moobius.true_channel_list:
 

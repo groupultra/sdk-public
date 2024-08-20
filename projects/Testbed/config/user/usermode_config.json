@@ -1,6 +1,0 @@
-{
-    "account_config": "config/user/usermode_account.json",
-    "db_config": "config/user/usermode_db.json",
-    "service_config": "config/user/usermode_service.json",
-    "log_config": "config/user/usermode_log.json"
-}

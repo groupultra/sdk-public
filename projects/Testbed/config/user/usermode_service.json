@@ -1,6 +1,0 @@
-{
-    "http_server_uri": "https://api.moobius.link/",
-    "ws_server_uri": "wss://ws.moobius.link/",
-    "service_mode": false,
-    "channels": ["ffcd5e8d-a7f5-4af1-ac99-ebc723512fa8"]
-}
