@@ -1,1 +1,0 @@
-Demonstrates simple and complex (drop-down menu) buttons.

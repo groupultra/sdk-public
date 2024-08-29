@@ -11,6 +11,7 @@ def get_engine(implementation):
     Last-minute-imports the module so that no pip package is needed for unused engines."""
 
     def _hit(matches):
+        """Accepts a list of matches. Returns if the engine is one of those matches."""
         for m in matches:
             if implementation.lower().strip()==m.lower().strip():
                 return True

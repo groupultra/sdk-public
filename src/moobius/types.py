@@ -45,12 +45,17 @@ IMAGE = "image" # A message subtype, an image to display.
 AUDIO = "audio" # A message subtype, an audio clip to play.
 FILE = "file" # A message subtype, a downloadable file.
 CARD = "card" # A message subtype, a box with a button to go to a website.
+ALL = "all" # A message subtype, any message.
+CUSTOM = "custom" # A message subtype, custom messages.
 IGNORE = "ignore" # An option for how to handle multiple services using the same channel ID. This one is polite and does not steal anything.
 UNBIND = "unbind" # An option for how to handle multiple services using the same channel ID. This one is vengeful, stealing a channel but not using it.
 INCLUDE = "include" # An option for how to handle multiple services using the same channel ID. This one is greedy and steals channels.
 DROPDOWN = "dropdown" # An option for a button component, allowing the user to choose between one of several options.
 TEXT = "text" # An option for a button component, allowing the user to enter thier text.
 TEXTBOX = "textbox" # An option for a button component, allowing the user to enter multiple lines.
+NUMBER = "number" # An option for a button component, allowing the user to enter a floating point number.
+PASSWORD = "password" # An option for a button component, allowing the user to enter a one-line string secretly.
+INVALID ="invalid"  # An option for a button component, which does not allow the user to do much.
 S3BUCKET = 'gba-moobius.s3.us-east-2'
 IMAGE_EXTS = {'.jpe', '.jpg', '.jpeg', '.gif', '.png', '.bmp', '.ico', '.svg', '.svgz', '.tif', '.tiff', '.ai', '.drw', '.pct', '.psp', '.xcf', '.raw', '.webp', '.heic'} # Image format extensions.
 AUDIO_EXTS = {'.wav', '.mp3', '.mp4', '.mp5'} # Audio format extensions used to auto-detect filetype, .mp5 became popular around 2030.
@@ -141,7 +146,8 @@ class ButtonClick:
 
 @dataclass
 @add_str_method
-class ActionBody:
+class SimpleAction:
+    """Join, leave, and refresh actions (refresh not technically an action, but has the same data)."""
     subtype: str # Subtypes are 'join', 'leave', etc.
     channel_id: str # The channel that the user performed the action in.
     sender: str # The user id.
@@ -154,7 +160,7 @@ class MenuItem:
     """One element of a right-click menu. The full menu is described by a list of these elements."""
     menu_item_id: str # The app-specified ID of the Item.
     menu_item_text: str # What text to show in the browser.
-    message_subtypes: list[str] # What message types will open the menu. ["text","file", etc].
+    message_subtypes: str | list[str] # What message types will open the menu. ["text","file", etc].
     dialog: Optional[Dialog] = None # If this menu item opens up a dialog box when clicked.
 
 
@@ -182,7 +188,7 @@ class MenuItemClick:
     channel_id: str # The channel the user was in when they clicked the message.
     sender: str # The Character ID of the user or agent who clicked the message.
     message_id: Optional[str]=None # The platform-generated ID of which message was clicked on (rarely used).
-    arguments: Optional[list[str]]=None # What sub-menu settings, if the menu element clicked on has a sub-menu.
+    arguments: Optional[list[ClickArgument]]=None # What sub-menu settings, if the menu element clicked on has a sub-menu.
     bottom_button_id: Optional[str]=None # For the bottom buttons, if there is a dialog and it has any.
     context:Optional[dict]=None # Metadata rarely used.
     subtype:Optional[str]=MENU_ITEM_CLICK # Identifies it as a menu item click.
@@ -325,11 +331,6 @@ class UserInfo:
 ############################# Type-standardization functions. #################################
 def recv_tmp_convert(f_name, the_data):
     """Tmp function which makes small changes to couple kinds of inbound payloads. Accepts the request_name, and a dict x. Returns the modified x."""
-    if f_name in ['on_button_click', 'on_menu_item_click']:
-        args1 = []
-        for a in the_data.get('arguments', []):
-            args1.append(a if type(a) is str else a['value'])
-        the_data['arguments'] = args1
     if f_name == 'on_message_down':
         if 'recipients' not in the_data:
             the_data['recipients'] = ['<Unknown>']
@@ -340,7 +341,7 @@ def assert_strs(*strs):
     """Given a list. Returns True. Raises an Excpetion if the assert fails."""
     for i, s in enumerate(strs):
         if type(s) is not str:
-            raise Exception(f"The {i}th element is not a str")
+            raise Exception(f"Element[{i}] is not a str")
     return strs
 
 
@@ -371,17 +372,20 @@ def to_char_id_list(c):
     return c
 
 
-def normalize_message(message, channel_id=None, sender=None, recipients=None, subtype=None, len_limit=None, file_display_name=None, context=None):
+def normalize_message(message, channel_id=None, sender=None, recipients=None, subtype=None, len_limit=None, file_display_name=None, context=None,
+                      text=None, link=None, title=None, button=None, path=None):
     """
     Normalizes a message to a format that the websocket client understands. See sdk.send_message() for more details.
-    This function is usually used internally.
+    Note: No file uploading nor interaction is performed. These steps are to be performed in Moobius.send_message().
+    This function is generally for internal use.
 
-    Accepts a message, a channel_id, a sender, the recipients, a subtype, the len_limit, a file_display_name, and the context.
+    Accepts a message, a channel_id, a sender, the recipients, a subtype, the optional len_limit, a file_display_name, the context, the text, the optional link, the optional title, the card button, and the file/url path.
+    All arguments except message are optional.
     Returns a normalized message as a dict but with a MessageContent inside of it.
     """
 
     def _get_file_message_content(file_path, file_display_name=None, subtype=None):
-        """Converts a file_path into a MessageContent object."""
+        """Converts a file_path into a MessageContent object. Accepts the filepath/url, the name to show in the chat, and the message subtype. Returns the MessageContent."""
         if not file_path:
             file_path = f"https://{S3BUCKET}.amazonaws.com/LogoLight.jpg"
         if type(file_path) is not str:
@@ -401,6 +405,7 @@ def normalize_message(message, channel_id=None, sender=None, recipients=None, su
         if subtype != FILE:
             logger.warning(f'file_display_name is set, but the subtype is set to {subtype} not types.FILE')
 
+    # Part 1: Convert to dict except for the internal MessageContent.
     if type(message) is MessageBody:
         message = dataclasses.asdict(message)
     elif type(message) is str:
@@ -414,39 +419,56 @@ def normalize_message(message, channel_id=None, sender=None, recipients=None, su
         mcontent, subtype = _get_file_message_content(message, file_display_name=file_display_name, subtype=subtype)
         message = {'subtype':subtype, 'content':mcontent}
     elif type(message) is dict:
-        if 'link' in message and 'button' in message and 'text' in message:
-            if not subtype:
-                subtype = CARD
-            message = {'subtype':subtype, 'content': message} # Convert contents of a card into an actual card.
         message = message.copy()
     else:
         message = str(message)
+
+    # Additional normalization steps:
+    if 'link' in message and 'button' in message and 'text' in message:
+        if not subtype:
+            subtype = CARD
+        message['content'] = {**message, **(message['content'] if type(message.get('content')) is dict else {})} # Convert contents of a card into an actual card.
+    for ky in ['text', 'button', 'link', 'title']:
+        if ky in message:
+            del message[ky]
     if 'recipients' not in message and recipients is None:
         logger.error('None "recipients" (None as in not an empty list) but "recipients" not specified by the message. This may indicate that recipients was unfilled.')
-
     if 'content' not in message:
-        raise Exception('Dict/MessageBody message with no "content" specified.')
-    if type(message['content']) is dict:
-        message['content'] = MessageContent(**message['content'])
-    if channel_id is not None:
-        message['channel_id'] = channel_id
-    if sender is not None:
-        if type(sender) is Character:
-            sender = sender.character_id
-        message['sender'] = sender
-    if recipients is not None:
-        message['recipients'] = recipients
+        logger.error('Dict/MessageBody message with no "content" specified.')
+        message['content'] = MessageContent()
     if 'message_id' in message: #message['message_id'] = str(uuid.uuid4()) # The CCS does not generate an ID.
         del message['message_id']
     if 'timestamp' in message: # The timestamp will be updated to the current time.
         del message['timestamp']
+    if type(message['content']) is dict:
+        message['content'] = MessageContent(**message['content'])
 
+    # Part 2: Use the arguments to update the message:
+    if text:
+        message['content'].text = text
+    if link:
+        message['content'].link = link
+    if title:
+        message['content'].title = title
+    if button:
+        message['content'].button = button
+    if path:
+        message['content'].path = path
+    if channel_id:
+        message['channel_id'] = channel_id
+    if sender:
+        if type(sender) is Character:
+            sender = sender.character_id
+        message['sender'] = sender
+    if recipients:
+        message['recipients'] = recipients
     if context:
         message['context'] = context
     if message.get('recipients'):
         if len_limit and message['content'].text:
             message['content'].text = limit_len(message['content'].text, len_limit)
-
+    if subtype:
+        message['subtype'] = subtype
     return message
 
 
@@ -456,6 +478,7 @@ def as_update_body(payload_body):
     content0 = payload_body['content'] # This dict needs to be converted into a list of UpdateItem's
     empty_elem_dict = {'character':None, 'button':None, 'channel_info':None, 'canvas_item':None, 'style_item':None, 'menu_item':None}
     def _make_elem(d):
+        """Accepts a dict with the update information. Returns the UpdateItem with defaults filled in if they are not in the dict."""
         return UpdateItem(**{**empty_elem_dict, **d})
     content = []
     if subty == UPDATE_CHARACTERS:
@@ -486,7 +509,7 @@ def as_update_body(payload_body):
 
 
 def payload_as_dict(payload_type, payload_body, client_id, the_uuid):
-    """Converts a payload to a dict. Accepts the paylod"""
+    """Converts a payload to a dict. Accepts the payload type, the Payload object or dict-valued payload, the client/service id, and any unique uuid. Returns the payload as a dict."""
     if isinstance(payload_body, dict):
         payload_dict = {
             'type': payload_type,

@@ -64,7 +64,7 @@ class ServiceGroupLib():
 
 
 async def group2ids(group_id, payload_body, http_api, client_id):
-    """Converts a group id from the service into a list of character ids."""
+    """Converts a group id from the service into a list of character ids. Accepts the group_id, the payload body, the http_api client, and the client_id. Returns a list of character ids."""
     if group_id==types.SERVICE:
         return []
     if type(group_id) is not str:

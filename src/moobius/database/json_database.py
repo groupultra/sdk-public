@@ -70,6 +70,7 @@ class JSONDatabase(DatabaseInterface):
     def all_keys(self):
         """Gets all the cached dicts in the database. Returns the dicts as an iterable which internally uses yield()."""
         def key_iterator():
+            """Returns an iterater with a yield."""
             for filename in os.listdir(self.path):
                 if filename.endswith('.json'):
                     yield filename[:-5]

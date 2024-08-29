@@ -15,7 +15,10 @@ Table of contents
    :maxdepth: 2
 
    Tutorials <Tutorials>
-   Modules <Modules>
+   Public-facing modules <Public-facing modules>
+   Internal network modules <Internal network modules>
+   Internal DB engine modules <Internal DB engine modules>
+   Internal file IO modules <Internal file IO modules>
 
 Videos
 ===================================================================================================

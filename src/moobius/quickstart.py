@@ -8,9 +8,18 @@ from loguru import logger
 from moobius import types
 
 
+TEMPLATE_EXTRA_FILES = {
+    "Zero":[], # Include non files so that this gets added to the GUI list.
+    "Bot puppet":['user.py', 'main.py', 'config/usermode_service.json', 'config/usermode_account.json', 'config/usermode_db.json', 'config/usermode_log.json'],
+    "Buttons":[],
+    "Database":[],
+    "Demo":['resources/buttons.json', 'resources/dark.png', 'resources/light.png', 'resources/mickey.jpg', 'resources/wand.png', 'resources/tiny.mp3', 'resources/tiny.pdf'],
+    "Testbed":['niceuser.py', 'main.py', 'resources/buttons.json', 'resources/dark.png', 'resources/light.png', 'resources/mickey.jpg', 'resources/wand.png', 'resources/tiny.mp3', 'resources/tiny.pdf'],
+    "Multiagent":['gpt.py']}
+
 service_template = {
-    "http_server_uri": "https://api.moobius.ai/",
-    "ws_server_uri": "wss://ws.moobius.ai/",
+    "http_server_uri": "https://api.moobius.link/",
+    "ws_server_uri": "wss://ws.moobius.link/",
     "service_id": "",
     "channels": [],
     "others": "include"
@@ -20,8 +29,8 @@ account_template = {
     "password": "password",
 }
 usermode_service_template = {
-    "http_server_uri": "https://api.moobius.ai/",
-    "ws_server_uri": "wss://ws.moobius.ai/",
+    "http_server_uri": "https://api.moobius.link/",
+    "ws_server_uri": "wss://ws.moobius.link/",
 }
 log_template = {
     "log_level":"INFO",
@@ -39,33 +48,7 @@ global_config = {
     "log_config": "config/log.json"
 }
 
-download_failed_defaults = {'main.py':
-                            '''
-from service import MyService
-from moobius import MoobiusWand
-
-if __name__ == "__main__":
-
-    wand = MoobiusWand()
-
-    handle = wand.run(
-        MyService,
-        account_config="config/account.json",
-        service_config="config/service.json",
-        db_config="config/db.json"
-        log_config:"config/log.json",
-        background=True)
-                            '''.strip(),
-'readme.md':'This needs a more detailed description...',
-'service.py':'''
-from moobius import Moobius
-
-
-class MyService(Moobius):
-    pass
-    # Put your code here.
-'''.strip(),
-'config/db.json':'[]'}
+download_failed_defaults = {'config/db.json':'[]'}
 
 boxes = {}
 
@@ -117,8 +100,8 @@ def create_channel(email, password, url):
         pass
 
     asyncio.run(service.authenticate())
-    asyncio.run(service.ws_client.connect()) # These two must be useful.
     service_id = asyncio.run(service.create_new_service())
+    asyncio.run(service.ws_client.connect())
     new_channel_id = asyncio.run(service.create_channel(channel_name, 'Channel created by the GUI.'))
     if not service_id:
         raise Exception('None service id bug.')
@@ -163,16 +146,16 @@ def submit(out):
                 else:
                     return # Don't do anything.
             else:
-                confirm = input(f'The folder {the_folder} is not empty. Press y to confirm. Press n to cancel and quit. Or type in another folder name:').strip()
-                if confirm.lower() == 'y':
+                confirm = input(f'The folder {the_folder} is not empty. Press y to confirm. Press n to cancel and quit:').strip()
+                if confirm and confirm.strip()[0].lower() == 'y':
                     break
-                elif confirm.lower() == 'n':
+                elif confirm and confirm.strip()[0].lower() == 'n':
                     sys.exit(1)
                 elif confirm:
-                    out['folder'] = confirm
+                    print("Did not understand, must put in y or n.")
+                    #out['folder'] = confirm
         else:
             break
-    #out['email'] = "<email>"; out['password'] = "<secret>"" # Used for making videos, hardcode and *do not* git save just to make the video.
 
     if not out.get('email') and not use_gui:
         out['email'] = input('Enter account email, or press enter to skip:').strip()
@@ -197,13 +180,12 @@ def submit(out):
         account_template[k] = out[k]
 
     # URL fun:
-    base_url = "https://raw.githubusercontent.com/groupultra/sdk-public/main/projects/"+out['template']+'/'
+    base_url = "https://raw.githubusercontent.com/groupultra/Public-CCS-demos/main/"+out['template']+'/'
     kys = ['readme.md', 'service.py', 'config/db.json', 'config/service.json', 'config/account.json', 'config/log.json', 'config/config.json']
+    kys = kys+TEMPLATE_EXTRA_FILES.get(out['template'], [])
     non_requests = {'config/service.json':service_template, 'config/account.json':account_template, 'config/log.json':log_template,
                     'config/usermode_service.json':service_template, 'config/usermode_account.json':account_template, 'config/usermode_log.json':log_template,
                     'config/config.json':global_config}
-    if out['template'] == 'Bot puppet':
-        kys.extend(['user.py','config/usermode_service.json', 'config/usermode_account.json', 'config/usermode_db.json', 'config/usermode_log.json', 'main.py'])
     for ky in kys:
         x = non_requests.get(ky, None)
         if not x:
@@ -285,7 +267,7 @@ Graphical interface:
 Common arguments:
   -e: The user email (which you use to log in).
   -p: The user password (which you use to log in).
-  -t: The starting point for your app. The name of a sub-folder in https://github.com/groupultra/sdk-public/tree/main/projects
+  -t: The starting point for your app. The name of a sub-folder in https://raw.githubusercontent.com/groupultra/Public-CCS-demos/main/...
   -c: The channel-id(s) or a list of comma-seperated channels that you have created in Moobius.
   -d: The folder to save the service to.
 Less common arguments:
@@ -349,7 +331,7 @@ Less common arguments:
         make_box(root, "channels", "Channel id(s) comma-sep", total_opts['channels'], None)
         make_box(root, "email", "Account email/username", total_opts['email'], None)
         make_box(root, "password", "Account password (.gitignore!)", total_opts['password'], None)
-        make_box(root, "template", "Choose a starting point", total_opts['template'], ["Zero", "Bot puppet", "Buttons", "Database", "Demo", "Group chat", "Menu Canvas", "Battleship"])
+        make_box(root, "template", "Choose a starting point", total_opts['template'], list(sorted(TEMPLATE_EXTRA_FILES.keys())))
         make_box(root, "url", "(Advanced) choose URL", total_opts['url'], ['moobius.ai/', 'moobius.link/'])
         make_box(root, "service_id", "(Advanced) Reuse old service_id", total_opts['service_id'])
         make_box(root, "others", "(Advanced) Orphan channels", total_opts['others'], [types.INCLUDE, types.IGNORE, types.UNBIND])
@@ -357,6 +339,7 @@ Less common arguments:
 
         # Pick a folder:
         def _folder_button_callback(*args, **kwargs):
+            """A Tkinter callback. Accepts the ignored args/kwargs. Returns None."""
             the_folder = filedialog.askdirectory()
             if the_folder:
                 the_folder = os.path.realpath(the_folder).replace('\\','/')
@@ -382,8 +365,7 @@ def maybe_make_template_files(args):
     Called by wand.run() before initializing the Moobius class if it doesn't have any templates.
 
     Which files are created:
-      A template main.py python file which calls Wand.run:
-        Only created if the file does not exist AND "make_main main.py" (or "make_main foo.py", etc) is in the system args.
+      A service.py file that runs everything.
       A sample config.py:
         Only created if "config_path" is in args (or system args) AND the file does not exist.
         This requires user information:
@@ -393,8 +375,6 @@ def maybe_make_template_files(args):
         Note: if the user gives an empty response to input(), a nonfunctional default is used, which can be filled in later.
 
     Unittests to run in a python prompt in an empty folder:
-      >>> # Make a main.py file:
-      >>> import sys; sys.argv = '_ make_main main.py'.split(' '); import moobius;
       >>> # Prompt the user for credentials and put these in the service.json (NOTE: will generate an error b/c None class):
       >>> import sys; from moobius import MoobiusWand; MoobiusWand().run(None, config_path="config/service.json")
       >>> # Provide credentials, making a service.json with no user input (NOTE: will generate an error b/c None class):

@@ -1,6 +1,6 @@
 [project]
 name = "moobius"
-version = "1.4.14"
+version = "1.6.7"
 authors = [
   { name="Kevin Kostlan", email="sdk@moobius.app"},
 ]

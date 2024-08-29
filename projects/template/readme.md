@@ -1,1 +1,0 @@
-A very simple template Service with the most common functions shown.

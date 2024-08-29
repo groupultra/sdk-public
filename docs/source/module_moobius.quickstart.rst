@@ -13,191 +13,780 @@ Module-level functions
 open_folder_in_explorer
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Lets the user select a folder. This is used for gui-mode only.
 
-* Signature
+.. raw:: html
 
-    * open_folder_in_explorer(folder_path)
+  <embed>
+  <head>
+    <style>
+        .style28 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style28">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **open_folder_in_explorer**(folder_path)
 
-    * folder_path: Default folder to pick.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style29 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style29">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The None.
+* **folder_path:** Default folder to pick.
 
-* Raises
+.. raw:: html
 
-  * (this function does not raise any notable errors)
+  <embed>
+  <head>
+    <style>
+        .style30 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style30">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style31 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style31">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.quickstart.download_text_file_to_string:
 
 download_text_file_to_string
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 A simple download, used to get CCS code from GitHub.
 
-* Signature
+.. raw:: html
 
-    * download_text_file_to_string(url)
+  <embed>
+  <head>
+    <style>
+        .style32 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style32">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **download_text_file_to_string**(url)
 
-    * url: URL.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style33 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style33">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The text. Raises network exceptions if the request fails.
+* **url:** URL.
 
-* Raises
+.. raw:: html
 
-  * (this function does not raise any notable errors)
+  <embed>
+  <head>
+    <style>
+        .style34 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style34">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The text. Raises network exceptions if the request fails.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style35 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style35">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.quickstart.create_channel:
 
 create_channel
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Creates a channel.
 
-* Signature
+.. raw:: html
 
-    * create_channel(email, password, url)
+  <embed>
+  <head>
+    <style>
+        .style36 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style36">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **create_channel**(email, password, url)
 
-    * email: Email.
-    
-    * password: Password.
-    
-    * url: Url.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style37 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style37">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The service_id, channel_id. Used if no channel is specified.
+* **email:** Email.
 
-* Raises
+* **password:** Password.
 
-  * (this function does not raise any notable errors)
+* **url:** Url.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style38 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style38">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The service_id, channel_id. Used if no channel is specified.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style39 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style39">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.quickstart.save:
 
 save
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Saves a file. Makes dirs if need be.
 
-* Signature
+.. raw:: html
 
-    * save(fname, x)
+  <embed>
+  <head>
+    <style>
+        .style40 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style40">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **save**(fname, x)
 
-    * fname: Filename.
-    
-    * x: A string.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style41 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style41">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The None.
+* **fname:** Filename.
 
-* Raises
+* **x:** A string.
 
-  * (this function does not raise any notable errors)
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style42 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style42">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style43 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style43">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.quickstart.submit:
 
 submit
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Saves the CCS files (code and config) to a folder.
 
-* Signature
+.. raw:: html
 
-    * submit(out)
+  <embed>
+  <head>
+    <style>
+        .style44 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style44">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **submit**(out)
 
-    * out: Configuration dict with all the settings.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style45 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style45">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The sys.exit().
-  Calling this function will read the current gui state.
+* **out:** Configuration dict with all the settings.
 
-* Raises
+.. raw:: html
 
-  * (this function does not raise any notable errors)
+  <embed>
+  <head>
+    <style>
+        .style46 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style46">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The sys.exit().
+Calling this function will read the current gui state.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style47 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style47">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.quickstart.make_box:
 
 make_box
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Makes a box for GUI usage. None options means fill in.
 
-* Signature
+.. raw:: html
 
-    * make_box(root, name, detailed_name, default, options)
+  <embed>
+  <head>
+    <style>
+        .style48 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style48">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **make_box**(root, name, detailed_name, default, options)
 
-    * root: Tk.root.
-    
-    * name: The box name.
-    
-    * detailed_name: More details.
-    
-    * default: The GUI default.
-    
-    * options=None: The options to pick, for boxes with options.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style49 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style49">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The ttk.Combobox object.
+* **root:** Tk.root.
 
-* Raises
+* **name:** The box name.
 
-  * (this function does not raise any notable errors)
+* **detailed_name:** More details.
+
+* **default:** The GUI default.
+
+* **options=None:** The options to pick, for boxes with options.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style50 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style50">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The ttk.Combobox object.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style51 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style51">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.quickstart.save_starter_ccs:
 
 save_starter_ccs
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Reads sys.argv, as well as gui interaction if specified.
 Uses this information to construct a CCS app and saves to the folder that was specified.
 This function is called, from the __init__.py in src/moobius, when "python -m moobius" is
 typed into the command line.
 
-* Signature
+.. raw:: html
 
-    * save_starter_ccs()
+  <embed>
+  <head>
+    <style>
+        .style52 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style52">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **save_starter_ccs**()
 
-    * (this function accepts no arguments)
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style53 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style53">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The None.
+* **(this function accepts no arguments):**
 
-* Raises
+.. raw:: html
 
-  * (this function does not raise any notable errors)
+  <embed>
+  <head>
+    <style>
+        .style54 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style54">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style55 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style55">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.quickstart.maybe_make_template_files:
 
 maybe_make_template_files
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Makes template files if there is a need to do so, based on args and sys.argv.
 Called by wand.run() before initializing the Moobius class if it doesn't have any templates.
 
 Which files are created:
-  A template main.py python file which calls Wand.run:
-    Only created if the file does not exist AND "make_main main.py" (or "make_main foo.py", etc) is in the system args.
+  A service.py file that runs everything.
   A sample config.py:
     Only created if "config_path" is in args (or system args) AND the file does not exist.
     This requires user information:
@@ -207,8 +796,6 @@ Which files are created:
     Note: if the user gives an empty response to input(), a nonfunctional default is used, which can be filled in later.
 
 Unittests to run in a python prompt in an empty folder:
-  >>> # Make a main.py file:
-  >>> import sys; sys.argv = '_ make_main main.py'.split(' '); import moobius;
   >>> # Prompt the user for credentials and put these in the service.json (NOTE: will generate an error b/c None class):
   >>> import sys; from moobius import MoobiusWand; MoobiusWand().run(None, config_path="config/service.json")
   >>> # Provide credentials, making a service.json with no user input (NOTE: will generate an error b/c None class):
@@ -216,21 +803,103 @@ Unittests to run in a python prompt in an empty folder:
   >>> # Provide agent credentials. There is no need to provide a channel id (NOTE: will generate an error b/c None class).
   >>> import sys; sys.argv = '_ email abc@123.com password IAmSecret'.split(' '); from moobius import MoobiusWand; MoobiusWand().run(0, config_path="config/agent.json", is_agent=True).
 
-* Signature
+.. raw:: html
 
-    * maybe_make_template_files(args)
+  <embed>
+  <head>
+    <style>
+        .style56 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style56">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **maybe_make_template_files**(args)
 
-    * args: The list of args.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style57 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style57">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The None.
+* **args:** The list of args.
 
-* Raises
+.. raw:: html
 
-  * (this function does not raise any notable errors)
+  <embed>
+  <head>
+    <style>
+        .style58 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style58">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style59 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style59">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 
 

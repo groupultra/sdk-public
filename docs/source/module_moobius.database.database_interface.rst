@@ -37,86 +37,422 @@ The "implementation" sets the engine to be used by CachedDict.
 DatabaseInterface.get_value
 ---------------------------------------------------------------------------------------------------------------------
 
-* Signature
 
-    * DatabaseInterface.get_value(self, key)
 
-* Parameters
+.. raw:: html
 
-    * key: Key.
+  <embed>
+  <head>
+    <style>
+        .style497 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style497">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Returns
+* **DatabaseInterface.get_value**(self, key)
 
-  * The  tuple of (is_success, value).
+.. raw:: html
 
-* Raises
+  <embed>
+  <head>
+    <style>
+        .style498 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style498">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * (this function does not raise any notable errors)
+* **key:** Key.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style499 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style499">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The  tuple of (is_success, value).
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style500 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style500">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.database.database_interface.DatabaseInterface.set_value:
 
 DatabaseInterface.set_value
 ---------------------------------------------------------------------------------------------------------------------
 
-* Signature
 
-    * DatabaseInterface.set_value(self, key, value)
 
-* Parameters
+.. raw:: html
 
-    * key: Key.
-    
-    * value: Value.
+  <embed>
+  <head>
+    <style>
+        .style501 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style501">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Returns
+* **DatabaseInterface.set_value**(self, key, value)
 
-  * The  tuple of (is_success=True, key) or (is_success=False, err_message).
+.. raw:: html
 
-* Raises
+  <embed>
+  <head>
+    <style>
+        .style502 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style502">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * (this function does not raise any notable errors)
+* **key:** Key.
+
+* **value:** Value.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style503 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style503">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The  tuple of (is_success=True, key) or (is_success=False, err_message).
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style504 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style504">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.database.database_interface.DatabaseInterface.delete_key:
 
 DatabaseInterface.delete_key
 ---------------------------------------------------------------------------------------------------------------------
 
-* Signature
 
-    * DatabaseInterface.delete_key(self, key)
 
-* Parameters
+.. raw:: html
 
-    * key: Key.
+  <embed>
+  <head>
+    <style>
+        .style505 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style505">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Returns
+* **DatabaseInterface.delete_key**(self, key)
 
-  * The  tuple of (is_success=True, key) or (is_success=False, err_message).
+.. raw:: html
 
-* Raises
+  <embed>
+  <head>
+    <style>
+        .style506 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style506">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * (this function does not raise any notable errors)
+* **key:** Key.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style507 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style507">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The  tuple of (is_success=True, key) or (is_success=False, err_message).
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style508 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style508">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.database.database_interface.DatabaseInterface.all_keys:
 
 DatabaseInterface.all_keys
 ---------------------------------------------------------------------------------------------------------------------
 
-* Signature
 
-    * DatabaseInterface.all_keys(self)
 
-* Parameters
+.. raw:: html
 
-    * (this class constructor accepts no arguments)
+  <embed>
+  <head>
+    <style>
+        .style509 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style509">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Returns
+* **DatabaseInterface.all_keys**(self)
 
-  * The  iterable of all keys, the details of which depend on the implementation.
+.. raw:: html
 
-* Raises
+  <embed>
+  <head>
+    <style>
+        .style510 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style510">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * (this function does not raise any notable errors)
+* **(this class constructor accepts no arguments):**
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style511 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style511">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The  iterable of all keys, the details of which depend on the implementation.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style512 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style512">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 Class attributes
 --------------------

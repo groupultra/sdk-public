@@ -73,8 +73,8 @@ class WSClient:
         """
         self.websocket = None
         self.ws_server_uri = ws_server_uri
-        async def _default_on_connect(self): logger.info(f"Connected to {self.ws_server_uri}")
-        async def _default_handle(self, message): logger.debug(f"{message}")
+        async def _default_on_connect(self): """Returns None."""; logger.info(f"Connected to {self.ws_server_uri}")
+        async def _default_handle(self, message): """Accepts a message. Returns None."""; logger.debug(f"{message}")
         self.on_connect = on_connect or _default_on_connect # THe SDK sets on_connect to service or user login.
         self.handle = handle or _default_handle
         self.outbound_queue = asyncio.Queue()
@@ -539,13 +539,13 @@ class WSClient:
 
         Parameters:
           user_id (str): An enduser id generally.
-          service (str): Which service to send to.
+          service_id (str): Which service to send to.
           channel_id (str): Which channel to broadcast the message in.
           recipients (str): The group id to send to.
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
           content (MessageContent or dict): What is inside the message['body']['content'] JSON.
-          dry_run=False: Don't actually send anything if True.
           context=None: Optional metadata.
+          dry_run=False: Don't actually send anything if True.
 
         Returns: The message as a dict.
         """
@@ -585,8 +585,8 @@ class WSClient:
           subtype (str): The subtype of message to send (text, etc). Goes into message['body'] JSON.
           content (MessageContent or dict): What is inside the message['body']['content'] JSON.
           sender (str): The sender ID of the message, which determines who the chat shows the message as sent by.
-          dry_run=False: Don't actually send anything if True.
           context=None: Optional metadata.
+          dry_run=False: Don't actually send anything if True.
 
         Returns:
           The message as a dict.

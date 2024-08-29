@@ -13,213 +13,897 @@ Module-level functions
 add_str_method
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Decorator function to make __str__ return the following format:
 "Foo(bar=1, baz='two', etc)"; only the non-default or specified fields are included.
 This works.
 
-* Signature
+.. raw:: html
 
-    * add_str_method(cls)
+  <embed>
+  <head>
+    <style>
+        .style68 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style68">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **add_str_method**(cls)
 
-    * cls: Class to decorate.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style69 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style69">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The decorated function.
+* **cls:** Class to decorate.
 
-* Raises
+.. raw:: html
 
-  * (this function does not raise any notable errors)
+  <embed>
+  <head>
+    <style>
+        .style70 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style70">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The decorated function.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style71 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style71">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.types.recv_tmp_convert:
 
 recv_tmp_convert
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Tmp function which makes small changes to couple kinds of inbound payloads..
 
-* Signature
+.. raw:: html
 
-    * recv_tmp_convert(f_name, the_data)
+  <embed>
+  <head>
+    <style>
+        .style72 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style72">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **recv_tmp_convert**(f_name, the_data)
 
-    * f_name: Request_name,.
-    
-    * the_data: A dict x.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style73 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style73">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The modified x.
+* **f_name:** Request_name,.
 
-* Raises
+* **the_data:** A dict x.
 
-  * (this function does not raise any notable errors)
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style74 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style74">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The modified x.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style75 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style75">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.types.assert_strs:
 
 assert_strs
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Given a list.
 
-* Signature
+.. raw:: html
 
-    * assert_strs()
+  <embed>
+  <head>
+    <style>
+        .style76 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style76">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **assert_strs**()
 
-    * (this function accepts no arguments)
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style77 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style77">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The True. Raises an Excpetion if the assert fails.
+* **(this function accepts no arguments):**
 
-* Raises
+.. raw:: html
 
-  * (this function does not raise any notable errors)
+  <embed>
+  <head>
+    <style>
+        .style78 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style78">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The True. Raises an Excpetion if the assert fails.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style79 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style79">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.types.limit_len:
 
 limit_len
 ---------------------------------------------------------------------------------------------------------------------
 
-* Signature
 
-    * limit_len(txt, n)
 
-* Parameters
+.. raw:: html
 
-    * txt: Text.
-    
-    * n: The maximum length,.
+  <embed>
+  <head>
+    <style>
+        .style80 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style80">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Returns
+* **limit_len**(txt, n)
 
-  * The  string with a limited length.
-  If the string is shortened "...<number of> chars" will be shown at the end.
+.. raw:: html
 
-* Raises
+  <embed>
+  <head>
+    <style>
+        .style81 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style81">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * (this function does not raise any notable errors)
+* **txt:** Text.
+
+* **n:** The maximum length,.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style82 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style82">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The  string with a limited length.
+If the string is shortened "...<number of> chars" will be shown at the end.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style83 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style83">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.types.to_char_id_list:
 
 to_char_id_list
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Converts the input to a list of character_ids, designed to accept a wide range of inputs.
 
-* Signature
+.. raw:: html
 
-    * to_char_id_list(c)
+  <embed>
+  <head>
+    <style>
+        .style84 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style84">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **to_char_id_list**(c)
 
-    * c: This can be one of many things:
-        A Character (returns it's id as one-element list).
-        A string (assumes it's an id wraps it into a one element list).
-        A list of Characters (extracts the ids).
-        A list of strings (returns a copy of the list).
-        A mixed character and string list.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style85 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style85">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The list of character ids.
+* **c:** This can be one of many things:
+    A Character (returns it's id as one-element list).
+    A string (assumes it's an id wraps it into a one element list).
+    A list of Characters (extracts the ids).
+    A list of strings (returns a copy of the list).
+    A mixed character and string list.
 
-* Raises
+.. raw:: html
 
-  * (this function does not raise any notable errors)
+  <embed>
+  <head>
+    <style>
+        .style86 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style86">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The list of character ids.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style87 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style87">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.types.normalize_message:
 
 normalize_message
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Normalizes a message to a format that the websocket client understands. See sdk.send_message() for more details.
-This function is usually used internally..
+Note: No file uploading nor interaction is performed. These steps are to be performed in Moobius.send_message().
+This function is generally for internal use..
+All arguments except message are optional.
 
-* Signature
+.. raw:: html
 
-    * normalize_message(message, channel_id, sender, recipients, subtype, len_limit, file_display_name, context)
+  <embed>
+  <head>
+    <style>
+        .style88 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style88">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **normalize_message**(message, channel_id, sender, recipients, subtype, len_limit, file_display_name, context, text, link, title, button, path)
 
-    * message: Message.
-    
-    * channel_id=None: A channel_id.
-    
-    * sender=None: A sender.
-    
-    * recipients=None: The recipients.
-    
-    * subtype=None: A subtype.
-    
-    * len_limit=None: The len_limit.
-    
-    * file_display_name=None: A file_display_name.
-    
-    * context=None: The context.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style89 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style89">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The  normalized message as a dict but with a MessageContent inside of it.
+* **message:** Message.
 
-* Raises
+* **channel_id=None:** A channel_id.
 
-  * (this function does not raise any notable errors)
+* **sender=None:** A sender.
+
+* **recipients=None:** The recipients.
+
+* **subtype=None:** A subtype.
+
+* **len_limit=None:** The optional len_limit.
+
+* **file_display_name=None:** A file_display_name.
+
+* **context=None:** The context.
+
+* **text=None:** The text.
+
+* **link=None:** The optional link.
+
+* **title=None:** The optional title.
+
+* **button=None:** The card button.
+
+* **path=None:** The file/url path.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style90 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style90">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The  normalized message as a dict but with a MessageContent inside of it.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style91 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style91">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.types.as_update_body:
 
 as_update_body
 ---------------------------------------------------------------------------------------------------------------------
 
-* Signature
 
-    * as_update_body(payload_body)
 
-* Parameters
+.. raw:: html
 
-    * payload_body: Payload body.
+  <embed>
+  <head>
+    <style>
+        .style92 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style92">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Returns
+* **as_update_body**(payload_body)
 
-  * The UpdateBody version of it.
+.. raw:: html
 
-* Raises
+  <embed>
+  <head>
+    <style>
+        .style93 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style93">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * (this function does not raise any notable errors)
+* **payload_body:** Payload body.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style94 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style94">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The UpdateBody version of it.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style95 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style95">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 .. _moobius.types.payload_as_dict:
 
 payload_as_dict
 ---------------------------------------------------------------------------------------------------------------------
 
+
+
 Converts a payload to a dict..
 
-* Signature
+.. raw:: html
 
-    * payload_as_dict(payload_type, payload_body, client_id, the_uuid)
+  <embed>
+  <head>
+    <style>
+        .style96 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style96">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
 
-* Parameters
+* **payload_as_dict**(payload_type, payload_body, client_id, the_uuid)
 
-    * payload_type: Payload type.
-    
-    * payload_body: The Payload object or dict-valued payload.
-    
-    * client_id: The client/service id.
-    
-    * the_uuid: Any unique uuid.
+.. raw:: html
 
-* Returns
+  <embed>
+  <head>
+    <style>
+        .style97 {
+            background-color: #BBDDDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style97">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
 
-  * The payload as a dict.
+* **payload_type:** Payload type.
 
-* Raises
+* **payload_body:** The Payload object or dict-valued payload.
 
-  * (this function does not raise any notable errors)
+* **client_id:** The client/service id.
+
+* **the_uuid:** Any unique uuid.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style98 {
+            background-color: #BBBBDD;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style98">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* The payload as a dict.
+
+.. raw:: html
+
+  <embed>
+  <head>
+    <style>
+        .style99 {
+            background-color: #DDBBBB;
+            padding: 5px;
+            border-radius: 2px;
+            font-family: Times New Roman;
+            color: black;
+            font-size: 16px;
+        }
+    </style>
+  </head>
+  <body>
+    <p class="style99">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
 
 ************************************
 Class InputComponent
@@ -382,10 +1066,10 @@ ButtonClick.button_type: Optional[str] = None:
   What kind of button was pressed (rarely used).
 
 ************************************
-Class ActionBody
+Class SimpleAction
 ************************************
 
-<no class docstring>
+Join, leave, and refresh actions (refresh not technically an action, but has the same data).
 
 
 
@@ -394,16 +1078,16 @@ Class attributes
 
 
 
-ActionBody.subtype: str:
+SimpleAction.subtype: str:
   Subtypes are 'join', 'leave', etc.
 
-ActionBody.channel_id: str:
+SimpleAction.channel_id: str:
   The channel that the user performed the action in.
 
-ActionBody.sender: str:
+SimpleAction.sender: str:
   The user id.
 
-ActionBody.context: Optional[dict] = None:
+SimpleAction.context: Optional[dict] = None:
   Rarely used metadata.
 
 ************************************
@@ -425,7 +1109,7 @@ MenuItem.menu_item_id: str:
 MenuItem.menu_item_text: str:
   What text to show in the browser.
 
-MenuItem.message_subtypes: list[str]:
+MenuItem.message_subtypes: str | list[str]:
   What message types will open the menu. ["text","file", etc].
 
 MenuItem.dialog: Optional[Dialog] = None:
@@ -497,7 +1181,7 @@ MenuItemClick.sender: str:
 MenuItemClick.message_id: Optional[str] = None:
   The platform-generated ID of which message was clicked on (rarely used).
 
-MenuItemClick.arguments: Optional[list[str]] = None:
+MenuItemClick.arguments: Optional[list[ClickArgument]] = None:
   What sub-menu settings, if the menu element clicked on has a sub-menu.
 
 MenuItemClick.bottom_button_id: Optional[str] = None:

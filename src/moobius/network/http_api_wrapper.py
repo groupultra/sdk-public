@@ -1,7 +1,7 @@
 # aiohttp-based wrapper for HTTPS interaction with the platform.
 # Handles auth as well as GET and POST requests.
 # This module is designed to be used by the Moobius service.
-import json, os, io, hashlib, datetime, random
+import json, os, io, hashlib, datetime, random, re
 import aiohttp
 from loguru import logger
 from dacite import from_dict
@@ -226,6 +226,12 @@ class HTTPAPIWrapper:
         self.refresh_token = response_dict.get('data').get('AuthenticationResult').get('RefreshToken')
         logger.info(f"Signed up! Access token: {self.access_token}")
         return self.access_token, self.refresh_token
+
+    async def delete_account(self):
+        """Deletes an account. Mainly used for testing. Returns None."""
+        response_dict = await self.checked_post(url=self.http_server_uri + "/auth/delete_account", the_request={"username": self.username}, requests_kwargs=None, good_message=None, bad_message="Error during signup", raise_errors=True)
+        logger.info(f"Deleted account for username: {self.username}, response={response_dict}")
+        return None
 
     async def sign_out(self):
         """Signs out using the access token obtained from signing in. Returns None."""
@@ -586,12 +592,30 @@ class HTTPAPIWrapper:
                 self.filehash2URL[the_hash] = await self.upload(file_path)
             return self.filehash2URL[the_hash]
 
+    async def download_size(self, url, headers=None):
+        """Gets the download size in bytes given a url and optional headers. Queries for the header and does not download the file. Returns the number of bytes."""
+        if headers is None: # These buckets are public so no need to upload.
+            headers = {}
+        if headers == 'self':
+            headers={'headers':self.headers} # Auth allows downloading form buckets we authed for.
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.head(url, **headers) as response:
+                    if 'Content-Length' in response.headers:
+                        file_size = int(response.headers['Content-Length'])
+                        return file_size
+                    else:
+                        logger.warning("Content-Length not found in headers.")
+                        return None
+        except aiohttp.ClientError as e:
+            return None
+
     async def download(self, source, file_path=None, auto_dir=None, overwrite=None, bytes=None, headers=None):
         """
         Downloads a file from a url or other source to a local filename, automatically creating dirs if need be.
 
         Parameters:
-          url: The url to download the file from.
+          source: The url to download the file from. OR a MessageBody which has a .content.path in it.
           file_path=None: The file_path to download to.
             None will create a file based on the timestamp + random numbers.
             If no extension is specified, will infer the extension from the url if one exists.
