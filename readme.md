@@ -16,23 +16,23 @@ Install with `pip install moobius`
 
 Note: It may be "python3" and "pip3" instead of "python" and "pip" if you are not aliasing "python" to python3.
 
-**Creating a simple service**
+**Create a simple service**
 
 `cd` into a folder of your choice.
 
-Type in `moobius` or `moobius gui`. Enter your email and password (these are the only fields you absolutly need to get a correct configuration). If you are getting a command not found error, you can alternativly use `python -m moobius`.
+Type in `moobius` or `moobius gui`. Enter your email and password (these are the only fields you absolutely need to get a correct configuration). If you are getting a command not found error, you can alternatively use `python -m moobius`.
 
 **Test Moobius**
 
 Start the service with `python service.py` within your folder. Go back to your browser and you should see a new channel in the list of channels. The service is currently running on this channel.
 
-**Expriement!**
+**Experiment!**
 
 Congratulations! Now you have your first Moobius Service. It functions by overriding the base `Moobius` class. The code is driven by async callbacks which can in turn send commands up to the service to i.e. send particular messages to particular users.
 
 Several demos that showcase simple features [are a good starting point](https://github.com/groupultra/Public-CCS-demos).
 
-## Glossery / Reference
+## Glossary / Reference
 
 Again, a more detailed version of this is available in the read-the-docs.
 
