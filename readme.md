@@ -1,6 +1,6 @@
 # Welcome to Moobius Python SDK (Version 1.x.y)!
 
-This readme provides a condensed tutorial. A much more complete reference can be found on [the Read The Docs](https://moobius.readthedocs.io/en/stable/).
+This readme provides a condensed tutorial. A much more complete reference can be found on [Read The Docs](https://moobius.readthedocs.io/en/stable/).
 
 ## Quick Start
 
