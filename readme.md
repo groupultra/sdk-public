@@ -1,6 +1,6 @@
 # Welcome to Moobius Python SDK (Version 1.x.y)!
 
-This readme provides a condensed tutorial. A much more complete reference can be found on [the Read The Docs](https://moobius.readthedocs.io/en/stable/).
+This readme provides a condensed tutorial. A much more complete reference can be found on [Read The Docs](https://moobius.readthedocs.io/en/stable/).
 
 ## Quick Start
 
@@ -12,27 +12,27 @@ Register an account on [Moobius](http://www.moobius.ai). You have to enter an em
 
 Make sure you are at least at Python 3.10 with `python --version`. If not, install it from [Python.org](https://www.python.org/downloads/). Also make sure `pip` is isntalled.
 
-Install with `pip install moobius`
+Install with `pip install moobius --upgrade`
 
 Note: It may be "python3" and "pip3" instead of "python" and "pip" if you are not aliasing "python" to python3.
 
-**Creating a simple service**
+**Create a simple service**
 
 `cd` into a folder of your choice.
 
-Type in `moobius` or `moobius gui`. Enter your email and password (these are the only fields you absolutly need to get a correct configuration). If you are getting a command not found error, you can alternativly use `python -m moobius`.
+Type in `moobius` or `moobius gui`. Enter your email and password (these are the only fields you absolutely need to get a correct configuration). If you are getting a command not found error, you can alternatively use `python -m moobius`.
 
 **Test Moobius**
 
 Start the service with `python service.py` within your folder. Go back to your browser and you should see a new channel in the list of channels. The service is currently running on this channel.
 
-**Expriement!**
+**Experiment!**
 
 Congratulations! Now you have your first Moobius Service. It functions by overriding the base `Moobius` class. The code is driven by async callbacks which can in turn send commands up to the service to i.e. send particular messages to particular users.
 
 Several demos that showcase simple features [are a good starting point](https://github.com/groupultra/Public-CCS-demos).
 
-## Glossery / Reference
+## Glossary / Reference
 
 Again, a more detailed version of this is available in the read-the-docs.
 
@@ -44,7 +44,7 @@ Again, a more detailed version of this is available in the read-the-docs.
 
 4. **Logging:** Logging uses [Loguru](https://loguru.readthedocs.io/en/stable/), a colorful, comprehensive logging system. Simply replace `print` with `logging.info()`, `logging.warning()`, or `logging.error()` for a thread-safe logging that also saves to the disk. It has plenty of other features as well.
 
-5. **Wand:** The `MoobiusWand` class launches and manages one or more services. The services can either run on the Wand's process (recommended for simple tasks) or on a seperate process with `background=True`. Using a background service requires moving initialization of unpickable objects to `self.on_start()`. Use `wand.spell()` or `await wand.aspell()` to have the wand interact with the service by calling the `self.on_spell()` callback.
+5. **Wand:** The `MoobiusWand` class launches and manages one or more services. The services can either run on the Wand's process (recommended for simple tasks) or on a seperate process with `background=True`. Using a background service requires moving initialization of unpicklable objects to `self.before_channel_init()` or `self.on_start()` instead of `self.__init__()`. Use `wand.spell()` or `await wand.aspell()` to have the wand interact with the service by calling the `self.on_spell()` callback.
 
 6. **Usermode:** *Usermode is an advanced feature with niche use-cases.* This is a service running with `service_mode` set to False. Instead of a service, it acts as a user who can interact with a service much like a user would. It responds to messages recieved *down* from the serivce (instead of *up* from a user) and sends messages *up* instead of *down*. Instead of *sending* buttons, wigits, and other menus and *recieving* clicks and other interaction, it *recieves* changes to these components and *sends* clicks. **Only use usermode if you need to automate a pre-existing account.** If all you need to do is create AI characters and have them talk, it is much easier to do so using the `service.create_character` function.
 
