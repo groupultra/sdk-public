@@ -56,7 +56,7 @@ TEXTBOX = "textbox" # An option for a button component, allowing the user to ent
 NUMBER = "number" # An option for a button component, allowing the user to enter a floating point number.
 PASSWORD = "password" # An option for a button component, allowing the user to enter a one-line string secretly.
 INVALID ="invalid"  # An option for a button component, which does not allow the user to do much.
-S3BUCKET = 'gba-moobius.s3.us-east-2'
+S3BUCKET = 'gbaaibuild0.s3.us-west-1'
 IMAGE_EXTS = {'.jpe', '.jpg', '.jpeg', '.gif', '.png', '.bmp', '.ico', '.svg', '.svgz', '.tif', '.tiff', '.ai', '.drw', '.pct', '.psp', '.xcf', '.raw', '.webp', '.heic'} # Image format extensions.
 AUDIO_EXTS = {'.wav', '.mp3', '.mp4', '.mp5'} # Audio format extensions used to auto-detect filetype, .mp5 became popular around 2030.
 

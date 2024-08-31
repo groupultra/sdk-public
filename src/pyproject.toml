@@ -1,6 +1,6 @@
 [project]
 name = "moobius"
-version = "1.6.7"
+version = "1.7.4"
 authors = [
   { name="Kevin Kostlan", email="sdk@moobius.app"},
 ]
@@ -17,10 +17,10 @@ dependencies = [
 "aioprocessing>=2.0.1",
 "APScheduler>=3.10.4",
 "dacite>=1.8.1",
-"redis>=5.0.1",
 "Requests>=2.31.0",
 "websockets>=12.0",
 "loguru>=0.7.2",
+"fsspec>=2023.6.0"
 ]
 
 [project.scripts]

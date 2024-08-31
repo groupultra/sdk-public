@@ -2,20 +2,14 @@
 # There is an optional GUI mode as well.
 # Run "moobius -help" to learn more.
 
-import requests, json, os, sys, shlex, asyncio
-import platform, subprocess
+import requests, json, os, sys, shlex, asyncio, platform, subprocess
+import fsspec
+
 from loguru import logger
 from moobius import types
 
-
-TEMPLATE_EXTRA_FILES = {
-    "Zero":[], # Include non files so that this gets added to the GUI list.
-    "Bot puppet":['user.py', 'main.py', 'config/usermode_service.json', 'config/usermode_account.json', 'config/usermode_db.json', 'config/usermode_log.json'],
-    "Buttons":[],
-    "Database":[],
-    "Demo":['resources/buttons.json', 'resources/dark.png', 'resources/light.png', 'resources/mickey.jpg', 'resources/wand.png', 'resources/tiny.mp3', 'resources/tiny.pdf'],
-    "Testbed":['niceuser.py', 'main.py', 'resources/buttons.json', 'resources/dark.png', 'resources/light.png', 'resources/mickey.jpg', 'resources/wand.png', 'resources/tiny.mp3', 'resources/tiny.pdf'],
-    "Multiagent":['gpt.py']}
+TEMPLATE_LIST = ['battleship', 'botpuppet', 'buttons', 'database', 'groupchat', 'menucanvas', 'multiagent', 'template', 'testbed', 'zero']
+URL_CHOICES = ['moobius.ai/', 'moobius.link/']
 
 service_template = {
     "http_server_uri": "https://api.moobius.link/",
@@ -47,10 +41,21 @@ global_config = {
     "service_config": "config/service.json",
     "log_config": "config/log.json"
 }
-
-download_failed_defaults = {'config/db.json':'[]'}
-
 boxes = {}
+
+
+def download_folder(local_folder, sub_git_folder):
+    """Downloads from the GroupUltra Public-CCS-demos. Accepts the local folder to download to and the subfolder within the git repo. Returns None."""
+    os.makedirs(local_folder, exist_ok=True)
+
+    # Note: Recursive seems broken, have to manually walk.
+    # https://sebastianwallkoetter.wordpress.com/2022/01/30/copy-github-folders-using-python/
+    fs = fsspec.filesystem("github", org="groupultra", repo="Public-CCS-demos")
+    fs.get(fs.ls(sub_git_folder, recursive=False), os.path.realpath(local_folder).replace('\\','/'), recursive=False)
+    sub_local_folders = [fname for fname in os.listdir(local_folder) if os.path.isdir(local_folder+'/'+fname)]
+    for sublocal in sub_local_folders:
+        download_folder(local_folder+'/'+sublocal, (sub_git_folder+'/'+sublocal).replace('//','/'))
+
 
 def open_folder_in_explorer(folder_path):
     """Lets the user select a folder given a default folder to pick. This is used for gui-mode only. Returns None."""
@@ -179,24 +184,12 @@ def submit(out):
     for k in ['email', 'password']:
         account_template[k] = out[k]
 
-    # URL fun:
-    base_url = "https://raw.githubusercontent.com/groupultra/Public-CCS-demos/main/"+out['template']+'/'
-    kys = ['readme.md', 'service.py', 'config/db.json', 'config/service.json', 'config/account.json', 'config/log.json', 'config/config.json']
-    kys = kys+TEMPLATE_EXTRA_FILES.get(out['template'], [])
-    non_requests = {'config/service.json':service_template, 'config/account.json':account_template, 'config/log.json':log_template,
+    download_folder(the_folder, out['template'])
+    replace_these = {'config/service.json':service_template, 'config/account.json':account_template, 'config/log.json':log_template,
                     'config/usermode_service.json':service_template, 'config/usermode_account.json':account_template, 'config/usermode_log.json':log_template,
                     'config/config.json':global_config}
-    for ky in kys:
-        x = non_requests.get(ky, None)
-        if not x:
-            url = base_url+ky
-            try:
-                x = download_text_file_to_string(url)
-            except Exception as e:
-                print(f"Warning: Download {url} failed using a simple default file")
-                x = download_failed_defaults[ky]
-
-        save(the_folder+'/'+ky, x)
+    for fname, contents in replace_these.items():
+        save(the_folder+'/'+fname, contents)
 
     print('Saved to:', the_folder)
     open_folder_in_explorer(the_folder)
@@ -331,8 +324,8 @@ Less common arguments:
         make_box(root, "channels", "Channel id(s) comma-sep", total_opts['channels'], None)
         make_box(root, "email", "Account email/username", total_opts['email'], None)
         make_box(root, "password", "Account password (.gitignore!)", total_opts['password'], None)
-        make_box(root, "template", "Choose a starting point", total_opts['template'], list(sorted(TEMPLATE_EXTRA_FILES.keys())))
-        make_box(root, "url", "(Advanced) choose URL", total_opts['url'], ['moobius.ai/', 'moobius.link/'])
+        make_box(root, "template", "Choose a starting point", total_opts['template'], list(sorted(TEMPLATE_LIST)))
+        make_box(root, "url", "(Advanced) choose URL", total_opts['url'], URL_CHOICES)
         make_box(root, "service_id", "(Advanced) Reuse old service_id", total_opts['service_id'])
         make_box(root, "others", "(Advanced) Orphan channels", total_opts['others'], [types.INCLUDE, types.IGNORE, types.UNBIND])
         folder_box = make_box(root, "folder", "Output folder", total_opts['folder'])

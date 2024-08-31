@@ -150,7 +150,7 @@ class HTTPAPIWrapper:
                 v = f'<binary blob {len(v)} bytes>'
             sv = str(v)
             if len(sv)>256+16:
-                sv = sv[0:256]+f'...<len(sv) chars total>'
+                sv = sv[0:256]+f'...<{len(sv)} chars total>'
             kwarg_str.append(k+'='+sv)
         kwarg_str = ' '.join(kwarg_str)
         req_info_str = f"{'POST' if is_post else 'GET'} URL={url} {kwarg_str.replace('<', '&lt;').replace('>', '&gt;')}"
@@ -258,7 +258,7 @@ class HTTPAPIWrapper:
         return from_dict(data_class=Character, data=c_data)
 
     async def fetch_character_profile(self, character_id):
-        """Given a string-valued (or list-valued) character_id returns a Character object (or list therof),
+        """Given a string-valued (or list-valued) character_id/character returns a Character object (or list therof).
         It works for both member_ids and agent_ids."""
         is_list = type(character_id) not in [str, Character]
         character_id = types.to_char_id_list(character_id)
@@ -404,12 +404,12 @@ class HTTPAPIWrapper:
         character = self._xtract_character(response_dict['data'])
         return character
 
-    async def update_agent(self, service_id, agent_id, avatar, description, name):
+    async def update_agent(self, service_id, agent, avatar, description, name):
         """Updates the characters name, avatar, etc for a FAKE user, for real users use update_current_user.
 
            Parameters:
-             service_id (str): Which service holds the user.
-             agent_id (str): Who to update. Can also be a Character object. Cannot be a list.
+             service_id (str): The service_id/client_id.
+             agent (str): Who to update. Can also be a Character object or character_id. Cannot be a list.
              avatar (str): A link to user's image or a local file_path to upload.
              description (str): The description of user.
              name (str): The name that will show in chat.
@@ -419,10 +419,10 @@ class HTTPAPIWrapper:
         """
         avatar = await self.convert_to_url(avatar)
 
-        if type(agent_id) is Character:
-            agent_id = agent_id.character_id
-        types.assert_strs(service_id, agent_id, description, name, avatar)
-        the_request = {"service_id": service_id, 'character_id':agent_id, 'context': {'avatar':avatar, 'description':description, 'name':name}}
+        if type(agent) is Character:
+            agent = agent.character_id
+        types.assert_strs(service_id, agent, description, name, avatar)
+        the_request = {"service_id": service_id, 'character_id':agent, 'context': {'avatar':avatar, 'description':description, 'name':name}}
         response_dict = await self.checked_post(url=self.http_server_uri + f"/service/character/update", the_request=the_request, requests_kwargs={'headers':self.headers}, good_message="Successfully updated character info", bad_message="Error updating character info", raise_errors=True)
         return response_dict.get('data')
 
