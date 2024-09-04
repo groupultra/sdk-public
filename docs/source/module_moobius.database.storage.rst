@@ -19,19 +19,9 @@ get_engine
 
   <embed>
   <head>
-    <style>
-        .style593 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style593">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -43,43 +33,23 @@ get_engine
 
   <embed>
   <head>
-    <style>
-        .style594 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style594">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **implementation:** N implementation string.
+* __implementation:__ N implementation string.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style595 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style595">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -92,19 +62,9 @@ Last-minute-imports the module so that no pip package is needed for unused engin
 
   <embed>
   <head>
-    <style>
-        .style596 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style596">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -134,19 +94,9 @@ Loads all keys from the database to the cache.
 
   <embed>
   <head>
-    <style>
-        .style597 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style597">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -158,43 +108,23 @@ Loads all keys from the database to the cache.
 
   <embed>
   <head>
-    <style>
-        .style598 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style598">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style599 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style599">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -206,19 +136,9 @@ Loads all keys from the database to the cache.
 
   <embed>
   <head>
-    <style>
-        .style600 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style600">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -242,19 +162,9 @@ For a JSONDatabase, this will create a new json file named after the database's 
 
   <embed>
   <head>
-    <style>
-        .style601 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style601">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -266,43 +176,23 @@ For a JSONDatabase, this will create a new json file named after the database's 
 
   <embed>
   <head>
-    <style>
-        .style602 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style602">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** String-valued key.
+* __key:__ String-valued key.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style603 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style603">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -314,19 +204,9 @@ For a JSONDatabase, this will create a new json file named after the database's 
 
   <embed>
   <head>
-    <style>
-        .style604 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style604">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -349,19 +229,9 @@ Overrides "v = d.pop(k)" to get and delete k from the database..
 
   <embed>
   <head>
-    <style>
-        .style605 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style605">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -373,45 +243,25 @@ Overrides "v = d.pop(k)" to get and delete k from the database..
 
   <embed>
   <head>
-    <style>
-        .style606 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style606">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
-* **default='__unspecified__':** An optional default value.
+* __default='__unspecified__':__ An optional default value.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style607 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style607">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -423,19 +273,9 @@ Overrides "v = d.pop(k)" to get and delete k from the database..
 
   <embed>
   <head>
-    <style>
-        .style608 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style608">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -458,19 +298,9 @@ Overrides "d.clear()" to clear the database.
 
   <embed>
   <head>
-    <style>
-        .style609 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style609">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -482,43 +312,23 @@ Overrides "d.clear()" to clear the database.
 
   <embed>
   <head>
-    <style>
-        .style610 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style610">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style611 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style611">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -530,19 +340,9 @@ Overrides "d.clear()" to clear the database.
 
   <embed>
   <head>
-    <style>
-        .style612 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style612">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -578,19 +378,9 @@ load (default True) to load the dict immediatly, clear (default False) to clear 
 
   <embed>
   <head>
-    <style>
-        .style613 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style613">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -602,49 +392,29 @@ load (default True) to load the dict immediatly, clear (default False) to clear 
 
   <embed>
   <head>
-    <style>
-        .style614 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style614">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **attr_name:** The attr name to add dynamically to self, setting it to a CachedDict.
+* __attr_name:__ The attr name to add dynamically to self, setting it to a CachedDict.
 
-* **database:** The database.
+* __database:__ The database.
 
-* **load=True:** Whether to load the dict in full at startup instead of gradually.
+* __load=True:__ Whether to load the dict in full at startup instead of gradually.
 
-* **clear=False:** Whether to clear the dict (which deletes the files).
+* __clear=False:__ Whether to clear the dict (which deletes the files).
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style615 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style615">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -656,19 +426,9 @@ load (default True) to load the dict immediatly, clear (default False) to clear 
 
   <embed>
   <head>
-    <style>
-        .style616 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style616">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -691,19 +451,9 @@ Adds a database using the config dict.
 
   <embed>
   <head>
-    <style>
-        .style617 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style617">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -715,51 +465,31 @@ Adds a database using the config dict.
 
   <embed>
   <head>
-    <style>
-        .style618 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style618">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **implementation:** The engine of the database.
+* __implementation:__ The engine of the database.
 
-* **settings:** Contains "root_dir" of the json files, for example.
+* __settings:__ Contains "root_dir" of the json files, for example.
 
-* **name:** The attribute that will be added to self for later use.
+* __name:__ The attribute that will be added to self for later use.
 
-* **load=True:** Whether to load the database when initializing the database.
+* __load=True:__ Whether to load the database when initializing the database.
 
-* **clear=False:** Whether to clear the database when initializing the database.
+* __clear=False:__ Whether to clear the database when initializing the database.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style619 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style619">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -771,19 +501,9 @@ Adds a database using the config dict.
 
   <embed>
   <head>
-    <style>
-        .style620 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style620">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -796,19 +516,9 @@ Adds a database using the config dict.
 
   <embed>
   <head>
-    <style>
-        .style621 {
-            background-color: #DDBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style621">
+    <p class="fexample">
           <b>Example:</b>
     </p>
   </body>

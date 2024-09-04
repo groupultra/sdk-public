@@ -16,19 +16,9 @@ Gets the value in each GUI box.
 
   <embed>
   <head>
-    <style>
-        .style60 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style60">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -40,43 +30,23 @@ Gets the value in each GUI box.
 
   <embed>
   <head>
-    <style>
-        .style61 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style61">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this function accepts no arguments):**
+* __(this function accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style62 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style62">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -88,19 +58,9 @@ Gets the value in each GUI box.
 
   <embed>
   <head>
-    <style>
-        .style63 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style63">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -123,19 +83,9 @@ A Tkinter callback..
 
   <embed>
   <head>
-    <style>
-        .style64 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style64">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -147,43 +97,23 @@ A Tkinter callback..
 
   <embed>
   <head>
-    <style>
-        .style65 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style65">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **kwargs:** Ignored args/kwargs.
+* __kwargs:__ Ignored args/kwargs.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style66 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style66">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -195,19 +125,9 @@ A Tkinter callback..
 
   <embed>
   <head>
-    <style>
-        .style67 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style67">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

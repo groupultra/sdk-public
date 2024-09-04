@@ -327,7 +327,7 @@ class Moobius:
             if message['subtype'] == types.FILE and not message['content'].size:
                 message['content'].size = await self.http_api.download_size(message['content'].path)
 
-        if message.get('recipients'):
+        if message.get('recipients') is not None:
             message['recipients'] = await self._update_rec(message['recipients'], self.service_mode, message.get('channel_id'))
             if self.service_mode:
                 message['sender'] = message['sender'] or 'no_sender'
@@ -340,7 +340,7 @@ class Moobius:
                         del message[ky]
                 return await self.ws_client.message_up(self.client_id, self.client_id, **message)
         else:
-            logger.warning('Empty or None recipients, no message will be sent.')
+            logger.warning('None recipients, no message will be sent.')
 
     async def send(self, payload_type, payload_body):
         """
@@ -418,7 +418,6 @@ class Moobius:
             self.client_id = await self.create_new_service()
         return await self.ws_client.service_login(self.client_id, self.http_api.access_token)
 
-
     ################################## Single-line functions #######################################
     async def _update_rec(self, recipients, is_m_down, channel_id=None):
         """
@@ -426,11 +425,12 @@ class Moobius:
         Converts lists into group_id strings, creating a group if need be, when given the recipients, True if a message down, and the channel_id.
         Returns the converted list.
         """
+        #valid_ids = await self.fetch_member_ids(channel_id) # if self.service_mode else ([c.character_id for c in (await self.fetch_characters(channel_id))]+[types.SERVICE])
         return await self.group_lib.convert_list(self.http_api, recipients, is_m_down, channel_id)
 
     async def refresh_authentication(self): """Calls self.http_api.refresh."""; return await self.http_api.refresh()
     async def authenticate(self): """Calls self.http_api.authenticate."""; return await self.http_api.authenticate()
-    async def sign_up(self): """Calls self.http_api.sign_up."""; return await self.http_api.sign_up()
+    async def sign_up(self): """Calls self.http_api.request_sign_up."""; return await self.http_api.request_sign_up()
     async def sign_out(self): """Calls self.http_api.sign_out."""; return await self.http_api.sign_out()
     async def update_current_user(self, avatar, description, name): """Calls self.http_api.update_current_user."""; return await self.http_api.update_current_user(avatar, description, name)
     async def update_agent(self, character, avatar, description, name): """Calls self.http_api.update_agent using self.client_id."""; return await self.http_api.update_agent(self.client_id, character, avatar, description, name)
@@ -452,8 +452,6 @@ class Moobius:
     async def create_service_group(self, characters): """Calls self.http_api.create_service_group, mainly for internal use."""; return await self.http_api.create_service_group(characters)
     async def character_ids_of_channel_group(self, sender_id, channel_id, group_id): """Calls self.http_api.character_ids_of_channel_group, mainly for internal use."""; return await self.http_api.character_ids_of_channel_group(sender_id, channel_id, group_id)
     async def character_ids_of_service_group(self, group_id): """Calls self.http_api.character_ids_of_service_group, mainly for internal use."""; return await self.http_api.character_ids_of_service_group(group_id)
-    async def update_channel_group(self, channel_id, group_id, characters): """Calls self.http_api.update_channel_group, mainly for internal use."""; return await self.http_api.update_channel_group(channel_id, group_id, characters)
-    async def update_temp_channel_group(self, channel_id, characters): """Calls self.http_api.update_temp_channel_group, mainly for internal use."""; return await self.http_api.update_temp_channel_group(channel_id, characters)
     async def fetch_channel_temp_group(self, channel_id): """Calls self.http_api.fetch_channel_temp_group, mainly for internal use."""; return await self.http_api.fetch_channel_temp_group(channel_id, self.client_id)
     async def fetch_channel_group_list(self, channel_id): """Calls self.http_api.fetch_channel_group_list, mainly for internal use."""; return await self.http_api.fetch_channel_group_list(channel_id, self.client_id)
     async def fetch_user_from_group(self, user_id, channel_id, group_id): """Calls self.http_api.fetch_user_from_group, mainly for internal use."""; return await self.http_api.fetch_user_from_group(user_id, channel_id, group_id)

@@ -21,19 +21,9 @@ Recursively converts nested lists, dicts, etc into dataclasses if they have been
 
   <embed>
   <head>
-    <style>
-        .style0 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style0">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -45,43 +35,23 @@ Recursively converts nested lists, dicts, etc into dataclasses if they have been
 
   <embed>
   <head>
-    <style>
-        .style1 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style1">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **data:** Data.
+* __data:__ Data.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style2 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style2">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -94,19 +64,9 @@ Used by json_utils.enhanced_json_load.
 
   <embed>
   <head>
-    <style>
-        .style3 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style3">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -129,19 +89,9 @@ Converts data containing dataclasses back into pure dicts, making them with json
 
   <embed>
   <head>
-    <style>
-        .style4 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style4">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -153,45 +103,25 @@ Converts data containing dataclasses back into pure dicts, making them with json
 
   <embed>
   <head>
-    <style>
-        .style5 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style5">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **data:** Dataclassed data.
+* __data:__ Dataclassed data.
 
-* **typemark_dataclasses:** Whether to mark dataclasses in a special way so they are known as such.
+* __typemark_dataclasses:__ Whether to mark dataclasses in a special way so they are known as such.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style6 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style6">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -204,19 +134,9 @@ Used by json_utils.enhanced_json_save.
 
   <embed>
   <head>
-    <style>
-        .style7 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style7">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -239,19 +159,9 @@ Loads JSON from the disk,.
 
   <embed>
   <head>
-    <style>
-        .style8 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style8">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -263,43 +173,23 @@ Loads JSON from the disk,.
 
   <embed>
   <head>
-    <style>
-        .style9 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style9">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **filename:** Filename or bytes.
+* __filename:__ Filename or bytes.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style10 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style10">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -311,19 +201,9 @@ Loads JSON from the disk,.
 
   <embed>
   <head>
-    <style>
-        .style11 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style11">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -346,19 +226,9 @@ Saves the JSON to the disk and/or a string.
 
   <embed>
   <head>
-    <style>
-        .style12 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style12">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -370,49 +240,29 @@ Saves the JSON to the disk and/or a string.
 
   <embed>
   <head>
-    <style>
-        .style13 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style13">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **filename:** The filename or file object to save to. None if not saving to any file.
+* __filename:__ The filename or file object to save to. None if not saving to any file.
 
-* **data:** What needs to be saved. Can be a nested datastructure even with embedded dataclasses.
+* __data:__ What needs to be saved. Can be a nested datastructure even with embedded dataclasses.
 
-* **typemark_dataclasses=True:** Save dataclasses as special dicts so that on enhanced_json_load load they are converted back into dataclasses.
+* __typemark_dataclasses=True:__ Save dataclasses as special dicts so that on enhanced_json_load load they are converted back into dataclasses.
 
-* **indent=2:** The indent to display the text at.
+* __indent=2:__ The indent to display the text at.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style14 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style14">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -424,19 +274,9 @@ Saves the JSON to the disk and/or a string.
 
   <embed>
   <head>
-    <style>
-        .style15 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style15">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -461,19 +301,9 @@ Does not use enhanced_json features..
 
   <embed>
   <head>
-    <style>
-        .style16 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style16">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -485,43 +315,23 @@ Does not use enhanced_json features..
 
   <embed>
   <head>
-    <style>
-        .style17 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style17">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **x:** Generic input x.
+* __x:__ Generic input x.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style18 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style18">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -533,19 +343,9 @@ Does not use enhanced_json features..
 
   <embed>
   <head>
-    <style>
-        .style19 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style19">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -568,19 +368,9 @@ Updates a json file. Uses enhanced_json_load (which makes dataclasses have metad
 
   <embed>
   <head>
-    <style>
-        .style20 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style20">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -592,47 +382,27 @@ Updates a json file. Uses enhanced_json_load (which makes dataclasses have metad
 
   <embed>
   <head>
-    <style>
-        .style21 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style21">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **fname:** The json file.
+* __fname:__ The json file.
 
-* **key_path:** The path within the datastructure.
+* __key_path:__ The path within the datastructure.
 
-* **value:** The new value.
+* __value:__ The new value.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style22 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style22">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -644,19 +414,9 @@ Updates a json file. Uses enhanced_json_load (which makes dataclasses have metad
 
   <embed>
   <head>
-    <style>
-        .style23 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style23">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -680,19 +440,9 @@ This may involve JSON file reading.
 
   <embed>
   <head>
-    <style>
-        .style24 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style24">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -704,51 +454,31 @@ This may involve JSON file reading.
 
   <embed>
   <head>
-    <style>
-        .style25 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style25">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **config=None:** The entire config, a string (JSON filepath) or dict.
+* __config=None:__ The entire config, a string (JSON filepath) or dict.
 
-* **account_config=None:** The account-sepcific config with secrets, a string (JSON filepath) or dict.
+* __account_config=None:__ The account-sepcific config with secrets, a string (JSON filepath) or dict.
 
-* **service_config=None:** Service-specific config (the urls, the service id, and the channels).
+* __service_config=None:__ Service-specific config (the urls, the service id, and the channels).
 
-* **db_config=None:** Config specific to the Moobius db engine. A list of attributes. This feature is an independent feature to the Platform.
+* __db_config=None:__ Config specific to the Moobius db engine. A list of attributes. This feature is an independent feature to the Platform.
 
-* **log_config=None:** Config specific to logging. This feature is an independent feature to the Platform.
+* __log_config=None:__ Config specific to logging. This feature is an independent feature to the Platform.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style26 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style26">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -761,19 +491,9 @@ This may involve JSON file reading.
 
   <embed>
   <head>
-    <style>
-        .style27 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style27">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

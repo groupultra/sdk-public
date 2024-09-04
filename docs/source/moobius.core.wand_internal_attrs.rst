@@ -16,19 +16,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style489 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style489">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -40,43 +30,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style490 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style490">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style491 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style491">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -88,19 +58,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style492 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style492">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -123,19 +83,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style493 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style493">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -147,43 +97,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style494 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style494">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style495 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style495">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -195,19 +125,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style496 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style496">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

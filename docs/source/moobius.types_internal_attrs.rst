@@ -16,19 +16,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style100 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style100">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -40,43 +30,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style101 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style101">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style102 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style102">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -88,19 +58,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style103 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style103">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -123,19 +83,9 @@ Converts a file_path into a MessageContent object..
 
   <embed>
   <head>
-    <style>
-        .style104 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style104">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -147,47 +97,27 @@ Converts a file_path into a MessageContent object..
 
   <embed>
   <head>
-    <style>
-        .style105 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style105">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **file_path:** Filepath/url.
+* __file_path:__ Filepath/url.
 
-* **file_display_name=None:** The name to show in the chat.
+* __file_display_name=None:__ The name to show in the chat.
 
-* **subtype=None:** The message subtype.
+* __subtype=None:__ The message subtype.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style106 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style106">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -199,19 +129,9 @@ Converts a file_path into a MessageContent object..
 
   <embed>
   <head>
-    <style>
-        .style107 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style107">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -232,19 +152,9 @@ as_update_body._make_elem
 
   <embed>
   <head>
-    <style>
-        .style108 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style108">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -256,43 +166,23 @@ as_update_body._make_elem
 
   <embed>
   <head>
-    <style>
-        .style109 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style109">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **d:** Dict with the update information.
+* __d:__ Dict with the update information.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style110 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style110">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -304,19 +194,9 @@ as_update_body._make_elem
 
   <embed>
   <head>
-    <style>
-        .style111 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style111">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

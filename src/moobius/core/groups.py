@@ -43,6 +43,8 @@ class ServiceGroupLib():
             id2ids = self.id2ids_mup
         async with self.alock: # Make sure the old list is stored before the new list is created.
             character_ids = types.to_char_id_list(character_ids)
+            #if restrict_to_these_valid_ids:
+            #    character_ids = [c_id for c_id in character_ids if c_id in set(restrict_to_these_valid_ids)]
             if len(character_ids) == 0:
                 return None
             else: # Convert list to a single group id in this mode.

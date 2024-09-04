@@ -16,19 +16,9 @@ Sets the log levels etc.  Set after setting self._config.
 
   <embed>
   <head>
-    <style>
-        .style435 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style435">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -40,43 +30,23 @@ Sets the log levels etc.  Set after setting self._config.
 
   <embed>
   <head>
-    <style>
-        .style436 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style436">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style437 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style437">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -88,19 +58,9 @@ Sets the log levels etc.  Set after setting self._config.
 
   <embed>
   <head>
-    <style>
-        .style438 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style438">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -121,19 +81,9 @@ Moobius._convert_message_content
 
   <embed>
   <head>
-    <style>
-        .style439 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style439">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -145,45 +95,25 @@ Moobius._convert_message_content
 
   <embed>
   <head>
-    <style>
-        .style440 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style440">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **subtype:** Subtype.
+* __subtype:__ Subtype.
 
-* **content:** The string or dict-valued content,.
+* __content:__ The string or dict-valued content,.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style441 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style441">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -195,19 +125,9 @@ Moobius._convert_message_content
 
   <embed>
   <head>
-    <style>
-        .style442 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style442">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -231,19 +151,9 @@ Converts lists into group_id strings, creating a group if need be, when.
 
   <embed>
   <head>
-    <style>
-        .style443 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style443">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -255,47 +165,27 @@ Converts lists into group_id strings, creating a group if need be, when.
 
   <embed>
   <head>
-    <style>
-        .style444 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style444">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **recipients:** Recipients.
+* __recipients:__ Recipients.
 
-* **is_m_down:** True if a message down.
+* __is_m_down:__ True if a message down.
 
-* **channel_id=None:** The channel_id.
+* __channel_id=None:__ The channel_id.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style445 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style445">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -307,19 +197,9 @@ Converts lists into group_id strings, creating a group if need be, when.
 
   <embed>
   <head>
-    <style>
-        .style446 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style446">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -342,19 +222,9 @@ Called as a rate task, used to resync users, etc. Only called after on_start().
 
   <embed>
   <head>
-    <style>
-        .style447 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style447">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -366,43 +236,23 @@ Called as a rate task, used to resync users, etc. Only called after on_start().
 
   <embed>
   <head>
-    <style>
-        .style448 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style448">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style449 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style449">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -414,19 +264,9 @@ Called as a rate task, used to resync users, etc. Only called after on_start().
 
   <embed>
   <head>
-    <style>
-        .style450 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style450">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -449,19 +289,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style451 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style451">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -473,43 +303,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style452 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style452">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style453 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style453">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -521,19 +331,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style454 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style454">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -556,19 +356,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style455 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style455">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -580,43 +370,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style456 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style456">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style457 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style457">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -628,19 +398,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style458 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style458">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -661,19 +421,9 @@ Moobius.handle_received_payload._group2ids
 
   <embed>
   <head>
-    <style>
-        .style459 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style459">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -685,43 +435,23 @@ Moobius.handle_received_payload._group2ids
 
   <embed>
   <head>
-    <style>
-        .style460 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style460">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **g_id:** Gorup id.
+* __g_id:__ Gorup id.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style461 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style461">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -733,19 +463,9 @@ Moobius.handle_received_payload._group2ids
 
   <embed>
   <head>
-    <style>
-        .style462 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style462">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

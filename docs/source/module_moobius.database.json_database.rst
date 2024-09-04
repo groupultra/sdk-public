@@ -33,19 +33,9 @@ Note: This function should not be called directly.
 
   <embed>
   <head>
-    <style>
-        .style521 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style521">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -57,43 +47,23 @@ Note: This function should not be called directly.
 
   <embed>
   <head>
-    <style>
-        .style522 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style522">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** String-valued key.
+* __key:__ String-valued key.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style523 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style523">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -105,19 +75,9 @@ Note: This function should not be called directly.
 
   <embed>
   <head>
-    <style>
-        .style524 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style524">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -140,19 +100,9 @@ Updates and saves a cached dict,.
 
   <embed>
   <head>
-    <style>
-        .style525 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style525">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -164,45 +114,25 @@ Updates and saves a cached dict,.
 
   <embed>
   <head>
-    <style>
-        .style526 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style526">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** String-valued key.
+* __key:__ String-valued key.
 
-* **value:** A dict-valued value.
+* __value:__ A dict-valued value.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style527 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style527">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -215,19 +145,9 @@ Note: This function should not be called directly.
 
   <embed>
   <head>
-    <style>
-        .style528 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style528">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -250,19 +170,9 @@ Deletes a cached dict.
 
   <embed>
   <head>
-    <style>
-        .style529 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style529">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -274,43 +184,23 @@ Deletes a cached dict.
 
   <embed>
   <head>
-    <style>
-        .style530 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style530">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style531 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style531">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -323,19 +213,9 @@ Note: This function should not be called directly.
 
   <embed>
   <head>
-    <style>
-        .style532 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style532">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -358,19 +238,9 @@ Gets all the cached dicts in the database.
 
   <embed>
   <head>
-    <style>
-        .style533 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style533">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -382,43 +252,23 @@ Gets all the cached dicts in the database.
 
   <embed>
   <head>
-    <style>
-        .style534 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style534">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style535 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style535">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -430,19 +280,9 @@ Gets all the cached dicts in the database.
 
   <embed>
   <head>
-    <style>
-        .style536 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style536">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

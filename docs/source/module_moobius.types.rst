@@ -23,19 +23,9 @@ This works.
 
   <embed>
   <head>
-    <style>
-        .style68 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style68">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -47,43 +37,23 @@ This works.
 
   <embed>
   <head>
-    <style>
-        .style69 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style69">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **cls:** Class to decorate.
+* __cls:__ Class to decorate.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style70 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style70">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -95,19 +65,9 @@ This works.
 
   <embed>
   <head>
-    <style>
-        .style71 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style71">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -130,19 +90,9 @@ Tmp function which makes small changes to couple kinds of inbound payloads..
 
   <embed>
   <head>
-    <style>
-        .style72 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style72">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -154,45 +104,25 @@ Tmp function which makes small changes to couple kinds of inbound payloads..
 
   <embed>
   <head>
-    <style>
-        .style73 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style73">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **f_name:** Request_name,.
+* __f_name:__ Request_name,.
 
-* **the_data:** A dict x.
+* __the_data:__ A dict x.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style74 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style74">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -204,19 +134,9 @@ Tmp function which makes small changes to couple kinds of inbound payloads..
 
   <embed>
   <head>
-    <style>
-        .style75 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style75">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -239,19 +159,9 @@ Given a list.
 
   <embed>
   <head>
-    <style>
-        .style76 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style76">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -263,43 +173,23 @@ Given a list.
 
   <embed>
   <head>
-    <style>
-        .style77 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style77">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this function accepts no arguments):**
+* __(this function accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style78 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style78">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -311,19 +201,9 @@ Given a list.
 
   <embed>
   <head>
-    <style>
-        .style79 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style79">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -344,19 +224,9 @@ limit_len
 
   <embed>
   <head>
-    <style>
-        .style80 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style80">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -368,45 +238,25 @@ limit_len
 
   <embed>
   <head>
-    <style>
-        .style81 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style81">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **txt:** Text.
+* __txt:__ Text.
 
-* **n:** The maximum length,.
+* __n:__ The maximum length,.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style82 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style82">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -419,19 +269,9 @@ If the string is shortened "...<number of> chars" will be shown at the end.
 
   <embed>
   <head>
-    <style>
-        .style83 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style83">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -454,19 +294,9 @@ Converts the input to a list of character_ids, designed to accept a wide range o
 
   <embed>
   <head>
-    <style>
-        .style84 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style84">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -478,25 +308,15 @@ Converts the input to a list of character_ids, designed to accept a wide range o
 
   <embed>
   <head>
-    <style>
-        .style85 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style85">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **c:** This can be one of many things:
+* __c:__ This can be one of many things:
     A Character (returns it's id as one-element list).
     A string (assumes it's an id wraps it into a one element list).
     A list of Characters (extracts the ids).
@@ -507,19 +327,9 @@ Converts the input to a list of character_ids, designed to accept a wide range o
 
   <embed>
   <head>
-    <style>
-        .style86 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style86">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -531,19 +341,9 @@ Converts the input to a list of character_ids, designed to accept a wide range o
 
   <embed>
   <head>
-    <style>
-        .style87 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style87">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -569,19 +369,9 @@ All arguments except message are optional.
 
   <embed>
   <head>
-    <style>
-        .style88 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style88">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -593,67 +383,47 @@ All arguments except message are optional.
 
   <embed>
   <head>
-    <style>
-        .style89 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style89">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **message:** Message.
+* __message:__ Message.
 
-* **channel_id=None:** A channel_id.
+* __channel_id=None:__ A channel_id.
 
-* **sender=None:** A sender.
+* __sender=None:__ A sender.
 
-* **recipients=None:** The recipients.
+* __recipients=None:__ The recipients.
 
-* **subtype=None:** A subtype.
+* __subtype=None:__ A subtype.
 
-* **len_limit=None:** The optional len_limit.
+* __len_limit=None:__ The optional len_limit.
 
-* **file_display_name=None:** A file_display_name.
+* __file_display_name=None:__ A file_display_name.
 
-* **context=None:** The context.
+* __context=None:__ The context.
 
-* **text=None:** The text.
+* __text=None:__ The text.
 
-* **link=None:** The optional link.
+* __link=None:__ The optional link.
 
-* **title=None:** The optional title.
+* __title=None:__ The optional title.
 
-* **button=None:** The card button.
+* __button=None:__ The card button.
 
-* **path=None:** The file/url path.
+* __path=None:__ The file/url path.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style90 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style90">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -665,19 +435,9 @@ All arguments except message are optional.
 
   <embed>
   <head>
-    <style>
-        .style91 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style91">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -698,19 +458,9 @@ as_update_body
 
   <embed>
   <head>
-    <style>
-        .style92 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style92">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -722,43 +472,23 @@ as_update_body
 
   <embed>
   <head>
-    <style>
-        .style93 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style93">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **payload_body:** Payload body.
+* __payload_body:__ Payload body.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style94 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style94">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -770,19 +500,9 @@ as_update_body
 
   <embed>
   <head>
-    <style>
-        .style95 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style95">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -805,19 +525,9 @@ Converts a payload to a dict..
 
   <embed>
   <head>
-    <style>
-        .style96 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style96">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -829,49 +539,29 @@ Converts a payload to a dict..
 
   <embed>
   <head>
-    <style>
-        .style97 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style97">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **payload_type:** Payload type.
+* __payload_type:__ Payload type.
 
-* **payload_body:** The Payload object or dict-valued payload.
+* __payload_body:__ The Payload object or dict-valued payload.
 
-* **client_id:** The client/service id.
+* __client_id:__ The client/service id.
 
-* **the_uuid:** Any unique uuid.
+* __the_uuid:__ Any unique uuid.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style98 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style98">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -883,19 +573,9 @@ Converts a payload to a dict..
 
   <embed>
   <head>
-    <style>
-        .style99 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style99">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

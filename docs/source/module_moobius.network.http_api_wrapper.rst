@@ -22,19 +22,9 @@ Converts HTML to an easier-for-a-human format by cutting out some of the more co
 
   <embed>
   <head>
-    <style>
-        .style654 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style654">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -46,43 +36,23 @@ Converts HTML to an easier-for-a-human format by cutting out some of the more co
 
   <embed>
   <head>
-    <style>
-        .style655 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style655">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **html_str:** N html_string.
+* __html_str:__ N html_string.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style656 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style656">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -94,19 +64,9 @@ Converts HTML to an easier-for-a-human format by cutting out some of the more co
 
   <embed>
   <head>
-    <style>
-        .style657 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style657">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -129,19 +89,9 @@ Sends a GET or POST request and awaits for the response.
 
   <embed>
   <head>
-    <style>
-        .style658 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style658">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -153,49 +103,29 @@ Sends a GET or POST request and awaits for the response.
 
   <embed>
   <head>
-    <style>
-        .style659 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style659">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **url:** Https://...
+* __url:__ Https://...
 
-* **is_post:** False for GET, True for POST.
+* __is_post:__ False for GET, True for POST.
 
-* **requests_kwargs=None:** These are fed into the requests/session get/post function.
+* __requests_kwargs=None:__ These are fed into the requests/session get/post function.
 
-* **raise_json_decode_errors=True:** Raise errors parsing the JSON that the request sends back, otherwise return the error as a dict.
+* __raise_json_decode_errors=True:__ Raise errors parsing the JSON that the request sends back, otherwise return the error as a dict.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style660 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style660">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -213,19 +143,9 @@ Sends a GET or POST request and awaits for the response.
 
   <embed>
   <head>
-    <style>
-        .style661 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style661">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -277,19 +197,9 @@ Calls self._checked_get_or_post with is_post=False..
 
   <embed>
   <head>
-    <style>
-        .style662 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style662">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -301,53 +211,33 @@ Calls self._checked_get_or_post with is_post=False..
 
   <embed>
   <head>
-    <style>
-        .style663 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style663">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **url:** Url.
+* __url:__ Url.
 
-* **the_request:** The request itself.
+* __the_request:__ The request itself.
 
-* **requests_kwargs=None:** The kwargs for the request.
+* __requests_kwargs=None:__ The kwargs for the request.
 
-* **good_message=None:** The message to print on a happy 200.
+* __good_message=None:__ The message to print on a happy 200.
 
-* **bad_message='This HTTPs GET request failed':** The message to print on a sad non-200.
+* __bad_message='This HTTPs GET request failed':__ The message to print on a sad non-200.
 
-* **raise_errors=True:** Whether to raise errors if sad.
+* __raise_errors=True:__ Whether to raise errors if sad.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style664 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style664">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -359,19 +249,9 @@ Calls self._checked_get_or_post with is_post=False..
 
   <embed>
   <head>
-    <style>
-        .style665 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style665">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -394,19 +274,9 @@ Calls self._checked_get_or_post with is_post=True..
 
   <embed>
   <head>
-    <style>
-        .style666 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style666">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -418,53 +288,33 @@ Calls self._checked_get_or_post with is_post=True..
 
   <embed>
   <head>
-    <style>
-        .style667 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style667">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **url:** Url.
+* __url:__ Url.
 
-* **the_request:** The request itself.
+* __the_request:__ The request itself.
 
-* **requests_kwargs=None:** The kwargs for the request.
+* __requests_kwargs=None:__ The kwargs for the request.
 
-* **good_message=None:** The message to print on a happy 200.
+* __good_message=None:__ The message to print on a happy 200.
 
-* **bad_message='This HTTPs POST request failed':** The message to print on a sad non-200.
+* __bad_message='This HTTPs POST request failed':__ The message to print on a sad non-200.
 
-* **raise_errors=True:** Whether to raise errors if sad.
+* __raise_errors=True:__ Whether to raise errors if sad.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style668 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style668">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -476,19 +326,9 @@ Calls self._checked_get_or_post with is_post=True..
 
   <embed>
   <head>
-    <style>
-        .style669 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style669">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -509,19 +349,9 @@ HTTPAPIWrapper.headers
 
   <embed>
   <head>
-    <style>
-        .style670 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style670">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -533,43 +363,23 @@ HTTPAPIWrapper.headers
 
   <embed>
   <head>
-    <style>
-        .style671 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style671">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style672 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style672">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -583,19 +393,9 @@ headers["Authorization"] is the access token, etc that proves authentication.
 
   <embed>
   <head>
-    <style>
-        .style673 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style673">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -618,19 +418,9 @@ Authenticates using self.username andself.password. Needs to be called before an
 
   <embed>
   <head>
-    <style>
-        .style674 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style674">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -642,43 +432,23 @@ Authenticates using self.username andself.password. Needs to be called before an
 
   <embed>
   <head>
-    <style>
-        .style675 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style675">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style676 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style676">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -692,19 +462,9 @@ Like most GET and POST functions it will raise any errors thrown by the http API
 
   <embed>
   <head>
-    <style>
-        .style677 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style677">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -714,104 +474,332 @@ Like most GET and POST functions it will raise any errors thrown by the http API
 
 
 
-.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.sign_up:
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.request_sign_up_code:
 
-HTTPAPIWrapper.sign_up
+HTTPAPIWrapper.request_sign_up_code
 ---------------------------------------------------------------------------------------------------------------------
 
 
 
-Signs up.
+Signs up and sends the confirmation code to the email.  After confirming the account, self.authenticate() can be used to retrieve access and refresh tokens.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style678 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style678">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
   </embed>
 
-* **HTTPAPIWrapper.sign_up**(self)
+* **HTTPAPIWrapper.request_sign_up_code**(self)
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style679 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style679">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style680 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style680">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
   </embed>
 
-* (the access token, the refresh token).
+* None.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style681 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style681">
+    <p class="fraises">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
+
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.request_sign_up_code_again:
+
+HTTPAPIWrapper.request_sign_up_code_again
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+Resends the confimation code.  After confirming the account, self.authenticate() can be used to retrieve access and refresh tokens.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fsig">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
+
+* **HTTPAPIWrapper.request_sign_up_code_again**(self)
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fparam">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
+
+* __(this class constructor accepts no arguments):__
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="freturn">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fraises">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
+
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.sign_up_with_code:
+
+HTTPAPIWrapper.sign_up_with_code
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+Sends the confirmation code confirming the signup itself..  After confirming the account, self.authenticate() can be used to retrieve access and refresh tokens.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fsig">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
+
+* **HTTPAPIWrapper.sign_up_with_code**(self, the_code)
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fparam">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
+
+* __the_code:__ Sign up code that was emailed.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="freturn">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fraises">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
+
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.get_password_reset_code:
+
+HTTPAPIWrapper.get_password_reset_code
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+Sends a reset-password request to the platform. After such a request is sent it will be necessary to check the email.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fsig">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
+
+* **HTTPAPIWrapper.get_password_reset_code**(self)
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fparam">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
+
+* __(this class constructor accepts no arguments):__
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="freturn">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fraises">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
+
+.. _moobius.network.http_api_wrapper.HTTPAPIWrapper.reset_password:
+
+HTTPAPIWrapper.reset_password
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+Updates the password with a new one..
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fsig">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
+
+* **HTTPAPIWrapper.reset_password**(self, the_code)
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fparam">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
+
+* __the_code:__ Code that was emailed to the user (use get_password_reset_code).
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="freturn">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -828,25 +816,15 @@ HTTPAPIWrapper.delete_account
 
 
 
-Deletes an account. Mainly used for testing.
+Deletes the currently signed in account. Mainly used for testing.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style682 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style682">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -858,43 +836,23 @@ Deletes an account. Mainly used for testing.
 
   <embed>
   <head>
-    <style>
-        .style683 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style683">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style684 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style684">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -906,19 +864,9 @@ Deletes an account. Mainly used for testing.
 
   <embed>
   <head>
-    <style>
-        .style685 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style685">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -941,19 +889,9 @@ Signs out using the access token obtained from signing in.
 
   <embed>
   <head>
-    <style>
-        .style686 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style686">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -965,43 +903,23 @@ Signs out using the access token obtained from signing in.
 
   <embed>
   <head>
-    <style>
-        .style687 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style687">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style688 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style688">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1013,19 +931,9 @@ Signs out using the access token obtained from signing in.
 
   <embed>
   <head>
-    <style>
-        .style689 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style689">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1048,19 +956,9 @@ Refreshes the access token.
 
   <embed>
   <head>
-    <style>
-        .style690 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style690">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1072,43 +970,23 @@ Refreshes the access token.
 
   <embed>
   <head>
-    <style>
-        .style691 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style691">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style692 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style692">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1120,19 +998,9 @@ Refreshes the access token.
 
   <embed>
   <head>
-    <style>
-        .style693 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style693">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1153,92 +1021,52 @@ HTTPAPIWrapper.fetch_character_profile
 
   <embed>
   <head>
-    <style>
-        .style694 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style694">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
   </embed>
 
-* **HTTPAPIWrapper.fetch_character_profile**(self, character_id)
+* **HTTPAPIWrapper.fetch_character_profile**(self, character)
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style695 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style695">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **character_id:** String-valued (or list-valued) character_id.
+* __character:__ String-valued (or list-valued) character_id/character.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style696 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style696">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
   </embed>
 
-* The  Character object (or list therof),
+* The  Character object (or list therof).
 It works for both member_ids and agent_ids.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style697 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style697">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1261,19 +1089,9 @@ Fetches the member ids of a channel which coorespond to real users.
 
   <embed>
   <head>
-    <style>
-        .style698 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style698">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1285,47 +1103,27 @@ Fetches the member ids of a channel which coorespond to real users.
 
   <embed>
   <head>
-    <style>
-        .style699 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style699">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** The channel ID.
+* __channel_id:__ The channel ID.
 
-* **service_id:** The service/client/user ID.
+* __service_id:__ The service/client/user ID.
 
-* **raise_empty_list_err=False:** Raises an Exception if the list is empty.
+* __raise_empty_list_err=False:__ Raises an Exception if the list is empty.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style700 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style700">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1337,19 +1135,9 @@ Fetches the member ids of a channel which coorespond to real users.
 
   <embed>
   <head>
-    <style>
-        .style701 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style701">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1370,19 +1158,9 @@ HTTPAPIWrapper.fetch_agents
 
   <embed>
   <head>
-    <style>
-        .style702 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style702">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1394,43 +1172,23 @@ HTTPAPIWrapper.fetch_agents
 
   <embed>
   <head>
-    <style>
-        .style703 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style703">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **service_id:** Service ID.
+* __service_id:__ Service ID.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style704 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style704">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1442,19 +1200,9 @@ HTTPAPIWrapper.fetch_agents
 
   <embed>
   <head>
-    <style>
-        .style705 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style705">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1475,19 +1223,9 @@ HTTPAPIWrapper.fetch_user_info
 
   <embed>
   <head>
-    <style>
-        .style706 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style706">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1499,43 +1237,23 @@ HTTPAPIWrapper.fetch_user_info
 
   <embed>
   <head>
-    <style>
-        .style707 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style707">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style708 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style708">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1547,19 +1265,9 @@ HTTPAPIWrapper.fetch_user_info
 
   <embed>
   <head>
-    <style>
-        .style709 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style709">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1582,19 +1290,9 @@ Updates the user info. Used by user mode.
 
   <embed>
   <head>
-    <style>
-        .style710 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style710">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1606,47 +1304,27 @@ Updates the user info. Used by user mode.
 
   <embed>
   <head>
-    <style>
-        .style711 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style711">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **avatar:** Link to image or local file_path to upload.
+* __avatar:__ Link to image or local file_path to upload.
 
-* **description:** Of the user.
+* __description:__ Of the user.
 
-* **name:** The name that shows in chat.
+* __name:__ The name that shows in chat.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style712 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style712">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1658,19 +1336,9 @@ Updates the user info. Used by user mode.
 
   <embed>
   <head>
-    <style>
-        .style713 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style713">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1693,19 +1361,9 @@ Creates and.
 
   <embed>
   <head>
-    <style>
-        .style714 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style714">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1717,43 +1375,23 @@ Creates and.
 
   <embed>
   <head>
-    <style>
-        .style715 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style715">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **description:** Description string.
+* __description:__ Description string.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style716 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style716">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1766,19 +1404,9 @@ Called once by the Moobius class if there is no service specified.
 
   <embed>
   <head>
-    <style>
-        .style717 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style717">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1799,19 +1427,9 @@ HTTPAPIWrapper.fetch_service_id_list
 
   <embed>
   <head>
-    <style>
-        .style718 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style718">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1823,43 +1441,23 @@ HTTPAPIWrapper.fetch_service_id_list
 
   <embed>
   <head>
-    <style>
-        .style719 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style719">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style720 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style720">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1871,19 +1469,9 @@ HTTPAPIWrapper.fetch_service_id_list
 
   <embed>
   <head>
-    <style>
-        .style721 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style721">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1907,19 +1495,9 @@ The created user will be bound to the given service.
 
   <embed>
   <head>
-    <style>
-        .style722 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style722">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1931,49 +1509,29 @@ The created user will be bound to the given service.
 
   <embed>
   <head>
-    <style>
-        .style723 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style723">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **service_id:** The service_id/client_id.
+* __service_id:__ The service_id/client_id.
 
-* **name:** The name of the user.
+* __name:__ The name of the user.
 
-* **avatar:** The image URL of the user's picture OR a local file path.
+* __avatar:__ The image URL of the user's picture OR a local file path.
 
-* **description:** The description of the user.
+* __description:__ The description of the user.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style724 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style724">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1985,19 +1543,9 @@ The created user will be bound to the given service.
 
   <embed>
   <head>
-    <style>
-        .style725 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style725">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2020,75 +1568,45 @@ Updates the characters name, avatar, etc for a FAKE user, for real users use upd
 
   <embed>
   <head>
-    <style>
-        .style726 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style726">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
   </embed>
 
-* **HTTPAPIWrapper.update_agent**(self, service_id, agent_id, avatar, description, name)
+* **HTTPAPIWrapper.update_agent**(self, service_id, character, avatar, description, name)
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style727 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style727">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **service_id:** Which service holds the user.
+* __service_id:__ The service_id/client_id.
 
-* **agent_id:** Who to update. Can also be a Character object. Cannot be a list.
+* __character:__ Who to update. Can also be a Character object or character_id. Cannot be a list.
 
-* **avatar:** A link to user's image or a local file_path to upload.
+* __avatar:__ A link to user's image or a local file_path to upload.
 
-* **description:** The description of user.
+* __description:__ The description of user.
 
-* **name:** The name that will show in chat.
+* __name:__ The name that will show in chat.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style728 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style728">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2100,19 +1618,9 @@ Updates the characters name, avatar, etc for a FAKE user, for real users use upd
 
   <embed>
   <head>
-    <style>
-        .style729 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style729">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2135,19 +1643,9 @@ Creates a channel.
 
   <embed>
   <head>
-    <style>
-        .style730 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style730">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2159,45 +1657,25 @@ Creates a channel.
 
   <embed>
   <head>
-    <style>
-        .style731 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style731">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_name:** String-valued channel name.
+* __channel_name:__ String-valued channel name.
 
-* **channel_desc:** Description.
+* __channel_desc:__ Description.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style732 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style732">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2210,19 +1688,9 @@ Example ID: "13e44ea3-b559-45af-9106-6aa92501d4ed".
 
   <embed>
   <head>
-    <style>
-        .style733 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style733">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2246,19 +1714,9 @@ This function is unusual in that it.
 
   <embed>
   <head>
-    <style>
-        .style734 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style734">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2270,45 +1728,25 @@ This function is unusual in that it.
 
   <embed>
   <head>
-    <style>
-        .style735 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style735">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **service_id:** Service.
+* __service_id:__ Service.
 
-* **channel_id:** Channel IDs.
+* __channel_id:__ Channel IDs.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style736 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style736">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2320,19 +1758,9 @@ This function is unusual in that it.
 
   <embed>
   <head>
-    <style>
-        .style737 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style737">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2355,19 +1783,9 @@ Unbinds a service to a channel.
 
   <embed>
   <head>
-    <style>
-        .style738 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style738">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2379,45 +1797,25 @@ Unbinds a service to a channel.
 
   <embed>
   <head>
-    <style>
-        .style739 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style739">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **service_id:** Service.
+* __service_id:__ Service.
 
-* **channel_id:** Channel IDs.
+* __channel_id:__ Channel IDs.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style740 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style740">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2429,19 +1827,9 @@ Unbinds a service to a channel.
 
   <embed>
   <head>
-    <style>
-        .style741 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style741">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2464,19 +1852,9 @@ Updates the name and desc of a channel.
 
   <embed>
   <head>
-    <style>
-        .style742 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style742">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2488,47 +1866,27 @@ Updates the name and desc of a channel.
 
   <embed>
   <head>
-    <style>
-        .style743 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style743">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** Which channel to update.
+* __channel_id:__ Which channel to update.
 
-* **channel_name:** The new channel name.
+* __channel_name:__ The new channel name.
 
-* **channel_desc:** The new channel description.
+* __channel_desc:__ The new channel description.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style744 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style744">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2540,19 +1898,9 @@ Updates the name and desc of a channel.
 
   <embed>
   <head>
-    <style>
-        .style745 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style745">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2575,19 +1923,9 @@ Fetches the popular channels,.
 
   <embed>
   <head>
-    <style>
-        .style746 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style746">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2599,43 +1937,23 @@ Fetches the popular channels,.
 
   <embed>
   <head>
-    <style>
-        .style747 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style747">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style748 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style748">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2647,19 +1965,9 @@ Fetches the popular channels,.
 
   <embed>
   <head>
-    <style>
-        .style749 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style749">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2682,19 +1990,9 @@ Fetches all? channels,.
 
   <embed>
   <head>
-    <style>
-        .style750 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style750">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2706,43 +2004,23 @@ Fetches all? channels,.
 
   <embed>
   <head>
-    <style>
-        .style751 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style751">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style752 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style752">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2754,19 +2032,9 @@ Fetches all? channels,.
 
   <embed>
   <head>
-    <style>
-        .style753 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style753">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2789,19 +2057,9 @@ Returns the message chat history.
 
   <embed>
   <head>
-    <style>
-        .style754 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style754">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2813,47 +2071,27 @@ Returns the message chat history.
 
   <embed>
   <head>
-    <style>
-        .style755 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style755">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** Channel with the messages inside of it.
+* __channel_id:__ Channel with the messages inside of it.
 
-* **limit=64:** Max number of messages to return (messages further back in time, if any, will not be returned).
+* __limit=64:__ Max number of messages to return (messages further back in time, if any, will not be returned).
 
-* **before='null':** Only return messages older than this.
+* __before='null':__ Only return messages older than this.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style756 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style756">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2865,19 +2103,9 @@ Returns the message chat history.
 
   <embed>
   <head>
-    <style>
-        .style757 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style757">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2898,19 +2126,9 @@ HTTPAPIWrapper.this_user_channels
 
   <embed>
   <head>
-    <style>
-        .style758 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style758">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2922,43 +2140,23 @@ HTTPAPIWrapper.this_user_channels
 
   <embed>
   <head>
-    <style>
-        .style759 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style759">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style760 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style760">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2970,19 +2168,9 @@ HTTPAPIWrapper.this_user_channels
 
   <embed>
   <head>
-    <style>
-        .style761 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style761">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3005,19 +2193,9 @@ Uploads the file at local path file_path to the Moobius server. Automatically ca
 
   <embed>
   <head>
-    <style>
-        .style762 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style762">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -3029,43 +2207,23 @@ Uploads the file at local path file_path to the Moobius server. Automatically ca
 
   <embed>
   <head>
-    <style>
-        .style763 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style763">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **file_path:** File_path.
+* __file_path:__ File_path.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style764 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style764">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3077,19 +2235,9 @@ Uploads the file at local path file_path to the Moobius server. Automatically ca
 
   <embed>
   <head>
-    <style>
-        .style765 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style765">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3112,19 +2260,9 @@ Uploads and.
 
   <embed>
   <head>
-    <style>
-        .style766 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style766">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -3136,43 +2274,23 @@ Uploads and.
 
   <embed>
   <head>
-    <style>
-        .style767 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style767">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **file_path:** File_path.
+* __file_path:__ File_path.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style768 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style768">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3185,19 +2303,9 @@ Empty, False, or None strings are converted to a default URL.
 
   <embed>
   <head>
-    <style>
-        .style769 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style769">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3220,19 +2328,9 @@ Gets the download size in bytes. Queries for the header and does not download th
 
   <embed>
   <head>
-    <style>
-        .style770 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style770">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -3244,45 +2342,25 @@ Gets the download size in bytes. Queries for the header and does not download th
 
   <embed>
   <head>
-    <style>
-        .style771 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style771">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **url:** Url.
+* __url:__ Url.
 
-* **headers=None:** Optional headers.
+* __headers=None:__ Optional headers.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style772 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style772">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3294,19 +2372,9 @@ Gets the download size in bytes. Queries for the header and does not download th
 
   <embed>
   <head>
-    <style>
-        .style773 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style773">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3329,19 +2397,9 @@ Downloads a file from a url or other source to a local filename, automatically c
 
   <embed>
   <head>
-    <style>
-        .style774 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style774">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -3353,57 +2411,37 @@ Downloads a file from a url or other source to a local filename, automatically c
 
   <embed>
   <head>
-    <style>
-        .style775 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style775">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **source:** The url to download the file from. OR a MessageBody which has a .content.path in it.
+* __source:__ The url to download the file from. OR a MessageBody which has a .content.path in it.
 
-* **file_path=None:** The file_path to download to.
+* __file_path=None:__ The file_path to download to.
     None will create a file based on the timestamp + random numbers.
     If no extension is specified, will infer the extension from the url if one exists.
 
-* **auto_dir=None:** If no file_path is specified, a folder must be choosen.
+* __auto_dir=None:__ If no file_path is specified, a folder must be choosen.
     Defaults to './downloads'.
 
-* **overwrite=None:** Allow overwriting pre-existing files. If False, will raise an Exception on name collision.
+* __overwrite=None:__ Allow overwriting pre-existing files. If False, will raise an Exception on name collision.
 
-* **bytes=None:** If True, will return bytes instead of saving a file.
+* __bytes=None:__ If True, will return bytes instead of saving a file.
 
-* **headers=None:** Optional headers. Use these for downloads that require auth.
+* __headers=None:__ Optional headers. Use these for downloads that require auth.
     Can set to "self" to use the same auth headers that this instance is using.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style776 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style776">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3415,19 +2453,9 @@ Downloads a file from a url or other source to a local filename, automatically c
 
   <embed>
   <head>
-    <style>
-        .style777 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style777">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3450,19 +2478,9 @@ Similar to fetch_member_ids..
 
   <embed>
   <head>
-    <style>
-        .style778 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style778">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -3474,45 +2492,25 @@ Similar to fetch_member_ids..
 
   <embed>
   <head>
-    <style>
-        .style779 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style779">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** Channel_id.
+* __channel_id:__ Channel_id.
 
-* **service_id:** Service_id.
+* __service_id:__ Service_id.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style780 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style780">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3524,19 +2522,9 @@ Similar to fetch_member_ids..
 
   <embed>
   <head>
-    <style>
-        .style781 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style781">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3559,19 +2547,9 @@ Similar to fetch_channel_group_dict..
 
   <embed>
   <head>
-    <style>
-        .style782 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style782">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -3583,45 +2561,25 @@ Similar to fetch_channel_group_dict..
 
   <embed>
   <head>
-    <style>
-        .style783 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style783">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** Channel_id.
+* __channel_id:__ Channel_id.
 
-* **service_id:** Service_id.
+* __service_id:__ Service_id.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style784 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style784">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3633,19 +2591,9 @@ Similar to fetch_channel_group_dict..
 
   <embed>
   <head>
-    <style>
-        .style785 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style785">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3668,71 +2616,41 @@ Creates a channel group.
 
   <embed>
   <head>
-    <style>
-        .style786 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style786">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
   </embed>
 
-* **HTTPAPIWrapper.create_channel_group**(self, channel_id, group_name, members)
+* **HTTPAPIWrapper.create_channel_group**(self, channel_id, group_name, characters)
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style787 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style787">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** The id of the group leader?.
+* __channel_id:__ The id of the group leader?.
 
-* **group_name:** What to call it.
+* __group_name:__ What to call it.
 
-* **members:** A list of character_id strings that will be inside the group.
+* __characters:__ A list of characters or character_id strings that will be inside the group.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style788 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style788">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3744,19 +2662,9 @@ Creates a channel group.
 
   <embed>
   <head>
-    <style>
-        .style789 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style789">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3777,19 +2685,9 @@ HTTPAPIWrapper.character_ids_of_service_group
 
   <embed>
   <head>
-    <style>
-        .style790 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style790">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -3801,43 +2699,23 @@ HTTPAPIWrapper.character_ids_of_service_group
 
   <embed>
   <head>
-    <style>
-        .style791 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style791">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **group_id:** Group_id.
+* __group_id:__ Group_id.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style792 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style792">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3851,19 +2729,9 @@ Note that the 'recipients' in 'on message up' might be None:
 
   <embed>
   <head>
-    <style>
-        .style793 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style793">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3887,19 +2755,9 @@ Websocket payloads contain these channel_groups which are shorthand for a list o
 
   <embed>
   <head>
-    <style>
-        .style794 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style794">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -3911,47 +2769,27 @@ Websocket payloads contain these channel_groups which are shorthand for a list o
 
   <embed>
   <head>
-    <style>
-        .style795 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style795">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **sender_id:** The message's sender.
+* __sender_id:__ The message's sender.
 
-* **channel_id:** The message specified that it was sent in this channel.
+* __channel_id:__ The message specified that it was sent in this channel.
 
-* **group_id:** The messages recipients.
+* __group_id:__ The messages recipients.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style796 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style796">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -3963,19 +2801,9 @@ Websocket payloads contain these channel_groups which are shorthand for a list o
 
   <embed>
   <head>
-    <style>
-        .style797 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style797">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -3999,67 +2827,37 @@ This group can then be used in send_message_down payloads.
 
   <embed>
   <head>
-    <style>
-        .style798 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style798">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
   </embed>
 
-* **HTTPAPIWrapper.create_service_group**(self, members)
+* **HTTPAPIWrapper.create_service_group**(self, characters)
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style799 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style799">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **members:** A list of character_id strings or Characters that will be inside the group.
+* __characters:__ A list of character_id strings or Characters that will be inside the group.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style800 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style800">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -4071,19 +2869,9 @@ This group can then be used in send_message_down payloads.
 
   <embed>
   <head>
-    <style>
-        .style801 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style801">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -4106,71 +2894,41 @@ Updates a channel group.
 
   <embed>
   <head>
-    <style>
-        .style802 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style802">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
   </embed>
 
-* **HTTPAPIWrapper.update_channel_group**(self, channel_id, group_id, members)
+* **HTTPAPIWrapper.update_channel_group**(self, channel_id, group_id, characters)
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style803 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style803">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** The id of the group leader?.
+* __channel_id:__ The id of the group leader?.
 
-* **group_id:** What to call it.
+* __group_id:__ What to call it.
 
-* **members:** A list of character_id strings that will be inside the group.
+* __characters:__ A list of character_id strings that will be inside the group.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style804 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style804">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -4182,19 +2940,9 @@ Updates a channel group.
 
   <embed>
   <head>
-    <style>
-        .style805 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style805">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -4217,69 +2965,39 @@ Updates a channel TEMP group.
 
   <embed>
   <head>
-    <style>
-        .style806 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style806">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
   </embed>
 
-* **HTTPAPIWrapper.update_temp_channel_group**(self, channel_id, members)
+* **HTTPAPIWrapper.update_temp_channel_group**(self, channel_id, characters)
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style807 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style807">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** The id of the group leader?.
+* __channel_id:__ The id of the group leader?.
 
-* **members:** A list of character_id strings that will be inside the group.
+* __characters:__ A list of character_id strings that will be inside the group.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style808 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style808">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -4291,19 +3009,9 @@ Updates a channel TEMP group.
 
   <embed>
   <head>
-    <style>
-        .style809 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style809">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -4326,19 +3034,9 @@ Like fetch_channel_group_list but for TEMP groups..
 
   <embed>
   <head>
-    <style>
-        .style810 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style810">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -4350,45 +3048,25 @@ Like fetch_channel_group_list but for TEMP groups..
 
   <embed>
   <head>
-    <style>
-        .style811 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style811">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_id:** Channel_id.
+* __channel_id:__ Channel_id.
 
-* **service_id:** Service_id,.
+* __service_id:__ Service_id,.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style812 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style812">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -4400,19 +3078,9 @@ Like fetch_channel_group_list but for TEMP groups..
 
   <embed>
   <head>
-    <style>
-        .style813 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style813">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -4436,19 +3104,9 @@ Fetches the user profile of a user from a group.
 
   <embed>
   <head>
-    <style>
-        .style814 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style814">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -4460,47 +3118,27 @@ Fetches the user profile of a user from a group.
 
   <embed>
   <head>
-    <style>
-        .style815 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style815">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **user_id:** The user ID.
+* __user_id:__ The user ID.
 
-* **channel_id:** The channel ID. (TODO: of what?).
+* __channel_id:__ The channel ID. (TODO: of what?).
 
-* **group_id:** The group ID.
+* __group_id:__ The group ID.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style816 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style816">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -4512,19 +3150,9 @@ Fetches the user profile of a user from a group.
 
   <embed>
   <head>
-    <style>
-        .style817 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style817">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -4548,19 +3176,9 @@ Fetches info about the group.
 
   <embed>
   <head>
-    <style>
-        .style818 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style818">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -4572,47 +3190,27 @@ Fetches info about the group.
 
   <embed>
   <head>
-    <style>
-        .style819 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style819">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **user_id:** The user id of the user bieng fetched (is this needed?).
+* __user_id:__ The user id of the user bieng fetched (is this needed?).
 
-* **channel_id:** The channel_id of the channel bieng fetched.
+* __channel_id:__ The channel_id of the channel bieng fetched.
 
-* **group_id:** Which group to fetch.
+* __group_id:__ Which group to fetch.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style820 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style820">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -4624,19 +3222,9 @@ Fetches info about the group.
 
   <embed>
   <head>
-    <style>
-        .style821 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style821">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

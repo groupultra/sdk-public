@@ -28,19 +28,9 @@ RedisDatabase.get_value
 
   <embed>
   <head>
-    <style>
-        .style569 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style569">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -52,43 +42,23 @@ RedisDatabase.get_value
 
   <embed>
   <head>
-    <style>
-        .style570 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style570">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style571 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style571">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -100,19 +70,9 @@ RedisDatabase.get_value
 
   <embed>
   <head>
-    <style>
-        .style572 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style572">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -133,19 +93,9 @@ RedisDatabase.set_value
 
   <embed>
   <head>
-    <style>
-        .style573 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style573">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -157,45 +107,25 @@ RedisDatabase.set_value
 
   <embed>
   <head>
-    <style>
-        .style574 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style574">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
-* **value:** Value.
+* __value:__ Value.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style575 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style575">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -207,19 +137,9 @@ RedisDatabase.set_value
 
   <embed>
   <head>
-    <style>
-        .style576 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style576">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -240,19 +160,9 @@ RedisDatabase.delete_key
 
   <embed>
   <head>
-    <style>
-        .style577 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style577">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -264,43 +174,23 @@ RedisDatabase.delete_key
 
   <embed>
   <head>
-    <style>
-        .style578 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style578">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style579 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style579">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -312,19 +202,9 @@ RedisDatabase.delete_key
 
   <embed>
   <head>
-    <style>
-        .style580 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style580">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -345,19 +225,9 @@ RedisDatabase.all_keys
 
   <embed>
   <head>
-    <style>
-        .style581 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style581">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -369,43 +239,23 @@ RedisDatabase.all_keys
 
   <embed>
   <head>
-    <style>
-        .style582 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style582">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style583 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style583">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -417,19 +267,9 @@ RedisDatabase.all_keys
 
   <embed>
   <head>
-    <style>
-        .style584 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style584">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

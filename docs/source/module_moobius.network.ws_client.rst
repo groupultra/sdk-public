@@ -21,19 +21,9 @@ Asserts that the input is the correct dataclass or is a dict which matches to a 
 
   <embed>
   <head>
-    <style>
-        .style846 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style846">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -45,45 +35,25 @@ Asserts that the input is the correct dataclass or is a dict which matches to a 
 
   <embed>
   <head>
-    <style>
-        .style847 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style847">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **x:** The input dict or dataclass.
+* __x:__ The input dict or dataclass.
 
-* **the_class:** The class to match to, such as types.Button.
+* __the_class:__ The class to match to, such as types.Button.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style848 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style848">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -95,19 +65,9 @@ Asserts that the input is the correct dataclass or is a dict which matches to a 
 
   <embed>
   <head>
-    <style>
-        .style849 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style849">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -130,19 +90,9 @@ Sometimes the connection can hang forever. Adds a timeout that will make await r
 
   <embed>
   <head>
-    <style>
-        .style850 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style850">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -154,45 +104,25 @@ Sometimes the connection can hang forever. Adds a timeout that will make await r
 
   <embed>
   <head>
-    <style>
-        .style851 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style851">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **co_routine:** Co-routine.
+* __co_routine:__ Co-routine.
 
-* **timeout=16:** A timeout.
+* __timeout=16:__ A timeout.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style852 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style852">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -204,19 +134,9 @@ Sometimes the connection can hang forever. Adds a timeout that will make await r
 
   <embed>
   <head>
-    <style>
-        .style853 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style853">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -248,19 +168,9 @@ Keeps trying if it fails!.
 
   <embed>
   <head>
-    <style>
-        .style854 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style854">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -272,43 +182,23 @@ Keeps trying if it fails!.
 
   <embed>
   <head>
-    <style>
-        .style855 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style855">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style856 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style856">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -320,19 +210,9 @@ Keeps trying if it fails!.
 
   <embed>
   <head>
-    <style>
-        .style857 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style857">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -357,19 +237,9 @@ Note: Call this and other socket functions after self.authenticate()
 
   <embed>
   <head>
-    <style>
-        .style858 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style858">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -381,43 +251,23 @@ Note: Call this and other socket functions after self.authenticate()
 
   <embed>
   <head>
-    <style>
-        .style859 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style859">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **message:** Dict-valued message (or JSON string).
+* __message:__ Dict-valued message (or JSON string).
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style860 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style860">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -429,19 +279,9 @@ Note: Call this and other socket functions after self.authenticate()
 
   <embed>
   <head>
-    <style>
-        .style861 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style861">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -464,19 +304,9 @@ Waits in a loop for messages from the websocket server or from the wand queue. N
 
   <embed>
   <head>
-    <style>
-        .style862 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style862">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -488,43 +318,23 @@ Waits in a loop for messages from the websocket server or from the wand queue. N
 
   <embed>
   <head>
-    <style>
-        .style863 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style863">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style864 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style864">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -537,19 +347,9 @@ Reconnectes if the connection fails or self.websocket.recv() stops getting anyth
 
   <embed>
   <head>
-    <style>
-        .style865 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style865">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -572,19 +372,9 @@ Handles it with self.handle, which is specified on construction, catching errors
 
   <embed>
   <head>
-    <style>
-        .style866 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style866">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -596,43 +386,23 @@ Handles it with self.handle, which is specified on construction, catching errors
 
   <embed>
   <head>
-    <style>
-        .style867 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style867">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **message:** String-valued message from the websocket server.
+* __message:__ String-valued message from the websocket server.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style868 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style868">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -644,19 +414,9 @@ Handles it with self.handle, which is specified on construction, catching errors
 
   <embed>
   <head>
-    <style>
-        .style869 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style869">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -679,19 +439,9 @@ Sends a heartbeat..
 
   <embed>
   <head>
-    <style>
-        .style870 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style870">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -703,43 +453,23 @@ Sends a heartbeat..
 
   <embed>
   <head>
-    <style>
-        .style871 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style871">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **dry_run:** N optional dry_run to not send anything if True.
+* __dry_run:__ N optional dry_run to not send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style872 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style872">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -751,19 +481,9 @@ Sends a heartbeat..
 
   <embed>
   <head>
-    <style>
-        .style873 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style873">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -786,19 +506,9 @@ A slightly better json.dumps..
 
   <embed>
   <head>
-    <style>
-        .style874 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style874">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -810,43 +520,23 @@ A slightly better json.dumps..
 
   <embed>
   <head>
-    <style>
-        .style875 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style875">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **data:** Datastructure or dataclass and.
+* __data:__ Datastructure or dataclass and.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style876 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style876">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -858,19 +548,9 @@ A slightly better json.dumps..
 
   <embed>
   <head>
-    <style>
-        .style877 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style877">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -893,19 +573,9 @@ Logs in. Much like the HTTP api, this needs to be sent before any other messages
 
   <embed>
   <head>
-    <style>
-        .style878 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style878">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -917,48 +587,28 @@ Logs in. Much like the HTTP api, this needs to be sent before any other messages
 
   <embed>
   <head>
-    <style>
-        .style879 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style879">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **service_id:** The client_id of a Moobius service object, which is the ID of the running service.
+* __service_id:__ The client_id of a Moobius service object, which is the ID of the running service.
     Used in almost every function.
 
-* **access_token:** TODO; This is the access token from http_api_wrapper; for clean code decouple access_token here!.
+* __access_token:__ TODO; This is the access token from http_api_wrapper; for clean code decouple access_token here!.
 
-* **dry_run:** Don't acually send anything (must functions offer a dry-run option).
+* __dry_run:__ Don't acually send anything (must functions offer a dry-run option).
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style880 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style880">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -970,19 +620,9 @@ Logs in. Much like the HTTP api, this needs to be sent before any other messages
 
   <embed>
   <head>
-    <style>
-        .style881 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style881">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1006,19 +646,9 @@ Every 2h AWS will force-disconnect, so it is a good idea to send this on connect
 
   <embed>
   <head>
-    <style>
-        .style882 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style882">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1030,46 +660,26 @@ Every 2h AWS will force-disconnect, so it is a good idea to send this on connect
 
   <embed>
   <head>
-    <style>
-        .style883 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style883">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **access_token:** Used in the user_login message that is sent.
+* __access_token:__ Used in the user_login message that is sent.
     This is the access token from http_api_wrapper.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style884 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style884">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1081,19 +691,9 @@ Every 2h AWS will force-disconnect, so it is a good idea to send this on connect
 
   <embed>
   <head>
-    <style>
-        .style885 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style885">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1116,19 +716,9 @@ A user leaves the channel with channel_id, unless dry_run is True..
 
   <embed>
   <head>
-    <style>
-        .style886 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style886">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1140,47 +730,27 @@ A user leaves the channel with channel_id, unless dry_run is True..
 
   <embed>
   <head>
-    <style>
-        .style887 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style887">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **user_id:** User_id.
+* __user_id:__ User_id.
 
-* **channel_id:** The channel_id.
+* __channel_id:__ The channel_id.
 
-* **dry_run:** Whether to dry_run.
+* __dry_run:__ Whether to dry_run.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style888 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style888">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1192,19 +762,9 @@ A user leaves the channel with channel_id, unless dry_run is True..
 
   <embed>
   <head>
-    <style>
-        .style889 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style889">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1227,19 +787,9 @@ A user joins the channel with channel_id, unless dry_run is True..
 
   <embed>
   <head>
-    <style>
-        .style890 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style890">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1251,47 +801,27 @@ A user joins the channel with channel_id, unless dry_run is True..
 
   <embed>
   <head>
-    <style>
-        .style891 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style891">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **user_id:** User_id.
+* __user_id:__ User_id.
 
-* **channel_id:** The channel_id.
+* __channel_id:__ The channel_id.
 
-* **dry_run:** Whether to dry_run.
+* __dry_run:__ Whether to dry_run.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style892 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style892">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1303,19 +833,9 @@ A user joins the channel with channel_id, unless dry_run is True..
 
   <embed>
   <head>
-    <style>
-        .style893 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style893">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1338,19 +858,9 @@ Updates the characters that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style894 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style894">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1362,51 +872,31 @@ Updates the characters that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style895 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style895">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **characters:** The group id to represent the characters who are updated.
+* __characters:__ The group id to represent the characters who are updated.
 
-* **service_id:** As always.
+* __service_id:__ As always.
 
-* **channel_id:** The channel id.
+* __channel_id:__ The channel id.
 
-* **recipients:** The group id to send to.
+* __recipients:__ The group id to send to.
 
-* **dry_run:** If True don't acually send the message (messages are sent in thier JSON-strin format).
+* __dry_run:__ If True don't acually send the message (messages are sent in thier JSON-strin format).
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style896 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style896">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1418,19 +908,9 @@ Updates the characters that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style897 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style897">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1453,19 +933,9 @@ Updates the buttons that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style898 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style898">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1477,51 +947,31 @@ Updates the buttons that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style899 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style899">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **buttons:** The buttons list to be updated.
+* __buttons:__ The buttons list to be updated.
 
-* **service_id:** As always.
+* __service_id:__ As always.
 
-* **channel_id:** The channel id.
+* __channel_id:__ The channel id.
 
-* **recipients:** The group id to send to.
+* __recipients:__ The group id to send to.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style900 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style900">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1533,19 +983,9 @@ Updates the buttons that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style901 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style901">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1558,19 +998,9 @@ Updates the buttons that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style902 {
-            background-color: #DDBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style902">
+    <p class="fexample">
           <b>Example:</b>
     </p>
   </body>
@@ -1597,19 +1027,9 @@ Updates the right-click menu that the recipients can open on various messages.
 
   <embed>
   <head>
-    <style>
-        .style903 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style903">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1621,51 +1041,31 @@ Updates the right-click menu that the recipients can open on various messages.
 
   <embed>
   <head>
-    <style>
-        .style904 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style904">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **menu_items:** List of MenuItem dataclasses.
+* __menu_items:__ List of MenuItem dataclasses.
 
-* **service_id:** As always.
+* __service_id:__ As always.
 
-* **channel_id:** The channel id.
+* __channel_id:__ The channel id.
 
-* **recipients:** The group id to send the changes to.
+* __recipients:__ The group id to send the changes to.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style905 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style905">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1677,19 +1077,9 @@ Updates the right-click menu that the recipients can open on various messages.
 
   <embed>
   <head>
-    <style>
-        .style906 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style906">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1712,19 +1102,9 @@ Updates the style (whether the canvas is expanded, other look-and-feel aspects) 
 
   <embed>
   <head>
-    <style>
-        .style907 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style907">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1736,51 +1116,31 @@ Updates the style (whether the canvas is expanded, other look-and-feel aspects) 
 
   <embed>
   <head>
-    <style>
-        .style908 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style908">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **style_items:** The style content to be updated. Dicts are converted into 1-elemnt lists.
+* __style_items:__ The style content to be updated. Dicts are converted into 1-elemnt lists.
 
-* **service_id:** As always.
+* __service_id:__ As always.
 
-* **channel_id:** The channel id.
+* __channel_id:__ The channel id.
 
-* **recipients:** The group id to send to.
+* __recipients:__ The group id to send to.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style909 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style909">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1792,19 +1152,9 @@ Updates the style (whether the canvas is expanded, other look-and-feel aspects) 
 
   <embed>
   <head>
-    <style>
-        .style910 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style910">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1817,19 +1167,9 @@ Updates the style (whether the canvas is expanded, other look-and-feel aspects) 
 
   <embed>
   <head>
-    <style>
-        .style911 {
-            background-color: #DDBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style911">
+    <p class="fexample">
           <b>Example:</b>
     </p>
   </body>
@@ -1867,19 +1207,9 @@ Updates the channel name, description, etc for a given channel.
 
   <embed>
   <head>
-    <style>
-        .style912 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style912">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -1891,49 +1221,29 @@ Updates the channel name, description, etc for a given channel.
 
   <embed>
   <head>
-    <style>
-        .style913 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style913">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **channel_info:** The data of the update.
+* __channel_info:__ The data of the update.
 
-* **service_id:** As always.
+* __service_id:__ As always.
 
-* **channel_id:** The channel id.
+* __channel_id:__ The channel id.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style914 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style914">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -1945,19 +1255,9 @@ Updates the channel name, description, etc for a given channel.
 
   <embed>
   <head>
-    <style>
-        .style915 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style915">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -1970,19 +1270,9 @@ Updates the channel name, description, etc for a given channel.
 
   <embed>
   <head>
-    <style>
-        .style916 {
-            background-color: #DDBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style916">
+    <p class="fexample">
           <b>Example:</b>
     </p>
   </body>
@@ -2005,19 +1295,9 @@ Updates the canvas that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style917 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style917">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2029,51 +1309,31 @@ Updates the canvas that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style918 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style918">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **service_id:** As always.
+* __service_id:__ As always.
 
-* **channel_id:** The channel id.
+* __channel_id:__ The channel id.
 
-* **canvas_items:** The elements to push to the canvas.
+* __canvas_items:__ The elements to push to the canvas.
 
-* **recipients:** The recipients character_ids who see the update.
+* __recipients:__ The recipients character_ids who see the update.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style919 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style919">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2085,19 +1345,9 @@ Updates the canvas that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style920 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style920">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2110,19 +1360,9 @@ Updates the canvas that the recipients see.
 
   <embed>
   <head>
-    <style>
-        .style921 {
-            background-color: #DDBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style921">
+    <p class="fexample">
           <b>Example:</b>
     </p>
   </body>
@@ -2147,19 +1387,9 @@ A generic update function that is rarely used.
 
   <embed>
   <head>
-    <style>
-        .style922 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style922">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2171,49 +1401,29 @@ A generic update function that is rarely used.
 
   <embed>
   <head>
-    <style>
-        .style923 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style923">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **data:** The content of the update.
+* __data:__ The content of the update.
 
-* **target_client_id:** The target client id (TODO: not currently used).
+* __target_client_id:__ The target client id (TODO: not currently used).
 
-* **service_id:** The ID of the service.
+* __service_id:__ The ID of the service.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style924 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style924">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2225,19 +1435,9 @@ A generic update function that is rarely used.
 
   <embed>
   <head>
-    <style>
-        .style925 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style925">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2260,19 +1460,9 @@ Used by users to send messages.
 
   <embed>
   <head>
-    <style>
-        .style926 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style926">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2284,57 +1474,37 @@ Used by users to send messages.
 
   <embed>
   <head>
-    <style>
-        .style927 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style927">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **user_id:** An enduser id generally.
+* __user_id:__ An enduser id generally.
 
-* **service_id:** Which service to send to.
+* __service_id:__ Which service to send to.
 
-* **channel_id:** Which channel to broadcast the message in.
+* __channel_id:__ Which channel to broadcast the message in.
 
-* **recipients:** The group id to send to.
+* __recipients:__ The group id to send to.
 
-* **subtype:** The subtype of message to send (text, etc). Goes into message['body'] JSON.
+* __subtype:__ The subtype of message to send (text, etc). Goes into message['body'] JSON.
 
-* **content:** What is inside the message['body']['content'] JSON.
+* __content:__ What is inside the message['body']['content'] JSON.
 
-* **context:** Optional metadata.
+* __context:__ Optional metadata.
 
-* **dry_run=None:** Don't actually send anything if True.
+* __dry_run=None:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style928 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style928">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2346,19 +1516,9 @@ Used by users to send messages.
 
   <embed>
   <head>
-    <style>
-        .style929 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style929">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2381,19 +1541,9 @@ Sends a message to the recipients.
 
   <embed>
   <head>
-    <style>
-        .style930 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style930">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2405,59 +1555,39 @@ Sends a message to the recipients.
 
   <embed>
   <head>
-    <style>
-        .style931 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style931">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **user_id:** An service id generally.
+* __user_id:__ An service id generally.
 
-* **service_id:** Which service to send to.
+* __service_id:__ Which service to send to.
 
-* **channel_id:** Which channel to broadcast the message in.
+* __channel_id:__ Which channel to broadcast the message in.
 
-* **recipients:** The group id to send to.
+* __recipients:__ The group id to send to.
 
-* **subtype:** The subtype of message to send (text, etc). Goes into message['body'] JSON.
+* __subtype:__ The subtype of message to send (text, etc). Goes into message['body'] JSON.
 
-* **content:** What is inside the message['body']['content'] JSON.
+* __content:__ What is inside the message['body']['content'] JSON.
 
-* **sender:** The sender ID of the message, which determines who the chat shows the message as sent by.
+* __sender:__ The sender ID of the message, which determines who the chat shows the message as sent by.
 
-* **context:** Optional metadata.
+* __context:__ Optional metadata.
 
-* **dry_run=None:** Don't actually send anything if True.
+* __dry_run=None:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style932 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style932">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2469,19 +1599,9 @@ Sends a message to the recipients.
 
   <embed>
   <head>
-    <style>
-        .style933 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style933">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2504,19 +1624,9 @@ Sends a button click as a user.
 
   <embed>
   <head>
-    <style>
-        .style934 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style934">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2528,53 +1638,33 @@ Sends a button click as a user.
 
   <embed>
   <head>
-    <style>
-        .style935 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style935">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **button_id:** The button's ID.
+* __button_id:__ The button's ID.
 
-* **bottom_button_id:** The bottom button, set to "confirm" if there is no bottom button.
+* __bottom_button_id:__ The bottom button, set to "confirm" if there is no bottom button.
 
-* **button_args:** What arguments (if any) were selected on the button (use an empty list of there are none).
+* __button_args:__ What arguments (if any) were selected on the button (use an empty list of there are none).
 
-* **channel_id:** The id of the channel the user pressed the button in.
+* __channel_id:__ The id of the channel the user pressed the button in.
 
-* **user_id:** The ID of the (user mode) service.
+* __user_id:__ The ID of the (user mode) service.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style936 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style936">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2586,19 +1676,9 @@ Sends a button click as a user.
 
   <embed>
   <head>
-    <style>
-        .style937 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style937">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2621,19 +1701,9 @@ Sends a menu item click as a user.
 
   <embed>
   <head>
-    <style>
-        .style938 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style938">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2645,55 +1715,35 @@ Sends a menu item click as a user.
 
   <embed>
   <head>
-    <style>
-        .style939 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style939">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **menu_item_id:** The menu item's ID.
+* __menu_item_id:__ The menu item's ID.
 
-* **bottom_button_id:** The bottom button, set to "confirm" if there is no bottom button.
+* __bottom_button_id:__ The bottom button, set to "confirm" if there is no bottom button.
 
-* **button_args:** What arguments (if any) were selected on the menu item's dialog (use an empty list of there are none).
+* __button_args:__ What arguments (if any) were selected on the menu item's dialog (use an empty list of there are none).
 
-* **the_message:** Can be a string-valued message_id, or a full message body. If a full message the subtype and content will be filled in.
+* __the_message:__ Can be a string-valued message_id, or a full message body. If a full message the subtype and content will be filled in.
 
-* **channel_id:** The id of the channel the user pressed the button in.
+* __channel_id:__ The id of the channel the user pressed the button in.
 
-* **user_id:** The ID of the (user mode) service.
+* __user_id:__ The ID of the (user mode) service.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style940 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style940">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2705,19 +1755,9 @@ Sends a menu item click as a user.
 
   <embed>
   <head>
-    <style>
-        .style941 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style941">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -2740,19 +1780,9 @@ Refreshes everything the user can see. The socket will send back messages with t
 
   <embed>
   <head>
-    <style>
-        .style942 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style942">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -2764,48 +1794,28 @@ Refreshes everything the user can see. The socket will send back messages with t
 
   <embed>
   <head>
-    <style>
-        .style943 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style943">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **user_id:** Used in the "action" message that is sent.
+* __user_id:__ Used in the "action" message that is sent.
 
-* **channel_id:** Used in the body of said message.
+* __channel_id:__ Used in the body of said message.
 
-* **dry_run:** Don't actually send anything if True.
+* __dry_run:__ Don't actually send anything if True.
     These three parameters are common to most fetch messages.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style944 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style944">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -2817,19 +1827,9 @@ Refreshes everything the user can see. The socket will send back messages with t
 
   <embed>
   <head>
-    <style>
-        .style945 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style945">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

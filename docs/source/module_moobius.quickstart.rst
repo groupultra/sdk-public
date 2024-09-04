@@ -8,6 +8,75 @@ moobius.quickstart
 Module-level functions
 ******************************
 
+.. _moobius.quickstart.download_folder:
+
+download_folder
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+Downloads from the GroupUltra Public-CCS-demos..
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fsig">
+          <b>Signature:</b>
+    </p>
+  </body>
+  </embed>
+
+* **download_folder**(local_folder, sub_git_folder)
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fparam">
+          <b>Parameters:</b>
+    </p>
+  </body>
+  </embed>
+
+* __local_folder:__ Local folder to download to.
+
+* __sub_git_folder:__ The subfolder within the git repo.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="freturn">
+          <b>Returns:</b>
+    </p>
+  </body>
+  </embed>
+
+* None.
+
+.. raw:: html
+
+  <embed>
+  <head>
+  </head>
+  <body>
+    <p class="fraises">
+          <b>Raises:</b>
+    </p>
+  </body>
+  </embed>
+
+* (this function does not raise any notable errors)
+
+
+
 .. _moobius.quickstart.open_folder_in_explorer:
 
 open_folder_in_explorer
@@ -21,19 +90,9 @@ Lets the user select a folder. This is used for gui-mode only.
 
   <embed>
   <head>
-    <style>
-        .style28 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style28">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -45,43 +104,23 @@ Lets the user select a folder. This is used for gui-mode only.
 
   <embed>
   <head>
-    <style>
-        .style29 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style29">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **folder_path:** Default folder to pick.
+* __folder_path:__ Default folder to pick.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style30 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style30">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -93,19 +132,9 @@ Lets the user select a folder. This is used for gui-mode only.
 
   <embed>
   <head>
-    <style>
-        .style31 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style31">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -128,19 +157,9 @@ A simple download, used to get CCS code from GitHub.
 
   <embed>
   <head>
-    <style>
-        .style32 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style32">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -152,43 +171,23 @@ A simple download, used to get CCS code from GitHub.
 
   <embed>
   <head>
-    <style>
-        .style33 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style33">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **url:** URL.
+* __url:__ URL.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style34 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style34">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -200,19 +199,9 @@ A simple download, used to get CCS code from GitHub.
 
   <embed>
   <head>
-    <style>
-        .style35 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style35">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -235,19 +224,9 @@ Creates a channel.
 
   <embed>
   <head>
-    <style>
-        .style36 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style36">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -259,47 +238,27 @@ Creates a channel.
 
   <embed>
   <head>
-    <style>
-        .style37 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style37">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **email:** Email.
+* __email:__ Email.
 
-* **password:** Password.
+* __password:__ Password.
 
-* **url:** Url.
+* __url:__ Url.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style38 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style38">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -311,19 +270,9 @@ Creates a channel.
 
   <embed>
   <head>
-    <style>
-        .style39 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style39">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -346,19 +295,9 @@ Saves a file. Makes dirs if need be.
 
   <embed>
   <head>
-    <style>
-        .style40 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style40">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -370,45 +309,25 @@ Saves a file. Makes dirs if need be.
 
   <embed>
   <head>
-    <style>
-        .style41 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style41">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **fname:** Filename.
+* __fname:__ Filename.
 
-* **x:** A string.
+* __x:__ A string.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style42 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style42">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -420,19 +339,9 @@ Saves a file. Makes dirs if need be.
 
   <embed>
   <head>
-    <style>
-        .style43 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style43">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -455,19 +364,9 @@ Saves the CCS files (code and config) to a folder.
 
   <embed>
   <head>
-    <style>
-        .style44 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style44">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -479,43 +378,23 @@ Saves the CCS files (code and config) to a folder.
 
   <embed>
   <head>
-    <style>
-        .style45 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style45">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **out:** Configuration dict with all the settings.
+* __out:__ Configuration dict with all the settings.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style46 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style46">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -528,19 +407,9 @@ Calling this function will read the current gui state.
 
   <embed>
   <head>
-    <style>
-        .style47 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style47">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -563,19 +432,9 @@ Makes a box for GUI usage. None options means fill in.
 
   <embed>
   <head>
-    <style>
-        .style48 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style48">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -587,51 +446,31 @@ Makes a box for GUI usage. None options means fill in.
 
   <embed>
   <head>
-    <style>
-        .style49 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style49">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **root:** Tk.root.
+* __root:__ Tk.root.
 
-* **name:** The box name.
+* __name:__ The box name.
 
-* **detailed_name:** More details.
+* __detailed_name:__ More details.
 
-* **default:** The GUI default.
+* __default:__ The GUI default.
 
-* **options=None:** The options to pick, for boxes with options.
+* __options=None:__ The options to pick, for boxes with options.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style50 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style50">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -643,19 +482,9 @@ Makes a box for GUI usage. None options means fill in.
 
   <embed>
   <head>
-    <style>
-        .style51 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style51">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -681,19 +510,9 @@ typed into the command line.
 
   <embed>
   <head>
-    <style>
-        .style52 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style52">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -705,43 +524,23 @@ typed into the command line.
 
   <embed>
   <head>
-    <style>
-        .style53 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style53">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this function accepts no arguments):**
+* __(this function accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style54 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style54">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -753,19 +552,9 @@ typed into the command line.
 
   <embed>
   <head>
-    <style>
-        .style55 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style55">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -807,19 +596,9 @@ Unittests to run in a python prompt in an empty folder:
 
   <embed>
   <head>
-    <style>
-        .style56 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style56">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -831,43 +610,23 @@ Unittests to run in a python prompt in an empty folder:
 
   <embed>
   <head>
-    <style>
-        .style57 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style57">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **args:** The list of args.
+* __args:__ The list of args.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style58 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style58">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -879,19 +638,9 @@ Unittests to run in a python prompt in an empty folder:
 
   <embed>
   <head>
-    <style>
-        .style59 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style59">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

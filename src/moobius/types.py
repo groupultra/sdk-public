@@ -460,7 +460,7 @@ def normalize_message(message, channel_id=None, sender=None, recipients=None, su
         if type(sender) is Character:
             sender = sender.character_id
         message['sender'] = sender
-    if recipients:
+    if recipients is not None:
         message['recipients'] = recipients
     if context:
         message['context'] = context

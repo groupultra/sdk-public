@@ -38,10 +38,16 @@ intersphinx_disabled_domains = ['std']
 templates_path = ['_templates']
 
 html_static_path = ['_static']
-
+html_css_files = ['super_custom.css']
 # -- Options for HTML output
-
-html_theme = 'sphinx_rtd_theme'
-
+html_theme = 'pydata_sphinx_theme'
+html_theme_options = {
+    "logo": {
+        "text": "",
+        "image_light": "https://groupultra.github.io/moobius/img/logo-light.png",
+        "image_dark": "https://groupultra.github.io/moobius/img/logo-dark.png",
+    },
+    "search_bar_position": "sidebar",
+}
 # -- Options for EPUB output
 epub_show_urls = 'footnote'

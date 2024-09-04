@@ -16,19 +16,9 @@ Runs a GET or POST request returning the result as a JSON with optional logging 
 
   <embed>
   <head>
-    <style>
-        .style822 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style822">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -40,55 +30,35 @@ Runs a GET or POST request returning the result as a JSON with optional logging 
 
   <embed>
   <head>
-    <style>
-        .style823 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style823">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **url:** The https://... url.
+* __url:__ The https://... url.
 
-* **the_request:** The "json" kwarg is set to this. Can be None in which no "json" will be set.
+* __the_request:__ The "json" kwarg is set to this. Can be None in which no "json" will be set.
 
-* **is_post:** True for post, False for get.
+* __is_post:__ True for post, False for get.
 
-* **requests_kwargs=None:** Dict of extra arguments to send to requests/aiohttp. None is equivalent to {}.
+* __requests_kwargs=None:__ Dict of extra arguments to send to requests/aiohttp. None is equivalent to {}.
 
-* **good_message=None:** The string-valued message to logger.debug. None means do not log.
+* __good_message=None:__ The string-valued message to logger.debug. None means do not log.
 
-* **bad_message='This HTTPs request failed':** The string-valued message to prepend to logger.error if the response isnt code 10000.
+* __bad_message='This HTTPs request failed':__ The string-valued message to prepend to logger.error if the response isnt code 10000.
 
-* **raise_errors=True:** Raise a BadResponseException if the request returns an error.
+* __raise_errors=True:__ Raise a BadResponseException if the request returns an error.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style824 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style824">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -100,19 +70,9 @@ Runs a GET or POST request returning the result as a JSON with optional logging 
 
   <embed>
   <head>
-    <style>
-        .style825 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style825">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -133,19 +93,9 @@ HTTPAPIWrapper._xtract_character
 
   <embed>
   <head>
-    <style>
-        .style826 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style826">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -157,43 +107,23 @@ HTTPAPIWrapper._xtract_character
 
   <embed>
   <head>
-    <style>
-        .style827 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style827">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **resp_data:** JSON response data.
+* __resp_data:__ JSON response data.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style828 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style828">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -205,19 +135,9 @@ HTTPAPIWrapper._xtract_character
 
   <embed>
   <head>
-    <style>
-        .style829 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style829">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -240,19 +160,9 @@ Gets the upload URL and needed fields for uploading a file.
 
   <embed>
   <head>
-    <style>
-        .style830 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style830">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -264,43 +174,23 @@ Gets the upload URL and needed fields for uploading a file.
 
   <embed>
   <head>
-    <style>
-        .style831 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style831">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **extension:** String-valued extension.
+* __extension:__ String-valued extension.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style832 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style832">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -312,19 +202,9 @@ Gets the upload URL and needed fields for uploading a file.
 
   <embed>
   <head>
-    <style>
-        .style833 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style833">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -347,19 +227,9 @@ Uploads a file to the given upload URL with the given upload fields.
 
   <embed>
   <head>
-    <style>
-        .style834 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style834">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -371,47 +241,27 @@ Uploads a file to the given upload URL with the given upload fields.
 
   <embed>
   <head>
-    <style>
-        .style835 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style835">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **upload_url:** Obtained with _upload_extension.
+* __upload_url:__ Obtained with _upload_extension.
 
-* **upload_fields:** Obtained with _upload_extension.
+* __upload_fields:__ Obtained with _upload_extension.
 
-* **file_path:** The path of the file.
+* __file_path:__ The path of the file.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style836 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style836">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -423,19 +273,9 @@ Uploads a file to the given upload URL with the given upload fields.
 
   <embed>
   <head>
-    <style>
-        .style837 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style837">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -458,19 +298,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style838 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style838">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -482,43 +312,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style839 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style839">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style840 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style840">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -530,19 +340,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style841 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style841">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -565,19 +365,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style842 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style842">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -589,43 +379,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style843 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style843">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style844 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style844">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -637,19 +407,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style845 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style845">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

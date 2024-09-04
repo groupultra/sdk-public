@@ -43,19 +43,9 @@ DatabaseInterface.get_value
 
   <embed>
   <head>
-    <style>
-        .style497 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style497">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -67,43 +57,23 @@ DatabaseInterface.get_value
 
   <embed>
   <head>
-    <style>
-        .style498 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style498">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style499 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style499">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -115,19 +85,9 @@ DatabaseInterface.get_value
 
   <embed>
   <head>
-    <style>
-        .style500 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style500">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -148,19 +108,9 @@ DatabaseInterface.set_value
 
   <embed>
   <head>
-    <style>
-        .style501 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style501">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -172,45 +122,25 @@ DatabaseInterface.set_value
 
   <embed>
   <head>
-    <style>
-        .style502 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style502">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
-* **value:** Value.
+* __value:__ Value.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style503 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style503">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -222,19 +152,9 @@ DatabaseInterface.set_value
 
   <embed>
   <head>
-    <style>
-        .style504 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style504">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -255,19 +175,9 @@ DatabaseInterface.delete_key
 
   <embed>
   <head>
-    <style>
-        .style505 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style505">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -279,43 +189,23 @@ DatabaseInterface.delete_key
 
   <embed>
   <head>
-    <style>
-        .style506 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style506">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style507 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style507">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -327,19 +217,9 @@ DatabaseInterface.delete_key
 
   <embed>
   <head>
-    <style>
-        .style508 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style508">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -360,19 +240,9 @@ DatabaseInterface.all_keys
 
   <embed>
   <head>
-    <style>
-        .style509 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style509">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -384,43 +254,23 @@ DatabaseInterface.all_keys
 
   <embed>
   <head>
-    <style>
-        .style510 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style510">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style511 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style511">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -432,19 +282,9 @@ DatabaseInterface.all_keys
 
   <embed>
   <head>
-    <style>
-        .style512 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style512">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

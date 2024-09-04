@@ -14,19 +14,9 @@ get_engine._hit
 
   <embed>
   <head>
-    <style>
-        .style622 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style622">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -38,43 +28,23 @@ get_engine._hit
 
   <embed>
   <head>
-    <style>
-        .style623 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style623">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **matches:** List of matches.
+* __matches:__ List of matches.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style624 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style624">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -86,19 +56,9 @@ get_engine._hit
 
   <embed>
   <head>
-    <style>
-        .style625 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style625">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -121,19 +81,9 @@ Overrides dict-like usages of the form: "v = d['my_key']" to query from the data
 
   <embed>
   <head>
-    <style>
-        .style626 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style626">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -145,43 +95,23 @@ Overrides dict-like usages of the form: "v = d['my_key']" to query from the data
 
   <embed>
   <head>
-    <style>
-        .style627 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style627">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key and.
+* __key:__ Key and.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style628 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style628">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -193,19 +123,9 @@ Overrides dict-like usages of the form: "v = d['my_key']" to query from the data
 
   <embed>
   <head>
-    <style>
-        .style629 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style629">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -229,19 +149,9 @@ For a JSONDatabase, this will save the updated json to a file..
 
   <embed>
   <head>
-    <style>
-        .style630 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style630">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -253,45 +163,25 @@ For a JSONDatabase, this will save the updated json to a file..
 
   <embed>
   <head>
-    <style>
-        .style631 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style631">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
-* **value:** Value.
+* __value:__ Value.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style632 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style632">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -303,19 +193,9 @@ For a JSONDatabase, this will save the updated json to a file..
 
   <embed>
   <head>
-    <style>
-        .style633 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style633">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -339,19 +219,9 @@ For a JSONDatabase, this will save the updated json to a file..
 
   <embed>
   <head>
-    <style>
-        .style634 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style634">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -363,43 +233,23 @@ For a JSONDatabase, this will save the updated json to a file..
 
   <embed>
   <head>
-    <style>
-        .style635 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style635">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **key:** Key.
+* __key:__ Key.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style636 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style636">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -411,19 +261,9 @@ For a JSONDatabase, this will save the updated json to a file..
 
   <embed>
   <head>
-    <style>
-        .style637 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style637">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -446,19 +286,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style638 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style638">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -470,43 +300,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style639 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style639">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style640 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style640">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -518,19 +328,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style641 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style641">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -553,19 +353,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style642 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style642">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -577,43 +367,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style643 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style643">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style644 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style644">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -625,19 +395,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style645 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style645">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -660,19 +420,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style646 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style646">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -684,43 +434,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style647 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style647">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style648 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style648">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -732,19 +462,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style649 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style649">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -767,19 +487,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style650 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style650">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -791,43 +501,23 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style651 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style651">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **(this class constructor accepts no arguments):**
+* __(this class constructor accepts no arguments):__
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style652 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style652">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -839,19 +529,9 @@ The string output function for debugging.
 
   <embed>
   <head>
-    <style>
-        .style653 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style653">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

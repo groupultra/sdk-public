@@ -12,8 +12,8 @@ TEMPLATE_LIST = ['battleship', 'botpuppet', 'buttons', 'database', 'groupchat', 
 URL_CHOICES = ['moobius.ai/', 'moobius.link/']
 
 service_template = {
-    "http_server_uri": "https://api.moobius.link/",
-    "ws_server_uri": "wss://ws.moobius.link/",
+    "http_server_uri": "https://api.moobius.ai/",
+    "ws_server_uri": "wss://ws.moobius.ai/",
     "service_id": "",
     "channels": [],
     "others": "include"
@@ -23,8 +23,8 @@ account_template = {
     "password": "password",
 }
 usermode_service_template = {
-    "http_server_uri": "https://api.moobius.link/",
-    "ws_server_uri": "wss://ws.moobius.link/",
+    "http_server_uri": "https://api.moobius.ai/",
+    "ws_server_uri": "wss://ws.moobius.ai/",
 }
 log_template = {
     "log_level":"INFO",
@@ -54,7 +54,10 @@ def download_folder(local_folder, sub_git_folder):
     fs.get(fs.ls(sub_git_folder, recursive=False), os.path.realpath(local_folder).replace('\\','/'), recursive=False)
     sub_local_folders = [fname for fname in os.listdir(local_folder) if os.path.isdir(local_folder+'/'+fname)]
     for sublocal in sub_local_folders:
-        download_folder(local_folder+'/'+sublocal, (sub_git_folder+'/'+sublocal).replace('//','/'))
+        try:
+            download_folder(local_folder+'/'+sublocal, (sub_git_folder+'/'+sublocal).replace('//','/'))
+        except:
+            print("A subfolder exists already which was not found in the GitHub:", sublocal)
 
 
 def open_folder_in_explorer(folder_path):
@@ -143,15 +146,16 @@ def submit(out):
     while True:
         the_folder = os.path.realpath(out['folder'].replace('~', os.path.expanduser("~"))).replace('\\','/')
         if os.path.exists(the_folder) and os.listdir(the_folder):
+            old_file_warning = f'The directory {the_folder} already exists and is not empty. Creating project files inside this directory will overwrite any existing files with the same name. Do you still want to continue?'
             if use_gui:
                 from tkinter import messagebox
-                gui_response=messagebox.askquestion('Folder not empty', f'{the_folder} already has files in it. Overwrite?').lower().strip()
+                gui_response=messagebox.askquestion('Folder not empty', old_file_warning).lower().strip()
                 if gui_response == "yes":
                     break
                 else:
                     return # Don't do anything.
             else:
-                confirm = input(f'The folder {the_folder} is not empty. Press y to confirm. Press n to cancel and quit:').strip()
+                confirm = input(old_file_warning+' (Y/n):').strip()
                 if confirm and confirm.strip()[0].lower() == 'y':
                     break
                 elif confirm and confirm.strip()[0].lower() == 'n':
@@ -272,8 +276,8 @@ Less common arguments:
             sys.exit()
 
     print('Quickstart!')
-    defaults = {'channels':'', 'email':'', 'password':'', 'template':'Zero',
-                'service_id':'', 'others':'include', 'url':'moobius.link/', 'others':'include',
+    defaults = {'channels':'', 'email':'', 'password':'', 'template':'zero',
+                'service_id':'', 'others':'include', 'url':'moobius.ai/', 'others':'include',
                 'folder':'.', 'gui':False}
 
     opts = {}

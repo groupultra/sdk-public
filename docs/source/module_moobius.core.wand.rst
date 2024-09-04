@@ -21,19 +21,9 @@ Exits using a special error code that the parent process will recognize as a "Ct
 
   <embed>
   <head>
-    <style>
-        .style463 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style463">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -45,45 +35,25 @@ Exits using a special error code that the parent process will recognize as a "Ct
 
   <embed>
   <head>
-    <style>
-        .style464 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style464">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **signal:** Integer signal.
+* __signal:__ Integer signal.
 
-* **frame:** Stack frame.
+* __frame:__ Stack frame.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style465 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style465">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -95,19 +65,9 @@ Exits using a special error code that the parent process will recognize as a "Ct
 
   <embed>
   <head>
-    <style>
-        .style466 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style466">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -144,19 +104,9 @@ Runs service.start(), which blocks in an infinite loop, using asyncio.
 
   <embed>
   <head>
-    <style>
-        .style467 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style467">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -168,43 +118,23 @@ Runs service.start(), which blocks in an infinite loop, using asyncio.
 
   <embed>
   <head>
-    <style>
-        .style468 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style468">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **service:** Moobius service.
+* __service:__ Moobius service.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style469 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style469">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -216,19 +146,9 @@ Runs service.start(), which blocks in an infinite loop, using asyncio.
 
   <embed>
   <head>
-    <style>
-        .style470 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style470">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -251,19 +171,9 @@ Starts a service or agent, either on the same process in a blocking infinite loo
 
   <embed>
   <head>
-    <style>
-        .style471 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style471">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -275,47 +185,27 @@ Starts a service or agent, either on the same process in a blocking infinite loo
 
   <embed>
   <head>
-    <style>
-        .style472 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style472">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **cls:** A subclass of the Moobius class but NOT an instance.
+* __cls:__ A subclass of the Moobius class but NOT an instance.
 
-* **background:** If True, runs on another Process.
+* __background:__ If True, runs on another Process.
 
-* **kwargs=False:** Kwargs passed to the constructor of cls.
+* __kwargs=False:__ Kwargs passed to the constructor of cls.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style473 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style473">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -327,19 +217,9 @@ Starts a service or agent, either on the same process in a blocking infinite loo
 
   <embed>
   <head>
-    <style>
-        .style474 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style474">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -352,19 +232,9 @@ Starts a service or agent, either on the same process in a blocking infinite loo
 
   <embed>
   <head>
-    <style>
-        .style475 {
-            background-color: #DDBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style475">
+    <p class="fexample">
           <b>Example:</b>
     </p>
   </body>
@@ -396,19 +266,9 @@ Also stops the asyncio event loop.
 
   <embed>
   <head>
-    <style>
-        .style476 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style476">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -420,43 +280,23 @@ Also stops the asyncio event loop.
 
   <embed>
   <head>
-    <style>
-        .style477 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style477">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **force_exit=False:** N option to force-quit.
+* __force_exit=False:__ N option to force-quit.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style478 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style478">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -468,19 +308,9 @@ Also stops the asyncio event loop.
 
   <embed>
   <head>
-    <style>
-        .style479 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style479">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -503,19 +333,9 @@ Sends a message to a service by putting to it's aioprocessing.AioQueue().
 
   <embed>
   <head>
-    <style>
-        .style480 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style480">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -527,45 +347,25 @@ Sends a message to a service by putting to it's aioprocessing.AioQueue().
 
   <embed>
   <head>
-    <style>
-        .style481 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style481">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **handle:** The handle of the service created by the run() function.
+* __handle:__ The handle of the service created by the run() function.
 
-* **obj:** The message to be sent.
+* __obj:__ The message to be sent.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style482 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style482">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -577,19 +377,9 @@ Sends a message to a service by putting to it's aioprocessing.AioQueue().
 
   <embed>
   <head>
-    <style>
-        .style483 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style483">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>
@@ -602,19 +392,9 @@ Sends a message to a service by putting to it's aioprocessing.AioQueue().
 
   <embed>
   <head>
-    <style>
-        .style484 {
-            background-color: #DDBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style484">
+    <p class="fexample">
           <b>Example:</b>
     </p>
   </body>
@@ -639,19 +419,9 @@ Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = s
 
   <embed>
   <head>
-    <style>
-        .style485 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style485">
+    <p class="fsig">
           <b>Signature:</b>
     </p>
   </body>
@@ -663,45 +433,25 @@ Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = s
 
   <embed>
   <head>
-    <style>
-        .style486 {
-            background-color: #BBDDDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style486">
+    <p class="fparam">
           <b>Parameters:</b>
     </p>
   </body>
   </embed>
 
-* **handle:** Handle int.
+* __handle:__ Handle int.
 
-* **obj:** The generic pickleable object.
+* __obj:__ The generic pickleable object.
 
 .. raw:: html
 
   <embed>
   <head>
-    <style>
-        .style487 {
-            background-color: #BBBBDD;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style487">
+    <p class="freturn">
           <b>Returns:</b>
     </p>
   </body>
@@ -713,19 +463,9 @@ Async version of spell(), uses q.coro_put(obj) instead of q.put(obj) where q = s
 
   <embed>
   <head>
-    <style>
-        .style488 {
-            background-color: #DDBBBB;
-            padding: 5px;
-            border-radius: 2px;
-            font-family: Times New Roman;
-            color: black;
-            font-size: 16px;
-        }
-    </style>
   </head>
   <body>
-    <p class="style488">
+    <p class="fraises">
           <b>Raises:</b>
     </p>
   </body>

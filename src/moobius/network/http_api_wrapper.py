@@ -219,17 +219,34 @@ class HTTPAPIWrapper:
         logger.info(f"Authenticated. Access token: {self.access_token}")
         return self.access_token, self.refresh_token
 
-    async def sign_up(self):
-        """Signs up. Returns (the access token, the refresh token)."""
+    async def request_sign_up_code(self):
+        """Signs up and sends the confirmation code to the email. Returns None. After confirming the account, self.authenticate() can be used to retrieve access and refresh tokens."""
         response_dict = await self.checked_post(url=self.http_server_uri + "/auth/sign_up", the_request={"username": self.username, "password": self.password}, requests_kwargs=None, good_message=None, bad_message="Error during signup", raise_errors=True)
-        self.access_token = response_dict.get('data').get('AuthenticationResult').get('AccessToken')
-        self.refresh_token = response_dict.get('data').get('AuthenticationResult').get('RefreshToken')
-        logger.info(f"Signed up! Access token: {self.access_token}")
-        return self.access_token, self.refresh_token
+        logger.info(f"Made a sign up request for {self.username}.")
+
+    async def request_sign_up_code_again(self):
+        """Resends the confimation code. Returns None. After confirming the account, self.authenticate() can be used to retrieve access and refresh tokens."""
+        response_dict = await self.checked_post(url=self.http_server_uri + "/auth/resend_confirmation", the_request={"username": self.username}, requests_kwargs=None, good_message=None, bad_message="Error during signup code resend", raise_errors=True)
+        logger.info(f"Made a sign up request for {self.username}.")
+
+    async def sign_up_with_code(self, the_code):
+        """Sends the confirmation code confirming the signup itself. Accepts the sign up code that was emailed. Returns None. After confirming the account, self.authenticate() can be used to retrieve access and refresh tokens."""
+        response_dict = await self.checked_post(url=self.http_server_uri + "/auth/confirm_sign_up", the_request={"username": self.username, "confirmation_code": the_code}, requests_kwargs=None, good_message=None, bad_message="Error during signup confirm", raise_errors=True)
+        logger.info(f"Made a sign up request for {self.username}.")
+
+    async def get_password_reset_code(self):
+        """Sends a reset-password request to the platform. After such a request is sent it will be necessary to check the email. Returns None"""
+        response_dict = await self.checked_post(url=self.http_server_uri + "/auth/forgot_password", the_request={"username": self.username}, requests_kwargs=None, good_message=None, bad_message="Error during reset password code request", raise_errors=True)
+        logger.info(f"Requesting a new password for {self.username}.")
+
+    async def reset_password(self, the_code):
+        """Updates the password with a new one. Returns None. Accepts the code that was emailed to the user (use get_password_reset_code)."""
+        response_dict = await self.checked_post(url=self.http_server_uri + "/auth/confirm_reset_password", the_request={"username": self.username, "password":self.password, "confirmation_code":the_code}, requests_kwargs=None, good_message=None, bad_message="Error during reset password", raise_errors=True)
+        logger.info(f"Reset the password for {self.username}.")
 
     async def delete_account(self):
-        """Deletes an account. Mainly used for testing. Returns None."""
-        response_dict = await self.checked_post(url=self.http_server_uri + "/auth/delete_account", the_request={"username": self.username}, requests_kwargs=None, good_message=None, bad_message="Error during signup", raise_errors=True)
+        """Deletes the currently signed in account. Mainly used for testing. Returns None."""
+        response_dict = await self.checked_post(url=self.http_server_uri + "/auth/delete_account", the_request={}, requests_kwargs=None, good_message=None, bad_message="Error during signup", raise_errors=True)
         logger.info(f"Deleted account for username: {self.username}, response={response_dict}")
         return None
 
@@ -257,13 +274,13 @@ class HTTPAPIWrapper:
         c_data['description'] = resp_data['character_context']['description']
         return from_dict(data_class=Character, data=c_data)
 
-    async def fetch_character_profile(self, character_id):
+    async def fetch_character_profile(self, character):
         """Given a string-valued (or list-valued) character_id/character returns a Character object (or list therof).
         It works for both member_ids and agent_ids."""
-        is_list = type(character_id) not in [str, Character]
-        character_id = types.to_char_id_list(character_id)
-        types.assert_strs(*character_id)
-        response_dict = await self.checked_post(url=self.http_server_uri + "/character/fetch_profile", the_request={"character_list": character_id}, requests_kwargs={'headers':self.headers}, good_message=None, bad_message="Error fetching user profile", raise_errors=True)
+        is_list = type(character) not in [str, Character]
+        character = types.to_char_id_list(character)
+        types.assert_strs(*character)
+        response_dict = await self.checked_post(url=self.http_server_uri + "/character/fetch_profile", the_request={"character_list": character}, requests_kwargs={'headers':self.headers}, good_message=None, bad_message="Error fetching user profile", raise_errors=True)
         characters = [self._xtract_character(d) for d in response_dict['data']]
         return characters if is_list else characters[0]
 
@@ -404,12 +421,12 @@ class HTTPAPIWrapper:
         character = self._xtract_character(response_dict['data'])
         return character
 
-    async def update_agent(self, service_id, agent, avatar, description, name):
+    async def update_agent(self, service_id, character, avatar, description, name):
         """Updates the characters name, avatar, etc for a FAKE user, for real users use update_current_user.
 
            Parameters:
              service_id (str): The service_id/client_id.
-             agent (str): Who to update. Can also be a Character object or character_id. Cannot be a list.
+             character (str): Who to update. Can also be a Character object or character_id. Cannot be a list.
              avatar (str): A link to user's image or a local file_path to upload.
              description (str): The description of user.
              name (str): The name that will show in chat.
@@ -419,10 +436,10 @@ class HTTPAPIWrapper:
         """
         avatar = await self.convert_to_url(avatar)
 
-        if type(agent) is Character:
-            agent = agent.character_id
-        types.assert_strs(service_id, agent, description, name, avatar)
-        the_request = {"service_id": service_id, 'character_id':agent, 'context': {'avatar':avatar, 'description':description, 'name':name}}
+        if type(character) is Character:
+            character = character.character_id
+        types.assert_strs(service_id, character, description, name, avatar)
+        the_request = {"service_id": service_id, 'character_id':character, 'context': {'avatar':avatar, 'description':description, 'name':name}}
         response_dict = await self.checked_post(url=self.http_server_uri + f"/service/character/update", the_request=the_request, requests_kwargs={'headers':self.headers}, good_message="Successfully updated character info", bad_message="Error updating character info", raise_errors=True)
         return response_dict.get('data')
 
@@ -702,23 +719,23 @@ class HTTPAPIWrapper:
         response_dict = await self.checked_get(url=self.http_server_uri + "/user/group/list", the_request=None, requests_kwargs=rkwargs, good_message="Successfully fetched channel group list", bad_message="Error fetching channel group list", raise_errors=True)
         return response_dict['data']
 
-    async def create_channel_group(self, channel_id, group_name, members):
+    async def create_channel_group(self, channel_id, group_name, characters):
         """
         Creates a channel group.
 
         Parameters:
           channel_id (str): The id of the group leader?
           group_name (str): What to call it.
-          members (list): A list of character_id strings that will be inside the group.
+          characters (list): A list of characters or character_id strings that will be inside the group.
 
         Returns:
           The group_id string.
         """
-        members = types.to_char_id_list(members) # Should not be necessary since this function is an internal function.
-        types.assert_strs(*([channel_id, group_name]+members))
-        jsonr = {"channel_id": channel_id, "group_name":group_name, "characters": members}
+        characters = types.to_char_id_list(characters) # Should not be necessary since this function is an internal function.
+        types.assert_strs(*([channel_id, group_name]+characters))
+        jsonr = {"channel_id": channel_id, "group_name":group_name, "characters": characters}
         response_dict = await self.checked_post(url=self.http_server_uri + "/user/group/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message="Successfully created channel group {group_name}!", bad_message="Error creating channel group {group_name}", raise_errors=True)
-        return from_dict(data_class=Group, data={'group_id': response_dict['data']['group_id'], 'character_ids':members})
+        return from_dict(data_class=Group, data={'group_id': response_dict['data']['group_id'], 'character_ids':characters})
 
     async def character_ids_of_service_group(self, group_id):
         """
@@ -766,35 +783,35 @@ class HTTPAPIWrapper:
             return []
         return response_dict['data']['characters']
 
-    async def create_service_group(self, members):
+    async def create_service_group(self, characters):
         """
         Creates a group containing the list of characters_ids and returns this Group object.
         This group can then be used in send_message_down payloads.
 
         Parameters:
-          members (list): A list of character_id strings or Characters that will be inside the group.
+          characters (list): A list of character_id strings or Characters that will be inside the group.
 
         Returns:
           A Group object.
         """
-        members = types.to_char_id_list(members) # Should not be necessary since this function is an internal function.
-        types.assert_strs(*members)
-        jsonr = {"group_id": "", "characters": members}
+        characters = types.to_char_id_list(characters) # Should not be necessary since this function is an internal function.
+        types.assert_strs(*characters)
+        jsonr = {"group_id": "", "characters": characters}
         response_dict = await self.checked_post(url=self.http_server_uri + "/service/group/create", the_request=jsonr, requests_kwargs={'headers':self.headers}, good_message="Successfully created service group!", bad_message="Error creating service group", raise_errors=True)
         group_id = response_dict['data']
         if type(group_id) is not str:
             raise Exception('The group id returned was not a string.')
-        group = from_dict(data_class=Group, data={'group_id': group_id, 'character_ids':members})
+        group = from_dict(data_class=Group, data={'group_id': group_id, 'character_ids':characters})
         return group
 
-    async def update_channel_group(self, channel_id, group_id, members):
+    async def update_channel_group(self, channel_id, group_id, characters):
         """
         Updates a channel group.
 
         Parameters:
           channel_id (str): The id of the group leader?
           group_name (str): What to call it.
-          members (list): A list of character_id strings that will be inside the group.
+          characters (list): A list of character_id strings that will be inside the group.
 
         Returns None.
 
@@ -803,13 +820,13 @@ class HTTPAPIWrapper:
         """
         raise Exception('Unknown if this function is needed.')
 
-    async def update_temp_channel_group(self, channel_id, members):
+    async def update_temp_channel_group(self, channel_id, characters):
         """
         Updates a channel TEMP group.
 
         Parameters:
           channel_id (str): The id of the group leader?
-          members (list): A list of character_id strings that will be inside the group.
+          characters (list): A list of character_id strings that will be inside the group.
 
         Returns None.
 
